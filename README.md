@@ -10,5 +10,9 @@ All the data are managed by SQLite database and matplotlib.
 To show levey jennings graph, in the main windows select a tests and make double click on relative batch.
 To insert, update or delete a batch or a result open from File/Batchs and results.
 To export data on a temp excel file click on File/Export.
+
+To start with Biovarase execute biovarase.py, something like
+bc@hal9000:~/code/tkinter/biovarase$ python biovarase.py
+
 Regards.
 
