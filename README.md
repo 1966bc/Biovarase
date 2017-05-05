@@ -14,5 +14,7 @@ To export data on a temp excel file click on File/Export.
 To start with Biovarase execute biovarase.py, something like
 bc@hal9000:~/code/tkinter/biovarase$ python biovarase.py
 
+Developed in Python 2.7.9 on Debian Jessie, spring 2017.
+
 Regards.
 
