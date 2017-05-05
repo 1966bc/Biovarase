@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 #-----------------------------------------------------------------------------
 # project:  biovarase
 # authors:  1966bc

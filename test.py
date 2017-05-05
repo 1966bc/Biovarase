@@ -1,6 +1,6 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 #-----------------------------------------------------------------------------
-# project:  tkinterlite
+# project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
 # modify:   10/04/2017
