@@ -1,8 +1,6 @@
 # Biovarase
 A clinical quality control data management project
 
-[Contribution guidelines for this project](biovarase.png)
-
 
 Biovarase is an application to manage clinical quality control data. 
 This is the Tkinter version.
