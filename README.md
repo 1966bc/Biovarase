@@ -1,6 +1,8 @@
 # Biovarase
 A clinical quality control data management project
 
+https://github.com/1966bc/Biovarase/blob/master/biovarase.png
+
 Biovarase is an application to manage clinical quality control data. 
 This is the Tkinter version.
 The purpose of Quality Control Assurance in a clinical laboratory is to allow the control of the performances of an analytical procedure showing an alarm as soon as the trial doesn't result in degree to respect the defined analytical rules. 
