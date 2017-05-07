@@ -1,7 +1,7 @@
 # Biovarase
 A clinical quality control data management project
 
-https://github.com/1966bc/Biovarase/blob/master/biovarase.png
+https://cloud.githubusercontent.com/assets/5463566/25782001/23d8e1d2-3342-11e7-8fd3-517f6f628288.png
 
 Biovarase is an application to manage clinical quality control data. 
 This is the Tkinter version.
