@@ -4,7 +4,7 @@
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
 # modify:   04/05/2017
-# version:  0.1                                                                  
+# version:  0.2                                                                  
 #-----------------------------------------------------------------------------
 
 from Tkinter import *
@@ -16,6 +16,7 @@ import threading
 import tempfile
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 
 from engine import Engine
 import elements, tests, data_manager, units
@@ -49,6 +50,8 @@ class Biovarase(Frame):
         self.target = DoubleVar()
         self.sd = DoubleVar()
         self.expiration = StringVar()
+        self.levey_jennings = None
+        self.axes = None
 
         
         self.format_frame_labels = tkFont.Font(family='Arial',weight='bold')
@@ -109,17 +112,32 @@ class Biovarase(Frame):
                                  bg='white',)
         self.lstBatchs.config(width=8)
         self.lstBatchs.bind("<<ListboxSelect>>", self.on_selected_batch)
-        self.lstBatchs.bind('<Double-Button-1>', self.on_plot)
         self.sb_batchs.config(command=self.lstBatchs.yview)
 
         self.lstBatchs.pack(side=LEFT,fill=BOTH,expand=1)
-        self.engine.ToolTip(self.lstBatchs, follow_mouse=1, text="Double click to create Levey-Jennings with Matplot")
         self.sb_batchs.pack(fill=Y,expand=1)
+
+        lst_results = LabelFrame(p0,font=self.format_frame_labels,text='Results')
         
+        self.sb_results = Scrollbar(lst_results,orient=VERTICAL)
+        self.lstResults = Listbox(lst_results,
+                                  selectmode=BROWSE,
+                                  yscrollcommand=self.sb_results.set,
+                                  bg='white',)
+        self.lstResults.bind("<<ListboxSelect>>", self.on_selected_result)
+        self.lstResults.bind('<Double-Button-1>', self.on_enable_result)
+        self.sb_results.config(command=self.lstResults.yview)
+
+        self.lstResults.pack(side=LEFT,fill=BOTH,expand=1)
+        self.engine.ToolTip(self.lstResults, follow_mouse=1, text="Double click to enable-disable current record.")
+        self.sb_results.pack(fill=Y,expand=1)
 
         cb_tests.pack(side=TOP,fill=X, expand=0)
-        lst_batchs.pack(side=TOP,fill=BOTH, expand=1)
-        p0.pack(side=LEFT, fill=BOTH, expand=1)
+        lst_batchs.pack(side=TOP,fill=BOTH, expand=0)
+        lst_results.pack(side=TOP,fill=BOTH, expand=1)
+        p0.pack(side=LEFT, fill=Y, expand=0)
+
+
         #-----------------------------------------------------------------------
         p1 = Frame(self,bd=5)
         batch_data = LabelFrame(p1,font = self.format_frame_labels, foreground="green",text='Selected batch data')
@@ -143,11 +161,7 @@ class Biovarase(Frame):
         self.spElements = Spinbox(batch_data,bg='white',font = self.format_label, from_=1, to=365,justify=CENTER,width=3,wrap=True,insertwidth=1, textvariable=self.elements)
         self.spElements.pack(fill=X, expand=0)
 
-        batch_data.pack(side=TOP,fill=BOTH, expand=0)
-        p1.pack(side=LEFT, fill=BOTH, expand=1)
-        #-----------------------------------------------------------------------
-        p2= Frame(self,bd=5)
-        calculated_data = LabelFrame(p2, font = self.format_frame_labels, foreground="green",text='Calculated data')
+        calculated_data = LabelFrame(p1, font = self.format_frame_labels, foreground="green",text='Calculated data')
      
         st_avg = Label(calculated_data, text="Average", )
         st_avg.pack(fill=X, padx=2, pady=2)
@@ -179,29 +193,13 @@ class Biovarase(Frame):
         self.txRange = Label(calculated_data, bg='white',font = self.format_label, textvariable = self.range)
         self.txRange.pack(fill=X, padx=2,pady=2)
 
-        calculated_data.pack(side=TOP,fill=BOTH, expand=1)
-        p2.pack(side=LEFT, fill=BOTH, expand=1)
-        #-----------------------------------------------------------------------
-        p3 = Frame(self,bd=5)
-     
-        lst_results = LabelFrame(p3,font=self.format_frame_labels,text='Results')
-        
-        self.sb_results = Scrollbar(lst_results,orient=VERTICAL)
-        self.lstResults = Listbox(lst_results,
-                                  selectmode=BROWSE,
-                                  yscrollcommand=self.sb_results.set,
-                                  bg='white',)
-        self.lstResults.bind("<<ListboxSelect>>", self.on_selected_result)
-        self.lstResults.bind('<Double-Button-1>', self.on_enable_result)
-        self.sb_results.config(command=self.lstResults.yview)
-
-        self.lstResults.pack(side=LEFT,fill=BOTH,expand=1)
-        self.engine.ToolTip(self.lstResults, follow_mouse=1, text="Double click to enable-disable current record.")
-        self.sb_results.pack(fill=Y,expand=1)
-
-        lst_results.pack(side=TOP,fill=BOTH, expand=1)
-        p3.pack(side=LEFT, fill=BOTH, expand=1)
-        #-----------------------------------------------------------------------
+        batch_data.pack(side=TOP,fill=X, expand=0)
+        calculated_data.pack(side=TOP,fill=X, expand=0)
+        p1.pack(side=LEFT, fill=Y, expand=0)
+ 
+        self.frame_plot = Frame(self,bd=5)
+       
+        self.frame_plot.pack(side=RIGHT, fill=BOTH, expand=1,padx=5, pady=5)
      
     def on_open(self):
         self.set_elements()
@@ -215,6 +213,7 @@ class Biovarase(Frame):
     def on_reset(self):
 
         self.rs = None
+        self.selected_batch = None
         self.lstBatchs.delete(0, END)
         self.lstResults.delete(0, END)
 
@@ -238,9 +237,23 @@ class Biovarase(Frame):
 
         self.cbTests['values']=l        
         
-        self.reset_texts()            
+        self.reset_texts()
+        self.reset_graph()
 
-       
+    def reset_graph(self):
+
+        if self.levey_jennings is not None:
+            try:
+                self.levey_jennings.clf()
+                self.lj.get_tk_widget().delete("all")
+                self.axes.clear()
+                for child in self.frame_plot.winfo_children():
+                    child.destroy()
+            except:
+                print (sys.exc_info()[0])
+                print (sys.exc_info()[1])
+                print (sys.exc_info()[2])
+
     def reset_texts(self):
 
         self.expiration.set(None)
@@ -287,6 +300,7 @@ class Biovarase(Frame):
 
             self.set_batch_values()
             self.set_results_values()
+            
 
     def set_batch_values(self):
 
@@ -332,6 +346,8 @@ class Biovarase(Frame):
                 self.calculated_sd.set(sd)
                 self.calculated_cv.set(round((sd/avg)*100,2))
                 self.range.set(round(np.ptp(series),2))
+
+                self.on_plot()
                      
     def set_results_row_color(self, index, result, is_enabled, target, sd):
 
@@ -371,6 +387,7 @@ class Biovarase(Frame):
             pk = self.dict_results.get(index)
             self.selected_result = self.engine.get_selected('results','result_id', pk)
 
+    #TOFIX: when enale-disable the graph doesn't redew
     def on_enable_result(self, event):
 
         if self.lstResults.curselection():
@@ -385,16 +402,19 @@ class Biovarase(Frame):
                 sql = "UPDATE results SET enable=0 WHERE result_id=?"
             self.engine.write(sql, (pk,))
             self.set_results_values()
+            #self.on_selected_batch(self.lstBatchs)
+            
                 
         
     def get_um(self,):
 
         sql = "SELECT unit FROM units WHERE unit_id =?"
         return self.engine.read(False, sql, (self.selected_test[2],))
-    
-    def on_plot(self,event):
 
-        if self.lstBatchs.curselection() :
+
+    def on_plot(self):
+
+        if self.selected_batch is not None :
 
             sql = "SELECT result_id,\
                           ROUND(result,2) AS result,\
@@ -452,56 +472,69 @@ class Biovarase(Frame):
                         sd2_line.append(self.selected_batch[4]-(self.selected_batch[5]*2))
                         sd3_line.append(self.selected_batch[4]-(self.selected_batch[5]*3))
                         target_line.append(self.selected_batch[4])
-
-                    
-                    fig = plt.figure(self.selected_batch[0])
-                    ax = fig.add_subplot(111)
-                    fig.subplots_adjust(top=0.85)
+   
+                    levey_jennings = plt.figure(self.selected_batch[0])
+                    axes = levey_jennings.add_subplot(111)
+                    #levey_jennings.subplots_adjust(bottom=0.)
                    
-                    plt.xticks(range(len(data)), my_xticks)
+                    axes.set_xticks(range(len(data)), my_xticks)
                     
-                    plt.plot(data,marker="8",label='data')
+                    axes.plot(data,marker="8",label='data')
                     for x,y in enumerate(data):
-                        plt.text(x, y, str(y),)
+                        axes.text(x, y, str(y),)
                        
-                    plt.plot(target_line,label='target', linewidth=2)
-                    plt.legend(loc='upper right')
-                    plt.plot(sd1line,color="green",label='+1 sd',linestyle='--')
-                    plt.plot(sd2line,color="orange",label='+2 sd',linestyle='--')
-                    plt.plot(sd3line,color="red",label='+3 sd',linestyle='--')
-                    plt.plot(sd1_line,color="green",label='-1 sd',linestyle='--')
-                    plt.plot(sd2_line,color="orange",label='-2 sd',linestyle='--')
-                    plt.plot(sd3_line,color="red",label='-3 sd',linestyle='--')
+                    axes.plot(target_line,label='target', linewidth=2)
+                    axes.legend(loc='upper right')
+                    axes.plot(sd1line,color="green",label='+1 sd',linestyle='--')
+                    axes.plot(sd2line,color="orange",label='+2 sd',linestyle='--')
+                    axes.plot(sd3line,color="red",label='+3 sd',linestyle='--')
+                    axes.plot(sd1_line,color="green",label='-1 sd',linestyle='--')
+                    axes.plot(sd2_line,color="orange",label='-2 sd',linestyle='--')
+                    axes.plot(sd3_line,color="red",label='-3 sd',linestyle='--')
                     
-                   
-                    fig = plt.gcf()
-                    fig.canvas.set_window_title('Biovarase-Matplotlib')
                     um = self.get_um()
-                    plt.ylabel(str(um[0]))
+                    axes.set_ylabel(str(um[0]))
                  
                     msg = "Test: %s Batch: %s Expiration: %s " %(self.selected_test[3],
                                                                  self.selected_batch[2],
                                                                  self.selected_batch[3],)
-                    plt.title(msg)
+                    axes.set_title(msg)
 
                     text_data = (avg,sd,cv,self.format_interval_date(dates), compute_data, all_data)
 
-                    plt.text(0.95, 0.01,
+                    axes.text(0.95, 0.01,
                              'average:%s sd:%s cv:%s %s computed %s on %s results'%text_data,
                              verticalalignment='bottom',
                              horizontalalignment='right',
-                             transform=ax.transAxes,
+                             transform=axes.transAxes,
                              color='black')
- 
-                    plt.show()
-                   
-                
+
+                    self.draw(levey_jennings, axes)
+
+                    
             else:
                 msg = "INSUFFICIENT DATA FOR MEANINGFUL ANSWER."
                 messagebox.showinfo(self.engine.title,msg )
         else:
             msg = "No batch selected."
             tkMessageBox.showwarning(self.engine.title,msg)
+
+    def draw(self, levey_jennings, axes):
+
+        self.reset_graph()
+
+        self.levey_jennings = levey_jennings
+    
+        self.axes = axes
+            
+        self.lj = FigureCanvasTkAgg(levey_jennings, self.frame_plot)
+        self.lj.show()
+        self.lj.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=1)
+        self.lj_toolbar = NavigationToolbar2TkAgg(self.lj, self.frame_plot)
+        self.lj_toolbar.update()
+        #enable for keep on bottom
+        #self.lj._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)    
+  
 
     def format_interval_date(self,dates):
 
@@ -575,6 +608,10 @@ class Biovarase(Frame):
 if __name__ == "__main__":
 
     root = Tk()
+    width = root.winfo_screenwidth()
+    height = root.winfo_screenheight()
+    #full screen
+    root.geometry(str(width) + "x" + str(height))
     app = Biovarase(master=root)
     app.on_open()
     app.master.protocol("WM_DELETE_WINDOW",app.on_exit)
