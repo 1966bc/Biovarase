@@ -11,6 +11,9 @@ To show levey jennings graph, in the main windows select a tests and coiche a re
 To insert, update or delete a batch or a result open from File/Batchs and results.
 To export data on a temp excel file click on File/Export.
 
+ 
+ Releasing on "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
+
 To start with Biovarase execute biovarase.py, something like
 bc@hal9000:~/code/tkinter/biovarase$ python biovarase.py
 
