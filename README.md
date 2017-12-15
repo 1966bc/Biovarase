@@ -29,4 +29,4 @@ TOFIX:
 If you make double click on a result, the graph disappear....
 
 
-
+![alt tag](https://cloud.githubusercontent.com/assets/5463566/25782001/23d8e1d2-3342-11e7-8fd3-517f6f628288.png)
