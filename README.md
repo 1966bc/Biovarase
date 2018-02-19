@@ -18,11 +18,6 @@ Biovarase use Tkinter and matplotlib
 
 To start with Biovarase execute biovarase.py, something like
 bc@hal9000:~/biovarase$ python3 biovarase.py
-or
-bc@hal9000:~/biovarase$ ./biovarase.py
-if you previously have done
-bc@hal9000:~/biovarase$ chmod +x biochemiae.py
-to make biochemiae.py executable
 
 Regards.
 
