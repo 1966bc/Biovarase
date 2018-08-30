@@ -8,7 +8,6 @@
 
 from tkinter import *
 from tkinter import messagebox
-import shelve
 
 class Dialog(Toplevel):     
     def __init__(self,parent,engine, index = None):
