@@ -43,7 +43,6 @@ class Dialog(Toplevel):
         w.grid(row = 0, column = 0, sticky=N+W+S+E)
         
         Label(w, text="Elements:").grid(row=0, sticky=W)
-        Label(w, text="Lastname:").grid(row=0, sticky=W)
         self.txtElements = Entry(w, bg='white', textvariable=self.elements)
         self.txtElements['validatecommand'] = (self.txtElements.register(self.validate_integer),'%P','%i','%d')
         self.txtElements.grid(row=0, column=1, padx=5, pady=5)
