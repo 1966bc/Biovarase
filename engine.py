@@ -55,16 +55,15 @@ class Engine(DBMS, Widgets, Exporter, Launcher, Westgards):
     def get_python_version(self,):
         return "Python version: %s" % ".".join(map(str, sys.version_info[:3]))
 
-    def get_parameters(self):
+    def get_elements(self):
         
         try:
-            d = {}
-            path = os.path.join(os.getcwd(),'parameters')
-            db = shelve.open(path)
-            for k, v in db.items():
-                d[k] = (v)
-            db.close()
-            return d
+
+            sql = "SELECT * FROM elements"
+        
+            rs = self.read(False, sql, ())
+          
+            return rs[0]
         except:
             print (sys.exc_info()[0])
             print (sys.exc_info()[1])
@@ -75,7 +74,7 @@ def main():
 
     foo = Engine()
     print(foo)
-    elements = foo.get_parameters()
+    elements = foo.get_elements()
     print(elements)
     input('end')
        
