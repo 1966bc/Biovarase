@@ -9,8 +9,6 @@
 
 import os
 import sys
-import shelve
-
 
 from dbms import DBMS
 from widgets import Widgets
