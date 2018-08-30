@@ -99,7 +99,7 @@ class Dialog(Toplevel):
             self.enable.set(1)
 
         self.title(msg)
-        self.txtTest.focus()
+        self.txTest.focus()
         
     def on_save(self, evt=None):
 
