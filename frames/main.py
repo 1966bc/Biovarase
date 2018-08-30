@@ -198,8 +198,8 @@ class Biovarase(Frame):
         self.on_reset()
 
     def set_elements(self):
-        elements = self.engine.get_parameters()
-        self.elements.set(elements['elements'])
+        elements = self.engine.get_elements()
+        self.elements.set(elements)
         
     def on_reset(self):
 

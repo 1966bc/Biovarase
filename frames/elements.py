@@ -52,13 +52,10 @@ class Dialog(Toplevel):
     def on_open(self,):
         
         self.title('Set elements')
-
-        self.engine.parameters = self.engine.get_parameters()
-        
         self.set_values()
 
     def set_values(self,):
-        self.elements.set(self.engine.parameters['elements'])
+        self.elements.set(self.engine.get_elements())
         self.txtElements.focus()        
         
     def on_save(self, evt=None):
@@ -66,9 +63,10 @@ class Dialog(Toplevel):
         if self.engine.on_fields_control( (self.txtElements,))==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
             try:
-                db = shelve.open('parameters')
-                db['elements'] = self.elements.get()
-                db.close()
+                sql = "UPDATE elements SET element =?"
+                args = (self.elements.get(),)
+                self.engine.write(sql, args)
+                
                 self.parent.set_elements()
                 self.on_cancel()
             except:
