@@ -74,7 +74,9 @@ class Engine(DBMS, Widgets, Exporter, Launcher, Westgards):
 def main():
 
     foo = Engine()
-    print(foo)            
+    print(foo)
+    elements = foo.get_parameters()
+    print(elements)
     input('end')
        
 if __name__ == "__main__":
