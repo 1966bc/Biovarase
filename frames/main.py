@@ -3,18 +3,27 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   winter 2018
+# modify:   summer 2018
 # version:  0.1                                                                
 #-----------------------------------------------------------------------------
 import os
 import sys
+import inspect
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 import datetime
-import numpy as np
+import time
+import threading
+import queue
+
+
 import matplotlib.pyplot as plt
+plt.rcParams.update({'figure.max_open_warning': 0})
+import numpy as np
+
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+
 
 from engine import Engine
 
@@ -22,15 +31,15 @@ import frames.elements
 import frames.tests
 import frames.data_manager
 import frames.units
+import frames.batch as batch
+
 
 class Biovarase(Frame):
     def __init__(self, engine):
         super().__init__()
 
         self.engine = engine
-
         self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
-        
         self.average = DoubleVar()
         self.bias = DoubleVar()
         self.westgard = StringVar()
@@ -42,7 +51,6 @@ class Biovarase(Frame):
         self.sd = DoubleVar()
         self.expiration = StringVar()
         self.levey_jennings = None
-        self.axes = None
         
         self.init_menu()
         self.init_ui()
@@ -91,6 +99,7 @@ class Biovarase(Frame):
 
         self.lstBatchs = self.engine.get_listbox(lst_batchs,)
         self.lstBatchs.bind("<<ListboxSelect>>", self.on_selected_batch)
+        self.lstBatchs.bind('<Button-3>', self.on_batch_activated)
        
         lst_results = LabelFrame(p0,text='Results')
 
@@ -106,27 +115,27 @@ class Biovarase(Frame):
 
         #-----------------------------------------------------------------------
         p1 = Frame(self,bd=5)
-        w = LabelFrame(p1, foreground="green",text='Selected batch data')
+        w = LabelFrame(p1,text='Selected batch data', font='Helvetica 10 bold')
 
         lbl = Label(w, text="Target")
         lbl.pack()
         
-        self.txTarget = Label(w, bg='white',foreground="blue", textvariable = self.target)
-        self.txTarget.pack(fill=X, padx=2,pady=2)
+        self.lblTarget = Label(w, bg='lavender',foreground="blue", textvariable = self.target)
+        self.lblTarget.pack(fill=X, padx=2,pady=2)
 
         lbl = Label(w, text="Standard Deviation")
         lbl.pack()
 
-        self.txtBatchSD = Label(w, bg='white', foreground="orange", textvariable = self.sd)
-        self.txtBatchSD.pack(fill=X, padx=2,pady=2)
+        self.lblBatchSD = Label(w, bg='lemon chiffon', foreground="green", textvariable = self.sd)
+        self.lblBatchSD.pack(fill=X, padx=2,pady=2)
 
         lbl = Label(w, text="Expiration")
         lbl.pack()
         
-        self.txtExpiration = Label(w, bg='white', textvariable = self.expiration)
-        self.txtExpiration.pack(fill=X, padx=2,pady=2)
+        self.lblExpiration = Label(w, bg='white', textvariable = self.expiration)
+        self.lblExpiration.pack(fill=X, padx=2,pady=2)
 
-        lbl = Label(w, text="Elements")
+        lbl = Label(w, text="Results")
         lbl.pack()
 
         self.spElements = Spinbox(w,
@@ -142,64 +151,72 @@ class Biovarase(Frame):
 
         w.pack(side=TOP,fill=X, expand=0)
 
-        w = LabelFrame(p1, foreground="green",text='Calculated data')
+        p1.pack(side=LEFT, fill=Y, expand=0)
+
+        p2 = Frame(self,bd=5)
+
+        w = LabelFrame(p2,text='Calculated data',font='Helvetica 10 bold')
      
         lbl = Label(w, text="Average")
         lbl.pack()
         
-        self.txAverage = Label(w,  bg='white',foreground="blue", textvariable = self.average)
-        self.txAverage.pack(fill=X, padx=2,pady=2)
+        self.lblAverage = Label(w,  bg='lavender',foreground="blue", textvariable = self.average)
+        self.lblAverage.pack(fill=X, padx=2,pady=2)
 
         lbl = Label(w, text="Standard Deviation")
         lbl.pack()
 
-        self.txtSD = Label(w,  bg='white',foreground="orange", textvariable = self.calculated_sd)
-        self.txtSD.pack(fill=X, padx=2,pady=2)
+        self.lblSD = Label(w,  bg='lemon chiffon',foreground="green", textvariable = self.calculated_sd)
+        self.lblSD.pack(fill=X, padx=2,pady=2)
 
         lbl = Label(w, text="CV%")
         lbl.pack()
                 
-        self.txCV = Label(w, bg='white', textvariable = self.calculated_cv)
-        self.txCV.pack(fill=X, padx=2,pady=2)
-
-        lbl = Label(w, text="Bias")
-        lbl.pack()
-
-        self.txBias = Label(w,  bg='white', textvariable = self.bias)
-        self.txBias.pack(fill=X, padx=2,pady=2)
+        self.lblCV = Label(w, foreground="white", bg='orange3', textvariable = self.calculated_cv)
+        self.lblCV.pack(fill=X, padx=2,pady=2)
 
         lbl = Label(w, text="Westgard")
         lbl.pack()
 
-        self.txWestgard = Label(w,  bg='white', textvariable = self.westgard)
-        self.txWestgard.pack(fill=X, padx=2,pady=2)
+        self.lblWestgard = Label(w,  bg='white', textvariable = self.westgard)
+        self.lblWestgard.pack(fill=X, padx=2,pady=2)
+
+        lbl = Label(w, text="Bias")
+        lbl.pack()
+
+        self.lblBias = Label(w,  bg='white', textvariable = self.bias)
+        self.lblBias.pack(fill=X, padx=2,pady=2)
 
         lbl = Label(w, text="Range")
         lbl.pack()
 
-        self.txRange = Label(w, bg='white', textvariable = self.range)
-        self.txRange.pack(fill=X, padx=2,pady=2)
+        self.lblRange = Label(w, bg='white', textvariable = self.range)
+        self.lblRange.pack(fill=X, padx=2,pady=2)
 
         w.pack(side=TOP,fill=X, expand=0)
 
-        p1.pack(side=LEFT, fill=Y, expand=0)
+        p2.pack(side=LEFT, fill=Y, expand=0)
  
-        self.frame_plot = Frame(self,bd=5)
+        self.Frame_Graph = Frame(self,bd=5,)
        
-        self.frame_plot.pack(side=RIGHT, fill=BOTH, expand=1,padx=5, pady=5)
+        self.Frame_Graph.pack(side=RIGHT, fill=BOTH, expand=1, padx=5, pady=5)
 
     def init_status_bar(self):
         
         self.status = Label(self.master, text = self.engine.title, bd=1, relief=SUNKEN, anchor=W)
-        self.status.pack(side=BOTTOM, fill=X)        
+        self.status.pack(side=BOTTOM, fill=X)           
 
     def on_open(self):
         self.set_elements()
         self.on_reset()
 
     def set_elements(self):
-        elements = self.engine.get_elements()
-        self.elements.set(elements)
+        
+        self.elements.set(self.engine.get_elements())
+
+    def on_quick_data_analysis(self,):
+
+        self.engine.quick_data_analysis()
         
     def on_reset(self):
 
@@ -235,12 +252,11 @@ class Biovarase(Frame):
 
         if self.levey_jennings is not None:
             try:
-                self.levey_jennings.clf()
-                self.lj_graph.get_tk_widget().delete("all")
-                self.axes.clear()
-                for child in self.frame_plot.winfo_children():
+                self.levey_jennings.get_tk_widget().delete("all")
+                for child in self.Frame_Graph.winfo_children():
                     child.destroy()
             except:
+                print(inspect.stack()[0][3])
                 print (sys.exc_info()[0])
                 print (sys.exc_info()[1])
                 print (sys.exc_info()[2])
@@ -256,6 +272,7 @@ class Biovarase(Frame):
         self.calculated_sd.set(0)
         self.calculated_cv.set(0)
         self.range.set(0)
+        self.set_westgard_alarm()
         
 
     def on_selected_test(self,event):
@@ -263,11 +280,11 @@ class Biovarase(Frame):
         index = self.cbTests.current()
         test_id = self.dict_tests[index]
         self.selected_test = self.engine.get_selected('tests','test_id', test_id)
-
-       
+        
         self.lstBatchs.delete(0, END)
         self.lstResults.delete(0, END)
         self.reset_texts()
+        self.reset_graph()
 
         index = 0
         self.dict_batchs={}
@@ -288,24 +305,42 @@ class Biovarase(Frame):
             index = self.lstBatchs.curselection()[0]
             pk = self.dict_batchs.get(index)
             self.selected_batch = self.engine.get_selected('batchs','batch_id', pk)
-
+            self.batch_index = index
             self.set_batch_values()
             self.set_results_values()
+
+    def on_batch_activated(self, event):
+
+        if self.lstBatchs.curselection():
+            self.obj = batch.Dialog(self,self.engine,self.batch_index)
+            self.obj.transient(self)
+            self.obj.on_open(self.selected_test, self.selected_batch)            
             
 
     def set_batch_values(self):
 
         self.expiration.set(self.selected_batch[3])
         self.target.set(self.selected_batch[4])
-        self.sd.set(self.selected_batch[5])            
+        self.sd.set(self.selected_batch[5])
 
+    def get_series(self, rs):
+
+        series = []
+
+        rs = tuple(i for i in rs if i[5]!=0)
+
+        for i in rs:
+             series.append(i[1])
+
+        return series             
+            
     def set_results_values(self,):           
             
             self.lstResults.delete(0, END)
 
             index = 0
             self.dict_results={}
-            series = []
+           
 
             sql = "SELECT * FROM lst_results WHERE batch_id = ? LIMIT ?"
             rs = self.engine.read(True, sql, (self.selected_batch[0],int(self.spElements.get())))
@@ -321,14 +356,16 @@ class Biovarase(Frame):
                     self.lstResults.insert(END, s)
 
                     result = float(i[1])
+
                     is_enabled = i[3]
         
                     self.set_results_row_color(index, result, is_enabled, target, sd)
                     
                     self.dict_results[index]=i[0]
-                    series.append(i[1])
+                   
                     index+=1
 
+                series = self.get_series(rs)                 
                 avg = round(np.mean(series),2)
                 sd = round(np.std(series),2)
                 self.average.set(avg)
@@ -338,28 +375,31 @@ class Biovarase(Frame):
                 self.calculated_cv.set(round((sd/avg)*100,2))
                 self.range.set(round(np.ptp(series),2))
 
-                self.on_plot()
+                self.set_graph()
                      
     def set_results_row_color(self, index, result, is_enabled, target, sd):
 
         if is_enabled == 0:
             self.lstResults.itemconfig(index, {'bg':'light gray'})
         else:
+            d = {}
             if result > target:
                 #result > 3sd
                 if result > (target + (sd*3)):
-                    self.lstResults.itemconfig(index, {'bg':'red'})
+                    d['bg']='red'
                 #if result is > 2sd and < +3sd
-                elif (target + (sd*2) <= result <= target + (sd*3)):
-                    self.lstResults.itemconfig(index, {'bg':'yellow'})
-
-            elif result < target:
+                elif result > (target + (sd*2)) and result < (target + (sd*3)):
+                    d['bg']='yellow'
+                    
+            elif result < target:                
                 #result < 3sd
                 if result < (target - (sd*3)):
-                    self.lstResults.itemconfig(index, {'bg':'red'})
-                    #if result is > -2sd and < -3sd
-                elif (target - (sd*2) <= result <= target - (sd*3)):
-                    self.lstResults.itemconfig(index, {'bg':'yellow'})
+                    d['bg']='red'
+                #if result is > -2sd and < -3sd
+                elif result < (target - (sd*2)) and result > (target - (sd*3)):
+                    d['bg']='yellow'
+                    
+            self.lstResults.itemconfig(index, d)                    
                
     def set_westgard(self,series):
 
@@ -369,7 +409,16 @@ class Biovarase(Frame):
             rule = "No data"
         
         self.westgard.set(rule)
-        
+        self.set_westgard_alarm()
+
+    def set_westgard_alarm(self):
+
+        if self.westgard.get() not in("Accept","No data"):
+            self.lblWestgard.config(bg="IndianRed1")
+        else:
+            self.lblWestgard.config(bg="white")
+
+                        
     def on_selected_result(self,event):
 
         if self.lstResults.curselection():
@@ -378,34 +427,41 @@ class Biovarase(Frame):
             pk = self.dict_results.get(index)
             self.selected_result = self.engine.get_selected('results','result_id', pk)
 
-    #TOFIX: when enale-disable the graph doesn't redrew
     def on_enable_result(self, event):
 
-        if self.lstResults.curselection():
+        try:
+            if self.lstResults.curselection():
 
-            index = self.lstResults.curselection()[0]
-            pk = self.dict_results.get(index)
-            sql = "SELECT enable FROM results WHERE result_id =?"
-            rs = self.engine.read(False, sql, (pk,))
-            if rs[0] == 0:
-                sql = "UPDATE results SET enable=1 WHERE result_id=?"
-            else:
-                sql = "UPDATE results SET enable=0 WHERE result_id=?"
-            self.engine.write(sql, (pk,))
-            self.set_results_values()
-            
-            #self.on_selected_batch(self.lstBatchs)
+                index = self.lstResults.curselection()[0]
+                pk = self.dict_results.get(index)
+                sql = "SELECT enable FROM results WHERE result_id =?"
+                rs = self.engine.read(False, sql, (pk,))
+                if rs[0] == 0:
+                    sql = "UPDATE results SET enable=1 WHERE result_id=?"
+                else:
+                    sql = "UPDATE results SET enable=0 WHERE result_id=?"
+
+                self.engine.write(sql, (pk,))
+                self.set_results_values()
+                
+
+        except:
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])                   
             
                 
     def get_um(self,):
 
         sql = "SELECT unit FROM units WHERE unit_id =?"
-        return self.engine.read(False, sql, (self.selected_test[2],))
+        return self.engine.read(False, sql, (self.selected_test[3],))
 
 
-    def on_plot(self):
+    def set_graph(self):
 
         self.reset_graph()
+        
 
         if self.selected_batch is not None :
 
@@ -426,26 +482,27 @@ class Biovarase(Frame):
             rs = tuple(i for i in rs if i[4]!=0)
             compute_data = len(rs)
 
+            #print (self.selected_batch)
+
             if rs is not None:
 
                 if compute_data<3:
-                    msg = ("%s : lot %s INSUFFICIENT DATA FOR MEANINGFUL ANSWER"% (self.selected_test[3],self.selected_batch[2]))
+                    msg = ("%s : lot %s INSUFFICIENT DATA FOR MEANINGFUL ANSWER"% (self.selected_test[2],self.selected_batch[2]))
                 else:
                     
                     target = self.selected_batch[4]
                     sd = self.selected_batch[5]
                     data = []
                     dates = []
-                    my_xticks = []
+                    x_labels = []
 
                     for i in reversed(rs):
                         #print (i)
                         data.append(i[1])
-                        my_xticks.append(i[2])
+                        x_labels.append(i[2])
                         #dates.append(datetime.datetime.strptime(i[3], '%Y-%m-%d %H:%M:%S'))
                         dates.append(i[3])
 
-                    
                     avg = round(np.mean(data),2)
                     sd = round(np.std(data),2)
                     cv = round((sd/avg)*100,2)
@@ -459,6 +516,7 @@ class Biovarase(Frame):
                     sd3_line = []
 
                     for i in range(len(data)+1):
+                      
                         sd1line.append(self.selected_batch[4]+self.selected_batch[5])
                         sd2line.append(self.selected_batch[4]+(self.selected_batch[5]*2))
                         sd3line.append(self.selected_batch[4]+(self.selected_batch[5]*3))
@@ -468,46 +526,56 @@ class Biovarase(Frame):
                         target_line.append(self.selected_batch[4])
 
                     try:
-   
-                        levey_jennings = plt.figure(self.selected_batch[0])
-                        axes = levey_jennings.add_subplot(111)
-                        #levey_jennings.subplots_adjust(bottom=0.)
-                       
-                        axes.set_xticks(range(len(data)), my_xticks)
+                        #levey_jennings = plt.figure(self.selected_batch[0],dpi=100)
+                        f = plt.figure(dpi=100)
+                        a = f.add_subplot(111)
+                        a.set_facecolor('xkcd:light grey')
+                        a.set_axisbelow(True)
+                        a.grid()
+                        #a.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
+                        a.set_xticks(range(1, len(data)+1))
+                        a.set_xticklabels(x_labels, rotation=70, size=6)
+                      
                         
-                        axes.plot(data,marker="8",label='data')
+                        a.plot(data, marker="8", label='data')
                         for x,y in enumerate(data):
-                            axes.text(x, y, str(y),)
-                           
-                        axes.plot(target_line,label='target', linewidth=2)
-                        axes.legend(loc='upper right')
-                        axes.plot(sd1line,color="green",label='+1 sd',linestyle='--')
-                        axes.plot(sd2line,color="orange",label='+2 sd',linestyle='--')
-                        axes.plot(sd3line,color="red",label='+3 sd',linestyle='--')
-                        axes.plot(sd1_line,color="green",label='-1 sd',linestyle='--')
-                        axes.plot(sd2_line,color="orange",label='-2 sd',linestyle='--')
-                        axes.plot(sd3_line,color="red",label='-3 sd',linestyle='--')
+                            a.text(x, y, str(y),)
+                            #print(x,y)
+
+                       
+                        a.plot(target_line,label='target', linewidth=2)
+                        a.legend(loc='upper right')
+                        a.plot(sd1line,color="green",label='+1 sd',linestyle='--')
+                        a.plot(sd2line,color="yellow",label='+2 sd',linestyle='--')
+                        a.plot(sd3line,color="red",label='+3 sd',linestyle='--')
+                        a.plot(sd1_line,color="green",label='-1 sd',linestyle='--')
+                        a.plot(sd2_line,color="yellow",label='-2 sd',linestyle='--')
+                        a.plot(sd3_line,color="red",label='-3 sd',linestyle='--')
                         
                         um = self.get_um()
-                        axes.set_ylabel(str(um[0]))
+                        if um is  not None:
+                            a.set_ylabel(str(um[0]))
+                        else:
+                            a.set_ylabel("No unit assigned yet")
                      
-                        msg = "Test: %s Batch: %s Expiration: %s " %(self.selected_test[3],
+                        msg = "Test: %s Batch: %s Expiration: %s " %(self.selected_test[2],
                                                                      self.selected_batch[2],
                                                                      self.selected_batch[3],)
-                        axes.set_title(msg)
+                        a.set_title(msg)
 
                         text_data = (avg,sd,cv,self.format_interval_date(dates), compute_data, all_data)
 
-                        axes.text(0.95, 0.01,
-                                 'average:%s sd:%s cv:%s %s computed %s on %s results'%text_data,
+                        a.text(0.95, 0.01,
+                                 'avg:%s sd:%s cv:%s %s computed %s on %s results'%text_data,
                                  verticalalignment='bottom',
                                  horizontalalignment='right',
-                                 transform=axes.transAxes,
+                                 transform=a.transAxes,
                                  color='black')
 
-                        self.draw(levey_jennings, axes)
+                        self.get_graph(f, a)
 
                     except:
+                        print(inspect.stack()[0][3])
                         print (sys.exc_info()[0])
                         print (sys.exc_info()[1])
                         print (sys.exc_info()[2])
@@ -518,24 +586,26 @@ class Biovarase(Frame):
                 messagebox.showinfo(self.engine.title,msg )
         else:
             msg = "No batch selected."
-            tkMessageBox.showwarning(self.engine.title,msg)
+            messagebox.showwarning(self.engine.title,msg)
 
-    def draw(self, levey_jennings, axes):
+    def get_graph(self, f, a):
 
         try:
             
-            self.levey_jennings = levey_jennings
-        
-            self.axes = axes
+            self.levey_jennings = f
                 
-            self.lj_graph = FigureCanvasTkAgg(levey_jennings, self.frame_plot)
-            self.lj_graph.show()
-            self.lj_graph.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=1)
-            self.lj_toolbar = NavigationToolbar2TkAgg(self.lj_graph, self.frame_plot)
-            self.lj_toolbar.update()
-            #enable for keep on bottom
-            #self.lj_graph._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)
+            self.levey_jennings = FigureCanvasTkAgg(f, self.Frame_Graph)
+        
+            self.levey_jennings.draw()
+            
+            toolbar = NavigationToolbar2TkAgg(self.levey_jennings, self.Frame_Graph)
+
+            toolbar.update()
+            
+            self.levey_jennings._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)
+            
         except:
+            print(inspect.stack()[0][3])
             print (sys.exc_info()[0])
             print (sys.exc_info()[1])
             print (sys.exc_info()[2])            
@@ -543,12 +613,20 @@ class Biovarase(Frame):
 
     def format_interval_date(self,dates):
 
-        x = min(dates)
-        s1 = "%s-%s-%s" %(x.day,x.month,x.year)
-        x = max(dates)
-        s2 = "%s-%s-%s" %(x.day,x.month,x.year)
+        try:
+
+            x = min(dates)
+            s1 = "%s-%s-%s" %(x.day,x.month,x.year)
+            x = max(dates)
+            s2 = "%s-%s-%s" %(x.day,x.month,x.year)
                 
-        return  "from %s to %s"%(s1,s2)
+            return  "from %s to %s"%(s1,s2)
+
+        except:
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])     
 
     def on_export(self):
 
@@ -572,12 +650,16 @@ class Biovarase(Frame):
                AND batchs.enable = 1\
                ORDER BY tests.test,samples.sample"
 
-        rs = self.engine.read(True, sql, ())
         limit = int(self.spElements.get())
-        self.engine.get_xls(limit,rs)
-        
-       
+        rs = self.engine.read(True, sql, ())
 
+       
+        if rs:
+            self.engine.get_xls(limit,rs)
+        else:
+            msg = "No record data to compute."
+            messagebox.showwarning(self.engine.title,msg)
+            
     def on_elements(self,):
 
         f = frames.elements.Dialog(self,self.engine)
@@ -599,13 +681,13 @@ class Biovarase(Frame):
         f.on_open()        
 
     def on_about(self,):
-        messagebox.showinfo(self.engine.title, self.engine.about)   
+        messagebox.showinfo(self.engine.title, self.engine.about)        
   
     def on_exit(self):
         """Close all"""
         if messagebox.askokcancel(self.engine.title, "Do you want to quit?"):
             self.master.quit()
-
+            
 def main():
 
    
@@ -619,6 +701,7 @@ def main():
     imgicon = PhotoImage(file=os.path.join('icons', 'app.png'))
     root.call('wm', 'iconphoto', root._w, '-default', imgicon)
     root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
+    #root.geometry("{0}x{1}+0+0".format(1200, 600))
     root.title(engine.title)
     app = Biovarase(engine)
     app.on_open()
