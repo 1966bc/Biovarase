@@ -558,7 +558,7 @@ class Biovarase(Frame):
                         else:
                             a.set_ylabel("No unit assigned yet")
                      
-                        msg = "Test: %s Batch: %s Expiration: %s " %(self.selected_test[2],
+                        msg = "Test: %s Batch: %s Expiration: %s " %(self.selected_test[3],
                                                                      self.selected_batch[2],
                                                                      self.selected_batch[3],)
                         a.set_title(msg)
