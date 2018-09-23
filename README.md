@@ -38,4 +38,4 @@ Developed in Python 2.7.9 on Debian Jessie, spring 2017.
 TOFIX:
 If you make double click on a result, the graph disappear....
 
-![alt tag](https://cloud.githubusercontent.com/assets/5463566/25782001/23d8e1d2-3342-11e7-8fd3-517f6f628288.png)
+![alt tag](https://user-images.githubusercontent.com/5463566/45925094-36d2cf00-bf0f-11e8-84ec-a4cc4b7c0e84.png)
