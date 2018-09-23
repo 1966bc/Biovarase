@@ -22,9 +22,13 @@ bc@hal9000:~/biovarase$ python3 biovarase.py
 Regards.
 
 change log
+2018-09-23
+Biovarase change is dress....and make minor refactoring.
+
 2018-08-30
 Change elements data from shelve to sqlite.
 Fix some minor bug on test.py
+
 2018-02-19
 Porting the project to python 3.5, Debian 9 version
 Fix redrew problem, now the graph dosen't disappear
