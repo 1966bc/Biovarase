@@ -14,8 +14,6 @@ from tkinter import ttk
 from tkinter import messagebox
 import datetime
 import time
-import threading
-import queue
 
 
 import matplotlib.pyplot as plt
@@ -40,6 +38,7 @@ class Biovarase(Frame):
 
         self.engine = engine
         self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
+        self.selected_data = StringVar()
         self.average = DoubleVar()
         self.bias = DoubleVar()
         self.westgard = StringVar()
@@ -198,6 +197,9 @@ class Biovarase(Frame):
         p2.pack(side=LEFT, fill=Y, expand=0)
  
         self.Frame_Graph = Frame(self,bd=5,)
+
+        lbl = Label(self.Frame_Graph,font='Helvetica 18 bold italic',foreground="Blue", textvariable = self.selected_data)
+        lbl.pack()
        
         self.Frame_Graph.pack(side=RIGHT, fill=BOTH, expand=1, padx=5, pady=5)
 
@@ -254,7 +256,8 @@ class Biovarase(Frame):
             try:
                 self.levey_jennings.get_tk_widget().delete("all")
                 for child in self.Frame_Graph.winfo_children():
-                    child.destroy()
+                    if isinstance(child,Label)== False:
+                        child.destroy()
             except:
                 print(inspect.stack()[0][3])
                 print (sys.exc_info()[0])
@@ -262,8 +265,9 @@ class Biovarase(Frame):
                 print (sys.exc_info()[2])
 
     def reset_texts(self):
-
-        self.expiration.set(None)
+        
+        self.selected_data.set('')
+        self.expiration.set('')
         self.target.set(0)
         self.sd.set(0)
         self.average.set(0)
@@ -279,12 +283,13 @@ class Biovarase(Frame):
 
         index = self.cbTests.current()
         test_id = self.dict_tests[index]
-        self.selected_test = self.engine.get_selected('tests','test_id', test_id)
+        self.selected_test = self.engine.get_selected('lst_tests','test_id', test_id)
         
         self.lstBatchs.delete(0, END)
         self.lstResults.delete(0, END)
         self.reset_texts()
         self.reset_graph()
+        self.selected_data.set(self.selected_test[1])
 
         index = 0
         self.dict_batchs={}
@@ -318,6 +323,9 @@ class Biovarase(Frame):
             
 
     def set_batch_values(self):
+
+        s = "{0} {1}".format(self.selected_test[1],self.selected_batch[2])
+        self.selected_data.set(s)
 
         self.expiration.set(self.selected_batch[3])
         self.target.set(self.selected_batch[4])
@@ -383,20 +391,20 @@ class Biovarase(Frame):
             self.lstResults.itemconfig(index, {'bg':'light gray'})
         else:
             d = {}
-            if result > target:
+            if result >= target:
                 #result > 3sd
-                if result > (target + (sd*3)):
+                if result >= (target + (sd*3)):
                     d['bg']='red'
                 #if result is > 2sd and < +3sd
-                elif result > (target + (sd*2)) and result < (target + (sd*3)):
+                elif result >= (target + (sd*2)) and result <= (target + (sd*3)):
                     d['bg']='yellow'
                     
-            elif result < target:                
+            elif result <= target:                
                 #result < 3sd
-                if result < (target - (sd*3)):
+                if result <= (target - (sd*3)):
                     d['bg']='red'
                 #if result is > -2sd and < -3sd
-                elif result < (target - (sd*2)) and result > (target - (sd*3)):
+                elif result <= (target - (sd*2)) and result >= (target - (sd*3)):
                     d['bg']='yellow'
                     
             self.lstResults.itemconfig(index, d)                    
@@ -558,7 +566,7 @@ class Biovarase(Frame):
                         else:
                             a.set_ylabel("No unit assigned yet")
                      
-                        msg = "Test: %s Batch: %s Expiration: %s " %(self.selected_test[3],
+                        msg = "Test: %s Batch: %s Expiration: %s " %(self.selected_test[1],
                                                                      self.selected_batch[2],
                                                                      self.selected_batch[3],)
                         a.set_title(msg)
