@@ -10,6 +10,7 @@ import tempfile
 import xlwt
 from xlwt import easyxf
 import math
+import sys
 
 class Exporter(object):
     def __init__(self,*args, **kwargs):
@@ -20,6 +21,96 @@ class Exporter(object):
         
     def __str__(self):
         return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Exporter.__mro__])
+
+
+    def quick_data_analysis(self,):
+
+        path = tempfile.mktemp (".xls")
+        obj = xlwt.Workbook()
+        ws = obj.add_sheet('Biovarase',cell_overwrite_ok=True)
+
+        ws.col(0).width = 200 * 20
+        #ws.col(1).width = 300 * 20 
+        row = 0
+        #indexing is zero based, row then column
+
+        ws.write(row,0,'Test',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,1,'Batch',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,2,'Target',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,3,'SD',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,4,'Result',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,5,'Date',self.xls_style_font(True,False,'Arial'))
+        
+        row +=1
+
+        
+        sql = "SELECT * FROM lst_tests WHERE enable =1"
+        rs_tests = self.read(True, sql)
+        for test in rs_tests:
+            sql2 = "SELECT * FROM batchs WHERE enable =1 AND test_id =?"
+            rs_batchs = self.read(True, sql2, (test[0],))
+            for batch in rs_batchs:
+                sql3 = "SELECT result, recived\
+                        FROM results\
+                        WHERE batch_id =?\
+                        AND enable =1\
+                        ORDER BY result_id\
+                        DESC LIMIT 1"
+                rs_results = self.read(True, sql3, (batch[0],))
+                c = None
+                try:
+                    if len(rs_results) !=0:
+
+                        result = float(rs_results[0][0])
+                        date = rs_results[0][1].strftime("%d-%m-%Y")
+                        target = float(batch[4])
+                        sd = float(batch[5])
+                        #print (test[1], batch[2],batch[4],batch[5],result[0],result[1].day,result[1].month,result[1].year)
+                        
+                        #ws.write(row,4,result)
+                       
+                        if result >= target:
+                            #result > 3sd
+                            if result >= (target + (sd*3)):
+                                c = "red"  
+                            #if result is > 2sd and < +3sd
+                            #elif (target + (sd*2) <= result <= target + (sd*3)):
+                            elif result >= (target + (sd*2)) and result <= (target + (sd*3)):
+                                c =  "yellow"
+                                    
+                        elif result <= target:
+                            if result <= (target - (sd*3)):
+                                c = "red"
+                            #if result is > -2sd and < -3sd
+                            #elif (target - (sd*2) <= result <= target - (sd*3)):
+                            elif result <= (target - (sd*2)) and result >= (target - (sd*3)):
+                                c = "yellow"
+
+                        if c :
+                            ws.write(row,0,test[1])
+                            ws.write(row,1,batch[2])
+                            ws.write(row,2,target)
+                            ws.write(row,3,sd)
+                            ws.write(row,4,result,self.xls_bg_colour(c))
+                            ws.write(row,5,date)
+                            row +=1
+                        else:
+                            ws.write(row,0,test[1])
+                            ws.write(row,1,batch[2])
+                            ws.write(row,2,target)
+                            ws.write(row,3,sd)
+                            ws.write(row,4,result,)
+                            ws.write(row,5,date)
+                            row +=1
+                except:
+                   
+                    print (test,batch,rs_results)
+                    print (sys.exc_info()[0])
+                    print (sys.exc_info()[1])
+                    print (sys.exc_info()[2])
+                    pass
+        obj.save(path)
+        self.launch(path)              
 
 
     def get_xls(self,limit,rs):
