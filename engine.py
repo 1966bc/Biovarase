@@ -53,19 +53,19 @@ class Engine(DBMS, Widgets, Exporter, Launcher, Westgards):
     def get_python_version(self,):
         return "Python version: %s" % ".".join(map(str, sys.version_info[:3]))
 
+
     def get_elements(self):
         
         try:
-
-            sql = "SELECT * FROM elements"
-        
-            rs = self.read(False, sql, ())
-          
-            return rs[0]
+            f = open('elements', 'r')
+            e = f.readline()
+            f.close()
+            return e
         except:
+            print(inspect.stack()[0][3])
             print (sys.exc_info()[0])
             print (sys.exc_info()[1])
-            print (sys.exc_info()[2])    
+            print (sys.exc_info()[2])
 
        
 def main():
