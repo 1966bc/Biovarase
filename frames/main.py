@@ -60,7 +60,8 @@ class Biovarase(Frame):
         m_main.add_cascade(label="File", underline=1, menu=m_file)
         m_main.add_cascade(label="?", underline=0, menu=m_about)
 
-        items = (("Reset",self.on_reset),
+        items = (("Quick Data Analysis", self.on_quick_data_analysis),
+                 ("Reset",self.on_reset),
                  ("Export",self.on_export),
                  ("Tests",self.on_tests),
                  ("Batchs and Results",self.on_data_manager),
