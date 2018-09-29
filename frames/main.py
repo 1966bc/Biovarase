@@ -13,8 +13,6 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 import datetime
-import time
-
 
 import matplotlib.pyplot as plt
 plt.rcParams.update({'figure.max_open_warning': 0})
@@ -22,15 +20,12 @@ import numpy as np
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 
-
 from engine import Engine
 
-import frames.elements
 import frames.tests
+import frames.batch as batch
 import frames.data_manager
 import frames.units
-import frames.batch as batch
-
 
 class Biovarase(Frame):
     def __init__(self, engine):
@@ -67,9 +62,8 @@ class Biovarase(Frame):
 
         items = (("Reset",self.on_reset),
                  ("Export",self.on_export),
-                 ("Elements",self.on_elements),
                  ("Tests",self.on_tests),
-                 ("Batch and Results",self.on_data_manager),
+                 ("Batchs and Results",self.on_data_manager),
                  ("Units",self.on_units),
                  ("Exit",self.on_exit),)
 
@@ -134,7 +128,7 @@ class Biovarase(Frame):
         self.lblExpiration = Label(w, bg='white', textvariable = self.expiration)
         self.lblExpiration.pack(fill=X, padx=2,pady=2)
 
-        lbl = Label(w, text="Results")
+        lbl = Label(w, text="Elements")
         lbl.pack()
 
         self.spElements = Spinbox(w,
