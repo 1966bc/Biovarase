@@ -15,13 +15,18 @@ All the data are managed by SQLite database and matplotlib.
 - To export data to a temp excel file click on File/Export.
 - To export last values in a temp excel file click on Quick Data Analysis
 
-Biovarase requires Python 3
-Biovarase use Tkinter and matplotlib 
+Biovarase requires 
 
- Releasing on "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
+- Python 3
+- Tkinter
+- matplotlib 
+- xlwt
+
+***Releasing on "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
 
 To start with Biovarase execute biovarase.py, something like
-bc@hal9000:~/biovarase$ python3 biovarase.py
+
+> bc@hal9000:~/biovarase$ python3 biovarase.py
 
 Regards.
 
