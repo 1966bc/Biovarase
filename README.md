@@ -8,10 +8,10 @@ It uses even the famous Westgard's rules to monitor results dataset.
 All the data are managed by SQLite database and matplotlib.
 
 - To show levey jennings graph, in the main windows select a test and choose the relative batch.
-- To update a batch in the main window make double click on it.
+- To update a batch in the main window make right click on it.
 - To deactivate/activate a result make double click on it.
 - To insert, update or delete a test open from File/Tests.
-- To insert, update or delete a batch or a result open from File/Batchs.
+- To manage batchs and relative results open from File/Batchs.
 - To export data to a temp excel file click on File/Export.
 - To export last values in a temp excel file click on Quick Data Analysis
 
