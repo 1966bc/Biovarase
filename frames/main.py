@@ -32,7 +32,7 @@ from matplotlib.ticker import FormatStrFormatter
 from engine import Engine
 
 import frames.tests
-import frames.batch as batch
+import frames.batch 
 import frames.batchs
 import frames.units
 
@@ -321,7 +321,7 @@ class Biovarase(Frame):
     def on_batch_activated(self, event):
 
         if self.lstBatchs.curselection():
-            self.obj = batch.Dialog(self,self.engine,self.batch_index)
+            self.obj = frames.batch.Dialog(self,self.engine,)
             self.obj.transient(self)
             self.obj.on_open(self.selected_test, self.selected_batch)            
             

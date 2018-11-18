@@ -118,9 +118,9 @@ class Dialog(Toplevel):
                 sql = self.engine.get_insert_sql('batchs',len(args))
 
             self.engine.write(sql,args)
-            self.parent.set_values(self.parent.lstBatchs)
-                
+            
             if self.index is not None:
+                self.parent.set_values(self.parent.lstBatchs)
                 self.parent.lstBatchs.see(self.index)
                 self.parent.lstBatchs.selection_set(self.index)
                     
@@ -138,7 +138,7 @@ class Dialog(Toplevel):
 
         return (self.selected_test[0],
                 self.batch.get(),
-                self.engine.get_date(self),
+                self.engine.get_date(self,),
                 self.target.get(),
                 self.sd.get(),
                 self.enable.get())
@@ -152,6 +152,7 @@ class Dialog(Toplevel):
         self.target.set(self.selected_batch[4])
         self.sd.set(self.selected_batch[5])
         self.enable.set(self.selected_batch[6])
+      
 
     def validate(self, action, index, value_if_allowed,
                  prior_value, text, validation_type,
