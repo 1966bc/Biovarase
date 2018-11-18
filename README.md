@@ -21,25 +21,30 @@ bc@hal9000:~/biovarase$ python3 biovarase.py
 
 Regards.
 
-change log
+######change log
 2018-11-18
+
 change format to align text in the listbox, remember to use a font such font='TkFixedFont'
 align date and result on graph, did anyone notice this?
 
 2018-09-23
+
 Biovarase change is dress....and make minor refactoring.
 
 2018-08-30
+
 Change elements data from shelve to sqlite.
 Fix some minor bug on test.py
 
 2018-02-19
+
 Porting the project to python 3.5, Debian 9 version
 Fix redrew problem, now the graph dosen't disappear
 Heavy refactoring of the all code
 Developed in Python 3.5.3 on Debian Stretch, winter 2018.
 
 2017-05-07
+
 Put graph in the main window.
 Struggled to redrew graph but now it's work.
 Developed in Python 2.7.9 on Debian Jessie, spring 2017.
