@@ -22,7 +22,7 @@ Biovarase requires
 - matplotlib 
 - xlwt
 
-*** Releasing on "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
+Releasing on > "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
 
 To start with Biovarase execute biovarase.py, something like
 
