@@ -22,6 +22,9 @@ bc@hal9000:~/biovarase$ python3 biovarase.py
 Regards.
 
 change log
+2018-11-18
+change format to align text in the listbox, remember to use a font such font='TkFixedFont'
+align date and result on graph, did anyone notice this?
 
 2018-09-23
 Biovarase change is dress....and make minor refactoring.
