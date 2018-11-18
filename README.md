@@ -21,6 +21,8 @@ bc@hal9000:~/biovarase$ python3 biovarase.py
 
 Regards.
 
+
+...
 ## change log
 
 **2018-11-18**
@@ -51,5 +53,6 @@ Struggled to redrew graph but now it's work.
 Developed in Python 2.7.9 on Debian Jessie, spring 2017.
 TOFIX:
 If you make double click on a result, the graph disappear....
+...
 
 ![alt tag](https://user-images.githubusercontent.com/5463566/48675490-c97f9b00-eb59-11e8-975a-1b2b17aebf9c.png)
