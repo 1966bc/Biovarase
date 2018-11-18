@@ -60,7 +60,7 @@ class Dialog(Toplevel):
 
         Label(w, text="Recived:").grid(row=1,column=0,sticky=W)
 
-        self.engine.get_calendar(self,w,3)
+        self.engine.get_calendar(self,w,1)
 
         Label(w, text="Enable:").grid(row=4, sticky=W)
         self.ckEnable = Checkbutton(w, onvalue=1, offvalue=0, variable = self.enable,)

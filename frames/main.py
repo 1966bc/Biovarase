@@ -18,13 +18,22 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({'figure.max_open_warning': 0})
 import numpy as np
 
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+try:
+    from matplotlib.backends.backend_tkagg import nav_tool as nav_tool
+except:
+    from matplotlib.backends.backend_tkagg import  NavigationToolbar2TkAgg as nav_tool
+
+import matplotlib.ticker
+from matplotlib.ticker import LinearLocator
+from matplotlib.ticker import FormatStrFormatter
 
 from engine import Engine
 
 import frames.tests
 import frames.batch as batch
-import frames.data_manager
+import frames.batchs
 import frames.units
 
 class Biovarase(Frame):
@@ -64,7 +73,7 @@ class Biovarase(Frame):
                  ("Reset",self.on_reset),
                  ("Export",self.on_export),
                  ("Tests",self.on_tests),
-                 ("Batchs and Results",self.on_data_manager),
+                 ("Batchs",self.on_data_manager),
                  ("Units",self.on_units),
                  ("Exit",self.on_exit),)
 
@@ -355,7 +364,7 @@ class Biovarase(Frame):
 
                 for i in rs:
 
-                    s = '{}{:>10}'.format(i[2],i[1])
+                    s = '{}{:10}'.format(i[2],i[1])
                     self.lstResults.insert(END, s)
 
                     result = float(i[1])
@@ -536,8 +545,11 @@ class Biovarase(Frame):
                         a.set_axisbelow(True)
                         a.grid()
                         #a.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
-                        a.set_xticks(range(1, len(data)+1))
+                        a.set_xticks(range(0, len(data)+1))
                         a.set_xticklabels(x_labels, rotation=70, size=6)
+
+                        a.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
+                        a.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
                       
                         
                         a.plot(data, marker="8", label='data')
@@ -601,7 +613,7 @@ class Biovarase(Frame):
         
             self.levey_jennings.draw()
             
-            toolbar = NavigationToolbar2TkAgg(self.levey_jennings, self.Frame_Graph)
+            toolbar = nav_tool(self.levey_jennings, self.Frame_Graph)
 
             toolbar.update()
             
@@ -680,7 +692,7 @@ class Biovarase(Frame):
 
     def on_data_manager(self,):
         
-        f = frames.data_manager.Dialog(self,self.engine)
+        f = frames.batchs.Dialog(self,self.engine)
         f.on_open()        
 
     def on_about(self,):

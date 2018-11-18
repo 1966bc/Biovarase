@@ -64,7 +64,7 @@ class Dialog(Toplevel):
         if rs:
             self.lstItems.delete(0, END)
             for i in rs:
-                s = "{:}, {:}".format(i[1],i[2])
+                s = "{:}".format(i[1])
                 self.lstItems.insert(END, s)
                 if i[2] != 1:
                     self.lstItems.itemconfig(index, {'bg':'light gray'})
