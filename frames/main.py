@@ -21,7 +21,7 @@ import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 try:
-    from matplotlib.backends.backend_tkagg import nav_tool as nav_tool
+    from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk as nav_tool
 except:
     from matplotlib.backends.backend_tkagg import  NavigationToolbar2TkAgg as nav_tool
 
