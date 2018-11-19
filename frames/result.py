@@ -2,8 +2,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   winter 2018
-# version:  0.1                                                                
+# modify:   winter 2018                                                          
 #-----------------------------------------------------------------------------
 from tkinter import *
 from tkinter import messagebox
