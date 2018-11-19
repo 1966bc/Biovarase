@@ -3,7 +3,6 @@
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   winter 2018
-# version:  0.1                                                                
 #-----------------------------------------------------------------------------
 
 from tkinter import *
@@ -17,13 +16,14 @@ class Dialog(Toplevel):
         super().__init__(name='batchs')
 
         #self.resizable(0,0)
+        self.geometry("{0}x{1}+0+0".format(1200, 600))
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.parent = parent
         self.engine = engine
         
         self.enable =  BooleanVar()
         self.obj = None
-
+        self.selected_data = StringVar()
         self.selected_test = None
         self.selected_batch = None
         self.selected_result = None
@@ -41,6 +41,9 @@ class Dialog(Toplevel):
     def init_ui(self):
     
         p = self.engine.get_frame(self)
+
+        lbl = Label(p,font='Times 12 bold italic', foreground="blue", textvariable = self.selected_data)
+        lbl.pack()
         
         w_tests = Frame(p,)
         w = LabelFrame(w_tests,text=  "Tests", padx = 5, pady = 5)
@@ -85,6 +88,8 @@ class Dialog(Toplevel):
         self.set_values(self.lstTests)
      
         self.title("Batchs and results management")
+
+        self.selected_data.set('Test')
 
     def set_values(self, obj):
 
@@ -131,10 +136,14 @@ class Dialog(Toplevel):
         elif obj == self.lstResults:
 
             self.lstResults.delete(0, END)
-
             self.dict_results={}
-            sql = "SELECT result_id, ROUND(result,2), strftime('%d-%m-%Y', recived),enable\
-                   FROM results WHERE batch_id = ? ORDER BY recived DESC"
+            sql = "SELECT result_id,\
+                          ROUND(result,2),\
+                          strftime('%d-%m-%Y', recived),\
+                          enable\
+                   FROM results\
+                   WHERE batch_id = ?\
+                   ORDER BY recived DESC"
             rs = self.engine.read(True, sql, (self.selected_batch[0],))
             
             if rs:
@@ -146,66 +155,69 @@ class Dialog(Toplevel):
                     self.dict_results[index]=i[0]
                     index+=1
             
-    def on_test_selected(self,event):
+    def on_test_selected(self,evt):
 
         if self.lstTests.curselection():
-            self.index = self.lstTests.curselection()[0]
-            pk = self.dict_tests.get(self.index)
+            index = self.lstTests.curselection()[0]
+            pk = self.dict_tests.get(index)
             self.selected_test = self.engine.get_selected('tests','test_id', pk)
+            self.selected_data.set(self.lstTests.get(index))
             self.set_values(self.lstBatchs)
        
-        
-    def on_batch_selected(self, event):
+    def on_batch_selected(self, evt):
 
         if self.lstBatchs.curselection():
-            self.index = self.lstBatchs.curselection()[0]
-            pk = self.dict_batchs.get(self.index)
+            index = self.lstBatchs.curselection()[0]
+            pk = self.dict_batchs.get(index)
             self.selected_batch = self.engine.get_selected('batchs','batch_id', pk)
             self.set_values(self.lstResults)
 
-    def on_result_selected(self, event):
+    def on_result_selected(self, evt):
 
         if self.lstResults.curselection():
-            self.index = self.lstResults.curselection()[0]
-            pk = self.dict_results.get(self.index)
+            index = self.lstResults.curselection()[0]
+            pk = self.dict_results.get(index)
             self.selected_result = self.engine.get_selected('results','result_id', pk)
 
-    def on_batch_activated(self, event):
+    def on_batch_activated(self, evt):
 
         if self.lstBatchs.curselection():
-            self.obj = batch.Dialog(self,self.engine, self.index)
-            self.obj.transient(self)
+            index = self.lstBatchs.curselection()[0]
+            self.obj = batch.Dialog(self,self.engine, index)
             self.obj.on_open(self.selected_test, self.selected_batch)
 
-    def on_result_activated(self, event):
+    def on_result_activated(self, evt):
 
         if self.lstResults.curselection():
-            self.obj = result.Dialog(self,self.engine,self.index)
-            self.obj.transient(self)
+            index = self.lstResults.curselection()[0]
+            self.obj = result.Dialog(self,self.engine, index)
             self.obj.on_open(self.selected_batch, self.selected_result)
             
-    def on_add_batch(self,):
+    def on_add_batch(self, evt):
 
         if self.selected_test is not None:
-            self.obj = batch.Dialog(self,self.engine,self.index)
-            self.obj.transient(self)
+            self.obj = batch.Dialog(self, self.engine,)
             self.obj.on_open(self.selected_test)
         else:
             msg = "Please select a test."
-            messagebox.showwarning(self.engine.title,msg)                    
+            messagebox.showwarning(self.engine.title, msg)                    
 
         
-    def on_add_result(self,):
+    def on_add_result(self, evt):
 
         if self.selected_batch is not None:
-            self.obj = result.Dialog(self,self.engine,self.index)
-            self.obj.transient(self)
+            self.obj = result.Dialog(self, self.engine,)
             self.obj.on_open(self.selected_batch)
             
         else:
             msg = "Please select a batch."
-            messagebox.showwarning(self.engine.title,msg)                  
+            messagebox.showwarning(self.engine.title, msg)                  
 
     def on_cancel(self, evt=None):
+
+        """force closing of the childs...
+        """     
+        
+        if self.obj is not None:
+            self.obj.destroy()
         self.destroy()
-    

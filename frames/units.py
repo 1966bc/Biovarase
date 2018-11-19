@@ -3,7 +3,6 @@
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   winter 2018
-# version:  0.1                                                                
 #-----------------------------------------------------------------------------
 
 from tkinter import *
@@ -71,7 +70,6 @@ class Dialog(Toplevel):
     def on_add(self, evt):
 
         self.obj = unit.Dialog(self,self.engine)
-        self.obj.transient(self)
         self.obj.on_open()
 
     def on_edit(self, evt):
@@ -82,7 +80,8 @@ class Dialog(Toplevel):
 
         if self.lstItems.curselection():
             if self.selected_item is not None:
-                self.obj = unit.Dialog(self,self.engine,self.index)
+                index = self.lstItems.curselection()[0]
+                self.obj = unit.Dialog(self,self.engine,index)
                 self.obj.transient(self)
                 self.obj.on_open(self.selected_item,)
                
@@ -92,15 +91,15 @@ class Dialog(Toplevel):
     def on_item_selected(self, evt):
 
         if self.lstItems.curselection():
-            try:
-                self.index = self.lstItems.curselection()[0]
-                pk = self.dict_items.get(self.index)
-                self.selected_item = self.engine.get_selected('units','unit_id', pk)
-            except:
-                self.dict_items = None
-                self.index = 0  
-
+            index = self.lstItems.curselection()[0]
+            pk = self.dict_items.get(index)
+            self.selected_item = self.engine.get_selected('units','unit_id', pk)
+            
     def on_cancel(self, evt=None):
+
+        """force closing of the childs...
+        """     
+        
         if self.obj is not None:
             self.obj.destroy()
         self.destroy()

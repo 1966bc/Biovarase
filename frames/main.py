@@ -3,8 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   summer 2018
-# version:  0.1                                                                
+# modify:   summer 2018                                                        
 #-----------------------------------------------------------------------------
 import os
 import sys
@@ -73,7 +72,7 @@ class Biovarase(Frame):
                  ("Reset",self.on_reset),
                  ("Export",self.on_export),
                  ("Tests",self.on_tests),
-                 ("Batchs",self.on_data_manager),
+                 ("Batchs",self.batchs),
                  ("Units",self.on_units),
                  ("Exit",self.on_exit),)
 
@@ -219,17 +218,14 @@ class Biovarase(Frame):
     def set_elements(self):
         
         self.elements.set(self.engine.get_elements())
-
-    def on_quick_data_analysis(self,):
-
-        self.engine.quick_data_analysis()
-        
+    
     def on_reset(self):
 
         self.rs = None
         self.selected_batch = None
         self.lstBatchs.delete(0, END)
         self.lstResults.delete(0, END)
+        self.cbTests.set('')
 
         index = 0
         self.dict_tests={}
@@ -305,7 +301,10 @@ class Biovarase(Frame):
                 s = "%s"%(i[1])
                 self.lstBatchs.insert(END, (s))
                 self.dict_batchs[index]=i[0]
-                index+=1               
+                index+=1
+
+            self.lstBatchs.select_set(0)
+            self.lstBatchs.event_generate("<<ListboxSelect>>")
     
     def on_selected_batch(self,event):
 
@@ -337,12 +336,19 @@ class Biovarase(Frame):
 
     def get_series(self, rs):
 
+        """return a value series to compute stat data
+           notice that i[3] is enable field of the resultset
+       
+        @param name: rs
+        @return: a value series
+        @rtype: list
+        """     
         series = []
 
-        rs = tuple(i for i in rs if i[5]!=0)
+        rs = tuple(i for i in rs if i[3]!=0)
 
         for i in rs:
-             series.append(i[1])
+            series.append(i[1])
 
         return series             
             
@@ -641,7 +647,11 @@ class Biovarase(Frame):
             print(inspect.stack()[0][3])
             print (sys.exc_info()[0])
             print (sys.exc_info()[1])
-            print (sys.exc_info()[2])     
+            print (sys.exc_info()[2])
+
+    def on_quick_data_analysis(self,):
+
+        self.engine.quick_data_analysis()            
 
     def on_export(self):
 
@@ -690,7 +700,7 @@ class Biovarase(Frame):
         f = frames.units.Dialog(self,self.engine)
         f.on_open()           
 
-    def on_data_manager(self,):
+    def batchs(self,):
         
         f = frames.batchs.Dialog(self,self.engine)
         f.on_open()        
