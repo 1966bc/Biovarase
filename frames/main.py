@@ -220,8 +220,7 @@ class Biovarase(Frame):
         self.elements.set(self.engine.get_elements())
     
     def on_reset(self):
-
-        self.rs = None
+        
         self.selected_batch = None
         self.lstBatchs.delete(0, END)
         self.lstResults.delete(0, END)
