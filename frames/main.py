@@ -254,8 +254,9 @@ class Biovarase(Frame):
 
         if self.levey_jennings is not None:
             try:
-                self.levey_jennings.get_tk_widget().delete("all")
+                #self.levey_jennings.get_tk_widget().delete("all")
                 for child in self.Frame_Graph.winfo_children():
+                    #print(child)
                     if isinstance(child,Label)== False:
                         child.destroy()
             except:
@@ -337,7 +338,7 @@ class Biovarase(Frame):
     def get_series(self, rs):
 
         """return a value series to compute stat data
-           notice that i[3] is enable field of the resultset
+           notice that i[4] is enable field of the resultset
        
         @param name: rs
         @return: a value series
@@ -345,7 +346,7 @@ class Biovarase(Frame):
         """     
         series = []
 
-        rs = tuple(i for i in rs if i[3]!=0)
+        rs = tuple(i for i in rs if i[4]!=0)
 
         for i in rs:
             series.append(i[1])
@@ -375,7 +376,7 @@ class Biovarase(Frame):
 
                     result = float(i[1])
 
-                    is_enabled = i[3]
+                    is_enabled = i[4]
         
                     self.set_results_row_color(index, result, is_enabled, target, sd)
                     
@@ -393,7 +394,7 @@ class Biovarase(Frame):
                 self.calculated_cv.set(round((sd/avg)*100,2))
                 self.range.set(round(np.ptp(series),2))
 
-                self.set_graph()
+                self.set_graph(rs)
                      
     def set_results_row_color(self, index, result, is_enabled, target, sd):
 
@@ -475,29 +476,15 @@ class Biovarase(Frame):
         sql = "SELECT unit FROM units WHERE unit_id =?"
         return self.engine.read(False, sql, (self.selected_test[3],))
 
-
-    def set_graph(self):
+    def set_graph(self, rs_results):
 
         self.reset_graph()
         
-
         if self.selected_batch is not None :
 
-            sql = "SELECT result_id,\
-                          ROUND(result,2) AS result,\
-                          strftime('%d', recived),\
-                          recived,\
-                          enable\
-                   FROM results\
-                   WHERE batch_id = ?\
-                   ORDER BY recived DESC\
-                   LIMIT ?"
-
-            rs = self.engine.read(True, sql, (self.selected_batch[0],int(self.spElements.get())))
-
-            all_data = len(rs)
+            all_data = len(rs_results)
             #compute record with enable = 1
-            rs = tuple(i for i in rs if i[4]!=0)
+            rs = tuple(i for i in rs_results if i[4]!=0)
             compute_data = len(rs)
 
             #print (self.selected_batch)
@@ -651,7 +638,11 @@ class Biovarase(Frame):
 
     def on_quick_data_analysis(self,):
 
-        self.engine.quick_data_analysis()            
+        self.master.config(cursor="watch")
+
+        self.engine.quick_data_analysis()
+
+        self.master.config(cursor="")
 
     def on_export(self):
 
