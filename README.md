@@ -38,9 +38,8 @@ Regards.
 **2018-11-23**
 
 Change the redrew mechanism, now Biovarase doesn't rebuild graph when you select a batch, but update only the data.
-I've Look here to learn how do it
 
-Thanks to [Chapman Siu](https://gist.github.com/1966bc/824372b59c03425d02d816f1f02f8685)
+I've Look here [Chapman Siu](https://gist.github.com/1966bc/824372b59c03425d02d816f1f02f8685) to learn how do it
 
 
 **2018-11-18**
