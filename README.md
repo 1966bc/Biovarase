@@ -1,7 +1,7 @@
 # Biovarase
 ## A clinical quality control data management project
 
-![alt tag](https://user-images.githubusercontent.com/5463566/48966919-5d79b880-efd9-11e8-829e-73b24fc42323.png)
+![alt tag](https://user-images.githubusercontent.com/5463566/48971927-ec5df380-f020-11e8-89d4-ba6294c88a9f.png)
 
 Biovarase is an application to manage clinical quality control data.
 
@@ -37,13 +37,15 @@ Regards.
 ...
 ## change log
 
-**2018-11-23**
+**2018-11-24**
 
 Change the redrew mechanism, now Biovarase doesn't rebuild graph from scratch when you select a batch, but update only the data.
 
 I've Look here [Chapman Siu](https://gist.github.com/1966bc/824372b59c03425d02d816f1f02f8685) to learn how do it.
 
 On Quick Data Analisys add column with Westgard valutation.
+
+Add histogram to plot frequency distribution of a dataset. 
 
 Some minor refactoring on main.py code.
 
