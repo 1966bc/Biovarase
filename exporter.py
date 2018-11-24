@@ -3,8 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   winter 2018
-# version:  0.2                                                                  
+# modify:   autumn 2018                                                           
 #-----------------------------------------------------------------------------
 import tempfile
 import xlwt
@@ -21,6 +20,17 @@ class Exporter(object):
         
     def __str__(self):
         return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Exporter.__mro__])
+
+    def _get_series(self,batch):
+
+        series = []
+
+        sql = "SELECT result FROM results WHERE batch_id =? AND enable =1  ORDER BY result_id  DESC"
+        rs = self.read(True, sql, (batch[0],))
+
+        for i in rs:
+             series.append(i[0])
+        return series   
 
 
     def quick_data_analysis(self,):
@@ -39,7 +49,8 @@ class Exporter(object):
         ws.write(row,2,'Target',self.xls_style_font(True,False,'Arial'))
         ws.write(row,3,'SD',self.xls_style_font(True,False,'Arial'))
         ws.write(row,4,'Result',self.xls_style_font(True,False,'Arial'))
-        ws.write(row,5,'Date',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,5,'Wstg',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,6,'Date',self.xls_style_font(True,False,'Arial'))
         
         row +=1
 
@@ -57,6 +68,12 @@ class Exporter(object):
                         ORDER BY result_id\
                         DESC LIMIT 1"
                 rs_results = self.read(True, sql3, (batch[0],))
+                series = self._get_series(batch)
+
+                if len(series) > 9:
+                    rule = self.get_violation(batch[4], batch[5], series)
+                else:
+                    rule = "No data"
                 c = None
                 try:
                     if len(rs_results) !=0:
@@ -65,7 +82,7 @@ class Exporter(object):
                         date = rs_results[0][1].strftime("%d-%m-%Y")
                         target = float(batch[4])
                         sd = float(batch[5])
-                        #print (test[1], batch[2],batch[4],batch[5],result[0],result[1].day,result[1].month,result[1].year)
+                        
                         
                         #ws.write(row,4,result)
                        
@@ -86,21 +103,23 @@ class Exporter(object):
                             elif result <= (target - (sd*2)) and result >= (target - (sd*3)):
                                 c = "yellow"
 
+                        ws.write(row,0,test[1])
+                        ws.write(row,1,batch[2])
+                        ws.write(row,2,target)
+                        ws.write(row,3,sd)
+                        ws.write(row,6,date)
+
+                        if rule not in('Accept','No data'):
+                            
+                            ws.write(row,5,rule,self.xls_bg_colour('blue'))
+                        else:
+                            ws.write(row,5,rule,)
+
                         if c :
-                            ws.write(row,0,test[1])
-                            ws.write(row,1,batch[2])
-                            ws.write(row,2,target)
-                            ws.write(row,3,sd)
                             ws.write(row,4,result,self.xls_bg_colour(c))
-                            ws.write(row,5,date)
                             row +=1
                         else:
-                            ws.write(row,0,test[1])
-                            ws.write(row,1,batch[2])
-                            ws.write(row,2,target)
-                            ws.write(row,3,sd)
                             ws.write(row,4,result,)
-                            ws.write(row,5,date)
                             row +=1
                 except:
                    
@@ -108,7 +127,8 @@ class Exporter(object):
                     print (sys.exc_info()[0])
                     print (sys.exc_info()[1])
                     print (sys.exc_info()[2])
-                    pass
+        
+
         obj.save(path)
         self.launch(path)              
 

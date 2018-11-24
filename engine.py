@@ -4,7 +4,6 @@
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   winter 2018
-# version:  0.1                                                                
 #-----------------------------------------------------------------------------
 
 import os
@@ -26,11 +25,10 @@ class Engine(DBMS, Widgets, Exporter, Launcher, Westgards):
         self.kwargs = kwargs
         
         self.title = "Biovarase"
-
-        self.version = '2.0'
-        platform = "Debian Release 9 (stretch) 64-bit"
+        
+        platform = "Developed on Debian Release 9 (stretch) 64-bit"
         s = "%s ver %s\nwritten by\n1966bc\nMilk galaxy\nSolar System\nThird planet(Earth) Italy(Rome)\ngiuseppecostanzi@gmail.com\n%s"
-        msg = (s % (self.title, self.version, platform))
+        msg = (s % (self.title, self.get_version(), platform))
 
         self.about = msg
             
@@ -39,19 +37,31 @@ class Engine(DBMS, Widgets, Exporter, Launcher, Westgards):
         self.delete = "Delete data?"
         self.ask_to_save = "Save data?"
         self.abort = "Operation aborted!"
-
         
         self.copyleft = "GNU GPL Version 3, 29 June 2007"
         self.developer = "hal9000\n1966bc mailto[giuseppe.costanzi@gmail.com] \nLocation:\nMilk Galaxy\nSolar System\nThird Planet (Earth)\nItaly\nRome"
         self.description = "welcome %s"%self.title
         self.web = "www.1966bc.wordpress.com"
 
-        
     def __str__(self):
         return "class: %s\nMRO: %s\ncon: %s" % (self.__class__.__name__,  [x.__name__ for x in Engine.__mro__],self.con)
 
     def get_python_version(self,):
         return "Python version: %s" % ".".join(map(str, sys.version_info[:3]))
+
+
+    def get_version(self):
+        
+        try:
+            f = open('version', 'r')
+            s = f.readline()
+            f.close()
+            return s
+        except:
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])
 
 
     def get_elements(self):
