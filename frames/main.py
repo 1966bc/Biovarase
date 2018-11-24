@@ -12,11 +12,11 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 import datetime
-
-import matplotlib.pyplot as plt
-plt.rcParams.update({'figure.max_open_warning': 0})
 import numpy as np
 
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+plt.rcParams.update({'figure.max_open_warning': 0})
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 try:
@@ -42,7 +42,6 @@ class Biovarase(Frame):
 
         self.engine = engine
         self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
-        self.selected_data = StringVar()
         self.average = DoubleVar()
         self.bias = DoubleVar()
         self.westgard = StringVar()
@@ -165,14 +164,12 @@ class Biovarase(Frame):
  
         self.Frame_Graph = Frame(self,bd=5,)
 
-        lbl = Label(self.Frame_Graph,font='Helvetica 18 bold italic',foreground="Blue", textvariable = self.selected_data)
-        lbl.pack()
-       
+        #create graph!
         self.Frame_Graph.pack(side=RIGHT, fill=BOTH, expand=1, padx=5, pady=5)
 
         fig = Figure()
-        self.ax = fig.add_subplot(111)
-        self.ax.set_facecolor('xkcd:light grey')
+        #fig.suptitle(self.engine.title, fontsize=14, fontweight='bold',color='orange',style='italic')
+        self.ax = fig.add_subplot(111, facecolor=('xkcd:light grey'))
         self.ax.set_axisbelow(True)
         self.ax.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
         self.ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
@@ -181,12 +178,13 @@ class Biovarase(Frame):
         toolbar = nav_tool(self.canvas, self.Frame_Graph)
         toolbar.update()
         #self.canvas.show()
-        #self.canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
         self.canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)
 
     def init_status_bar(self):
-        
-        self.status = Label(self.master, text = self.engine.title, bd=1, relief=SUNKEN, anchor=W)
+
+        s = "%s %s"%(self.engine.title, self.engine.get_version())
+        self.status = Label(self.master, text = s.strip(), bd=1, relief=SUNKEN, anchor=W, font='bold')
+        self.status.config(fg="blue")
         self.status.pack(side=BOTTOM, fill=X)           
 
     def on_open(self):
@@ -231,7 +229,6 @@ class Biovarase(Frame):
         
         self.reset_texts()
         
-
     def set_batchs(self):
 
         index = 0
@@ -256,7 +253,6 @@ class Biovarase(Frame):
             index = 0
             self.dict_results={}
            
-
             sql = "SELECT * FROM lst_results WHERE batch_id = ? LIMIT ?"
             rs = self.engine.read(True, sql, (self.selected_batch[0],int(self.spElements.get())))
 
@@ -300,11 +296,9 @@ class Biovarase(Frame):
 
     def reset_graph(self):
             try:
-                if self.ax is not None:
-                    self.selected_data.set('Biovarase')
-                    self.ax.clear()
-                    self.ax.grid()
-                    self.canvas.draw()
+                self.ax.clear()
+                self.ax.grid()
+                self.canvas.draw()
             except:
                 print(inspect.stack()[0][3])
                 print (sys.exc_info()[0])
@@ -313,7 +307,6 @@ class Biovarase(Frame):
 
     def reset_texts(self):
         
-        self.selected_data.set('')
         self.expiration.set('')
         self.target.set(0)
         self.sd.set(0)
@@ -335,7 +328,6 @@ class Biovarase(Frame):
         self.lstBatchs.delete(0, END)
         self.lstResults.delete(0, END)
         self.reset_texts()
-        self.selected_data.set(self.selected_test[1])
         self.set_batchs()
     
             
@@ -347,7 +339,7 @@ class Biovarase(Frame):
             pk = self.dict_batchs.get(index)
             self.selected_batch = self.engine.get_selected('batchs','batch_id', pk)
             self.batch_index = index
-            self.set_qc_data()
+            self.set_batch()
             self.set_results()
 
     def on_batch_activated(self, event):
@@ -389,11 +381,10 @@ class Biovarase(Frame):
             print (sys.exc_info()[2])             
             
 
-    def set_qc_data(self):
+    def set_batch(self):
 
         s = "{0} {1}".format(self.selected_test[1],self.selected_batch[2])
-        self.selected_data.set(s)
-
+        
         self.expiration.set(self.selected_batch[3])
         self.target.set(self.selected_batch[4])
         self.sd.set(self.selected_batch[5])
@@ -494,25 +485,24 @@ class Biovarase(Frame):
                     sd = round(np.std(data),2)
                     cv = round((sd/avg)*100,2)
 
-                    target_line = []
-                    sd1line = []
-                    sd2line = []
-                    sd3line = []
-                    sd1_line = []
-                    sd2_line = []
-                    sd3_line = []
+                    lines = ([],[],[],[],[],[],[])
 
                     for i in range(len(data)+1):
-                      
-                        sd1line.append(self.selected_batch[4]+self.selected_batch[5])
-                        sd2line.append(self.selected_batch[4]+(self.selected_batch[5]*2))
-                        sd3line.append(self.selected_batch[4]+(self.selected_batch[5]*3))
-                        sd1_line.append(self.selected_batch[4]-self.selected_batch[5])
-                        sd2_line.append(self.selected_batch[4]-(self.selected_batch[5]*2))
-                        sd3_line.append(self.selected_batch[4]-(self.selected_batch[5]*3))
-                        target_line.append(self.selected_batch[4])
 
+                        lines[0].append(target+(sd*3))
+                        lines[1].append(target+(sd*2))
+                        lines[2].append(target+sd)
+
+                        lines[3].append(target)
+
+                        lines[4].append(target-sd)
+                        lines[5].append(target-(sd*2))
+                        lines[6].append(target-(sd*3))
+
+                    
                     try:
+                        #for line in lines:
+                            #print(line)
                         #it's show time
                         self.ax.clear()
                         self.ax.grid()
@@ -522,26 +512,29 @@ class Biovarase(Frame):
                          
                         for x,y in enumerate(data):
                             self.ax.text(x, y, str(y),)
-
-                        self.ax.plot(target_line,label='target', linewidth=2)
+                        
                         self.ax.legend(loc='upper right')
-                        self.ax.plot(sd1line,color="green",label='+1 sd',linestyle='--')
-                        self.ax.plot(sd2line,color="yellow",label='+2 sd',linestyle='--')
-                        self.ax.plot(sd3line,color="red",label='+3 sd',linestyle='--')
-                        self.ax.plot(sd1_line,color="green",label='-1 sd',linestyle='--')
-                        self.ax.plot(sd2_line,color="yellow",label='-2 sd',linestyle='--')
-                        self.ax.plot(sd3_line,color="red",label='-3 sd',linestyle='--')
-  
+                        
+                        self.ax.plot(lines[0],color="red",label='+3 sd',linestyle='--')
+                        self.ax.plot(lines[1],color="yellow",label='+2 sd',linestyle='--')
+                        self.ax.plot(lines[2],color="green",label='+1 sd',linestyle='--')
+                        self.ax.plot(lines[3],label='target', linewidth=2)
+                        self.ax.plot(lines[4],color="green",label='-1 sd',linestyle='--')
+                        self.ax.plot(lines[5],color="yellow",label='-2 sd',linestyle='--')
+                        self.ax.plot(lines[6],color="red",label='-3 sd',linestyle='--')
+                        
                         um = self.get_um()
                         if um is  not None:
                             self.ax.set_ylabel(str(um[0]))
                         else:
                             self.ax.set_ylabel("No unit assigned yet")
 
-                        msg = "Test: %s Batch: %s Expiration: %s " %(self.selected_test[1],
-                                                                     self.selected_batch[2],
-                                                                     self.selected_batch[3],)
-                        self.ax.set_title(msg)
+                        msg = "%s Batch: %s Exp: %s " %(self.selected_test[1],
+                                                        self.selected_batch[2],
+                                                        self.selected_batch[3],)
+
+                        #mpl.style.use(sty)
+                        self.ax.set_title(msg, fontsize=12, fontweight='bold', color='blue')
 
                         text_data = (avg,sd,cv,self.format_interval_date(dates), compute_data, all_data)
 
