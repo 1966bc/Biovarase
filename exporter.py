@@ -21,18 +21,7 @@ class Exporter(object):
     def __str__(self):
         return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Exporter.__mro__])
 
-    def _get_series(self,batch):
-
-        series = []
-
-        sql = "SELECT result FROM results WHERE batch_id =? AND enable =1  ORDER BY result_id  DESC"
-        rs = self.read(True, sql, (batch[0],))
-
-        for i in rs:
-             series.append(i[0])
-        return series   
-
-
+    
     def quick_data_analysis(self,):
 
         path = tempfile.mktemp (".xls")
@@ -54,7 +43,6 @@ class Exporter(object):
         
         row +=1
 
-        
         sql = "SELECT * FROM lst_tests WHERE enable =1"
         rs_tests = self.read(True, sql)
         for test in rs_tests:
@@ -68,7 +56,8 @@ class Exporter(object):
                         ORDER BY result_id\
                         DESC LIMIT 1"
                 rs_results = self.read(True, sql3, (batch[0],))
-                series = self._get_series(batch)
+
+                series = self.get_series(batch[0],self.get_elements())
 
                 if len(series) > 9:
                     rule = self.get_violation(batch[4], batch[5], series)
@@ -82,10 +71,7 @@ class Exporter(object):
                         date = rs_results[0][1].strftime("%d-%m-%Y")
                         target = float(batch[4])
                         sd = float(batch[5])
-                        
-                        
-                        #ws.write(row,4,result)
-                       
+                           
                         if result >= target:
                             #result > 3sd
                             if result >= (target + (sd*3)):

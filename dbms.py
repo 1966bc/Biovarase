@@ -3,8 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   winter 2018
-# version:  0.2                                                                  
+# modify:   winter 2018                                                              
 #-----------------------------------------------------------------------------
 
 import sqlite3 as lite
@@ -172,8 +171,6 @@ class DBMS(object):
 
 
     def get_stat(self,batch_id,limit,):
-
-        
         try:
 
             sql = "SELECT result_id,\
@@ -203,8 +200,20 @@ class DBMS(object):
             print (sys.exc_info()[0])
             print (sys.exc_info()[1])
             print (sys.exc_info()[2])
-            return False   
+            return False
 
+    def get_series(self, batch_id, limit):
+
+        series = []
+
+        sql = "SELECT result FROM results WHERE batch_id =? AND enable =1 ORDER BY result_id  DESC LIMIT ?"
+
+        rs = self.read(True, sql, (batch_id, limit))
+
+        for i in rs:
+             series.append(i[0])
+
+        return series
 
 def main():
 
