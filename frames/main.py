@@ -14,8 +14,10 @@ from tkinter import messagebox
 import datetime
 import numpy as np
 
+
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+
 plt.rcParams.update({'figure.max_open_warning': 0})
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -28,6 +30,7 @@ import matplotlib.ticker
 from matplotlib.ticker import LinearLocator
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.figure import Figure
+from matplotlib import gridspec
 
 from engine import Engine
 
@@ -112,11 +115,11 @@ class Biovarase(Frame):
 
         #-----------------------------------------------------------------------
         f1 = Frame(self,bd=5)
-        w = LabelFrame(f1,text='Selected batch data', font='Helvetica 10 bold')
+        w = LabelFrame(f1,text='Batch data', font='Helvetica 10 bold')
 
         Label(w, text="Target").pack()
         Label(w, bg='lavender',foreground="blue", textvariable = self.target).pack(fill=X, padx=2,pady=2)
-        Label(w, text="Standard Deviation").pack()
+        Label(w, text="SD").pack()
         Label(w, bg='lemon chiffon', foreground="green", textvariable = self.sd).pack(fill=X, padx=2,pady=2)
         Label(w, text="Expiration").pack()
         Label(w, bg='white', textvariable = self.expiration).pack(fill=X, padx=2,pady=2)
@@ -137,14 +140,13 @@ class Biovarase(Frame):
 
         f1.pack(side=LEFT, fill=Y, expand=0)
 
-        #-----------------------------------------------------------------------
-        f2 = Frame(self,bd=5)
+     
 
-        w = LabelFrame(f2,text='Calculated data',font='Helvetica 10 bold')
+        w = LabelFrame(f1,text='Cal data',font='Helvetica 10 bold')
      
         Label(w, text="Average").pack()
         Label(w,  bg='lavender', foreground="blue", textvariable = self.average).pack(fill=X, padx=2, pady=2)
-        Label(w, text="Standard Deviation").pack()
+        Label(w, text="SD").pack()
         Label(w,  bg='lemon chiffon', foreground="green", textvariable = self.calculated_sd).pack(fill=X, padx=2, pady=2)
         Label(w, text="CV%").pack()        
         Label(w, foreground="white", bg='orange3', textvariable = self.calculated_cv).pack(fill=X, padx=2,pady=2)
@@ -160,24 +162,21 @@ class Biovarase(Frame):
 
         w.pack(side=TOP,fill=X, expand=0)
 
-        f2.pack(side=LEFT, fill=Y, expand=0)
- 
-        self.Frame_Graph = Frame(self,bd=5,)
-
+        f1.pack(side=LEFT, fill=Y, expand=0)
+        
+        #-----------------------------------------------------------------------
         #create graph!
-        self.Frame_Graph.pack(side=RIGHT, fill=BOTH, expand=1, padx=5, pady=5)
-
+        f2 = Frame(self,bd=5,)
+        f2.pack(side=RIGHT, fill=BOTH, expand=1, padx=5, pady=5)
+        #Figure: The top level container for all the plot elements.
+        #figsize:width, height in inches, figsize=(6.4, 4.8)
+        gs = gridspec.GridSpec(1, 2, width_ratios=[2, 1]) 
         fig = Figure()
-        #fig.suptitle(self.engine.title, fontsize=14, fontweight='bold',color='orange',style='italic')
-        self.ax = fig.add_subplot(111, facecolor=('xkcd:light grey'))
-        self.ax.set_axisbelow(True)
-        self.ax.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
-        self.ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-        self.line = self.ax.plot()
-        self.canvas = FigureCanvasTkAgg(fig,self.Frame_Graph)
-        toolbar = nav_tool(self.canvas, self.Frame_Graph)
+        self.ax = fig.add_subplot(gs[0], facecolor=('xkcd:light grey'))
+        self.ax2 = fig.add_subplot(gs[1], facecolor=('xkcd:light grey'))
+        self.canvas = FigureCanvasTkAgg(fig, f2)
+        toolbar = nav_tool(self.canvas, f2)
         toolbar.update()
-        #self.canvas.show()
         self.canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)
 
     def init_status_bar(self):
@@ -276,7 +275,7 @@ class Biovarase(Frame):
                    
                     index+=1
 
-                series = self.get_series(rs)                 
+                series = self.engine.get_series(self.selected_batch[0],int(self.spElements.get()))                 
                 avg = round(np.mean(series),2)
                 sd = round(np.std(series),2)
                 self.average.set(avg)
@@ -297,7 +296,9 @@ class Biovarase(Frame):
     def reset_graph(self):
             try:
                 self.ax.clear()
-                self.ax.grid()
+                self.ax2.clear()
+                self.ax.grid(True)
+                self.ax2.grid(True)
                 self.canvas.draw()
             except:
                 print(inspect.stack()[0][3])
@@ -388,24 +389,7 @@ class Biovarase(Frame):
         self.expiration.set(self.selected_batch[3])
         self.target.set(self.selected_batch[4])
         self.sd.set(self.selected_batch[5])
-
-    def get_series(self, rs):
-
-        """return a value series to compute stat data
-           notice that i[4] is enable field of the resultset
-       
-        @param name: rs
-        @return: a value series
-        @rtype: list
-        """     
-        series = []
-
-        rs = tuple(i for i in rs if i[4]!=0)
-
-        for i in rs:
-            series.append(i[1])
-
-        return series             
+           
                          
     def set_results_row_color(self, index, result, is_enabled, target, sd):
 
@@ -454,13 +438,15 @@ class Biovarase(Frame):
         return self.engine.read(False, sql, (self.selected_test[3],))
 
 
-    def set_graph(self, rs_results):
+    def set_graph(self, rs):
 
         if self.selected_batch is not None :
 
-            all_data = len(rs_results)
+            #self.engine.get_bar(rs, self.selected_batch)
+
+            all_data = len(rs)
             #compute record with enable = 1
-            rs = tuple(i for i in rs_results if i[4]!=0)
+            rs = tuple(i for i in rs if i[4]!=0)
             compute_data = len(rs)
             
             if rs is not None:
@@ -475,8 +461,7 @@ class Biovarase(Frame):
                     dates = []
                     x_labels = []
 
-                    for i in reversed(rs):
-                        
+                    for i in reversed(rs): 
                         data.append(i[1])
                         x_labels.append(i[2])
                         dates.append(i[3])
@@ -498,22 +483,22 @@ class Biovarase(Frame):
                         lines[4].append(target-sd)
                         lines[5].append(target-(sd*2))
                         lines[6].append(target-(sd*3))
-
                     
                     try:
-                        #for line in lines:
-                            #print(line)
                         #it's show time
                         self.ax.clear()
-                        self.ax.grid()
+                        self.ax2.clear()
+                        self.ax.grid(True)
+                        self.ax2.grid(True)
+                        
                         self.ax.set_xticks(range(0, len(data)+1))
+                        self.ax.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
+                        self.ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
                         self.ax.set_xticklabels(x_labels, rotation=70, size=6)
                         self.ax.plot(data, marker="8", label='data')
                          
                         for x,y in enumerate(data):
                             self.ax.text(x, y, str(y),)
-                        
-                        self.ax.legend(loc='upper right')
                         
                         self.ax.plot(lines[0],color="red",label='+3 sd',linestyle='--')
                         self.ax.plot(lines[1],color="yellow",label='+2 sd',linestyle='--')
@@ -533,18 +518,22 @@ class Biovarase(Frame):
                                                         self.selected_batch[2],
                                                         self.selected_batch[3],)
 
-                        #mpl.style.use(sty)
-                        self.ax.set_title(msg, fontsize=12, fontweight='bold', color='blue')
+                        
+                        self.ax.set_title(msg)
 
-                        text_data = (avg,sd,cv,self.format_interval_date(dates), compute_data, all_data)
-
-                        self.ax.text(0.95, 0.01,
-                                 'avg:%s sd:%s cv:%s %s computed %s on %s results'%text_data,
-                                 verticalalignment='bottom',
-                                 horizontalalignment='right',
-                                 transform=self.ax.transAxes,
-                                 color='black')
-                            
+                        #histogram
+                        self.ax2.hist(data,  alpha=0.6, color='g')
+                        self.ax2.axvline(target, color='b', linestyle='dashed', linewidth=1)
+                        self.ax2.axvline(avg, color='r', linestyle='dashed', linewidth=1)
+                        self.ax2.set_ylabel('Frequency')
+                        title = "avg = %.2f,  std = %.2f cv = %.2f" % (avg, sd, cv)
+                        self.ax2.set_title(title)
+                        if um is  not None:
+                            self.ax2.set_xlabel(str(um[0]))
+                        else:
+                            self.ax2.set_xlabel("No unit assigned yet")
+                        
+                                             
                         self.canvas.draw()
 
                     except:
@@ -658,7 +647,7 @@ def main():
     #set icon
     imgicon = PhotoImage(file=os.path.join('icons', 'app.png'))
     root.call('wm', 'iconphoto', root._w, '-default', imgicon)
-    #root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
+    root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
     #root.geometry("{0}x{1}+0+0".format(1200, 600))
     root.title(engine.title)
     app = Biovarase(engine)
