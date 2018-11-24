@@ -1,6 +1,8 @@
 # Biovarase
 ## A clinical quality control data management project
 
+![alt tag](https://user-images.githubusercontent.com/5463566/48966919-5d79b880-efd9-11e8-829e-73b24fc42323.png)
+
 Biovarase is an application to manage clinical quality control data.
 
 The purpose of Quality Control Assurance in a clinical laboratory is to allow the control of the performances of an analytical procedure showing an alarm as soon as the trial doesn't result in the degree to respect the defined analytical rules. Biovarase furthermore calculates the classical statistical parameters for the quality control assurance ,e.g. sd, cv%, avg, and even the Imp(%), Bias(%) and TEa (total allowable error) using data retrived from: Current databases on biologic variation: pros, cons and progress Scand J Clin Lab Invest 1999;59:491-500. updated with the most recent specifications made available in 2014.
@@ -37,15 +39,22 @@ Regards.
 
 **2018-11-23**
 
-Change the redrew mechanism, now Biovarase doesn't rebuild graph when you select a batch, but update only the data.
+Change the redrew mechanism, now Biovarase doesn't rebuild graph from scratch when you select a batch, but update only the data.
 
-I've Look here [Chapman Siu](https://gist.github.com/1966bc/824372b59c03425d02d816f1f02f8685) to learn how do it
+I've Look here [Chapman Siu](https://gist.github.com/1966bc/824372b59c03425d02d816f1f02f8685) to learn how do it.
+
+On Quick Data Analisys add column with Westgard valutation.
+
+Some minor refactoring on main.py code.
+
+We deserve an updating to version 2.8. ;)
 
 
 **2018-11-18**
 
-Change format to align text in the listbox, remember to use a font such font='TkFixedFont'
-align date and result on graph, did anyone notice this?
+Change format to align text in the listbox, remember to use a font such font='TkFixedFont'.
+
+Align date and result on graph, did anyone notice this?
 
 **2018-09-23**
 
@@ -72,4 +81,3 @@ TOFIX:
 If you make double click on a result, the graph disappear....
 ...
 
-![alt tag](https://user-images.githubusercontent.com/5463566/48675490-c97f9b00-eb59-11e8-975a-1b2b17aebf9c.png)
