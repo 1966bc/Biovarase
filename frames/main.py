@@ -55,7 +55,7 @@ class Biovarase(Frame):
         self.target = DoubleVar()
         self.sd = DoubleVar()
         self.expiration = StringVar()
-        self.ax = None
+        self.lj = None
         
         self.init_menu()
         self.init_ui()
@@ -172,8 +172,8 @@ class Biovarase(Frame):
         #figsize:width, height in inches, figsize=(6.4, 4.8)
         gs = gridspec.GridSpec(1, 2, width_ratios=[2, 1]) 
         fig = Figure()
-        self.ax = fig.add_subplot(gs[0], facecolor=('xkcd:light grey'))
-        self.ax2 = fig.add_subplot(gs[1], facecolor=('xkcd:light grey'))
+        self.lj = fig.add_subplot(gs[0], facecolor=('xkcd:light grey'))
+        self.frq = fig.add_subplot(gs[1], facecolor=('xkcd:light grey'))
         self.canvas = FigureCanvasTkAgg(fig, f2)
         toolbar = nav_tool(self.canvas, f2)
         toolbar.update()
@@ -295,10 +295,10 @@ class Biovarase(Frame):
 
     def reset_graph(self):
             try:
-                self.ax.clear()
-                self.ax2.clear()
-                self.ax.grid(True)
-                self.ax2.grid(True)
+                self.lj.clear()
+                self.frq.clear()
+                self.lj.grid(True)
+                self.frq.grid(True)
                 self.canvas.draw()
             except:
                 print(inspect.stack()[0][3])
@@ -486,52 +486,52 @@ class Biovarase(Frame):
                     
                     try:
                         #it's show time
-                        self.ax.clear()
-                        self.ax2.clear()
-                        self.ax.grid(True)
-                        self.ax2.grid(True)
+                        self.lj.clear()
+                        self.frq.clear()
+                        self.lj.grid(True)
+                        self.frq.grid(True)
                         
-                        self.ax.set_xticks(range(0, len(data)+1))
-                        self.ax.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
-                        self.ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-                        self.ax.set_xticklabels(x_labels, rotation=70, size=6)
-                        self.ax.plot(data, marker="8", label='data')
+                        self.lj.set_xticks(range(0, len(data)+1))
+                        self.lj.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
+                        self.lj.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+                        self.lj.set_xticklabels(x_labels, rotation=70, size=6)
+                        self.lj.plot(data, marker="8", label='data')
                          
                         for x,y in enumerate(data):
-                            self.ax.text(x, y, str(y),)
+                            self.lj.text(x, y, str(y),)
                         
-                        self.ax.plot(lines[0],color="red",label='+3 sd',linestyle='--')
-                        self.ax.plot(lines[1],color="yellow",label='+2 sd',linestyle='--')
-                        self.ax.plot(lines[2],color="green",label='+1 sd',linestyle='--')
-                        self.ax.plot(lines[3],label='target', linewidth=2)
-                        self.ax.plot(lines[4],color="green",label='-1 sd',linestyle='--')
-                        self.ax.plot(lines[5],color="yellow",label='-2 sd',linestyle='--')
-                        self.ax.plot(lines[6],color="red",label='-3 sd',linestyle='--')
+                        self.lj.plot(lines[0],color="red",label='+3 sd',linestyle='--')
+                        self.lj.plot(lines[1],color="yellow",label='+2 sd',linestyle='--')
+                        self.lj.plot(lines[2],color="green",label='+1 sd',linestyle='--')
+                        self.lj.plot(lines[3],label='target', linewidth=2)
+                        self.lj.plot(lines[4],color="green",label='-1 sd',linestyle='--')
+                        self.lj.plot(lines[5],color="yellow",label='-2 sd',linestyle='--')
+                        self.lj.plot(lines[6],color="red",label='-3 sd',linestyle='--')
                         
                         um = self.get_um()
                         if um is  not None:
-                            self.ax.set_ylabel(str(um[0]))
+                            self.lj.set_ylabel(str(um[0]))
                         else:
-                            self.ax.set_ylabel("No unit assigned yet")
+                            self.lj.set_ylabel("No unit assigned yet")
 
                         msg = "%s Batch: %s Exp: %s " %(self.selected_test[1],
                                                         self.selected_batch[2],
                                                         self.selected_batch[3],)
 
                         
-                        self.ax.set_title(msg)
+                        self.lj.set_title(msg)
 
-                        #histogram
-                        self.ax2.hist(data,  alpha=0.6, color='g')
-                        self.ax2.axvline(target, color='b', linestyle='dashed', linewidth=1)
-                        self.ax2.axvline(avg, color='r', linestyle='dashed', linewidth=1)
-                        self.ax2.set_ylabel('Frequency')
+                        #histogram of frequency distribuition
+                        self.frq.hist(data,  alpha=0.6, color='g')
+                        self.frq.axvline(target, color='b', linestyle='dashed', linewidth=1)
+                        self.frq.axvline(avg, color='r', linestyle='dashed', linewidth=1)
+                        self.frq.set_ylabel('Frequency')
                         title = "avg = %.2f,  std = %.2f cv = %.2f" % (avg, sd, cv)
-                        self.ax2.set_title(title)
+                        self.frq.set_title(title)
                         if um is  not None:
-                            self.ax2.set_xlabel(str(um[0]))
+                            self.frq.set_xlabel(str(um[0]))
                         else:
-                            self.ax2.set_xlabel("No unit assigned yet")
+                            self.frq.set_xlabel("No unit assigned yet")
                         
                                              
                         self.canvas.draw()
