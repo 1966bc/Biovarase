@@ -19,8 +19,8 @@ All the data are managed by SQLite database and matplotlib.
 
 Biovarase requires 
 
-- Python 3
-- Tkinter
+- Python =>3.5
+- tkinter
 - matplotlib 
 - xlwt
 
@@ -35,17 +35,17 @@ Regards.
 
 
 ...
-## change log
+## changelog
 
 **2018-11-24**
 
-Change the redrew mechanism, now Biovarase doesn't rebuild graph from scratch when you select a batch, but update only the data.
+Change the redrew mechanism, now Biovarase doesn't rebuild the graph from scratch when you select a batch, but update only the data.
 
-I've Look here [Chapman Siu](https://gist.github.com/1966bc/824372b59c03425d02d816f1f02f8685) to learn how do it.
+I've look here [Chapman Siu](https://gist.github.com/1966bc/824372b59c03425d02d816f1f02f8685) to learn how do it.
 
-On Quick Data Analisys add column with Westgard valutation.
+Add Quick Data Analysis function on the menu to analyze the last dataset for every test and relative bacth.
 
-Add histogram to plot frequency distribution of a dataset. 
+Add histogram to plot frequency distribution of a dataset.
 
 Some minor refactoring on main.py code.
 
