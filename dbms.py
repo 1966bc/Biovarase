@@ -206,7 +206,7 @@ class DBMS(object):
 
         series = []
 
-        sql = "SELECT result FROM results WHERE batch_id =? AND enable =1 ORDER BY result_id  DESC LIMIT ?"
+        sql = "SELECT result FROM lst_results WHERE batch_id =? AND enable =1 LIMIT ?"
 
         rs = self.read(True, sql, (batch_id, limit))
 
