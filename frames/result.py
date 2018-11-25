@@ -81,6 +81,7 @@ class Dialog(Toplevel):
             self.insert_mode = True
             msg = "Insert new result"
             self.enable.set(1)
+            self.engine.set_date(self)
 
         self.title(msg)
         self.txtResult.focus()
