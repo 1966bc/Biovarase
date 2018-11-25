@@ -55,7 +55,6 @@ class Biovarase(Frame):
         self.target = DoubleVar()
         self.sd = DoubleVar()
         self.expiration = StringVar()
-        self.lj = None
         
         self.init_menu()
         self.init_ui()
@@ -284,7 +283,7 @@ class Biovarase(Frame):
                 self.calculated_sd.set(sd)
                 self.calculated_cv.set(round((sd/avg)*100,2))
                 self.range.set(round(np.ptp(series),2))
-                self.set_graph(rs)
+                self.get_data(rs)
                 
             else:
                 self.westgard.set('No Data')
@@ -438,11 +437,10 @@ class Biovarase(Frame):
         return self.engine.read(False, sql, (self.selected_test[3],))
 
 
-    def set_graph(self, rs):
+    def get_data(self, rs):
+
 
         if self.selected_batch is not None :
-
-            #self.engine.get_bar(rs, self.selected_batch)
 
             all_data = len(rs)
             #compute record with enable = 1
@@ -452,9 +450,10 @@ class Biovarase(Frame):
             if rs is not None:
 
                 if compute_data<3:
-                    msg = ("%s : lot %s INSUFFICIENT DATA FOR MEANINGFUL ANSWER"% (self.selected_test[2],self.selected_batch[2]))
+                    msg = ("%s : lot %s INSUFFICIENT DATA FOR MEANINGFUL ANSWER"% (self.selected_test[2],
+                                                                                   self.selected_batch[2]))
                 else:
-                    
+
                     target = self.selected_batch[4]
                     sd = self.selected_batch[5]
                     data = []
@@ -468,87 +467,85 @@ class Biovarase(Frame):
 
                     avg = round(np.mean(data),2)
                     sd = round(np.std(data),2)
-                    cv = round((sd/avg)*100,2)
-
-                    lines = ([],[],[],[],[],[],[])
-
-                    for i in range(len(data)+1):
-
-                        lines[0].append(target+(sd*3))
-                        lines[1].append(target+(sd*2))
-                        lines[2].append(target+sd)
-
-                        lines[3].append(target)
-
-                        lines[4].append(target-sd)
-                        lines[5].append(target-(sd*2))
-                        lines[6].append(target-(sd*3))
+                    cv = round((sd/avg)*100,2)  
+                    um = self.get_um()
                     
-                    try:
-                        #it's show time
-                        self.lj.clear()
-                        self.frq.clear()
-                        self.lj.grid(True)
-                        self.frq.grid(True)
-                        
-                        self.lj.set_xticks(range(0, len(data)+1))
-                        self.lj.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
-                        self.lj.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-                        self.lj.set_xticklabels(x_labels, rotation=70, size=6)
-                        self.lj.plot(data, marker="8", label='data')
-                         
-                        for x,y in enumerate(data):
-                            self.lj.text(x, y, str(y),)
-                        
-                        self.lj.plot(lines[0],color="red",label='+3 sd',linestyle='--')
-                        self.lj.plot(lines[1],color="yellow",label='+2 sd',linestyle='--')
-                        self.lj.plot(lines[2],color="green",label='+1 sd',linestyle='--')
-                        self.lj.plot(lines[3],label='target', linewidth=2)
-                        self.lj.plot(lines[4],color="green",label='-1 sd',linestyle='--')
-                        self.lj.plot(lines[5],color="yellow",label='-2 sd',linestyle='--')
-                        self.lj.plot(lines[6],color="red",label='-3 sd',linestyle='--')
-                        
-                        um = self.get_um()
-                        if um is  not None:
-                            self.lj.set_ylabel(str(um[0]))
-                        else:
-                            self.lj.set_ylabel("No unit assigned yet")
-
-                        msg = "%s Batch: %s Exp: %s " %(self.selected_test[1],
-                                                        self.selected_batch[2],
-                                                        self.selected_batch[3],)
-
-                        
-                        self.lj.set_title(msg)
-
-                        #histogram of frequency distribuition
-                        self.frq.hist(data,  alpha=0.6, color='g')
-                        self.frq.axvline(target, color='b', linestyle='dashed', linewidth=1)
-                        self.frq.axvline(avg, color='r', linestyle='dashed', linewidth=1)
-                        self.frq.set_ylabel('Frequency')
-                        title = "avg = %.2f,  std = %.2f cv = %.2f" % (avg, sd, cv)
-                        self.frq.set_title(title)
-                        if um is  not None:
-                            self.frq.set_xlabel(str(um[0]))
-                        else:
-                            self.frq.set_xlabel("No unit assigned yet")
-                        
-                                             
-                        self.canvas.draw()
-
-                    except:
-                        print(inspect.stack()[0][3])
-                        print (sys.exc_info()[0])
-                        print (sys.exc_info()[1])
-                        print (sys.exc_info()[2])
-                        
-                    
+                    self.set_lj(data, target, avg, sd, cv, um, x_labels, dates)
+                    self.set_histogram(data, target, avg, sd, cv, um)
+                    self.canvas.draw()
+   
             else:
                 msg = "INSUFFICIENT DATA FOR MEANINGFUL ANSWER."
                 messagebox.showinfo(self.engine.title,msg )
         else:
             msg = "No batch selected."
             messagebox.showwarning(self.engine.title,msg)
+
+    def set_lj(self, data, target, avg, sd, cv, um, x_labels, dates):
+
+        self.lj.clear()
+        self.lj.grid(True)
+
+        lines = ([],[],[],[],[],[],[])
+
+        for i in range(len(data)+1):
+
+            lines[0].append(target+(sd*3))
+            lines[1].append(target+(sd*2))
+            lines[2].append(target+sd)
+
+            lines[3].append(target)
+
+            lines[4].append(target-sd)
+            lines[5].append(target-(sd*2))
+            lines[6].append(target-(sd*3))
+        
+        #it's show time
+        self.lj.set_xticks(range(0, len(data)+1))
+        self.lj.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
+        self.lj.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+        self.lj.set_xticklabels(x_labels, rotation=70, size=6)
+        self.lj.plot(data, marker="8", label='data')
+             
+        for x,y in enumerate(data):
+            self.lj.text(x, y, str(y),)
+            
+        self.lj.plot(lines[0],color="red",label='+3 sd',linestyle='--')
+        self.lj.plot(lines[1],color="yellow",label='+2 sd',linestyle='--')
+        self.lj.plot(lines[2],color="green",label='+1 sd',linestyle='--')
+        self.lj.plot(lines[3],label='target', linewidth=2)
+        self.lj.plot(lines[4],color="green",label='-1 sd',linestyle='--')
+        self.lj.plot(lines[5],color="yellow",label='-2 sd',linestyle='--')
+        self.lj.plot(lines[6],color="red",label='-3 sd',linestyle='--')
+
+        if um is  not None:
+            self.lj.set_ylabel(str(um[0]))
+        else:
+            self.lj.set_ylabel("No unit assigned yet")
+
+        msg = "%s Batch: %s Exp: %s " %(self.selected_test[1],
+                                        self.selected_batch[2],
+                                        self.selected_batch[3],)
+
+        
+        self.lj.set_title(msg)
+
+    def set_histogram(self, data, target, avg, sd, cv, um=None):
+
+        #histogram of frequency distribuition
+        self.frq.clear()
+        self.frq.grid(True)
+        #self.frq.axis(xmin=min(data), xmax = max(data))
+        self.frq.hist(data, color='g')
+        self.frq.axvline(target, color='orange',linewidth=2)
+        self.frq.axvline(avg, color='b', linestyle='dashed', linewidth=2)
+        self.frq.set_ylabel('Frequency')
+        title = "avg = %.2f,  std = %.2f cv = %.2f" % (avg, sd, cv)
+        self.frq.set_title(title)
+        if um is  not None:
+            self.frq.set_xlabel(str(um[0]))
+        else:
+            self.frq.set_xlabel("No unit assigned yet")
          
 
     def format_interval_date(self,dates):
