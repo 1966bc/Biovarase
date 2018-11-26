@@ -16,7 +16,7 @@ import numpy as np
 
 
 import matplotlib.pyplot as plt
-import matplotlib as mpl
+
 
 plt.rcParams.update({'figure.max_open_warning': 0})
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -74,7 +74,7 @@ class Biovarase(Frame):
                  ("Reset",self.on_reset),
                  ("Export",self.on_export),
                  ("Tests",self.on_tests),
-                 ("Batchs",self.batchs),
+                 ("Data",self.on_data),
                  ("Units",self.on_units),
                  ("Exit",self.on_exit),)
 
@@ -98,7 +98,7 @@ class Biovarase(Frame):
         self.cbTests.pack(side=TOP,fill=X,expand=0)
         w.pack(side=TOP,fill=X, expand=0)
 
-        w = LabelFrame(f0, text='Batchs')
+        w = LabelFrame(f0, text='on_data')
         self.lstBatchs = self.engine.get_listbox(w,)
         self.lstBatchs.bind("<<ListboxSelect>>", self.on_selected_batch)
         self.lstBatchs.bind('<Button-3>', self.on_batch_activated)
@@ -107,7 +107,7 @@ class Biovarase(Frame):
         w = LabelFrame(f0,text='Results')
         self.lstResults = self.engine.get_listbox(w,)
         self.lstResults.bind("<<ListboxSelect>>", self.on_selected_result)
-        self.lstResults.bind('<Double-Button-1>', self.on_enable_result)
+        self.lstResults.bind('<Double-Button-1>', self.on_result_activated)
         w.pack(side=TOP,fill=BOTH, expand=1)
         
         f0.pack(side=LEFT, fill=Y, expand=0)
@@ -171,6 +171,7 @@ class Biovarase(Frame):
         #figsize:width, height in inches, figsize=(6.4, 4.8)
         gs = gridspec.GridSpec(1, 2, width_ratios=[2, 1]) 
         fig = Figure()
+        fig.suptitle(self.engine.title, fontsize=16)
         self.lj = fig.add_subplot(gs[0], facecolor=('xkcd:light grey'))
         self.frq = fig.add_subplot(gs[1], facecolor=('xkcd:light grey'))
         self.canvas = FigureCanvasTkAgg(fig, f2)
@@ -187,12 +188,8 @@ class Biovarase(Frame):
 
     def on_open(self):
 
-        self.set_elements()
-        self.on_reset()
-    
-    def set_elements(self):
-        
         self.elements.set(self.engine.get_elements())
+        self.on_reset()
     
     def on_reset(self):
         
@@ -202,6 +199,32 @@ class Biovarase(Frame):
         self.cbTests.set('')
         self.set_tests()
         self.reset_graph()
+
+    def reset_graph(self):
+        try:
+            self.lj.clear()
+            self.frq.clear()
+            self.lj.grid(True)
+            self.frq.grid(True)
+            self.canvas.draw()
+        except:
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])
+
+    def reset_texts(self):
+        
+        self.expiration.set('')
+        self.target.set(0)
+        self.sd.set(0)
+        self.average.set(0)
+        self.bias.set(0)
+        self.westgard.set('No Data')
+        self.calculated_sd.set(0)
+        self.calculated_cv.set(0)
+        self.range.set(0)
+        self.set_westgard_alarm()        
        
 
     def set_tests(self):
@@ -224,7 +247,6 @@ class Biovarase(Frame):
             v.append(i[1])
 
         self.cbTests['values']=v        
-        
         self.reset_texts()
         
     def set_batchs(self):
@@ -290,43 +312,13 @@ class Biovarase(Frame):
                 self.calculated_sd.set(0)
                 self.calculated_cv.set(0)
                 self.range.set(0)
-                self.reset_graph()            
-
-    def reset_graph(self):
-            try:
-                self.lj.clear()
-                self.frq.clear()
-                self.lj.grid(True)
-                self.frq.grid(True)
-                self.canvas.draw()
-            except:
-                print(inspect.stack()[0][3])
-                print (sys.exc_info()[0])
-                print (sys.exc_info()[1])
-                print (sys.exc_info()[2])
-
-    def reset_texts(self):
-        
-        self.expiration.set('')
-        self.target.set(0)
-        self.sd.set(0)
-        self.average.set(0)
-        self.bias.set(0)
-        self.westgard.set('No Data')
-        self.calculated_sd.set(0)
-        self.calculated_cv.set(0)
-        self.range.set(0)
-        self.set_westgard_alarm()
-        
+                self.reset_graph()                 
 
     def on_selected_test(self,event):
 
         index = self.cbTests.current()
         test_id = self.dict_tests[index]
         self.selected_test = self.engine.get_selected('lst_tests','test_id', test_id)
-        
-        self.lstBatchs.delete(0, END)
-        self.lstResults.delete(0, END)
         self.reset_texts()
         self.set_batchs()
     
@@ -337,10 +329,18 @@ class Biovarase(Frame):
 
             index = self.lstBatchs.curselection()[0]
             pk = self.dict_batchs.get(index)
-            self.selected_batch = self.engine.get_selected('batchs','batch_id', pk)
+            self.selected_batch = self.engine.get_selected('on_data','batch_id', pk)
             self.batch_index = index
             self.set_batch()
             self.set_results()
+
+    def on_selected_result(self,event):
+
+        if self.lstResults.curselection():
+            
+            index = self.lstResults.curselection()[0]
+            pk = self.dict_results.get(index)
+            self.selected_result = self.engine.get_selected('results','result_id', pk)            
 
     def on_batch_activated(self, event):
 
@@ -349,15 +349,7 @@ class Biovarase(Frame):
             self.obj.transient(self)
             self.obj.on_open(self.selected_test, self.selected_batch)
 
-    def on_selected_result(self,event):
-
-        if self.lstResults.curselection():
-            
-            index = self.lstResults.curselection()[0]
-            pk = self.dict_results.get(index)
-            self.selected_result = self.engine.get_selected('results','result_id', pk)
-
-    def on_enable_result(self, event):
+    def on_result_activated(self, event):
 
         try:
             if self.lstResults.curselection():
@@ -439,7 +431,6 @@ class Biovarase(Frame):
 
     def get_data(self, rs):
 
-
         if self.selected_batch is not None :
 
             all_data = len(rs)
@@ -470,7 +461,7 @@ class Biovarase(Frame):
                     cv = round((sd/avg)*100,2)  
                     um = self.get_um()
                     
-                    self.set_lj(data, target, avg, sd, cv, um, x_labels, dates)
+                    self.set_lj(data, target, avg, sd, cv, um, x_labels, dates, all_data, compute_data)
                     self.set_histogram(data, target, avg, sd, cv, um)
                     self.canvas.draw()
    
@@ -481,7 +472,7 @@ class Biovarase(Frame):
             msg = "No batch selected."
             messagebox.showwarning(self.engine.title,msg)
 
-    def set_lj(self, data, target, avg, sd, cv, um, x_labels, dates):
+    def set_lj(self, data, target, avg, sd, cv, um, x_labels, dates, all_data, compute_data):
 
         self.lj.clear()
         self.lj.grid(True)
@@ -530,6 +521,15 @@ class Biovarase(Frame):
         
         self.lj.set_title(msg)
 
+        text_data = (self.format_interval_date(dates), all_data, compute_data)
+
+        self.lj.text(0.95, 0.01,
+                     '%s computed %s on %s results'%text_data,
+                     verticalalignment='bottom',
+                     horizontalalignment='right',
+                     transform=self.lj.transAxes,
+                     color='black')
+
     def set_histogram(self, data, target, avg, sd, cv, um=None):
 
         #histogram of frequency distribuition
@@ -575,24 +575,24 @@ class Biovarase(Frame):
 
     def on_export(self):
 
-        sql = "SELECT batchs.batch_id,\
+        sql = "SELECT on_data.batch_id,\
                          samples.sample,\
                       tests.test,\
-                      batchs.batch,\
-                      batchs.expiration,\
-                      batchs.target,\
+                      on_data.batch,\
+                      on_data.expiration,\
+                      on_data.target,\
                       tests.cvw,\
                       tests.cvb\
                FROM tests\
                INNER JOIN samples \
                ON tests.sample_id = samples.sample_id\
-               INNER JOIN batchs \
-               ON tests.test_id = batchs.test_id\
+               INNER JOIN on_data \
+               ON tests.test_id = on_data.test_id\
                WHERE tests.enable = 1\
                AND tests.cvw !=0\
                AND tests.cvb !=0\
-               AND batchs.target !=0\
-               AND batchs.enable = 1\
+               AND on_data.target !=0\
+               AND on_data.enable = 1\
                ORDER BY tests.test,samples.sample"
 
         limit = int(self.spElements.get())
@@ -604,10 +604,6 @@ class Biovarase(Frame):
             msg = "No record data to compute."
             messagebox.showwarning(self.engine.title,msg)
             
-    def on_elements(self,):
-
-        f = frames.elements.Dialog(self,self.engine)
-        f.on_open()
         
     def on_tests(self,):
         
@@ -619,7 +615,7 @@ class Biovarase(Frame):
         f = frames.units.Dialog(self,self.engine)
         f.on_open()           
 
-    def batchs(self,):
+    def on_data(self,):
         
         f = frames.batchs.Dialog(self,self.engine)
         f.on_open()        
