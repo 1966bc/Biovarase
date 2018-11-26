@@ -50,6 +50,22 @@ class Widgets(object):
         
         return w
 
+
+    def get_spin_box(self, container, text, frm, to, width, var=None, callback=None):
+
+        w = self.get_label_frame(container, text = text)
+        
+        s = Spinbox(w,
+                    bg='white',
+                    from_=frm,
+                    to=to,
+                    justify=CENTER,
+                    width=width,
+                    wrap=False,
+                    insertwidth=1,
+                    textvariable=var).pack(anchor=W) 
+        return w
+
     def get_radio_buttons(self, container,text, ops, v, callback=None):
 
         w = self.get_label_frame(container, text = text)
@@ -63,7 +79,7 @@ class Widgets(object):
                             relief=GROOVE,
                             variable=v,
                             command=callback,
-                            value=index).pack(anchor=W)     
+                            value=index).pack()     
         return w
 
     def set_font(self,family,size,weight=None):
