@@ -329,7 +329,7 @@ class Biovarase(Frame):
 
             index = self.lstBatchs.curselection()[0]
             pk = self.dict_batchs.get(index)
-            self.selected_batch = self.engine.get_selected('on_data','batch_id', pk)
+            self.selected_batch = self.engine.get_selected('batchs','batch_id', pk)
             self.batch_index = index
             self.set_batch()
             self.set_results()
