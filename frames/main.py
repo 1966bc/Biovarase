@@ -97,7 +97,7 @@ class Biovarase(Frame):
         self.cbTests.pack(side=TOP,fill=X,expand=0)
         w.pack(side=TOP,fill=X, expand=0)
 
-        w = LabelFrame(f0, text='on_data')
+        w = LabelFrame(f0, text='Batchs')
         self.lstBatchs = self.engine.get_listbox(w,)
         self.lstBatchs.bind("<<ListboxSelect>>", self.on_selected_batch)
         self.lstBatchs.bind('<Button-3>', self.on_batch_activated)
@@ -214,7 +214,6 @@ class Biovarase(Frame):
         self.range.set(0)
         self.set_westgard_alarm()        
        
-
     def set_tests(self):
 
         index = 0
@@ -239,6 +238,9 @@ class Biovarase(Frame):
         
     def set_batchs(self):
 
+        self.lstBatchs.delete(0, END)
+        self.lstResults.delete(0, END)
+
         index = 0
         self.dict_batchs={}
         sql = "SELECT * FROM lst_batchs WHERE test_id = ?"
@@ -257,7 +259,6 @@ class Biovarase(Frame):
     def set_results(self,):           
             
             self.lstResults.delete(0, END)
-
             index = 0
             self.dict_results={}
            
@@ -563,24 +564,24 @@ class Biovarase(Frame):
 
     def on_export(self):
 
-        sql = "SELECT on_data.batch_id,\
+        sql = "SELECT batchs.batch_id,\
                          samples.sample,\
                       tests.test,\
-                      on_data.batch,\
-                      on_data.expiration,\
-                      on_data.target,\
+                      batchs.batch,\
+                      batchs.expiration,\
+                      batchs.target,\
                       tests.cvw,\
                       tests.cvb\
                FROM tests\
                INNER JOIN samples \
                ON tests.sample_id = samples.sample_id\
-               INNER JOIN on_data \
-               ON tests.test_id = on_data.test_id\
+               INNER JOIN batchs \
+               ON tests.test_id = batchs.test_id\
                WHERE tests.enable = 1\
                AND tests.cvw !=0\
                AND tests.cvb !=0\
-               AND on_data.target !=0\
-               AND on_data.enable = 1\
+               AND batchs.target !=0\
+               AND batchs.enable = 1\
                ORDER BY tests.test,samples.sample"
 
         limit = int(self.elements.get())
