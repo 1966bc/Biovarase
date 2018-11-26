@@ -11,7 +11,6 @@ import inspect
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
-import datetime
 import numpy as np
 
 
@@ -114,6 +113,7 @@ class Biovarase(Frame):
 
         #-----------------------------------------------------------------------
         f1 = Frame(self,bd=5)
+        
         w = LabelFrame(f1,text='Batch data', font='Helvetica 10 bold')
 
         Label(w, text="Target").pack()
@@ -122,24 +122,12 @@ class Biovarase(Frame):
         Label(w, bg='lemon chiffon', foreground="green", textvariable = self.sd).pack(fill=X, padx=2,pady=2)
         Label(w, text="Expiration").pack()
         Label(w, bg='white', textvariable = self.expiration).pack(fill=X, padx=2,pady=2)
-        Label(w, text="Elements").pack()
-
-        self.spElements = Spinbox(w,
-                                  bg='white',
-                                  from_=1,
-                                  to=365,
-                                  justify=CENTER,
-                                  width=3,
-                                  wrap=True,
-                                  insertwidth=1,
-                                  textvariable=self.elements)
-        self.spElements.pack(fill=X, expand=0)
+       
+        self.engine.get_spin_box(w, "Elements",1, 365, 3, self.elements).pack()
 
         w.pack(side=TOP, fill=X, expand=0)
 
         f1.pack(side=LEFT, fill=Y, expand=0)
-
-     
 
         w = LabelFrame(f1,text='Cal data',font='Helvetica 10 bold')
      
@@ -274,7 +262,7 @@ class Biovarase(Frame):
             self.dict_results={}
            
             sql = "SELECT * FROM lst_results WHERE batch_id = ? LIMIT ?"
-            rs = self.engine.read(True, sql, (self.selected_batch[0],int(self.spElements.get())))
+            rs = self.engine.read(True, sql, (self.selected_batch[0],int(self.elements.get())))
 
             target = float(self.selected_batch[4])
             sd = float(self.selected_batch[5])
@@ -296,7 +284,7 @@ class Biovarase(Frame):
                    
                     index+=1
 
-                series = self.engine.get_series(self.selected_batch[0],int(self.spElements.get()))                 
+                series = self.engine.get_series(self.selected_batch[0],int(self.elements.get()))                 
                 avg = round(np.mean(series),2)
                 sd = round(np.std(series),2)
                 self.average.set(avg)
@@ -595,7 +583,7 @@ class Biovarase(Frame):
                AND on_data.enable = 1\
                ORDER BY tests.test,samples.sample"
 
-        limit = int(self.spElements.get())
+        limit = int(self.elements.get())
         rs = self.engine.read(True, sql, ())
 
         if rs:
