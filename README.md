@@ -13,7 +13,7 @@ All the data are managed by SQLite database and matplotlib.
 - To update a batch in the main window make right click on it.
 - To deactivate/activate a result make double click on it.
 - To insert, update or delete a test open from File/Tests.
-- To manage batchs and relative results open from File/Batchs.
+- To manage batchs and relative results open from File/Data.
 - To export data to a temp excel file click on File/Export.
 - To export last values in a temp excel file click on Quick Data Analysis
 
