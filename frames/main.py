@@ -13,9 +13,7 @@ from tkinter import ttk
 from tkinter import messagebox
 import numpy as np
 
-
 import matplotlib.pyplot as plt
-
 
 plt.rcParams.update({'figure.max_open_warning': 0})
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -89,7 +87,7 @@ class Biovarase(Frame):
         self.pack(fill=BOTH, expand=1,)
 
         #-----------------------------------------------------------------------
-        f0 = Frame(self, bd=5)
+        f0 = Frame(self,bd=5)
 
         w = LabelFrame(f0, text='Tests')
         self.cbTests =  ttk.Combobox(w)
@@ -97,23 +95,13 @@ class Biovarase(Frame):
         self.cbTests.pack(side=TOP,fill=X,expand=0)
         w.pack(side=TOP,fill=X, expand=0)
 
-        w = LabelFrame(f0, text='Batchs')
-        self.lstBatchs = self.engine.get_listbox(w,)
+        w = LabelFrame(f0,text='Batchs')
+        self.lstBatchs = self.engine.get_listbox(w, height=5)
         self.lstBatchs.bind("<<ListboxSelect>>", self.on_selected_batch)
         self.lstBatchs.bind('<Button-3>', self.on_batch_activated)
         w.pack(side=TOP,fill=BOTH, expand=0)
-       
-        w = LabelFrame(f0,text='Results')
-        self.lstResults = self.engine.get_listbox(w,)
-        self.lstResults.bind("<<ListboxSelect>>", self.on_selected_result)
-        self.lstResults.bind('<Double-Button-1>', self.on_result_activated)
-        w.pack(side=TOP,fill=BOTH, expand=1)
-        
-        f0.pack(side=LEFT, fill=Y, expand=0)
 
-        #-----------------------------------------------------------------------
-        f1 = Frame(self,bd=5)
-        
+        f1 = Frame(f0,bd=5)
         w = LabelFrame(f1,text='Batch data', font='Helvetica 10 bold')
 
         Label(w, text="Target").pack()
@@ -122,13 +110,11 @@ class Biovarase(Frame):
         Label(w, bg='lemon chiffon', foreground="green", textvariable = self.sd).pack(fill=X, padx=2,pady=2)
         Label(w, text="Expiration").pack()
         Label(w, bg='white', textvariable = self.expiration).pack(fill=X, padx=2,pady=2)
-       
+
         self.engine.get_spin_box(w, "Elements",1, 365, 3, self.elements).pack()
 
-        w.pack(side=TOP, fill=X, expand=0)
-
-        f1.pack(side=LEFT, fill=Y, expand=0)
-
+        w.pack(side=LEFT, fill=Y, expand=0)
+        
         w = LabelFrame(f1,text='Cal data',font='Helvetica 10 bold')
      
         Label(w, text="Average").pack()
@@ -147,19 +133,27 @@ class Biovarase(Frame):
         Label(w, text="Range").pack()
         Label(w, bg='white', textvariable = self.range).pack(fill=X, padx=2,pady=2)
 
-        w.pack(side=TOP,fill=X, expand=0)
+        w.pack(side=RIGHT,fill=Y, expand=0)
 
-        f1.pack(side=LEFT, fill=Y, expand=0)
+        f1.pack(side=TOP, fill=Y, expand=0)
+
+        w = LabelFrame(f0,text='Results')
+        self.lstResults = self.engine.get_listbox(w,)
+        self.lstResults.bind("<<ListboxSelect>>", self.on_selected_result)
+        self.lstResults.bind('<Double-Button-1>', self.on_result_activated)
+        w.pack(side=TOP,fill=BOTH, expand=1)
         
+        f0.pack(side=LEFT, fill=Y, expand=0)
         #-----------------------------------------------------------------------
+        
         #create graph!
         f2 = Frame(self,bd=5,)
         f2.pack(side=RIGHT, fill=BOTH, expand=1, padx=5, pady=5)
         #Figure: The top level container for all the plot elements.
-        #figsize:width, height in inches, figsize=(6.4, 4.8)
         gs = gridspec.GridSpec(1, 2, width_ratios=[2, 1]) 
         fig = Figure()
         fig.suptitle(self.engine.title, fontsize=16)
+        fig.subplots_adjust(bottom=0.10, right=0.96, left= 0.06, top=0.88,wspace=0.10)
         self.lj = fig.add_subplot(gs[0], facecolor=('xkcd:light grey'))
         self.frq = fig.add_subplot(gs[1], facecolor=('xkcd:light grey'))
         self.canvas = FigureCanvasTkAgg(fig, f2)
@@ -445,13 +439,10 @@ class Biovarase(Frame):
                         x_labels.append(i[2])
                         dates.append(i[3])
 
-                    avg = round(np.mean(data),2)
-                    sd = round(np.std(data),2)
-                    cv = round((sd/avg)*100,2)  
                     um = self.get_um()
-                    
-                    self.set_lj(data, target, avg, sd, cv, um, x_labels, dates, all_data, compute_data)
-                    self.set_histogram(data, target, avg, sd, cv, um)
+        
+                    self.set_lj(data, target, sd, x_labels, dates, all_data, compute_data, um)
+                    self.set_histogram(data, target, sd, um)
                     self.canvas.draw()
    
             else:
@@ -461,7 +452,7 @@ class Biovarase(Frame):
             msg = "No batch selected."
             messagebox.showwarning(self.engine.title,msg)
 
-    def set_lj(self, data, target, avg, sd, cv, um, x_labels, dates, all_data, compute_data):
+    def set_lj(self, data, target, sd, x_labels, dates, all_data, compute_data, um=None):
 
         self.lj.clear()
         self.lj.grid(True)
@@ -519,17 +510,17 @@ class Biovarase(Frame):
                      transform=self.lj.transAxes,
                      color='black')
 
-    def set_histogram(self, data, target, avg, sd, cv, um=None):
+    def set_histogram(self, data, target, sd, um=None):
 
         #histogram of frequency distribuition
         self.frq.clear()
         self.frq.grid(True)
-        #self.frq.axis(xmin=min(data), xmax = max(data))
         self.frq.hist(data, color='g')
         self.frq.axvline(target, color='orange',linewidth=2)
-        self.frq.axvline(avg, color='b', linestyle='dashed', linewidth=2)
+        self.frq.axvline(self.average.get(), color='b', linestyle='dashed', linewidth=2)
         self.frq.set_ylabel('Frequency')
-        title = "avg = %.2f,  std = %.2f cv = %.2f" % (avg, sd, cv)
+        title = "avg = %.2f,  std = %.2f cv = %.2f" % (self.average.get(), sd, self.calculated_cv.get())
+        self.average = DoubleVar()
         self.frq.set_title(title)
         if um is  not None:
             self.frq.set_xlabel(str(um[0]))
