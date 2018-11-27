@@ -50,7 +50,6 @@ class Widgets(object):
         
         return w
 
-
     def get_spin_box(self, container, text, frm, to, width, var=None, callback=None):
 
         w = self.get_label_frame(container, text = text)
@@ -63,7 +62,7 @@ class Widgets(object):
                     width=width,
                     wrap=False,
                     insertwidth=1,
-                    textvariable=var).pack(anchor=W) 
+                    textvariable=var).pack(anchor=CENTER) 
         return w
 
     def get_radio_buttons(self, container,text, ops, v, callback=None):
@@ -79,7 +78,7 @@ class Widgets(object):
                             relief=GROOVE,
                             variable=v,
                             command=callback,
-                            value=index).pack()     
+                            value=index).pack(anchor=W)     
         return w
 
     def set_font(self,family,size,weight=None):
@@ -121,10 +120,15 @@ class Widgets(object):
 
         return w
 
-    def get_listbox(self, container,):
+    def get_listbox(self, container, height=None):
+
+        f = font.Font(family='Courier',size=12)
 
         sb = Scrollbar(container,orient=VERTICAL)
-        w = Listbox(container,relief=GROOVE,selectmode=BROWSE,yscrollcommand=sb.set,)
+        if  height is not None:
+            w = Listbox(container,relief=GROOVE,selectmode=BROWSE,height=height,font='TkFixedFont',yscrollcommand=sb.set,)
+        else:
+             w = Listbox(container,relief=GROOVE,selectmode=BROWSE,font='TkFixedFont',yscrollcommand=sb.set,)
         sb.config(command=w.yview)
      
         w.pack(side=LEFT,fill=BOTH, expand =1) 
@@ -212,6 +216,17 @@ class Widgets(object):
         caller.year.set(today.year)
 
     def get_date(self, caller):
+
+        try:
+            return datetime.date(caller.year.get(), caller.month.get(), caller.day.get())
+        except:
+            msg = "Format date error:\n%s"%str(sys.exc_info()[1])
+            messagebox.showerror(self.title, msg)
+            return False        
+
+    
+
+    def get_date_old(self, caller):
 
         try:
             return datetime.date(caller.year.get(), caller.month.get(), caller.day.get())
