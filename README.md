@@ -1,7 +1,7 @@
 # Biovarase
 ## A clinical quality control data management project
 
-![alt tag](https://user-images.githubusercontent.com/5463566/48971927-ec5df380-f020-11e8-89d4-ba6294c88a9f.png)
+![alt tag](https://user-images.githubusercontent.com/5463566/49091339-e86be480-f25f-11e8-9601-624d6e901d34.png)
 
 Biovarase is an application to manage clinical quality control data.
 
