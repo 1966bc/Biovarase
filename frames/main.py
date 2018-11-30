@@ -409,7 +409,7 @@ class Biovarase(Frame):
     def get_um(self,):
 
         sql = "SELECT unit FROM units WHERE unit_id =?"
-        return self.engine.read(False, sql, (self.selected_test[3],))
+        return self.engine.read(False, sql, (self.selected_test[4],))
 
 
     def get_data(self, rs):
@@ -620,9 +620,20 @@ def main():
     #set icon
     imgicon = PhotoImage(file=os.path.join('icons', 'app.png'))
     root.call('wm', 'iconphoto', root._w, '-default', imgicon)
-    root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
+    #root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
     #root.geometry("{0}x{1}+0+0".format(1200, 600))
-    root.title(engine.title)
+    # get screen width and height
+    ws = root.winfo_screenwidth()
+    hs = root.winfo_screenheight()
+    # calculate position x, y
+    d=engine.get_dimensions()
+    w = int(d['w'])
+    h = int(d['h'])
+    x = (ws/2) - (w/2)    
+    y = (hs/2) - (h/2)
+    root.geometry('%dx%d+%d+%d' % (w, h, x, y))
+    s = engine.title +" "+ engine.get_version()
+    root.title(s)
     app = Biovarase(engine)
     app.on_open()
     root.mainloop()
