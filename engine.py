@@ -77,6 +77,22 @@ class Engine(DBMS, Widgets, Exporter, Launcher, Westgards):
             print (sys.exc_info()[1])
             print (sys.exc_info()[2])
 
+    def get_dimensions(self):
+
+        try:
+            d = {}
+            with open("dimensions", "r") as filestream:
+                for line in filestream:
+                    currentline = line.split(",")
+                    d[currentline[0]] = currentline[1]
+                      
+            return d
+        except:
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])            
+
        
 def main():
 
