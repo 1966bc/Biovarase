@@ -58,9 +58,10 @@ class Exporter(object):
                 rs_results = self.read(True, sql3, (batch[0],))
 
                 series = self.get_series(batch[0],self.get_elements())
-
-                if len(series) > 9:
-                    rule = self.get_violation(batch[4], batch[5], series)
+                #reverce series
+                x = series[::-1]
+                if len(x) > 9:  
+                    rule = self.get_violation(batch[4], batch[5], x)
                 else:
                     rule = "No data"
                 c = None
