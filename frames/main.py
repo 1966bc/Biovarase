@@ -278,17 +278,8 @@ class Biovarase(Frame):
                     self.dict_results[index]=i[0]
                    
                     index+=1
-
-                series = self.engine.get_series(self.selected_batch[0],int(self.elements.get()))                 
-                avg = round(np.mean(series),2)
-                sd = round(np.std(series),2)
-                self.average.set(avg)
-                self.bias.set(round((avg-target)/(target)*100,2))
-                self.set_westgard(series)
-                self.calculated_sd.set(sd)
-                self.calculated_cv.set(round((sd/avg)*100,2))
-                self.range.set(round(np.ptp(series),2))
-                self.get_data(rs)
+           
+                self.get_data(rs, target, sd) 
                 
             else:
                 self.westgard.set('No Data')
@@ -408,42 +399,69 @@ class Biovarase(Frame):
                 
     def get_um(self,):
 
-        sql = "SELECT unit FROM units WHERE unit_id =?"
-        return self.engine.read(False, sql, (self.selected_test[4],))
+        sql = "SELECT unit FROM lst_tests WHERE test_id =?"
+        return self.engine.read(False, sql, (self.selected_test[0],))
 
 
-    def get_data(self, rs):
+    def get_data(self, rs, target, sd):
 
         if self.selected_batch is not None :
 
-            all_data = len(rs)
+            um = self.get_um()
+            
+            series = []
+            dates = []
+            x_labels = []
+            
+            count_rs = len(rs)
             #compute record with enable = 1
             rs = tuple(i for i in rs if i[4]!=0)
-            compute_data = len(rs)
-            
+
+            for i in reversed(rs):
+                series.append(i[1])
+                x_labels.append(i[2])
+                dates.append(i[3])
+
+            count_series = len(series)
+    
+            compute_average = round(np.mean(series),2)
+            compute_sd = round(np.std(series),2)
+            compute_cv = round((compute_sd/compute_average)*100,2)
+            self.average.set(compute_average)
+            self.calculated_sd.set(compute_sd)
+            self.calculated_cv.set(compute_cv)
+            self.bias.set(round((compute_average-target)/(target)*100,2))
+            self.set_westgard(series)
+            self.range.set(round(np.ptp(series),2))
+
             if rs is not None:
 
-                if compute_data<3:
-                    msg = ("%s : lot %s INSUFFICIENT DATA FOR MEANINGFUL ANSWER"% (self.selected_test[2],
-                                                                                   self.selected_batch[2]))
+                if count_series<3:
+                    msg = ("%s : lot %s INSUFFICIENT DATA FOR MEANINGFUL ANSWER"% (self.selected_test[2],self.selected_batch[2]))
                 else:
-
-                    target = self.selected_batch[4]
-                    sd = self.selected_batch[5]
-                    data = []
-                    dates = []
-                    x_labels = []
-
-                    for i in reversed(rs): 
-                        data.append(i[1])
-                        x_labels.append(i[2])
-                        dates.append(i[3])
-
-                    um = self.get_um()
-        
-                    self.set_lj(data, target, sd, x_labels, dates, all_data, compute_data, um)
-                    self.set_histogram(data, target, sd, um)
+                    
+                   
+                    self.set_lj(series,
+                                target,
+                                compute_average,
+                                sd,
+                                compute_cv,
+                                um,
+                                x_labels,
+                                dates,
+                                count_rs,
+                                count_series)
+                    
+                    self.set_histogram(series,
+                                       target,
+                                       compute_average,
+                                       sd,
+                                       compute_cv,
+                                       um,
+                                       compute_sd)
                     self.canvas.draw()
+
+            
    
             else:
                 msg = "INSUFFICIENT DATA FOR MEANINGFUL ANSWER."
@@ -452,14 +470,14 @@ class Biovarase(Frame):
             msg = "No batch selected."
             messagebox.showwarning(self.engine.title,msg)
 
-    def set_lj(self, data, target, sd, x_labels, dates, all_data, compute_data, um=None):
+    def set_lj(self, series, target, avg, sd, cv, um, x_labels, dates, count_rs, count_series):
 
         self.lj.clear()
         self.lj.grid(True)
 
         lines = ([],[],[],[],[],[],[])
 
-        for i in range(len(data)+1):
+        for i in range(len(series)+1):
 
             lines[0].append(target+(sd*3))
             lines[1].append(target+(sd*2))
@@ -472,13 +490,13 @@ class Biovarase(Frame):
             lines[6].append(target-(sd*3))
         
         #it's show time
-        self.lj.set_xticks(range(0, len(data)+1))
+        self.lj.set_xticks(range(0, len(series)+1))
         self.lj.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
         self.lj.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
         self.lj.set_xticklabels(x_labels, rotation=70, size=6)
-        self.lj.plot(data, marker="8", label='data')
+        self.lj.plot(series, marker="8", label='data')
              
-        for x,y in enumerate(data):
+        for x,y in enumerate(series):
             self.lj.text(x, y, str(y),)
             
         self.lj.plot(lines[0],color="red",label='+3 sd',linestyle='--')
@@ -494,33 +512,34 @@ class Biovarase(Frame):
         else:
             self.lj.set_ylabel("No unit assigned yet")
 
-        msg = "%s Batch: %s Exp: %s " %(self.selected_test[1],
-                                        self.selected_batch[2],
-                                        self.selected_batch[3],)
-
         
-        self.lj.set_title(msg)
+        s = "{0} Batch: {1} Target: {2} SD: {3} Exp: {4}".format(self.selected_test[1],
+                                                         self.selected_batch[2],
+                                                         self.selected_batch[4],
+                                                         self.selected_batch[5],
+                                                         self.selected_batch[3],)
+        
+        self.lj.set_title(s, weight='bold',loc='left')
 
-        text_data = (self.format_interval_date(dates), all_data, compute_data)
+        text_data = (self.format_interval_date(dates), count_rs, count_series)
 
         self.lj.text(0.95, 0.01,
                      '%s computed %s on %s results'%text_data,
                      verticalalignment='bottom',
                      horizontalalignment='right',
                      transform=self.lj.transAxes,
-                     color='black')
+                     color='black',weight='bold')
 
-    def set_histogram(self, data, target, sd, um=None):
+    def set_histogram(self, series, target, avg, sd, cv, um, compute_sd):
 
         #histogram of frequency distribuition
         self.frq.clear()
         self.frq.grid(True)
-        self.frq.hist(data, color='g')
+        self.frq.hist(series, color='g')
         self.frq.axvline(target, color='orange',linewidth=2)
-        self.frq.axvline(self.average.get(), color='b', linestyle='dashed', linewidth=2)
+        self.frq.axvline(avg, color='b', linestyle='dashed', linewidth=2)
         self.frq.set_ylabel('Frequency')
-        title = "avg = %.2f,  std = %.2f cv = %.2f" % (self.average.get(), sd, self.calculated_cv.get())
-        self.average = DoubleVar()
+        title = "avg = %.2f,  std = %.2f cv = %.2f" % (avg, compute_sd, cv)
         self.frq.set_title(title)
         if um is  not None:
             self.frq.set_xlabel(str(um[0]))
@@ -620,20 +639,9 @@ def main():
     #set icon
     imgicon = PhotoImage(file=os.path.join('icons', 'app.png'))
     root.call('wm', 'iconphoto', root._w, '-default', imgicon)
-    #root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
+    root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
     #root.geometry("{0}x{1}+0+0".format(1200, 600))
-    # get screen width and height
-    ws = root.winfo_screenwidth()
-    hs = root.winfo_screenheight()
-    # calculate position x, y
-    d=engine.get_dimensions()
-    w = int(d['w'])
-    h = int(d['h'])
-    x = (ws/2) - (w/2)    
-    y = (hs/2) - (h/2)
-    root.geometry('%dx%d+%d+%d' % (w, h, x, y))
-    s = engine.title +" "+ engine.get_version()
-    root.title(s)
+    root.title(engine.title)
     app = Biovarase(engine)
     app.on_open()
     root.mainloop()
