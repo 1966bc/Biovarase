@@ -154,6 +154,9 @@ class Westgards(object):
         #print ("Westgard rule 10:x tested")
         
         last_ten_values = self.series[-10:]
+        #for i in enumerate(last_ten_values):
+            #print(i)
+        #print(self.target)            
         
         x = (all(i > self.target for i in last_ten_values))
         y = (all(i < self.target for i in last_ten_values))

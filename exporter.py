@@ -21,6 +21,52 @@ class Exporter(object):
     def __str__(self):
         return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Exporter.__mro__])
 
+
+    def rpt_rejections(self,):
+
+        path = tempfile.mktemp (".xls")
+        obj = xlwt.Workbook()
+        ws = obj.add_sheet('Biovarase',cell_overwrite_ok=True)
+
+        ws.col(0).width = 200 * 20
+        #ws.col(1).width = 300 * 20 
+        row = 0
+        #indexing is zero based, row then column
+
+        ws.write(row,0,'Test',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,1,'Sample',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,2,'Batch',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,3,'Target',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,4,'SD',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,5,'Result',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,6,'Recived',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,7,'Action',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,8,'Description',self.xls_style_font(True,False,'Arial'))
+        ws.write(row,9,'Modify',self.xls_style_font(True,False,'Arial'))
+        
+        row +=1
+
+        sql = "SELECT * FROM rpt_rejections"
+        rs = self.read(True, sql)
+
+        if rs:
+            for i in rs:
+                ws.write(row,0,i[0])
+                ws.write(row,1,i[1])
+                ws.write(row,2,i[2])
+                ws.write(row,3,i[3])
+                ws.write(row,4,i[4])
+                ws.write(row,5,i[5])
+                ws.write(row,6,i[6])
+                ws.write(row,7,i[7])
+                ws.write(row,8,i[8])
+                ws.write(row,9,i[9])
+                
+                row +=1
+            
+        obj.save(path)
+        self.launch(path)
+
     
     def quick_data_analysis(self,):
 
