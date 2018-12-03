@@ -119,7 +119,7 @@ class Dialog(Toplevel):
             self.engine.write(sql,args)
             
             if self.index is not None:
-                self.parent.set_values(self.parent.lstBatchs)
+                self.parent.set_batches()
                 self.parent.lstBatchs.see(self.index)
                 self.parent.lstBatchs.selection_set(self.index)
                     

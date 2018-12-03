@@ -33,8 +33,11 @@ from engine import Engine
 
 import frames.tests
 import frames.batch 
-import frames.batchs
+import frames.data
 import frames.units
+import frames.actions
+import frames.rejections
+import frames.result
 
 class Biovarase(Frame):
     def __init__(self, engine):
@@ -52,7 +55,6 @@ class Biovarase(Frame):
         self.target = DoubleVar()
         self.sd = DoubleVar()
         self.expiration = StringVar()
-        
         self.init_menu()
         self.init_ui()
         self.init_status_bar()
@@ -60,11 +62,12 @@ class Biovarase(Frame):
     def init_menu(self):
 
         m_main = Menu(self, bd = 1)
-        
+        m_results = Menu(m_main, tearoff=0, bd = 1)
         m_file = Menu(m_main, tearoff=0, bd = 1)
         m_about = Menu(m_main, tearoff=0, bd = 1)
-        
+
         m_main.add_cascade(label="File", underline=1, menu=m_file)
+        m_main.add_cascade(label="Results", underline=1, menu=m_results)
         m_main.add_cascade(label="?", underline=0, menu=m_about)
 
         items = (("Quick Data Analysis", self.on_quick_data_analysis),
@@ -73,10 +76,19 @@ class Biovarase(Frame):
                  ("Tests",self.on_tests),
                  ("Data",self.on_data),
                  ("Units",self.on_units),
+                 ("Actions",self.on_actions),
                  ("Exit",self.on_exit),)
 
         for i in items:
             m_file.add_command(label=i[0],underline=0, command=i[1])
+
+
+        items = (("Add result", self.on_add_result),
+                 ("Update result",self.on_update_result),
+                 ("Rejections",self.engine.rpt_rejections),)
+
+        for i in items:
+            m_results.add_command(label=i[0],underline=0, command=i[1])            
 
         m_about.add_command(label="About",underline=0, command=self.on_about)
      
@@ -325,28 +337,11 @@ class Biovarase(Frame):
 
     def on_result_activated(self, event):
 
-        try:
-            if self.lstResults.curselection():
-
+        if self.lstResults.curselection():
                 index = self.lstResults.curselection()[0]
-                pk = self.dict_results.get(index)
-                sql = "SELECT enable FROM results WHERE result_id =?"
-                rs = self.engine.read(False, sql, (pk,))
-                if rs[0] == 0:
-                    sql = "UPDATE results SET enable=1 WHERE result_id=?"
-                else:
-                    sql = "UPDATE results SET enable=0 WHERE result_id=?"
-
-                self.engine.write(sql, (pk,))
-                self.set_results()
+                obj = frames.rejections.Dialog(self, self.engine,)
+                obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
                 
-        except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])             
-            
-
     def set_batch(self):
 
         s = "{0} {1}".format(self.selected_test[1],self.selected_batch[2])
@@ -616,9 +611,44 @@ class Biovarase(Frame):
 
     def on_data(self,):
         
-        f = frames.batchs.Dialog(self,self.engine)
-        f.on_open()        
+        f = frames.data.Dialog(self,self.engine)
+        f.on_open()
 
+    def on_actions(self,):
+        f = frames.actions.Dialog(self,self.engine)
+        f.on_open()
+
+
+    def on_add_result(self,):
+
+        if self.selected_batch is not None:
+            obj = frames.result.Dialog(self, self.engine,)
+            obj.on_open(self.selected_test, self.selected_batch)
+        else:
+            msg = "Attention please.\nBefore add a result you must select a batch."
+            messagebox.showinfo(self.engine.title, msg)
+
+    def on_update_result(self,):
+
+        try:
+            if self.lstResults.curselection():
+                index = self.lstResults.curselection()[0]
+                obj = frames.result.Dialog(self, self.engine,)
+                obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
+
+            else:
+                msg = "Attention please.\nSelect a result."
+                messagebox.showinfo(self.engine.title, msg)                
+                
+        except:
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])
+
+ 
+        
+        
     def on_about(self,):
         messagebox.showinfo(self.engine.title, self.engine.about)        
   

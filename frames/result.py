@@ -21,6 +21,9 @@ class Dialog(Toplevel):
         self.month =  IntVar()
         self.year =  IntVar()
 
+        self.test = StringVar()
+        self.batch = StringVar()
+
         self.result = DoubleVar()
         self.enable =  BooleanVar()
 
@@ -49,37 +52,47 @@ class Dialog(Toplevel):
         self.cols_configure(w)
         w.grid(row = 0, column = 0, sticky=N+W+S+E)
 
-        Label(w, text="Result:").grid(row=0, sticky=W)
+        Label(w, text="Test:").grid(row=0, sticky=W)
+        Label(w,font = "Verdana 12 bold",
+              textvariable = self.test).grid(row=0, column=1, sticky=W, padx=5, pady=5)
+
+        Label(w, text="Batch:").grid(row=1, sticky=W)
+        Label(w,font = "Verdana 12 bold",
+              textvariable = self.batch).grid(row=1, column=1, sticky=W, padx=5, pady=5)
+        
+        Label(w, text="Result:").grid(row=2, sticky=W)
         self.txtResult = Entry(w,
                                bg='white',
                                validate = 'key',
                                validatecommand = self.vcmd,
                                textvariable=self.result)
-        self.txtResult.grid(row=0, column=1, padx=5, pady=5)
+        self.txtResult.grid(row=2, column=1, padx=5, pady=5)
 
-        Label(w, text="Recived:").grid(row=1,column=0,sticky=W)
+        Label(w, text="Recived:").grid(row=3,column=0,sticky=W)
 
-        self.engine.get_calendar(self,w,1)
+        self.engine.get_calendar(self,w,3)
 
         Label(w, text="Enable:").grid(row=4, sticky=W)
         self.ckEnable = Checkbutton(w, onvalue=1, offvalue=0, variable = self.enable,)
         self.ckEnable.grid(row=4, column=1,sticky=W)
 
-        self.engine.get_save_cancel(self, self) 
-
-
-    def on_open(self, selected_batch, selected_result = None):
+        self.engine.get_save_cancel_delete(self, self)
+        
+    def on_open(self, selected_test, selected_batch, selected_result = None):
 
         self.selected_batch = selected_batch
-
+        
+        self.test.set(selected_test[1])
+        self.batch.set(self.selected_batch[2])
+        
         if selected_result is not None:
             self.insert_mode = False
             self.selected_result = selected_result
-            msg = "Update  %s" % (self.selected_result[2],)
+            msg = "Update result for" 
             self.set_values()
         else:
             self.insert_mode = True
-            msg = "Insert new result"
+            msg = "Add result to" 
             self.enable.set(1)
             self.engine.set_date(self)
 
@@ -104,9 +117,8 @@ class Dialog(Toplevel):
 
                     sql = self.engine.get_insert_sql('results',len(args))
 
-
                 self.engine.write(sql,args)
-                self.parent.set_values(self.parent.lstResults)
+                self.parent.set_results()
                     
                 if self.index is not None:
                     self.parent.lstResults.see(self.index)
@@ -120,7 +132,23 @@ class Dialog(Toplevel):
     def on_cancel(self, evt=None):
         self.destroy()
 
+    def on_delete(self, evt=None):
 
+        if self.insert_mode == True:
+            msg = "You are in insert mode. It's impossible to delete."
+            messagebox.showinfo(self.engine.title,msg)
+
+        else:
+            if messagebox.askyesno(self.engine.title, self.engine.delete, parent=self) == True:
+                sql = "DELETE FROM results WHERE result_id =?"
+                args = (self.selected_result[0],)
+                self.engine.write(sql,args)
+                self.parent.set_results()
+                self.on_cancel()
+                
+            else:
+                messagebox.showinfo(self.engine.title,self.engine.abort)
+        
     def get_values(self,):
 
         return (self.selected_batch[0],
