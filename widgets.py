@@ -3,8 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   winter 2018
-# version:  0.1                                                                
+# modify:   winter 2018                                                           
 #-----------------------------------------------------------------------------
 from tkinter import *
 from tkinter import ttk  
@@ -120,15 +119,19 @@ class Widgets(object):
 
         return w
 
-    def get_listbox(self, container, height=None):
+    def get_listbox(self, container, width=None, height=None):
 
-        f = font.Font(family='Courier',size=12)
-
+        
         sb = Scrollbar(container,orient=VERTICAL)
-        if  height is not None:
-            w = Listbox(container,relief=GROOVE,selectmode=BROWSE,height=height,font='TkFixedFont',yscrollcommand=sb.set,)
-        else:
-             w = Listbox(container,relief=GROOVE,selectmode=BROWSE,font='TkFixedFont',yscrollcommand=sb.set,)
+       
+        w = Listbox(container,
+                   relief=GROOVE,
+                   selectmode=BROWSE,
+                   width=width,
+                   height=height,
+                   font='TkFixedFont',
+                   yscrollcommand=sb.set,)
+       
         sb.config(command=w.yview)
      
         w.pack(side=LEFT,fill=BOTH, expand =1) 
@@ -224,16 +227,6 @@ class Widgets(object):
             messagebox.showerror(self.title, msg)
             return False        
 
-    
-
-    def get_date_old(self, caller):
-
-        try:
-            return datetime.date(caller.year.get(), caller.month.get(), caller.day.get())
-        except:
-            msg = "Format date error:\n%s"%str(sys.exc_info()[1])
-            messagebox.showerror(self.title, msg)
-            return False
 
     def get_timestamp(self, caller):
 

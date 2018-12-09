@@ -22,7 +22,7 @@ class Exporter(object):
         return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Exporter.__mro__])
 
 
-    def rpt_rejections(self,):
+    def get_rejections(self,):
 
         path = tempfile.mktemp (".xls")
         obj = xlwt.Workbook()
@@ -68,7 +68,7 @@ class Exporter(object):
         self.launch(path)
 
     
-    def quick_data_analysis(self,):
+    def get_quick_data_analysis(self,):
 
         path = tempfile.mktemp (".xls")
         obj = xlwt.Workbook()
@@ -166,7 +166,7 @@ class Exporter(object):
         self.launch(path)              
 
 
-    def get_xls(self,limit,rs):
+    def get_analytical_goals(self,limit,rs):
 
         
         path = tempfile.mktemp (".xls")

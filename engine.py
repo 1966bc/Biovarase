@@ -91,9 +91,15 @@ class Engine(DBMS, Widgets, Exporter, Launcher, Westgards):
             print(inspect.stack()[0][3])
             print (sys.exc_info()[0])
             print (sys.exc_info()[1])
-            print (sys.exc_info()[2])            
+            print (sys.exc_info()[2])
 
-       
+    def get_dataset(self, rs):
+
+        #check if it exists at least a value with the equal enable = 1
+        #if values don't exist we cannot compute stat.
+        return tuple(i for i in rs if i[4]!=0)
+        
+             
 def main():
 
     foo = Engine()
