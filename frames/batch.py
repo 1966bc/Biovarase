@@ -86,14 +86,13 @@ class Dialog(Toplevel):
 
         self.selected_test = selected_test
 
-        if selected_batch is not None:
-            self.insert_mode = False
+        if self.index is not None:
             self.selected_batch = selected_batch
             msg = "Update  %s" % (self.selected_batch[2],)
             self.set_values()
         else:
-            self.insert_mode = True
-            msg = "Insert new batch"
+            msg = "Insert new batch for %s"%selected_test[1]
+            self.engine.set_date(self)
             self.enable.set(1)
 
         self.title(msg)
@@ -101,27 +100,30 @@ class Dialog(Toplevel):
         
     def on_save(self, evt=None):
 
-        if self.engine.on_fields_control( (self.txtBatch,))==False:return
+        fields =  (self.txtBatch, self.txtTarget, self.txtSD)
+        
+        if self.engine.on_fields_control(fields)==False:return
+        if self.engine.get_date(self)==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
             args =  self.get_values()
 
-            if self.insert_mode == False:
+            if self.index is not None:
 
                 sql = self.engine.get_update_sql('batchs','batch_id')
 
-                args = self.engine.get_update_sql_args(args, self.selected_batch[0])
+                args.append(self.selected_batch[0])
                        
-            elif self.insert_mode == True:
+            else:
 
                 sql = self.engine.get_insert_sql('batchs',len(args))
 
             self.engine.write(sql,args)
+            self.parent.set_batches()
             
             if self.index is not None:
-                self.parent.set_batches()
-                self.parent.lstBatchs.see(self.index)
-                self.parent.lstBatchs.selection_set(self.index)
+                self.parent.lstBatches.see(self.index)
+                self.parent.lstBatches.selection_set(self.index)
                     
             self.on_cancel()
 
@@ -132,15 +134,14 @@ class Dialog(Toplevel):
     def on_cancel(self, evt=None):
         self.destroy()
 
-
     def get_values(self,):
 
-        return (self.selected_test[0],
+        return [self.selected_test[0],
                 self.batch.get(),
                 self.engine.get_date(self,),
                 self.target.get(),
                 self.sd.get(),
-                self.enable.get())
+                self.enable.get()]
     
     def set_values(self,):
 

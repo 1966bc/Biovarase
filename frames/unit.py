@@ -57,8 +57,7 @@ class Dialog(Toplevel):
 
     def on_open(self,selected_item = None):
 
-        if selected_item is not None:
-            self.insert_mode = False
+        if self.index is not None:
             self.selected_item = selected_item
             msg = "Update  unit %s" % (self.selected_item[1],)
             self.set_values()
@@ -82,27 +81,26 @@ class Dialog(Toplevel):
 
     def on_save(self, evt):
 
-        if self.on_fields_control()==False:return
+        fields = (self.txtUnit,)
 
+        if self.engine.on_fields_control(fields)==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
             args =  self.get_values()
 
-            if self.insert_mode == False:
+            if self.index is not None:
 
                 sql = self.engine.get_update_sql('units','unit_id')
 
-                args = self.engine.get_update_sql_args(args, self.selected_item[0])
+                args.append(self.selected_item[0])
                    
-            elif self.insert_mode == True:
-
-                    sql = self.engine.get_insert_sql('units',len(args))
+            else:
+                sql = self.engine.get_insert_sql('units',len(args))
 
             self.engine.write(sql,args)
             self.parent.on_open()
             
             if self.index is not None:
-                
                 self.parent.lstItems.see(self.index)
                 self.parent.lstItems.selection_set(self.index)
                 
@@ -113,7 +111,3 @@ class Dialog(Toplevel):
            
     def on_cancel(self, evt=None):
         self.destroy()
-
-    def on_fields_control(self):
-        fields = (self.txtUnit,)
-        return self.engine.on_fields_control(fields)                

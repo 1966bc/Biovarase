@@ -62,38 +62,60 @@ class Biovarase(Frame):
     def init_menu(self):
 
         m_main = Menu(self, bd = 1)
-        m_results = Menu(m_main, tearoff=0, bd = 1)
+               
         m_file = Menu(m_main, tearoff=0, bd = 1)
+        s_menu = Menu(m_file)
+        m_results = Menu(m_main, tearoff=0, bd = 1)
+        m_batches = Menu(m_main, tearoff=0, bd = 1)
         m_about = Menu(m_main, tearoff=0, bd = 1)
-
-        m_main.add_cascade(label="File", underline=1, menu=m_file)
-        m_main.add_cascade(label="Results", underline=1, menu=m_results)
+        
+        m_main.add_cascade(label="File", underline=0, menu=m_file)
+        m_main.add_cascade(label="Batches", underline=0, menu=m_batches)
+        m_main.add_cascade(label="Results", underline=0, menu=m_results)
         m_main.add_cascade(label="?", underline=0, menu=m_about)
 
-        items = (("Quick Data Analysis", self.on_quick_data_analysis),
-                 ("Reset",self.on_reset),
-                 ("Export",self.on_export),
+
+        items = (("Reset",self.on_reset),
                  ("Tests",self.on_tests),
                  ("Data",self.on_data),
                  ("Units",self.on_units),
-                 ("Actions",self.on_actions),
-                 ("Exit",self.on_exit),)
-
+                 ("Actions",self.on_actions),)
+        
         for i in items:
             m_file.add_command(label=i[0],underline=0, command=i[1])
 
+        #keep this here
+        m_file.add_cascade(label='Export', menu=s_menu, underline=0)
 
-        items = (("Add result", self.on_add_result),
-                 ("Update result",self.on_update_result),
-                 ("Rejections",self.engine.rpt_rejections),)
+        items = (("Quick Data Analysis", self.engine.get_quick_data_analysis),
+                 ("Rejections",self.engine.get_rejections),
+                 ("Analytical Goals",self.set_analytical_goals),)
 
         for i in items:
-            m_results.add_command(label=i[0],underline=0, command=i[1])            
+            s_menu.add_command(label=i[0], underline=0, command=i[1])
+
+        m_file.add_separator()
+ 
+        m_file.add_command(label="Exit", underline=0, command=self.on_exit)
+
+
+        items = (("Add batch", self.on_add_batch),
+                 ("Update batch",self.on_update_batch))
+        
+        for i in items:
+            m_batches.add_command(label=i[0],underline=0, command=i[1])
+        
+        items = (("Add result", self.on_add_result),
+                 ("Update result",self.on_update_result))
+
+        for i in items:
+            m_results.add_command(label=i[0],underline=0, command=i[1])
 
         m_about.add_command(label="About",underline=0, command=self.on_about)
-     
-        self.master.config(menu=m_main)        
-        
+
+        self.master.config(menu=m_main)
+                
+
     def init_ui(self):
 
         self.pack(fill=BOTH, expand=1,)
@@ -108,9 +130,8 @@ class Biovarase(Frame):
         w.pack(side=TOP,fill=X, expand=0)
 
         w = LabelFrame(f0,text='Batchs')
-        self.lstBatchs = self.engine.get_listbox(w, height=5)
-        self.lstBatchs.bind("<<ListboxSelect>>", self.on_selected_batch)
-        self.lstBatchs.bind('<Button-3>', self.on_batch_activated)
+        self.lstBatches = self.engine.get_listbox(w, height=5)
+        self.lstBatches.bind("<<ListboxSelect>>", self.on_selected_batch)
         w.pack(side=TOP,fill=BOTH, expand=0)
 
         f1 = Frame(f0,bd=5)
@@ -188,7 +209,7 @@ class Biovarase(Frame):
     def on_reset(self):
         
         self.selected_batch = None
-        self.lstBatchs.delete(0, END)
+        self.lstBatches.delete(0, END)
         self.lstResults.delete(0, END)
         self.cbTests.set('')
         self.set_tests()
@@ -207,19 +228,22 @@ class Biovarase(Frame):
             print (sys.exc_info()[1])
             print (sys.exc_info()[2])
 
-    def reset_texts(self):
+    def reset_batch_data(self):
         
         self.expiration.set('')
         self.target.set(0)
         self.sd.set(0)
+        
+    def reset_cal_data(self):
+
         self.average.set(0)
         self.bias.set(0)
         self.westgard.set('No Data')
         self.calculated_sd.set(0)
         self.calculated_cv.set(0)
         self.range.set(0)
-        self.set_westgard_alarm()        
-       
+        self.set_westgard_alarm()
+        
     def set_tests(self):
 
         index = 0
@@ -240,11 +264,11 @@ class Biovarase(Frame):
             v.append(i[1])
 
         self.cbTests['values']=v        
-        self.reset_texts()
+        self.reset_batch_data()
         
-    def set_batchs(self):
+    def set_batches(self):
 
-        self.lstBatchs.delete(0, END)
+        self.lstBatches.delete(0, END)
         self.lstResults.delete(0, END)
 
         index = 0
@@ -255,25 +279,31 @@ class Biovarase(Frame):
         if rs:
             for i in rs:
                 s = "%s"%(i[1])
-                self.lstBatchs.insert(END, (s))
+                self.lstBatches.insert(END, (s))
                 self.dict_batchs[index]=i[0]
                 index+=1
 
-            self.lstBatchs.select_set(0)
-            self.lstBatchs.event_generate("<<ListboxSelect>>")
-
-    def set_results(self,):           
+            self.lstBatches.select_set(0)
+            self.lstBatches.event_generate("<<ListboxSelect>>")
+        else:
             
+            self.reset_cal_data()
+            self.reset_graph() 
+            
+
+    def set_results(self,):
+
+        try:
             self.lstResults.delete(0, END)
             index = 0
             self.dict_results={}
            
             sql = "SELECT * FROM lst_results WHERE batch_id = ? LIMIT ?"
             rs = self.engine.read(True, sql, (self.selected_batch[0],int(self.elements.get())))
-
+            
             target = float(self.selected_batch[4])
             sd = float(self.selected_batch[5])
-
+    
             if rs:
 
                 for i in rs:
@@ -290,33 +320,45 @@ class Biovarase(Frame):
                     self.dict_results[index]=i[0]
                    
                     index+=1
-           
-                self.get_data(rs, target, sd) 
+
+                #check if it exists at least a value with the equal enable = 1
+                #if values don't exist we cannot compute stat.
+                if self.engine.get_dataset(rs):
+                    self.get_data(rs, target, sd)
+                else:
+                    self.reset_cal_data()
+                    self.reset_graph()
                 
             else:
-                self.westgard.set('No Data')
-                self.calculated_sd.set(0)
-                self.calculated_cv.set(0)
-                self.range.set(0)
-                self.reset_graph()                 
+                self.reset_cal_data()
+                self.reset_graph()
 
+        except:
+            
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])
+            print(self.selected_batch[0])
+            
+            
     def on_selected_test(self,event):
 
         index = self.cbTests.current()
-        test_id = self.dict_tests[index]
-        self.selected_test = self.engine.get_selected('lst_tests','test_id', test_id)
-        self.reset_texts()
-        self.set_batchs()
+        pk = self.dict_tests[index]
+        self.selected_test = self.engine.get_selected('lst_tests','test_id', pk)
+        self.reset_batch_data()
+        self.reset_cal_data()
+        self.set_batches()
     
-            
     def on_selected_batch(self,event):
 
-        if self.lstBatchs.curselection():
+        if self.lstBatches.curselection():
 
-            index = self.lstBatchs.curselection()[0]
+            index = self.lstBatches.curselection()[0]
             pk = self.dict_batchs.get(index)
             self.selected_batch = self.engine.get_selected('batchs','batch_id', pk)
-            self.batch_index = index
+            
             self.set_batch()
             self.set_results()
 
@@ -327,13 +369,6 @@ class Biovarase(Frame):
             index = self.lstResults.curselection()[0]
             pk = self.dict_results.get(index)
             self.selected_result = self.engine.get_selected('results','result_id', pk)            
-
-    def on_batch_activated(self, event):
-
-        if self.lstBatchs.curselection():
-            self.obj = frames.batch.Dialog(self,self.engine,)
-            self.obj.transient(self)
-            self.obj.on_open(self.selected_test, self.selected_batch)
 
     def on_result_activated(self, event):
 
@@ -400,25 +435,25 @@ class Biovarase(Frame):
 
     def get_data(self, rs, target, sd):
 
-        if self.selected_batch is not None :
+        um = self.get_um()
+        series = []
+        dates = []
+        x_labels = []
+        count_rs = len(rs)
+        #compute record with enable = 1
+        #check if it exists at least a value with the equal enable = 1
+        #if values don't exist we cannot compute stat.
+        rs = self.engine.get_dataset(rs)
 
-            um = self.get_um()
-            
-            series = []
-            dates = []
-            x_labels = []
-            
-            count_rs = len(rs)
-            #compute record with enable = 1
-            rs = tuple(i for i in rs if i[4]!=0)
+        for i in reversed(rs):
+            series.append(i[1])
+            x_labels.append(i[2])
+            dates.append(i[3])
 
-            for i in reversed(rs):
-                series.append(i[1])
-                x_labels.append(i[2])
-                dates.append(i[3])
+        count_series = len(series)
 
-            count_series = len(series)
-    
+        if rs:
+
             compute_average = round(np.mean(series),2)
             compute_sd = round(np.std(series),2)
             compute_cv = round((compute_sd/compute_average)*100,2)
@@ -429,41 +464,31 @@ class Biovarase(Frame):
             self.set_westgard(series)
             self.range.set(round(np.ptp(series),2))
 
-            if rs is not None:
+            self.set_lj(series,
+                        target,
+                        compute_average,
+                        sd,
+                        compute_cv,
+                        um,
+                        x_labels,
+                        dates,
+                        count_rs,
+                        count_series)
+                
+            self.set_histogram(series,
+                               target,
+                               compute_average,
+                               sd,
+                               compute_cv,
+                               um,
+                               compute_sd)
+            self.canvas.draw()
 
-                if count_series<3:
-                    msg = ("%s : lot %s INSUFFICIENT DATA FOR MEANINGFUL ANSWER"% (self.selected_test[2],self.selected_batch[2]))
-                else:
-                    
-                   
-                    self.set_lj(series,
-                                target,
-                                compute_average,
-                                sd,
-                                compute_cv,
-                                um,
-                                x_labels,
-                                dates,
-                                count_rs,
-                                count_series)
-                    
-                    self.set_histogram(series,
-                                       target,
-                                       compute_average,
-                                       sd,
-                                       compute_cv,
-                                       um,
-                                       compute_sd)
-                    self.canvas.draw()
-
-            
-   
-            else:
-                msg = "INSUFFICIENT DATA FOR MEANINGFUL ANSWER."
-                messagebox.showinfo(self.engine.title,msg )
+        
         else:
-            msg = "No batch selected."
-            messagebox.showwarning(self.engine.title,msg)
+            self.reset_cal_data()
+            self.reset_graph()
+      
 
     def set_lj(self, series, target, avg, sd, cv, um, x_labels, dates, count_rs, count_series):
 
@@ -559,15 +584,8 @@ class Biovarase(Frame):
             print (sys.exc_info()[1])
             print (sys.exc_info()[2])
 
-    def on_quick_data_analysis(self,):
 
-        self.master.config(cursor="watch")
-
-        self.engine.quick_data_analysis()
-
-        self.master.config(cursor="")
-
-    def on_export(self):
+    def set_analytical_goals(self):
 
         sql = "SELECT batchs.batch_id,\
                          samples.sample,\
@@ -593,12 +611,11 @@ class Biovarase(Frame):
         rs = self.engine.read(True, sql, ())
 
         if rs:
-            self.engine.get_xls(limit,rs)
+            self.engine.get_analytical_goals(limit,rs)
         else:
-            msg = "No record data to compute."
+            msg = "No record data to compute analytical goals."
             messagebox.showwarning(self.engine.title,msg)
             
-        
     def on_tests(self,):
         
         f = frames.tests.Dialog(self,self.engine)
@@ -618,6 +635,28 @@ class Biovarase(Frame):
         f = frames.actions.Dialog(self,self.engine)
         f.on_open()
 
+    def on_add_batch(self):
+
+        if self.cbTests.current() != -1:
+            obj = frames.batch.Dialog(self,self.engine,)
+            obj.transient(self)
+            obj.on_open(self.selected_test)
+
+        else:
+            msg = "Attention please.\nBefore add a batch you must select a test."
+            messagebox.showinfo(self.engine.title, msg)            
+
+    def on_update_batch(self):
+
+        if self.lstBatches.curselection():
+            index = self.lstBatches.curselection()[0]
+            obj = frames.batch.Dialog(self,self.engine, index)
+            obj.transient(self)
+            obj.on_open(self.selected_test, self.selected_batch)
+        else:
+            msg = "Attention please.\nSelect a batch."
+            messagebox.showinfo(self.engine.title, msg)            
+
 
     def on_add_result(self,):
 
@@ -633,7 +672,7 @@ class Biovarase(Frame):
         try:
             if self.lstResults.curselection():
                 index = self.lstResults.curselection()[0]
-                obj = frames.result.Dialog(self, self.engine,)
+                obj = frames.result.Dialog(self, self.engine, index)
                 obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
 
             else:
@@ -647,8 +686,6 @@ class Biovarase(Frame):
             print (sys.exc_info()[2])
 
  
-        
-        
     def on_about(self,):
         messagebox.showinfo(self.engine.title, self.engine.about)        
   
@@ -667,7 +704,7 @@ def main():
     #('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
     root.style.theme_use("clam")
     #set icon
-    imgicon = PhotoImage(file=os.path.join('icons', 'app.png'))
+    imgicon = PhotoImage(file='biovarase.png')
     root.call('wm', 'iconphoto', root._w, '-default', imgicon)
     root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
     #root.geometry("{0}x{1}+0+0".format(1200, 600))

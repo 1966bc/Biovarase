@@ -38,7 +38,6 @@ class Dialog(Toplevel):
         w.columnconfigure(1, weight=1)
         w.columnconfigure(2, weight=1)        
 
-
     def init_ui(self):
 
         w = Frame(self, bd=1, padx = 5, pady = 5)
@@ -46,8 +45,8 @@ class Dialog(Toplevel):
         w.grid(row = 0, column = 0, sticky=N+W+S+E)
 
         Label(w, text="Action:").grid(row=0, sticky=W)
-        self.txtUnit = Entry(w, bg='white', textvariable=self.unit)
-        self.txtUnit.grid(row=0, column=1, padx=5, pady=5)
+        self.txtAction = Entry(w, bg='white', textvariable=self.unit)
+        self.txtAction.grid(row=0, column=1, padx=5, pady=5)
 
         Label(w, text="Enable:").grid(row=1, sticky=W)
         self.ckEnable = Checkbutton(w, onvalue=1, offvalue=0, variable = self.enable,)
@@ -57,18 +56,16 @@ class Dialog(Toplevel):
 
     def on_open(self,selected_item = None):
 
-        if selected_item is not None:
-            self.insert_mode = False
+        if self.index is not None:
             self.selected_item = selected_item
             msg = "Update %s" % (self.selected_item[1],)
             self.set_values()
         else:
-            self.insert_mode = True
             msg = "Insert new"
             self.enable.set(1)
 
         self.title(msg)
-        self.txtUnit.focus()
+        self.txtAction.focus()
 
     def set_values(self,):
         
@@ -77,34 +74,34 @@ class Dialog(Toplevel):
 
     def get_values(self,):
 
-        return (self.unit.get(),
-                self.enable.get(),)
+        return [self.unit.get(),
+                self.enable.get(),]
 
     def on_save(self, evt):
 
-        if self.on_fields_control()==False:return
+        fields = (self.txtAction,)
+        
+        if self.engine.on_fields_control(fields)==False:return
 
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
             args =  self.get_values()
 
-            if self.insert_mode == False:
+            if self.index is not None:
 
                 sql = self.engine.get_update_sql('actions','action_id')
 
-                args = self.engine.get_update_sql_args(args, self.selected_item[0])
+                args.append(self.selected_item[0])
                    
-            elif self.insert_mode == True:
-
-                    sql = self.engine.get_insert_sql('actions',len(args))
+            else:
+                sql = self.engine.get_insert_sql('actions',len(args))
 
             self.engine.write(sql,args)
             self.parent.on_open()
             
             if self.index is not None:
-                
-                self.parent.lstItems.see(self.index)
-                self.parent.lstItems.selection_set(self.index)
+                self.parent.lstActions.see(self.index)
+                self.parent.lstActions.selection_set(self.index)
                 
             self.on_cancel()
 
@@ -113,7 +110,3 @@ class Dialog(Toplevel):
            
     def on_cancel(self, evt=None):
         self.destroy()
-
-    def on_fields_control(self):
-        fields = (self.txtUnit,)
-        return self.engine.on_fields_control(fields)                

@@ -87,13 +87,11 @@ class Dialog(Toplevel):
         self.set_samples()
         self.set_units()
        
-        if selected_test is not None:
-            self.insert_mode = False
+        if self.index is not None:
             self.selected_test = selected_test
             msg = "Update  %s" % (self.selected_test[3],)
             self.set_values()
         else:
-            self.insert_mode = True
             msg = "Insert new test"
             self.enable.set(1)
 
@@ -102,27 +100,28 @@ class Dialog(Toplevel):
         
     def on_save(self, evt=None):
 
-        if self.engine.on_fields_control( (self.txTest,))==False:return
+        fields = (self.cbSamples, self.txTest, self.txtCVW, self.txtCVB)
+        
+        if self.engine.on_fields_control(fields)==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
             args =  self.get_values()
 
-            if self.insert_mode == False:
+            if self.index is not None:
 
                 sql = self.engine.get_update_sql('tests','test_id')
 
-                args = self.engine.get_update_sql_args(args, self.selected_test[0])
+                args.append(self.selected_test[0])
                        
-            elif self.insert_mode == True:
-
-                    sql = self.engine.get_insert_sql('tests',len(args))
+            else:
+                sql = self.engine.get_insert_sql('tests',len(args))
 
             self.engine.write(sql,args)
             self.parent.on_open()
                 
             if self.index is not None:
-                self.parent.lstItems.see(self.index)
-                self.parent.lstItems.selection_set(self.index)
+                self.parent.lstTests.see(self.index)
+                self.parent.lstTests.selection_set(self.index)
                     
             self.on_cancel()
            
@@ -163,12 +162,12 @@ class Dialog(Toplevel):
 
     def get_values(self,):
 
-        return (self.dict_samples[self.cbSamples.current()],
+        return [self.dict_samples[self.cbSamples.current()],
                 self.dict_units[self.cbUnits.current()],
                 self.test.get(),
                 self.cvw.get(),
                 self.cvb.get(),
-                self.enable.get())
+                self.enable.get()]
     
     def set_values(self,):
 

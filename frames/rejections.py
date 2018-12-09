@@ -27,12 +27,7 @@ class Dialog(Toplevel):
         self.selected_item = None
         self.obj = None
 
-        self.cols = (["#0",'id','w',False,0,0],
-                      ["#1",'Date','w',True,80,80],
-                      ["#2",'Action','w',True,100,100],
-                      ["#3",'Description','w',True,200,200],)
-
-        self.center_me()
+        #self.center_me()
         self.init_ui()
 
     def center_me(self):
@@ -70,11 +65,11 @@ class Dialog(Toplevel):
         w.pack(side=LEFT, fill=Y, expand=0)
 
         w = Frame(p,)
+
+        self.lstItems = self.engine.get_listbox(w,width=40)
+        self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
+        self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
         
-        self.lstItems = self.engine.get_tree(w, self.cols,)
-        self.lstItems.bind("<<TreeviewSelect>>", self.on_item_selected)
-        self.lstItems.bind("<Double-1>", self.on_item_activated)
-              
         w.pack(side=LEFT, fill=BOTH,padx=5, pady=5, expand =1)
 
         self.engine.get_add_edit_cancel(self,p)
@@ -99,14 +94,20 @@ class Dialog(Toplevel):
         args = (selected_result[0],)
         rs = self.engine.read(True, sql, args)
 
-        for i in self.lstItems.get_children():
-            self.lstItems.delete(i)
+        index = 0
+
+        self.dict_items={}
 
         if rs:
+            self.lstItems.delete(0, END)
             for i in rs:
-                self.lstItems.insert('', 0, text=i[0],values=(i[3],i[1],i[2]))
+                s = '{:20}{:20}'.format(i[3],i[1])
+                self.lstItems.insert(END, (s))
+                if i[4] != 1:
+                    self.lstItems.itemconfig(index, {'bg':'light gray'})
+                self.dict_items[index]=i[0]
+                index+=1
                 
-
         self.title("Rejections")
 
     def on_add(self, evt):
@@ -118,22 +119,28 @@ class Dialog(Toplevel):
         self.on_item_activated()
         
 
-    def on_item_activated(self, evt=None):
+    def on_item_activated(self,evt):
 
-        if self.selected_item is not None:
-            obj = frames.rejection.Dialog(self,self.engine)
-            obj.transient(self)
-            obj.on_open(self.selected_test,self.selected_batch, self.selected_result, self.selected_item)
+        if self.lstItems.curselection():
+            index = self.lstItems.curselection()[0]
+            self.obj = frames.rejection.Dialog(self,self.engine, index)
+            self.obj.transient(self)
+            self.obj.on_open(self.selected_test,
+                             self.selected_batch,
+                             self.selected_result,
+                             self.selected_item)
+               
         else:
             messagebox.showwarning(self.engine.title,self.engine.no_selected)
-
-                
+  
     def on_item_selected(self, evt):
 
-        pk = int(self.lstItems.item(self.lstItems.focus())['text'])
-        self.selected_item = self.engine.get_selected('rejections','rejection_id', pk)
-
+         if self.lstItems.curselection():
+            index = self.lstItems.curselection()[0]
+            pk = self.dict_items.get(index)
+            self.selected_item = self.engine.get_selected('rejections','rejection_id', pk)
             
+    
     def on_cancel(self, evt=None):
 
         """force closing of the childs...

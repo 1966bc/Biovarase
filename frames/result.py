@@ -76,8 +76,11 @@ class Dialog(Toplevel):
         self.ckEnable = Checkbutton(w, onvalue=1, offvalue=0, variable = self.enable,)
         self.ckEnable.grid(row=4, column=1,sticky=W)
 
-        self.engine.get_save_cancel_delete(self, self)
-        
+        if self.index is not None:
+            self.engine.get_save_cancel_delete(self, self)
+        else:
+            self.engine.get_save_cancel(self, self)
+            
     def on_open(self, selected_test, selected_batch, selected_result = None):
 
         self.selected_batch = selected_batch
@@ -85,14 +88,12 @@ class Dialog(Toplevel):
         self.test.set(selected_test[1])
         self.batch.set(self.selected_batch[2])
         
-        if selected_result is not None:
-            self.insert_mode = False
+        if self.index is not None:
             self.selected_result = selected_result
-            msg = "Update result for" 
+            msg = "Update result" 
             self.set_values()
         else:
-            self.insert_mode = True
-            msg = "Add result to" 
+            msg = "Add result to %s" %selected_batch[2]
             self.enable.set(1)
             self.engine.set_date(self)
 
@@ -101,44 +102,43 @@ class Dialog(Toplevel):
         
     def on_save(self, evt=None):
 
-        if self.engine.on_fields_control( (self.txtResult,))==False:return
-        if self.engine.get_date(self) is not False:
-            if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
-
-                args =  self.get_values()
-
-                if self.insert_mode == False:
-
-                    sql = self.engine.get_update_sql('results','result_id')
-
-                    args = self.engine.get_update_sql_args(args, self.selected_result[0])
+        fields = (self.txtResult,)
         
-                elif self.insert_mode == True:
+        if self.engine.on_fields_control(fields)==False:return
+        if self.engine.get_date(self)==False:return
 
-                    sql = self.engine.get_insert_sql('results',len(args))
+        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
-                self.engine.write(sql,args)
-                self.parent.set_results()
-                    
-                if self.index is not None:
-                    self.parent.lstResults.see(self.index)
-                    self.parent.lstResults.selection_set(self.index)
-                        
-                self.on_cancel()
+            args =  self.get_values()
 
+            if self.index is not None:
+
+                sql = self.engine.get_update_sql('results','result_id')
+                args.append(self.selected_result[0])
+    
             else:
-                messagebox.showinfo(self.engine.title,self.engine.abort)
+
+                sql = self.engine.get_insert_sql('results',len(args))
+
+            self.engine.write(sql,args)
+            self.parent.set_results()
+                
+            if self.index is not None:
+                self.parent.lstResults.see(self.index)
+                self.parent.lstResults.selection_set(self.index)
+                    
+            self.on_cancel()
+
+        else:
+            messagebox.showinfo(self.engine.title,self.engine.abort)
            
     def on_cancel(self, evt=None):
         self.destroy()
 
     def on_delete(self, evt=None):
 
-        if self.insert_mode == True:
-            msg = "You are in insert mode. It's impossible to delete."
-            messagebox.showinfo(self.engine.title,msg)
+        if self.index is not None:
 
-        else:
             if messagebox.askyesno(self.engine.title, self.engine.delete, parent=self) == True:
                 sql = "DELETE FROM results WHERE result_id =?"
                 args = (self.selected_result[0],)
@@ -151,10 +151,10 @@ class Dialog(Toplevel):
         
     def get_values(self,):
 
-        return (self.selected_batch[0],
+        return [self.selected_batch[0],
                 self.result.get(),
                 self.engine.get_timestamp(self),
-                self.enable.get())
+                self.enable.get()]
     
     def set_values(self,):
         

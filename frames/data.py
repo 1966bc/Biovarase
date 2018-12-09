@@ -8,15 +8,15 @@
 from tkinter import *
 from tkinter import messagebox
 
-import frames.batch as batch
-import frames.result as result
+import frames.batch
+import frames.result
 
 class Dialog(Toplevel):     
     def __init__(self,parent, engine):
         super().__init__(name='batchs')
 
         #self.resizable(0,0)
-        self.geometry("{0}x{1}+0+0".format(1200, 600))
+        #self.geometry("{0}x{1}+0+0".format(1200, 600))
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.parent = parent
         self.engine = engine
@@ -40,32 +40,32 @@ class Dialog(Toplevel):
 
     def init_ui(self):
     
-        p = self.engine.get_frame(self)
-
-        lbl = Label(p,font='Times 12 bold italic', foreground="blue", textvariable = self.selected_data)
-        lbl.pack()
+        f0 = self.engine.get_frame(self)
         
-        w_tests = Frame(p,)
+        w_tests = self.engine.get_frame(self)
+        
+        Label(w_tests,font='Times 12 bold italic', foreground="blue", textvariable = self.selected_data).pack()
+        
         w = LabelFrame(w_tests,text=  "Tests", padx = 5, pady = 5)
         self.lstTests = self.engine.get_listbox(w,)
         self.lstTests.bind("<<ListboxSelect>>", self.on_test_selected)
         w.pack(side=LEFT, fill=BOTH,padx=5, pady=5, expand =1)
         w_tests.pack(side=LEFT, fill=BOTH,padx=5, pady=5, expand =1)
 
-        w_batchs = Frame(p,)
-        msg = '{0:8}{1:^15}{2:^10}{3:^10}'.format('Batchs','Expirations','Target','SD')
-        w = LabelFrame(w_batchs,text= msg, padx = 5, pady = 5)
-        self.lstBatchs = self.engine.get_listbox(w,)
-        self.lstBatchs.bind("<<ListboxSelect>>", self.on_batch_selected)
-        self.lstBatchs.bind("<Double-Button-1>", self.on_batch_activated)
+        w_batchs = self.engine.get_frame(self)
+        s = '{0:8}{1:>12}{2:>15}{3:>12}'.format('Batchs','Expirations','Target','SD')
+        w = LabelFrame(w_batchs,text= s, padx = 5, pady = 5)
+        self.lstBatches = self.engine.get_listbox(w,)
+        self.lstBatches.bind("<<ListboxSelect>>", self.on_batch_selected)
+        self.lstBatches.bind("<Double-Button-1>", self.on_batch_activated)
         w.pack(side=LEFT, fill=BOTH,padx=5, pady=5, expand =1)
         w_batchs.pack(side=LEFT, fill=BOTH,padx=5, pady=5, expand =1)
 
         
-        w_results = Frame(p,)
+        w_results = self.engine.get_frame(self)
         s = '{:<15}{:<20}'.format('Recived','Result')
         w = LabelFrame(w_results,text=s, padx = 5, pady = 5)
-        self.lstResults = self.engine.get_listbox(w,)
+        self.lstResults = self.engine.get_listbox(w)
         self.lstResults.bind("<<ListboxSelect>>", self.on_result_selected)
         self.lstResults.bind("<Double-Button-1>", self.on_result_activated)
         w.pack(side=LEFT, fill=BOTH,padx=5, pady=5, expand =1)
@@ -80,9 +80,8 @@ class Dialog(Toplevel):
         self.btClose.bind("<Button-1>", self.on_cancel)
         bts.pack(fill=BOTH, side=RIGHT)
         
-        p.pack(fill=BOTH, expand=1, padx=5, pady=5)
+        f0.pack(fill=BOTH,padx=5, pady=5, expand =1)
 
-        
     def on_open(self,):
 
         self.set_tests()
@@ -112,7 +111,7 @@ class Dialog(Toplevel):
         
     def set_batches(self,):
 
-        self.lstBatchs.delete(0, END)
+        self.lstBatches.delete(0, END)
         self.lstResults.delete(0, END)
 
         index = 0
@@ -123,11 +122,10 @@ class Dialog(Toplevel):
         if rs:
             for i in rs:
                 
-                s = '{0:8}{1:^12}{2:^10}{3:^10}'.format(i[1],i[2],i[3],i[4])
-                #s = "%s %s %s %s"%(i[1],i[2],i[3],i[4])
-                self.lstBatchs.insert(END, (s))
+                s = '{0:8}{1:>10}{2:>10}{3:>10}'.format(i[1],i[2],i[3],i[4])
+                self.lstBatches.insert(END, (s))
                 if i[5] !=1:
-                    self.lstBatchs.itemconfig(index, {'bg':'gray'})
+                    self.lstBatches.itemconfig(index, {'bg':'gray'})
                 self.dict_batchs[index]=i[0]
                 index+=1
 
@@ -166,11 +164,29 @@ class Dialog(Toplevel):
        
     def on_batch_selected(self, evt):
 
-        if self.lstBatchs.curselection():
-            index = self.lstBatchs.curselection()[0]
+        if self.lstBatches.curselection():
+            index = self.lstBatches.curselection()[0]
             pk = self.dict_batchs.get(index)
             self.selected_batch = self.engine.get_selected('batchs','batch_id', pk)
             self.set_results()
+
+    def on_batch_activated(self, evt):
+
+        if self.lstBatches.curselection():
+            index = self.lstBatches.curselection()[0]
+            self.obj = frames.batch.Dialog(self,self.engine, index)
+            self.obj.on_open(self.selected_test, self.selected_batch)
+
+    def on_add_batch(self, evt):
+
+        if self.lstTests.curselection():
+            self.obj = frames.batch.Dialog(self,self.engine,)
+            self.obj.transient(self)
+            self.obj.on_open(self.selected_test)
+
+        else:
+            msg = "Attention please.\nBefore add a batch you must select a test."
+            messagebox.showinfo(self.engine.title, msg)                        
 
     def on_result_selected(self, evt):
 
@@ -178,41 +194,25 @@ class Dialog(Toplevel):
             index = self.lstResults.curselection()[0]
             pk = self.dict_results.get(index)
             self.selected_result = self.engine.get_selected('results','result_id', pk)
-
-    def on_batch_activated(self, evt):
-
-        if self.lstBatchs.curselection():
-            index = self.lstBatchs.curselection()[0]
-            self.obj = batch.Dialog(self,self.engine, index)
-            self.obj.on_open(self.selected_test, self.selected_batch)
-
+            
     def on_result_activated(self, evt):
 
         if self.lstResults.curselection():
             index = self.lstResults.curselection()[0]
-            self.obj = result.Dialog(self,self.engine, index)
+            self.obj = frames.result.Dialog(self,self.engine, index)
             self.obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
-            
-    def on_add_batch(self, evt):
 
-        if self.selected_test is not None:
-            self.obj = batch.Dialog(self, self.engine,)
-            self.obj.on_open(self.selected_test)
-        else:
-            msg = "Please select a test."
-            messagebox.showwarning(self.engine.title, msg)                    
-
-        
     def on_add_result(self, evt):
 
-        if self.selected_batch is not None:
-            self.obj = result.Dialog(self, self.engine,)
+        if self.lstBatches.curselection():
+            self.obj = frames.result.Dialog(self, self.engine,)
             self.obj.on_open(self.selected_test, self.selected_batch)
             
         else:
-            msg = "Please select a batch."
-            messagebox.showwarning(self.engine.title, msg)                  
+            msg = "Attention please.\nBefore add a result you must select a batch."
+            messagebox.showwarning(self.engine.title, msg)             
 
+                    
     def on_cancel(self, evt=None):
 
         """force closing of the childs...

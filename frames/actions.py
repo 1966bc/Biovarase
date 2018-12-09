@@ -33,17 +33,17 @@ class Dialog(Toplevel):
         
     def init_ui(self):
     
-        p = self.engine.get_frame(self)
+        f0 = self.engine.get_frame(self)
 
-        w = Frame(p,)
-        self.lstItems = self.engine.get_listbox(w,)
-        self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
-        self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
-        w.pack(side=LEFT, fill=BOTH,padx=5, pady=5, expand =1)
+        f1 = Frame(f0,)
+        self.lstActions = self.engine.get_listbox(f1,)
+        self.lstActions.bind("<<ListboxSelect>>", self.on_item_selected)
+        self.lstActions.bind("<Double-Button-1>", self.on_item_activated)
+        f1.pack(side=LEFT, fill=BOTH,padx=5, pady=5, expand =1)
 
-        self.engine.get_add_edit_cancel(self,p)
+        self.engine.get_add_edit_cancel(self,f0)
 
-        p.pack(side=LEFT, fill=BOTH, expand=1)
+        f0.pack(side=LEFT, fill=BOTH, expand=1)
 
         
     def on_open(self,):
@@ -57,11 +57,11 @@ class Dialog(Toplevel):
         self.dict_items={}
 
         if rs:
-            self.lstItems.delete(0, END)
+            self.lstActions.delete(0, END)
             for i in rs:
-                self.lstItems.insert(END, i[1])
+                self.lstActions.insert(END, i[1])
                 if i[2] != 1:
-                    self.lstItems.itemconfig(index, {'bg':'light gray'})
+                    self.lstActions.itemconfig(index, {'bg':'light gray'})
                 self.dict_items[index]=i[0]
                 index+=1
                         
@@ -75,23 +75,21 @@ class Dialog(Toplevel):
     def on_edit(self, evt):
         self.on_item_activated()
         
-
     def on_item_activated(self, evt=None):
 
-        if self.lstItems.curselection():
-            if self.selected_item is not None:
-                index = self.lstItems.curselection()[0]
-                self.obj = action.Dialog(self,self.engine,index)
-                self.obj.transient(self)
-                self.obj.on_open(self.selected_item,)
+        if self.lstActions.curselection():
+            index = self.lstActions.curselection()[0]
+            self.obj = action.Dialog(self,self.engine,index)
+            self.obj.transient(self)
+            self.obj.on_open(self.selected_item,)
                
-            else:
-                messagebox.showwarning(self.engine.title,self.engine.no_selected)
+        else:
+            messagebox.showwarning(self.engine.title,self.engine.no_selected)
                 
     def on_item_selected(self, evt):
 
-        if self.lstItems.curselection():
-            index = self.lstItems.curselection()[0]
+        if self.lstActions.curselection():
+            index = self.lstActions.curselection()[0]
             pk = self.dict_items.get(index)
             self.selected_item = self.engine.get_selected('actions','action_id', pk)
             

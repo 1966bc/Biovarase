@@ -75,13 +75,11 @@ class Dialog(Toplevel):
 
         self.set_actions()
           
-        if selected_rejection is not None:
-            self.insert_mode = False
+        if self.index is not None:
             self.selected_rejection = selected_rejection
             msg = "Update rejection"
             self.set_values()
         else:
-            self.insert_mode = True
             msg = "Add rejection"
             self.enable.set(1)
             self.engine.set_date(self)
@@ -90,24 +88,32 @@ class Dialog(Toplevel):
         self.cbActions.focus()
         
     def on_save(self, evt=None):
-
-        if self.engine.on_fields_control( (self.txDescription,))==False:return
+        
+        fields = (self.txDescription, self.cbActions)
+        
+        if self.engine.on_fields_control(fields)==False:return
+        if self.engine.get_date(self)==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
             args =  self.get_values()
 
-            if self.insert_mode == False:
+            if self.index is not None:
 
                 sql = self.engine.get_update_sql('rejections','rejection_id')
 
-                args = self.engine.get_update_sql_args(args, self.selected_rejection[0])
+                args.append(self.selected_rejection[0])
                        
-            elif self.insert_mode == True:
+            else:
 
-                    sql = self.engine.get_insert_sql('rejections',len(args))
+                sql = self.engine.get_insert_sql('rejections',len(args))
 
             self.engine.write(sql,args)
-            self.parent.on_open(self.selected_test,self.selected_batch,self.selected_result)        
+            self.parent.on_open(self.selected_test,self.selected_batch,self.selected_result)
+
+            if self.index is not None:
+                self.parent.lstItems.see(self.index)
+                self.parent.lstItems.selection_set(self.index)
+                
             self.on_cancel()
            
     def on_cancel(self, evt=None):
@@ -117,7 +123,7 @@ class Dialog(Toplevel):
 
         index = 0
         self.dict_actions={}
-        l = []
+        v = []
 
         sql = "SELECT action_id, action FROM actions ORDER BY action ASC"
         rs = self.engine.read(True, sql, ())
@@ -125,18 +131,18 @@ class Dialog(Toplevel):
         for i in rs:
             self.dict_actions[index]=i[0]
             index+=1
-            l.append(i[1])
+            v.append(i[1])
 
-        self.cbActions['values']=l
+        self.cbActions['values']=v
  
 
     def get_values(self,):
 
-        return (self.selected_result[0],
+        return [self.selected_result[0],
                 self.dict_actions[self.cbActions.current()],
                 self.description.get(),
                 self.engine.get_timestamp(self),
-                self.enable.get())
+                self.enable.get()]
     
     def set_values(self,):
 
