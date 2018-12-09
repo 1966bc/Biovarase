@@ -35,10 +35,10 @@ To start with Biovarase execute biovarase.py, something like
 
 or better
 
-bc@hal9000:~$ cd Biovarase-master
-bc@hal9000:~$ chmod +x biovarase.py
-bc@hal9000:~/Biovarase-master$ chmod +x biovarase.py
-bc@hal9000:~/Biovarase-master$ ./biovarase.py 
+> bc@hal9000:~$ cd Biovarase-master
+> bc@hal9000:~$ chmod +x biovarase.py
+> bc@hal9000:~/Biovarase-master$ chmod +x biovarase.py
+> bc@hal9000:~/Biovarase-master$ ./biovarase.py 
 
 
 Regards.
@@ -49,11 +49,14 @@ Regards.
 
 **2018-12-09**
 
-Add rejections managements.Now you can add actions, something like "Calibation","Blanck cuvette","Substitutions" in the relative frame and save
-on the database rejection actions on selected results.
+Add rejections managements.Now you can add actions, something like "Calibation","Blanck cuvette","Substitutions" in the relative frame and save on the database rejection actions on selected results.
+
 Rewrite all westgard class, now it's better.
+
 Write a better menu bar, with some items groupig, see Export item.
+
 Improve add/update file, now we use index to understand if the frame it's open to update or ti insert an item.
+
 Some minor refactoring
 
 **2018-11-24**
