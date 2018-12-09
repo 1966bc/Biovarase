@@ -33,15 +33,7 @@ To start with Biovarase execute biovarase.py, something like
 
 > bc@hal9000:~/biovarase$ python3 biovarase.py
 
-or better
-
-> bc@hal9000:~$ cd Biovarase-master
-> bc@hal9000:~$ chmod +x biovarase.py
-> bc@hal9000:~/Biovarase-master$ chmod +x biovarase.py
-> bc@hal9000:~/Biovarase-master$ ./biovarase.py 
-
-
-Regards.
+regards.
 
 
 ...
