@@ -116,7 +116,7 @@ class Dialog(Toplevel):
         self.obj.on_open(self.selected_test,self.selected_batch, self.selected_result)
 
     def on_edit(self, evt):
-        self.on_item_activated()
+        self.on_item_activated(self)
         
 
     def on_item_activated(self,evt):
