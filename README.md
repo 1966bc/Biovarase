@@ -10,12 +10,14 @@ It uses even the famous Westgard's rules to monitor results dataset.
 All the data are managed by SQLite database and matplotlib.
 
 - To show levey jennings graph, in the main windows select a test and choose the relative batch.
-- To update a batch in the main window make right click on it.
-- To deactivate/activate a result make double click on it.
-- To insert, update or delete a test open from File/Tests.
-- To manage batchs and relative results open from File/Data.
-- To export data to a temp excel file click on File/Export.
-- To export last values in a temp excel file click on Quick Data Analysis
+- To manage batches in the main window select a test and on menubar choice Batchs/Add batch or Update batch.
+- To manage results in the main window select a batch and on menubar choice Results/Add result or Update result.
+- To manage rejections in the main window select a result, in the toplevel window that will open add or update rejection type.
+- To manage actions in the main window use File/Actions.
+- To manage units in the main window use File/Units.
+- To insert, update or delete a test use File/Tests.
+- To manage batchs and relative results use File/Data.
+- To export some xls data choice an item from File/Export
 
 Biovarase requires 
 
@@ -31,11 +33,28 @@ To start with Biovarase execute biovarase.py, something like
 
 > bc@hal9000:~/biovarase$ python3 biovarase.py
 
+or better
+
+bc@hal9000:~$ cd Biovarase-master
+bc@hal9000:~$ chmod +x biovarase.py
+bc@hal9000:~/Biovarase-master$ chmod +x biovarase.py
+bc@hal9000:~/Biovarase-master$ ./biovarase.py 
+
+
 Regards.
 
 
 ...
 ## changelog
+
+**2018-12-09**
+
+Add rejections managements.Now you can add actions, something like "Calibation","Blanck cuvette","Substitutions" in the relative frame and save
+on the database rejection actions on selected results.
+Rewrite all westgard class, now it's better.
+Write a better menu bar, with some items groupig, see Export item.
+Improve add/update file, now we use index to understand if the frame it's open to update or ti insert an item.
+Some minor refactoring
 
 **2018-11-24**
 
