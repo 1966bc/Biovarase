@@ -20,6 +20,7 @@ class Dialog(Toplevel):
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.parent = parent
         self.engine = engine
+        self.geometry("{0}x{1}+0+0".format(1200, 600))
         
         self.enable =  BooleanVar()
         self.obj = None
@@ -32,10 +33,12 @@ class Dialog(Toplevel):
         self.init_ui()
 
     def center_me(self):
-        #center window
-        x = (self.master.winfo_screenwidth() - self.master.winfo_reqwidth()) / 2
-        y = (self.master.winfo_screenheight() - self.master.winfo_reqheight()) / 2
-        self.master.geometry("+%d+%d" % (x, y))
+        self.update_idletasks()
+        width = self.winfo_width()
+        height = self.winfo_height()
+        x = (self.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.winfo_screenheight() // 2) - (height // 2)
+        self.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         
 
     def init_ui(self):

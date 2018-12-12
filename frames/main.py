@@ -43,8 +43,10 @@ class Biovarase(Frame):
     def __init__(self, engine):
         super().__init__()
 
+
         self.engine = engine
-        self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
+        
+        self.status_bar_text = StringVar()
         self.average = DoubleVar()
         self.bias = DoubleVar()
         self.westgard = StringVar()
@@ -55,9 +57,45 @@ class Biovarase(Frame):
         self.target = DoubleVar()
         self.sd = DoubleVar()
         self.expiration = StringVar()
+
+        self.set_style()
+        self.set_icon()
+        self.set_title()
+        self.center_ui()
         self.init_menu()
         self.init_ui()
         self.init_status_bar()
+
+    def set_style(self):
+        self.master.option_readfile('option_db')
+        self.master.style = ttk.Style()
+        #('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
+        self.master.style.theme_use("clam")        
+
+    def set_icon(self):
+        imgicon = PhotoImage(file='biovarase.png')
+        self.master.call('wm', 'iconphoto', self.master._w, '-default', imgicon)
+
+    def set_title(self):
+        s = "{0} {1}".format(self.engine.title, self.engine.get_version())
+        self.master.title(s)
+        self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
+
+    def center_ui(self):
+
+        #root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
+        #root.geometry("{0}x{1}+0+0".format(1200, 600))
+        # get screen width and height
+
+        ws = self.master.winfo_screenwidth()
+        hs = self.master.winfo_screenheight()
+        # calculate position x, y
+        d = self.engine.get_dimensions()
+        w = int(d['w'])
+        h = int(d['h'])
+        x = (ws/2) - (w/2)    
+        y = (hs/2) - (h/2)
+        self.master.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
     def init_menu(self):
 
@@ -696,22 +734,10 @@ class Biovarase(Frame):
             
 def main():
 
-   
-    engine = Engine()
-    root = Tk()
-    root.option_readfile('option_db')
-    root.style = ttk.Style()
-    #('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
-    root.style.theme_use("clam")
-    #set icon
-    imgicon = PhotoImage(file='biovarase.png')
-    root.call('wm', 'iconphoto', root._w, '-default', imgicon)
-    root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
-    #root.geometry("{0}x{1}+0+0".format(1200, 600))
-    root.title(engine.title)
-    app = Biovarase(engine)
+    app = Biovarase(Engine())
     app.on_open()
-    root.mainloop()
-  
+    app.mainloop()
+
+   
 if __name__ == '__main__':
     main()
