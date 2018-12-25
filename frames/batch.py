@@ -1,83 +1,81 @@
-#-----------------------------------------------------------------------------
-# project:  biovarase
-# authors:  1966bc
-# mailto:   [giuseppecostanzi@gmail.com]
-# modify:   winter 2018
-#-----------------------------------------------------------------------------
-from tkinter import *
+""" This is the batch module of Biovarase."""
+import tkinter as tk
 from tkinter import messagebox
 
-class Dialog(Toplevel):     
-    def __init__(self,parent, engine, index = None):
+
+__author__ = "1966bc aka giuseppe costanzi"
+__copyright__ = "Copyleft"
+__credits__ = ["hal9000",]
+__license__ = "GNU GPL Version 3, 29 June 2007"
+__version__ = "4.2"
+__maintainer__ = "1966bc"
+__email__ = "giuseppecostanzi@gmail.com"
+__date__ = "2018-12-25"
+__status__ = "Production"
+
+class Dialog(tk.Toplevel):     
+    def __init__(self, parent, engine, index=None):
         super().__init__(name='batch')  
 
-        self.resizable(0,0)
+        self.resizable(0, 0)
+        self.transient(parent) 
         self.parent = parent
         self.engine = engine
         self.index = index
-        self.grid()
-        
-        self.day =  IntVar()
-        self.month =  IntVar()
-        self.year =  IntVar()
+        self.day =  tk.IntVar()
+        self.month =  tk.IntVar()
+        self.year =  tk.IntVar()
 
-        self.batch = StringVar()
-        self.target = DoubleVar()
-        self.sd = DoubleVar()
-        self.enable =  BooleanVar()
+        self.batch = tk.StringVar()
+        self.target = tk.DoubleVar()
+        self.sd = tk.DoubleVar()
+        self.enable =  tk.BooleanVar()
 
         self.vcmd = (self.register(self.validate),
-                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%tk.W')
 
-        self.center_me()
         self.init_ui()
-
-    def center_me(self):
-        
-        """center window on the screen"""
-        x = (self.winfo_screenwidth() - self.winfo_reqwidth()) / 2
-        y = (self.winfo_screenheight() - self.winfo_reqheight()) / 2
-        self.geometry("+%d+%d" % (x, y))
-
-    def cols_configure(self,w):
-        
-        w.columnconfigure(0, weight=1)
-        w.columnconfigure(1, weight=1)
-        w.columnconfigure(2, weight=1)        
 
     def init_ui(self):
 
-        w = self.engine.get_frame(self)        
-        self.cols_configure(w)
-        w.grid(row = 0, column = 0, sticky=N+W+S+E)
+        w = self.engine.get_init_ui(self)
 
-        Label(w, text="Batch:").grid(row=0, sticky=W)
-        self.txtBatch = Entry(w, bg='white', textvariable=self.batch)
-        self.txtBatch.grid(row=0, column=1, padx=5, pady=5)
-       
-        Label(w, text="Expiration:").grid(row=1,column=0,sticky=W)
+        r = 0
+        tk.Label(w, text="Batch:").grid(row=r, sticky=tk.W)
+        self.txtBatch = tk.Entry(w, bg='white', textvariable=self.batch)
+        self.txtBatch.grid(row=r, column=1, padx=5, pady=5)
 
-        self.engine.get_calendar(self,w,1)
+        r = 1
+        tk.Label(w, text="Expiration:").grid(row=r,column=0,sticky=tk.W)
 
-        Label(w, text="Target:").grid(row=2, sticky=W)
-        self.txtTarget = Entry(w,
+        self.engine.get_calendar(self,w,r)
+
+        r = 2
+        tk.Label(w, text="Target:").grid(row=r, sticky=tk.W)
+        self.txtTarget = tk.Entry(w,
                                bg='white',
                                validate = 'key',
                                validatecommand = self.vcmd,
                                textvariable=self.target)
-        self.txtTarget.grid(row=2, column=1, padx=5, pady=5)
-       
-        Label(w, text="SD:").grid(row=3, sticky=W)
-        self.txtSD = Entry(w,
+        self.txtTarget.grid(row=r, column=1, padx=5, pady=5)
+
+        r = 3
+        tk.Label(w, text="SD:").grid(row=r, sticky=tk.W)
+        self.txtSD = tk.Entry(w,
                            bg='white',
                            validate = 'key',
                            validatecommand = self.vcmd,
                            textvariable=self.sd)
-        self.txtSD.grid(row=3, column=1, padx=5, pady=5)
-        
-        Label(w, text="Enable:").grid(row=4, sticky=W)
-        self.ckEnable = Checkbutton(w, onvalue=1, offvalue=0, variable = self.enable,)
-        self.ckEnable.grid(row=4, column=1,sticky=W)
+        self.txtSD.grid(row=r, column=1, padx=5, pady=5)
+
+        r = 4
+        tk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
+        tk.Checkbutton(w,
+                       onvalue=1,
+                       offvalue=0,
+                       variable=self.enable).grid(row=r,
+                                                  column=1,
+                                                  sticky=tk.W)
 
         self.engine.get_save_cancel(self, self) 
         
@@ -88,11 +86,11 @@ class Dialog(Toplevel):
 
         if self.index is not None:
             self.selected_batch = selected_batch
-            msg = "Update  %s" % (self.selected_batch[2],)
+            msg = "{0} {1}".format("Update ", self.selected_batch[2])
             self.set_values()
         else:
-            msg = "Insert new batch for %s"%selected_test[1]
-            self.engine.set_date(self)
+            msg = "{0} {1}".format("Insert new batch for ", selected_test[1])
+            self.engine.set_calendar_date(self)
             self.enable.set(1)
 
         self.title(msg)
@@ -103,7 +101,7 @@ class Dialog(Toplevel):
         fields =  (self.txtBatch, self.txtTarget, self.txtSD)
         
         if self.engine.on_fields_control(fields)==False:return
-        if self.engine.get_date(self)==False:return
+        if self.engine.get_calendar_date(self)==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
             args =  self.get_values()
@@ -138,7 +136,7 @@ class Dialog(Toplevel):
 
         return [self.selected_test[0],
                 self.batch.get(),
-                self.engine.get_date(self,),
+                self.engine.get_calendar_date(self,),
                 self.target.get(),
                 self.sd.get(),
                 self.enable.get()]

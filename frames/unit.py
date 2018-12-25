@@ -1,63 +1,49 @@
-#-----------------------------------------------------------------------------
-# project:  biovrase
-# authors:  1966bc
-# mailto:   [giuseppecostanzi@gmail.com]
-# modify:   winter 2018                                                             
-#-----------------------------------------------------------------------------
-from tkinter import *
+""" This is the unit module of Biovarase."""
+import tkinter as tk
 from tkinter import messagebox
 
-class Dialog(Toplevel):     
-    def __init__(self,parent,engine, index = None):
+__author__ = "1966bc aka giuseppe costanzi"
+__copyright__ = "Copyleft"
+__credits__ = ["hal9000",]
+__license__ = "GNU GPL Version 3, 29 June 2007"
+__version__ = "4.2"
+__maintainer__ = "1966bc"
+__email__ = "giuseppecostanzi@gmail.com"
+__date__ = "2018-12-25"
+__status__ = "Production"
+
+class Dialog(tk.Toplevel):     
+    def __init__(self, parent, engine, index=None):
         super().__init__(name='unit')
-        
-        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
 
         self.resizable(0,0)
+        self.transient(parent)
         self.parent = parent
         self.engine = engine
         self.index = index
-        self.grid()
-
-        self.unit = StringVar()
-        self.enable =  BooleanVar()
-        
-        self.center_me()
+        self.unit = tk.StringVar()
+        self.enable =  tk.BooleanVar()
         self.init_ui()
-
-    def center_me(self):
-        
-        """center window on the screen"""
-        x = (self.winfo_screenwidth() - self.winfo_reqwidth()) / 2
-        y = (self.winfo_screenheight() - self.winfo_reqheight()) / 2
-        self.geometry("+%d+%d" % (x, y))
-
-    def cols_configure(self,w):
-        
-        w.columnconfigure(0, weight=1)
-        w.columnconfigure(1, weight=1)
-        w.columnconfigure(2, weight=1)        
-
 
     def init_ui(self):
 
-        w = Frame(self, bd=1, padx = 5, pady = 5)
-        self.cols_configure(w)
-        w.grid(row = 0, column = 0, sticky=N+W+S+E)
+        w = self.engine.get_init_ui(self)
 
-        Label(w, text="Unit:").grid(row=0, sticky=W)
-        self.txtUnit = Entry(w, bg='white', textvariable=self.unit)
+        tk.Label(w, text="Unit:").grid(row=0, sticky=tk.W)
+        self.txtUnit = tk.Entry(w, bg='white', textvariable=self.unit)
         self.txtUnit.grid(row=0, column=1, padx=5, pady=5)
 
-        Label(w, text="Enable:").grid(row=1, sticky=W)
-        self.ckEnable = Checkbutton(w, onvalue=1, offvalue=0, variable = self.enable,)
-        self.ckEnable.grid(row=1, column=1,sticky=W)
+        tk.Label(w, text="Enable:").grid(row=1, sticky=tk.W)
+        tk.Checkbutton(w, onvalue=1, offvalue=0, variable = self.enable,).grid(row=1, column=1,sticky=tk.W)
         
-        self.engine.get_save_cancel(self, self) 
+        self.engine.get_save_cancel(self, self)
+        
+        self.winfo_toplevel().wm_geometry("")
 
     def on_open(self,selected_item = None):
 
-        if self.index is not None:
+        if selected_item is not None:
+            self.insert_mode = False
             self.selected_item = selected_item
             msg = "Update  unit %s" % (self.selected_item[1],)
             self.set_values()
@@ -76,38 +62,38 @@ class Dialog(Toplevel):
 
     def get_values(self,):
 
-        return (self.unit.get(),
-                self.enable.get(),)
+        return [self.unit.get(),
+                self.enable.get(),]
 
     def on_save(self, evt):
 
-        fields = (self.txtUnit,)
+        if self.engine.on_fields_control( (self.txtUnit,))==False:return
 
-        if self.engine.on_fields_control(fields)==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
             args =  self.get_values()
 
-            if self.index is not None:
-
-                sql = self.engine.get_update_sql('units','unit_id')
+            if self.insert_mode == False:
 
                 args.append(self.selected_item[0])
-                   
-            else:
-                sql = self.engine.get_insert_sql('units',len(args))
 
-            self.engine.write(sql,args)
+                sql = self.engine.get_update_sql('units', 'unit_id')
+                
+            
+            elif self.insert_mode == True:
+
+                sql = self.engine.get_insert_sql('units', len(args))
+
+                
+            self.engine.write(sql, args)
             self.parent.on_open()
             
             if self.index is not None:
+                
                 self.parent.lstItems.see(self.index)
                 self.parent.lstItems.selection_set(self.index)
                 
             self.on_cancel()
-
-        else:
-            messagebox.showinfo(self.engine.title, self.engine.abort)
            
     def on_cancel(self, evt=None):
         self.destroy()

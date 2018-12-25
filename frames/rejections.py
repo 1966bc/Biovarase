@@ -1,80 +1,76 @@
-#-----------------------------------------------------------------------------
-# project:  biovarase
-# authors:  1966bc
-# mailto:   [giuseppecostanzi@gmail.com]
-# modify:   winter 2018
-#-----------------------------------------------------------------------------
-
-from tkinter import *
+""" This is the rejections module of Biovarase."""
+import tkinter as tk
 from tkinter import messagebox
-import datetime
-
 import frames.rejection
 
-class Dialog(Toplevel):     
-    def __init__(self,parent, engine):
+__author__ = "1966bc aka giuseppe costanzi"
+__copyright__ = "Copyleft"
+__credits__ = ["hal9000",]
+__license__ = "GNU GPL Version 3, 29 June 2007"
+__version__ = "4.2"
+__maintainer__ = "1966bc"
+__email__ = "giuseppecostanzi@gmail.com"
+__date__ = "2018-12-25"
+__status__ = "Production"
+
+
+class Dialog(tk.Toplevel):     
+    def __init__(self, parent, engine):
         super().__init__(name='rejections')
 
-        #self.resizable(0,0)
-        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
+        self.transient(parent) 
+        self.resizable(0, 0)
         self.parent = parent
         self.engine = engine
-        self.test = StringVar()
-        self.batch = StringVar()
-        self.result = StringVar()
-        self.recived = StringVar()
-        self.enable =  BooleanVar()
-        self.selected_item = None
+        
+        self.test = tk.StringVar()
+        self.batch = tk.StringVar()
+        self.result = tk.StringVar()
+        self.recived = tk.StringVar()
         self.obj = None
 
-        #self.center_me()
         self.init_ui()
+        self.engine.center_me(self)
 
-    def center_me(self):
-        #center window
-        x = (self.master.winfo_screenwidth() - self.master.winfo_reqwidth()) / 2
-        y = (self.master.winfo_screenheight() - self.master.winfo_reqheight()) / 2
-        self.master.geometry("+%d+%d" % (x, y))
-        
     def init_ui(self):
     
-        p = self.engine.get_frame(self)
+        f0 = self.engine.get_frame(self)
 
-        w = LabelFrame(p,text='Select data',)
+        w = tk.LabelFrame(f0, text='Select data',)
 
-        Label(w, text="Test:").pack(side=TOP)
-        Label(w,
-              font = "Verdana 12 bold",
-              textvariable = self.test).pack(side=TOP)
+        tk.Label(w, text="Test:").pack(side=tk.TOP)
+        tk.Label(w,
+                 font = "Verdana 12 bold",
+                 textvariable = self.test).pack(side=tk.TOP)
 
-        Label(w, text="Batch:").pack(side=TOP)
-        Label(w,
-              font = "Verdana 12 bold",
-              textvariable = self.batch).pack(side=TOP)
+        tk.Label(w, text="Batch:").pack(side=tk.TOP)
+        tk.Label(w,
+                 font = "Verdana 12 bold",
+                 textvariable = self.batch).pack(side=tk.TOP)
 
-        Label(w, text="Result:").pack(side=TOP)
-        Label(w,
-              font = "Verdana 12 bold",
-              textvariable = self.result).pack(side=TOP)
+        tk.Label(w, text="Result:").pack(side=tk.TOP)
+        tk.Label(w,
+                 font = "Verdana 12 bold",
+                 textvariable = self.result).pack(side=tk.TOP)
 
-        Label(w, text="Recived:").pack(side=TOP)
-        Label(w,
-              font = "Verdana 12 bold",
-              textvariable = self.recived).pack(side=TOP)
+        tk.Label(w, text="Recived:").pack(side=tk.TOP)
+        tk.Label(w,
+                 font = "Verdana 12 bold",
+                 textvariable = self.recived).pack(side=tk.TOP)
 
-        w.pack(side=LEFT, fill=Y, expand=0)
+        w.pack(side=tk.LEFT, fill=tk.Y, expand=0)
 
-        w = Frame(p,)
+        w = self.engine.get_frame(f0)
 
-        self.lstItems = self.engine.get_listbox(w,width=40)
+        self.lstItems = self.engine.get_listbox(w, width=40)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
         
-        w.pack(side=LEFT, fill=BOTH,padx=5, pady=5, expand =1)
+        w.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand =1)
 
-        self.engine.get_add_edit_cancel(self,p)
+        self.engine.get_add_edit_cancel(self,f0)
 
-        p.pack(side=LEFT, fill=BOTH, expand=1)
+        f0.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
     def on_open(self, selected_test, selected_batch, selected_result):
 
@@ -99,10 +95,10 @@ class Dialog(Toplevel):
         self.dict_items={}
 
         if rs:
-            self.lstItems.delete(0, END)
+            self.lstItems.delete(0, tk.END)
             for i in rs:
                 s = '{:20}{:20}'.format(i[3],i[1])
-                self.lstItems.insert(END, (s))
+                self.lstItems.insert(tk.END, (s))
                 if i[4] != 1:
                     self.lstItems.itemconfig(index, {'bg':'light gray'})
                 self.dict_items[index]=i[0]

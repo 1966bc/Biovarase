@@ -1,64 +1,57 @@
-#-----------------------------------------------------------------------------
-# project:  biovrase
-# authors:  1966bc
-# mailto:   [giuseppecostanzi@gmail.com]
-# modify:   winter 2018                                                             
-#-----------------------------------------------------------------------------
-from tkinter import *
+""" This is the action module of Biovarase."""
+import tkinter as tk
 from tkinter import messagebox
 
-class Dialog(Toplevel):     
-    def __init__(self,parent,engine, index = None):
-        super().__init__(name='action')
-        
-        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
+__author__ = "1966bc aka giuseppe costanzi"
+__copyright__ = "Copyleft"
+__credits__ = ["hal9000",]
+__license__ = "GNU GPL Version 3, 29 June 2007"
+__version__ = "4.2"
+__maintainer__ = "1966bc"
+__email__ = "giuseppecostanzi@gmail.com"
+__date__ = "2018-12-25"
+__status__ = "Production"
 
-        self.resizable(0,0)
+
+class Dialog(tk.Toplevel):     
+    def __init__(self, parent, engine, index=None):
+        super().__init__(name='action')
+
+        self.resizable(0, 0)
+        self.transient(parent) 
         self.parent = parent
         self.engine = engine
         self.index = index
-        self.grid()
-
-        self.unit = StringVar()
-        self.enable =  BooleanVar()
+        self.unit = tk.StringVar()
+        self.enable =  tk.BooleanVar()
         
-        self.center_me()
         self.init_ui()
-
-    def center_me(self):
-        
-        """center window on the screen"""
-        x = (self.winfo_screenwidth() - self.winfo_reqwidth()) / 2
-        y = (self.winfo_screenheight() - self.winfo_reqheight()) / 2
-        self.geometry("+%d+%d" % (x, y))
-
-    def cols_configure(self,w):
-        
-        w.columnconfigure(0, weight=1)
-        w.columnconfigure(1, weight=1)
-        w.columnconfigure(2, weight=1)        
 
     def init_ui(self):
 
-        w = Frame(self, bd=1, padx = 5, pady = 5)
-        self.cols_configure(w)
-        w.grid(row = 0, column = 0, sticky=N+W+S+E)
+        w = self.engine.get_init_ui(self)
 
-        Label(w, text="Action:").grid(row=0, sticky=W)
-        self.txtAction = Entry(w, bg='white', textvariable=self.unit)
-        self.txtAction.grid(row=0, column=1, padx=5, pady=5)
+        r = 0
+        tk.Label(w, text="Action:").grid(row=r, sticky=tk.W)
+        self.txtAction = tk.Entry(w, bg='white', textvariable=self.unit)
+        self.txtAction.grid(row=r, column=1, padx=5, pady=5)
 
-        Label(w, text="Enable:").grid(row=1, sticky=W)
-        self.ckEnable = Checkbutton(w, onvalue=1, offvalue=0, variable = self.enable,)
-        self.ckEnable.grid(row=1, column=1,sticky=W)
-        
+        r = 1
+        tk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
+        tk.Checkbutton(w,
+                       onvalue=1,
+                       offvalue=0,
+                       variable = self.enable,).grid(row=r,
+                                                     column=1,
+                                                     sticky=tk.W)
+
         self.engine.get_save_cancel(self, self) 
 
     def on_open(self,selected_item = None):
 
         if self.index is not None:
             self.selected_item = selected_item
-            msg = "Update %s" % (self.selected_item[1],)
+            msg = "{0} {1}".format("Update ", self.selected_item[1])
             self.set_values()
         else:
             msg = "Insert new"

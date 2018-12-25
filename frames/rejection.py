@@ -1,69 +1,63 @@
-#-----------------------------------------------------------------------------
-# project:  biovarase
-# authors:  1966bc
-# mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn 2018                                                        
-#-----------------------------------------------------------------------------
-
-from tkinter import *
+""" This is the action rejection of Biovarase."""
+import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 
-class Dialog(Toplevel):     
-    def __init__(self,parent, engine, index = None):
+__author__ = "1966bc aka giuseppe costanzi"
+__copyright__ = "Copyleft"
+__credits__ = ["hal9000",]
+__license__ = "GNU GPL Version 3, 29 June 2007"
+__version__ = "4.2"
+__maintainer__ = "1966bc"
+__email__ = "giuseppecostanzi@gmail.com"
+__date__ = "2018-12-25"
+__status__ = "Production"
+
+class Dialog(tk.Toplevel):     
+    def __init__(self,parent, engine, index=None):
         super().__init__(name='rejection')
-        
-        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
 
-        #self.resizable(0,0)
+        self.resizable(0,0)
+        self.transient(parent) 
         self.parent = parent
         self.engine = engine
         self.index = index
-        self.grid()
-
-        self.day =  IntVar()
-        self.month =  IntVar()
-        self.year =  IntVar()
-
-        self.description = StringVar()
-        self.enable =  BooleanVar()
+        self.day =  tk.IntVar()
+        self.month =  tk.IntVar()
+        self.year =  tk.IntVar()
+        self.description = tk.StringVar()
+        self.enable =  tk.BooleanVar()
         self.vcmd = (self.register(self.validate),
-                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+                '%d', '%i', '%P', '%s', '%S', '%values', '%V', '%tk.W')
 
-        self.center_me()
         self.init_ui()
-
-    def center_me(self):
-        
-        """center window on the screen"""
-        x = (self.winfo_screenwidth() - self.winfo_reqwidth()) / 2
-        y = (self.winfo_screenheight() - self.winfo_reqheight()) / 2
-        self.geometry("+%d+%d" % (x, y))
-
-    def cols_configure(self,w):
-        
-        w.columnconfigure(0, weight=1)
-        w.columnconfigure(1, weight=1)
-        w.columnconfigure(2, weight=1)                
 
     def init_ui(self):
 
-        w = self.engine.get_frame(self)        
-        self.cols_configure(w)
-        w.grid(row = 0, column = 0, sticky=N+W+S+E)
+        w = self.engine.get_init_ui(self)
 
-        Label(w, text="Actions:").grid(row=0, sticky=W)
+        r = 0       
+        tk.Label(w, text="Actions:").grid(row=r, sticky=tk.W)
         self.cbActions = ttk.Combobox(w,)
-        self.cbActions.grid(row=0, column=1)
+        self.cbActions.grid(row=r, column=1)
 
-        Label(w, text="Description:").grid(row=1, sticky=W)
-        self.txDescription = Entry(w, bg='white', textvariable=self.description,)
-        self.txDescription.grid(row=1, column=1, padx=5, pady=5,ipady=2)
+        r = 1
+        tk.Label(w, text="Description:").grid(row=r, sticky=tk.W)
+        self.txDescription = tk.Entry(w, bg='white', textvariable=self.description,)
+        self.txDescription.grid(row=r, column=1, padx=5, pady=5,ipady=2)
 
-        Label(w, text="Modified:").grid(row=2,column=0,sticky=W)
-        self.engine.get_calendar(self,w,2)
+        r = 2
+        tk.Label(w, text="Modified:").grid(row=r,column=0,sticky=tk.W)
+        self.engine.get_calendar(self, w, r)
 
-        Label(w, text="Enable:").grid(row=3, sticky=W)
-        Checkbutton(w, onvalue=1, offvalue=0, variable = self.enable,).grid(row=3, column=1,sticky=W)
+        r = 3
+        tk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
+        tk.Checkbutton(w,
+                       onvalue=1,
+                       offvalue=0,
+                       variable = self.enable).grid(row=r,
+                                                    column=1,
+                                                    sticky=tk.W)
 
         self.engine.get_save_cancel(self, self)
 
@@ -82,7 +76,7 @@ class Dialog(Toplevel):
         else:
             msg = "Add rejection"
             self.enable.set(1)
-            self.engine.set_date(self)
+            self.engine.set_calendar_date(self)
 
         self.title(msg)
         self.cbActions.focus()
@@ -92,7 +86,7 @@ class Dialog(Toplevel):
         fields = (self.txDescription, self.cbActions)
         
         if self.engine.on_fields_control(fields)==False:return
-        if self.engine.get_date(self)==False:return
+        if self.engine.get_calendar_date(self)==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
             args =  self.get_values()
@@ -104,7 +98,6 @@ class Dialog(Toplevel):
                 args.append(self.selected_rejection[0])
                        
             else:
-
                 sql = self.engine.get_insert_sql('rejections',len(args))
 
             self.engine.write(sql,args)
@@ -122,18 +115,18 @@ class Dialog(Toplevel):
     def set_actions(self):
 
         index = 0
-        self.dict_actions={}
-        v = []
-
+        values = []
+        self.dict_actions = {}
+        
         sql = "SELECT action_id, action FROM actions ORDER BY action ASC"
         rs = self.engine.read(True, sql, ())
             
         for i in rs:
-            self.dict_actions[index]=i[0]
-            index+=1
-            v.append(i[1])
+            self.dict_actions[index] = i[0]
+            index += 1
+            values.append(i[1])
 
-        self.cbActions['values']=v
+        self.cbActions['values'] = values
  
 
     def get_values(self,):
@@ -141,7 +134,7 @@ class Dialog(Toplevel):
         return [self.selected_result[0],
                 self.dict_actions[self.cbActions.current()],
                 self.description.get(),
-                self.engine.get_timestamp(self),
+                self.engine.get_calendar_timestamp(self),
                 self.enable.get()]
     
     def set_values(self,):

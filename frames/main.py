@@ -1,17 +1,10 @@
-#!/usr/bin/python3
-#-----------------------------------------------------------------------------
-# project:  biovarase
-# authors:  1966bc
-# mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn 2018                                                        
-#-----------------------------------------------------------------------------
-import os
+""" This is the main module of Biovarase."""
 import sys
 import inspect
-from tkinter import *
-from tkinter import ttk
+import tkinter as tk
 from tkinter import messagebox
-import numpy as np
+from tkinter import ttk
+
 
 import matplotlib.pyplot as plt
 
@@ -24,7 +17,6 @@ except:
     from matplotlib.backends.backend_tkagg import  NavigationToolbar2TkAgg as nav_tool
 
 import matplotlib.ticker
-from matplotlib.ticker import LinearLocator
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.figure import Figure
 from matplotlib import gridspec
@@ -38,25 +30,35 @@ import frames.units
 import frames.actions
 import frames.rejections
 import frames.result
+import frames.analytical
+import frames.export_rejections
 
-class Biovarase(Frame):
+__author__ = "1966bc aka giuseppe costanzi"
+__copyright__ = "Copyleft"
+__credits__ = ["hal9000",]
+__license__ = "GNU GPL Version 3, 29 June 2007"
+__version__ = "4.2"
+__maintainer__ = "1966bc"
+__email__ = "giuseppecostanzi@gmail.com"
+__date__ = "2018-12-25"
+__status__ = "Production"
+
+class Biovarase(tk.Frame):
     def __init__(self, engine):
         super().__init__()
 
-
         self.engine = engine
-        
-        self.status_bar_text = StringVar()
-        self.average = DoubleVar()
-        self.bias = DoubleVar()
-        self.westgard = StringVar()
-        self.calculated_sd = DoubleVar()
-        self.calculated_cv = DoubleVar()
-        self.range = DoubleVar()
-        self.elements = IntVar()
-        self.target = DoubleVar()
-        self.sd = DoubleVar()
-        self.expiration = StringVar()
+        self.status_bar_text = tk.StringVar()
+        self.average = tk.DoubleVar()
+        self.bias = tk.DoubleVar()
+        self.westgard = tk.StringVar()
+        self.calculated_sd = tk.DoubleVar()
+        self.calculated_cv = tk.DoubleVar()
+        self.range = tk.DoubleVar()
+        self.elements = tk.IntVar()
+        self.target = tk.DoubleVar()
+        self.sd = tk.DoubleVar()
+        self.expiration = tk.StringVar()
 
         self.set_style()
         self.set_icon()
@@ -73,19 +75,15 @@ class Biovarase(Frame):
         self.master.style.theme_use("clam")        
 
     def set_icon(self):
-        imgicon = PhotoImage(file='biovarase.png')
+        imgicon = tk.PhotoImage(file='biovarase.png')
         self.master.call('wm', 'iconphoto', self.master._w, '-default', imgicon)
 
     def set_title(self):
-        s = "{0} {1}".format(self.engine.title, self.engine.get_version())
+        s = "{0} {1}".format(self.engine.title, __version__)
         self.master.title(s)
         self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
 
     def center_ui(self):
-
-        #root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
-        #root.geometry("{0}x{1}+0+0".format(1200, 600))
-        # get screen width and height
 
         ws = self.master.winfo_screenwidth()
         hs = self.master.winfo_screenheight()
@@ -99,13 +97,13 @@ class Biovarase(Frame):
 
     def init_menu(self):
 
-        m_main = Menu(self, bd = 1)
+        m_main = tk.Menu(self, bd = 1)
                
-        m_file = Menu(m_main, tearoff=0, bd = 1)
-        s_menu = Menu(m_file)
-        m_results = Menu(m_main, tearoff=0, bd = 1)
-        m_batches = Menu(m_main, tearoff=0, bd = 1)
-        m_about = Menu(m_main, tearoff=0, bd = 1)
+        m_file = tk.Menu(m_main, tearoff=0, bd = 1)
+        s_menu = tk.Menu(m_file)
+        m_results = tk.Menu(m_main, tearoff=0, bd = 1)
+        m_batches = tk.Menu(m_main, tearoff=0, bd = 1)
+        m_about = tk.Menu(m_main, tearoff=0, bd = 1)
         
         m_main.add_cascade(label="File", underline=0, menu=m_file)
         m_main.add_cascade(label="Batches", underline=0, menu=m_batches)
@@ -117,7 +115,8 @@ class Biovarase(Frame):
                  ("Tests",self.on_tests),
                  ("Data",self.on_data),
                  ("Units",self.on_units),
-                 ("Actions",self.on_actions),)
+                 ("Actions",self.on_actions),
+                 ("Analytica", self.on_analitical),)
         
         for i in items:
             m_file.add_command(label=i[0],underline=0, command=i[1])
@@ -126,8 +125,8 @@ class Biovarase(Frame):
         m_file.add_cascade(label='Export', menu=s_menu, underline=0)
 
         items = (("Quick Data Analysis", self.engine.get_quick_data_analysis),
-                 ("Rejections",self.engine.get_rejections),
-                 ("Analytical Goals",self.set_analytical_goals),)
+                 ("Rejections",self.on_export_rejections),
+                 ("Analytical Goals",self.on_analytical_goals),)
 
         for i in items:
             s_menu.add_command(label=i[0], underline=0, command=i[1])
@@ -156,70 +155,87 @@ class Biovarase(Frame):
 
     def init_ui(self):
 
-        self.pack(fill=BOTH, expand=1,)
+        self.pack(fill=tk.BOTH, expand=1,)
 
         #-----------------------------------------------------------------------
-        f0 = Frame(self,bd=5)
+        f0 = self.engine.get_frame(self)
 
-        w = LabelFrame(f0, text='Tests')
+        w = tk.LabelFrame(f0, text='Tests')
         self.cbTests =  ttk.Combobox(w)
         self.cbTests.bind("<<ComboboxSelected>>", self.on_selected_test)
-        self.cbTests.pack(side=TOP,fill=X,expand=0)
-        w.pack(side=TOP,fill=X, expand=0)
+        self.cbTests.pack(side=tk.TOP, fill=tk.X, expand=0)
+        w.pack(side=tk.TOP, fill=tk.X, expand=0)
 
-        w = LabelFrame(f0,text='Batchs')
+        w = tk.LabelFrame(f0,text='Batchs')
         self.lstBatches = self.engine.get_listbox(w, height=5)
         self.lstBatches.bind("<<ListboxSelect>>", self.on_selected_batch)
-        w.pack(side=TOP,fill=BOTH, expand=0)
+        w.pack(side=tk.TOP, fill=tk.BOTH, expand=0)
 
-        f1 = Frame(f0,bd=5)
-        w = LabelFrame(f1,text='Batch data', font='Helvetica 10 bold')
+        f1 = tk.Frame(f0,)
+        w = tk.LabelFrame(f1,text='Batch data', font='Helvetica 10 bold')
 
-        Label(w, text="Target").pack()
-        Label(w, bg='lavender',foreground="blue", textvariable = self.target).pack(fill=X, padx=2,pady=2)
-        Label(w, text="SD").pack()
-        Label(w, bg='lemon chiffon', foreground="green", textvariable = self.sd).pack(fill=X, padx=2,pady=2)
-        Label(w, text="Expiration").pack()
-        Label(w, bg='white', textvariable = self.expiration).pack(fill=X, padx=2,pady=2)
+        tk.Label(w, text="Target").pack()
+        tk.Label(w, bg='lavender',
+                 foreground="blue",
+                 textvariable = self.target).pack(fill=tk.X,
+                                                  padx=2, pady=2)
+        tk.Label(w, text="SD").pack()
+        tk.Label(w, bg='lemon chiffon',
+                 foreground="green",
+                 textvariable = self.sd).pack(fill=tk.X,
+                                              padx=2,pady=2)
+        tk.Label(w, text="Expiration").pack()
+        tk.Label(w, bg='white',
+                 textvariable = self.expiration).pack(fill=tk.X,
+                                                      padx=2,pady=2)
 
         self.engine.get_spin_box(w, "Elements",1, 365, 3, self.elements).pack()
 
-        w.pack(side=LEFT, fill=Y, expand=0)
+        w.pack(side=tk.LEFT, fill=tk.Y, expand=0)
         
-        w = LabelFrame(f1,text='Cal data',font='Helvetica 10 bold')
+        w = tk.LabelFrame(f1,text='Cal data',font='Helvetica 10 bold')
      
-        Label(w, text="Average").pack()
-        Label(w,  bg='lavender', foreground="blue", textvariable = self.average).pack(fill=X, padx=2, pady=2)
-        Label(w, text="SD").pack()
-        Label(w,  bg='lemon chiffon', foreground="green", textvariable = self.calculated_sd).pack(fill=X, padx=2, pady=2)
-        Label(w, text="CV%").pack()        
-        Label(w, foreground="white", bg='orange3', textvariable = self.calculated_cv).pack(fill=X, padx=2,pady=2)
-        Label(w, text="Westgard").pack()
+        tk.Label(w, text="Average").pack()
+        tk.Label(w,  bg='lavender',
+                 foreground="blue",
+                 textvariable = self.average).pack(fill=tk.X,
+                                                   padx=2, pady=2)
+        tk.Label(w, text="SD").pack()
+        tk.Label(w,  bg='lemon chiffon',
+                 foreground="green",
+                 textvariable = self.calculated_sd).pack(fill=tk.X,
+                                                         padx=2, pady=2)
+        tk.Label(w, text="CV%").pack()        
+        tk.Label(w, bg='orange3',
+                 foreground="white", 
+                 textvariable = self.calculated_cv).pack(fill=tk.X,
+                                                         padx=2,pady=2)
+        tk.Label(w, text="Westgard").pack()
 
-        self.lblWestgard = Label(w,  bg='white', textvariable = self.westgard)
-        self.lblWestgard.pack(fill=X, padx=2,pady=2)
+        self.lblWestgard = tk.Label(w,  bg='white', textvariable=self.westgard)
+        self.lblWestgard.pack(fill=tk.X, padx=2,pady=2)
 
-        Label(w, text="Bias").pack()
-        Label(w,  bg='white', textvariable = self.bias).pack(fill=X, padx=2,pady=2)
-        Label(w, text="Range").pack()
-        Label(w, bg='white', textvariable = self.range).pack(fill=X, padx=2,pady=2)
+        tk.Label(w, text="Bias").pack()
+        tk.Label(w,  bg='white', textvariable = self.bias).pack(fill=tk.X, padx=2,pady=2)
+        tk.Label(w, text="Range").pack()
+        tk.Label(w, bg='white', textvariable = self.range).pack(fill=tk.X, padx=2,pady=2)
 
-        w.pack(side=RIGHT,fill=Y, expand=0)
+        w.pack(side=tk.RIGHT,fill=tk.Y, expand=0)
 
-        f1.pack(side=TOP, fill=Y, expand=0)
+        f1.pack(side=tk.TOP, fill=tk.Y, expand=0)
 
-        w = LabelFrame(f0,text='Results')
+        w = tk.LabelFrame(f0,text='Results')
         self.lstResults = self.engine.get_listbox(w,)
         self.lstResults.bind("<<ListboxSelect>>", self.on_selected_result)
         self.lstResults.bind('<Double-Button-1>', self.on_result_activated)
-        w.pack(side=TOP,fill=BOTH, expand=1)
+        w.pack(side=tk.TOP,fill=tk.BOTH, expand=1)
         
-        f0.pack(side=LEFT, fill=Y, expand=0)
+        f0.pack(side=tk.LEFT, fill=tk.Y, expand=0)
         #-----------------------------------------------------------------------
         
         #create graph!
-        f2 = Frame(self,bd=5,)
-        f2.pack(side=RIGHT, fill=BOTH, expand=1, padx=5, pady=5)
+        f2 = self.engine.get_frame(self)
+        f2.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1, padx=5, pady=5)
         #Figure: The top level container for all the plot elements.
         gs = gridspec.GridSpec(1, 2, width_ratios=[2, 1]) 
         fig = Figure()
@@ -230,41 +246,42 @@ class Biovarase(Frame):
         self.canvas = FigureCanvasTkAgg(fig, f2)
         toolbar = nav_tool(self.canvas, f2)
         toolbar.update()
-        self.canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)
+        self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
     def init_status_bar(self):
 
-        s = "%s %s"%(self.engine.title, self.engine.get_version())
-        self.status = Label(self.master, text = s.strip(), bd=1, relief=SUNKEN, anchor=W, font='bold')
+        
+        self.status = tk.Label(self.master,
+                               text = self.engine.title,
+                               bd=1,
+                               relief=tk.SUNKEN,
+                               anchor=tk.W, font='bold')
         self.status.config(fg="blue")
-        self.status.pack(side=BOTTOM, fill=X)           
+        self.status.pack(side=tk.BOTTOM, fill=tk.X)           
 
     def on_open(self):
 
-        self.elements.set(self.engine.get_elements())
         self.on_reset()
     
     def on_reset(self):
-        
-        self.selected_batch = None
-        self.lstBatches.delete(0, END)
-        self.lstResults.delete(0, END)
+
         self.cbTests.set('')
+        self.lstBatches.delete(0, tk.END)
+        self.lstResults.delete(0, tk.END)
+        self.elements.set(self.engine.get_elements())
         self.set_tests()
+        self.reset_batch_data()
+        self.reset_cal_data()
         self.reset_graph()
 
     def reset_graph(self):
-        try:
-            self.lj.clear()
-            self.frq.clear()
-            self.lj.grid(True)
-            self.frq.grid(True)
-            self.canvas.draw()
-        except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
+
+        self.lj.clear()
+        self.frq.clear()
+        self.lj.grid(True)
+        self.frq.grid(True)
+        self.canvas.draw()
+ 
 
     def reset_batch_data(self):
         
@@ -275,18 +292,51 @@ class Biovarase(Frame):
     def reset_cal_data(self):
 
         self.average.set(0)
-        self.bias.set(0)
-        self.westgard.set('No Data')
         self.calculated_sd.set(0)
         self.calculated_cv.set(0)
+        self.bias.set(0)
         self.range.set(0)
+        self.westgard.set('No Data')
         self.set_westgard_alarm()
+
+    def set_batch_data(self):
+
+        self.expiration.set(self.selected_batch[3])
+        self.target.set(self.selected_batch[4])
+        self.sd.set(self.selected_batch[5])
+
+    def set_calculated_data(self, args):
+
+        self.average.set(args[5])
+        self.calculated_sd.set(args[6])
+        self.calculated_cv.set(args[7])
+        self.bias.set(args[8])
+        self.range.set(args[9])
+
+    def set_westgard(self,series):
+        
+        if len(series) > 9:
+            rule = self.engine.get_westgard_violation_rule(self.selected_batch[4],
+                                             self.selected_batch[5],
+                                             series)
+        else:
+            rule = "No data"
+        
+        self.westgard.set(rule)
+        self.set_westgard_alarm()
+
+    def set_westgard_alarm(self):
+
+        if self.westgard.get() not in("Accept","No data"):
+            self.lblWestgard.config(bg="IndianRed1")
+        else:
+            self.lblWestgard.config(bg="white")           
         
     def set_tests(self):
 
         index = 0
-        self.dict_tests={}
-        v = []
+        self.dict_tests = {}
+        voices = []
        
         sql = "SELECT tests.test_id,tests.test||' '||samples.sample\
                FROM tests\
@@ -297,29 +347,29 @@ class Biovarase(Frame):
         rs = self.engine.read(True, sql, ())
 
         for i in rs:
-            self.dict_tests[index]=i[0]
-            index+=1
-            v.append(i[1])
+            self.dict_tests[index] = i[0]
+            index += 1
+            voices.append(i[1])
 
-        self.cbTests['values']=v        
+        self.cbTests['values'] = voices        
         self.reset_batch_data()
         
     def set_batches(self):
 
-        self.lstBatches.delete(0, END)
-        self.lstResults.delete(0, END)
+        self.lstBatches.delete(0, tk.END)
+        self.lstResults.delete(0, tk.END)
 
         index = 0
-        self.dict_batchs={}
+        self.dict_batchs = {}
         sql = "SELECT * FROM lst_batchs WHERE test_id = ?"
         rs = self.engine.read(True, sql, (self.selected_test[0],))
         
         if rs:
             for i in rs:
                 s = "%s"%(i[1])
-                self.lstBatches.insert(END, (s))
-                self.dict_batchs[index]=i[0]
-                index+=1
+                self.lstBatches.insert(tk.END, (s))
+                self.dict_batchs[index] = i[0]
+                index += 1
 
             self.lstBatches.select_set(0)
             self.lstBatches.event_generate("<<ListboxSelect>>")
@@ -332,9 +382,9 @@ class Biovarase(Frame):
     def set_results(self,):
 
         try:
-            self.lstResults.delete(0, END)
+            self.lstResults.delete(0, tk.END)
             index = 0
-            self.dict_results={}
+            self.dict_results = {}
            
             sql = "SELECT * FROM lst_results WHERE batch_id = ? LIMIT ?"
             rs = self.engine.read(True, sql, (self.selected_batch[0],int(self.elements.get())))
@@ -347,9 +397,9 @@ class Biovarase(Frame):
                 for i in rs:
 
                     s = '{}{:10}'.format(i[2],i[1])
-                    self.lstResults.insert(END, s)
+                    self.lstResults.insert(tk.END, s)
 
-                    result = float(i[1])
+                    result = float(round(i[1],2))
 
                     is_enabled = i[4]
         
@@ -359,13 +409,7 @@ class Biovarase(Frame):
                    
                     index+=1
 
-                #check if it exists at least a value with the equal enable = 1
-                #if values don't exist we cannot compute stat.
-                if self.engine.get_dataset(rs):
-                    self.get_data(rs, target, sd)
-                else:
-                    self.reset_cal_data()
-                    self.reset_graph()
+                self.get_values(rs) 
                 
             else:
                 self.reset_cal_data()
@@ -382,12 +426,13 @@ class Biovarase(Frame):
             
     def on_selected_test(self,event):
 
-        index = self.cbTests.current()
-        pk = self.dict_tests[index]
-        self.selected_test = self.engine.get_selected('lst_tests','test_id', pk)
-        self.reset_batch_data()
-        self.reset_cal_data()
-        self.set_batches()
+        if self.cbTests.current()!=-1:
+            index = self.cbTests.current()
+            pk = self.dict_tests[index]
+            self.selected_test = self.engine.get_selected('lst_tests','test_id', pk)
+            self.reset_batch_data()
+            self.reset_cal_data()
+            self.set_batches()
     
     def on_selected_batch(self,event):
 
@@ -397,7 +442,7 @@ class Biovarase(Frame):
             pk = self.dict_batchs.get(index)
             self.selected_batch = self.engine.get_selected('batchs','batch_id', pk)
             
-            self.set_batch()
+            self.set_batch_data()
             self.set_results()
 
     def on_selected_result(self,event):
@@ -415,15 +460,7 @@ class Biovarase(Frame):
                 obj = frames.rejections.Dialog(self, self.engine,)
                 obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
                 
-    def set_batch(self):
-
-        s = "{0} {1}".format(self.selected_test[1],self.selected_batch[2])
-        
-        self.expiration.set(self.selected_batch[3])
-        self.target.set(self.selected_batch[4])
-        self.sd.set(self.selected_batch[5])
-           
-                         
+          
     def set_results_row_color(self, index, result, is_enabled, target, sd):
 
         if is_enabled == 0:
@@ -448,22 +485,7 @@ class Biovarase(Frame):
                     
             self.lstResults.itemconfig(index, d)                    
                
-    def set_westgard(self,series):
-
-        if len(series) > 9:
-            rule = self.engine.get_violation(self.selected_batch[4],self.selected_batch[5],series)
-        else:
-            rule = "No data"
         
-        self.westgard.set(rule)
-        self.set_westgard_alarm()
-
-    def set_westgard_alarm(self):
-
-        if self.westgard.get() not in("Accept","No data"):
-            self.lblWestgard.config(bg="IndianRed1")
-        else:
-            self.lblWestgard.config(bg="white")        
                 
     def get_um(self,):
 
@@ -471,68 +493,56 @@ class Biovarase(Frame):
         return self.engine.read(False, sql, (self.selected_test[0],))
 
 
-    def get_data(self, rs, target, sd):
+    def get_values(self, rs):
 
-        um = self.get_um()
-        series = []
-        dates = []
-        x_labels = []
-        count_rs = len(rs)
-        #compute record with enable = 1
-        #check if it exists at least a value with the equal enable = 1
-        #if values don't exist we cannot compute stat.
-        rs = self.engine.get_dataset(rs)
+        """args = self.engine.get_qc(self.selected_batch, rs)
+            args = (count_rs,
+                    1, target,
+                    2, sd,
+                    3, series,
+                    4, count_series,
+                    5, compute_average,
+                    6, compute_sd,
+                    7, compute_cv,
+                    8, compute_bias,
+                    9, compute_range,
+                    10, x_labels,
+                    11, dates)   
+            """
+        args = self.engine.get_qc(self.selected_batch, rs)
+        if args is not None:
+            self.set_calculated_data(args)
+            self.set_westgard(args[3])
+            self.set_lj(args[0],
+                        args[1],
+                        args[2],
+                        args[3],
+                        args[4],
+                        args[5],
+                        args[6],
+                        args[7],
+                        args[10],
+                        args[11],)
 
-        for i in reversed(rs):
-            series.append(i[1])
-            x_labels.append(i[2])
-            dates.append(i[3])
-
-        count_series = len(series)
-
-        if rs:
-
-            compute_average = round(np.mean(series),2)
-            compute_sd = round(np.std(series),2)
-            compute_cv = round((compute_sd/compute_average)*100,2)
-            self.average.set(compute_average)
-            self.calculated_sd.set(compute_sd)
-            self.calculated_cv.set(compute_cv)
-            self.bias.set(round((compute_average-target)/(target)*100,2))
-            self.set_westgard(series)
-            self.range.set(round(np.ptp(series),2))
-
-            self.set_lj(series,
-                        target,
-                        compute_average,
-                        sd,
-                        compute_cv,
-                        um,
-                        x_labels,
-                        dates,
-                        count_rs,
-                        count_series)
+            self.set_histogram(args[3],
+                               args[1],
+                               args[5],
+                               args[2],
+                               args[7],
+                               args[6])
                 
-            self.set_histogram(series,
-                               target,
-                               compute_average,
-                               sd,
-                               compute_cv,
-                               um,
-                               compute_sd)
             self.canvas.draw()
-
-        
+            
         else:
             self.reset_cal_data()
             self.reset_graph()
-      
 
-    def set_lj(self, series, target, avg, sd, cv, um, x_labels, dates, count_rs, count_series):
+    def set_lj(self, count_rs, target, sd, series, count_series,
+               compute_average, compute_sd, compute_cv, x_labels, dates):
 
         self.lj.clear()
         self.lj.grid(True)
-
+        um = self.get_um()
         lines = ([],[],[],[],[],[],[])
 
         for i in range(len(series)+1):
@@ -579,26 +589,28 @@ class Biovarase(Frame):
         
         self.lj.set_title(s, weight='bold',loc='left')
 
-        text_data = (self.format_interval_date(dates), count_rs, count_series)
+        
+        bottom_text = (self.format_interval_date(dates), count_series, count_rs)
 
         self.lj.text(0.95, 0.01,
-                     '%s computed %s on %s results'%text_data,
+                     '%s computed %s on %s results'%bottom_text,
                      verticalalignment='bottom',
                      horizontalalignment='right',
                      transform=self.lj.transAxes,
                      color='black',weight='bold')
 
-    def set_histogram(self, series, target, avg, sd, cv, um, compute_sd):
+    def set_histogram(self, series, target, avg, sd, cv, compute_sd):
 
         #histogram of frequency distribuition
         self.frq.clear()
         self.frq.grid(True)
         self.frq.hist(series, color='g')
         self.frq.axvline(target, color='orange',linewidth=2)
-        self.frq.axvline(avg, color='b', linestyle='dashed', linewidth=2)
+        self.frq.axvline(avg, color='b',linewidth=2)
         self.frq.set_ylabel('Frequency')
         title = "avg = %.2f,  std = %.2f cv = %.2f" % (avg, compute_sd, cv)
         self.frq.set_title(title)
+        um = self.get_um()
         if um is  not None:
             self.frq.set_xlabel(str(um[0]))
         else:
@@ -623,7 +635,7 @@ class Biovarase(Frame):
             print (sys.exc_info()[2])
 
 
-    def set_analytical_goals(self):
+    def on_analytical_goals(self):
 
         sql = "SELECT batchs.batch_id,\
                          samples.sample,\
@@ -649,7 +661,7 @@ class Biovarase(Frame):
         rs = self.engine.read(True, sql, ())
 
         if rs:
-            self.engine.get_analytical_goals(limit,rs)
+            self.engine.get_analitical_goals(limit,rs)
         else:
             msg = "No record data to compute analytical goals."
             messagebox.showwarning(self.engine.title,msg)
@@ -673,6 +685,16 @@ class Biovarase(Frame):
         f = frames.actions.Dialog(self,self.engine)
         f.on_open()
 
+    def on_analitical(self,):
+
+        f = frames.analytical.Dialog(self,self.engine)
+        f.on_open()
+
+    def on_export_rejections(self,):
+        f = frames.export_rejections.Dialog(self,self.engine)
+        f.on_open()
+        
+        
     def on_add_batch(self):
 
         if self.cbTests.current() != -1:
@@ -730,6 +752,7 @@ class Biovarase(Frame):
     def on_exit(self):
         """Close all"""
         if messagebox.askokcancel(self.engine.title, "Do you want to quit?"):
+            self.engine.con.close()
             self.master.quit()
             
 def main():
