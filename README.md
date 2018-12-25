@@ -39,6 +39,19 @@ regards.
 ...
 ## changelog
 
+**2018-12-25**
+
+Hi all and merry christmas, this is the new 4.2 version of Biovarase.
+
+I' ve use this powerfull tool, [Spyder](https://www.spyder-ide.org/), to refactoring all the project.
+
+It's very cool;)
+
+Change widgets.py to tools.py because it seems widgets it' s a reserved word in deep python tk file....
+
+Clean, with the Spider help, very much code lines.
+
+
 **2018-12-09**
 
 Add rejections managements.Now you can add actions, something like "Calibation","Blanck cuvette","Substitutions" in the relative frame and save on the database rejection actions on selected results.
