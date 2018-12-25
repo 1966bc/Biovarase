@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
-#-----------------------------------------------------------------------------
-# project:  biovarase
-# authors:  1966bc
-# mailto:   [giuseppecostanzi@gmail.com]
-# modify:   winter 2018
-# version:  0.1                                                                
-#-----------------------------------------------------------------------------
+# -*- coding: utf-8 -*-
+""" This is the launcher module of Biovarase. 
+It open file generate from Biovarase."""
 import os
 import subprocess
 import threading
+
+__author__ = "1966bc aka giuseppe costanzi"
+__copyright__ = "Copyleft"
+__credits__ = ["hal9000",]
+__license__ = "GNU GPL Version 3, 29 June 2007"
+__version__ = "4.2"
+__maintainer__ = "1966bc"
+__email__ = "giuseppecostanzi@gmail.com"
+__date__ = "2018-12-25"
+__status__ = "Production"
+
 
 class Launcher(threading.Thread):
     def __init__(self,*args, **kwargs):
