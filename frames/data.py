@@ -111,7 +111,7 @@ class Dialog(tk.Toplevel):
                       target,\
                       sd,\
                       enable\
-               FROM batchs WHERE test_id = ?\
+               FROM batches WHERE test_id = ?\
                ORDER BY expiration DESC"
         
         
@@ -180,7 +180,7 @@ class Dialog(tk.Toplevel):
         if self.lstBatches.curselection():
             index = self.lstBatches.curselection()[0]
             pk = self.dict_batchs.get(index)
-            self.selected_batch = self.engine.get_selected('batchs','batch_id', pk)
+            self.selected_batch = self.engine.get_selected('batches','batch_id', pk)
             self.set_results()
 
     def on_result_selected(self, event):

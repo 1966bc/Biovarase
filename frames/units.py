@@ -35,22 +35,25 @@ class Dialog(tk.Toplevel):
         f0.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
         
     def on_open(self,):
+        
+        self.title("Units")
+        self.set_values()
+        
+    def set_values(self):
 
-        sql = "SELECT * FROM units"
-        rs = self.engine.read(True, sql, ())
+        self.lstItems.delete(0, tk.END)
         index = 0
         self.dict_items = {}
-
+        sql = "SELECT * FROM units"
+        rs = self.engine.read(True, sql, ())
+        
         if rs:
-            self.lstItems.delete(0, tk.END)
             for i in rs:
                 self.lstItems.insert(tk.END, i[1])
                 if i[2] != 1:
                     self.lstItems.itemconfig(index, {'bg':'light gray'})
                 self.dict_items[index] = i[0]
                 index += 1
-                        
-        self.title("Units")
 
     def on_add(self, evt):
 

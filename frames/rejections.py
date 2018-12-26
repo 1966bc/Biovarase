@@ -78,24 +78,27 @@ class Dialog(tk.Toplevel):
         self.selected_batch = selected_batch 
         self.selected_result = selected_result
 
-        self.test.set(selected_test[1])
-        self.batch.set(selected_batch[2])
-        self.result.set(selected_result[2])
+        self.set_values()
 
-        dt = selected_result[3].strftime('%Y-%m-%d')
-        
+        self.title("Rejections")
+
+    def set_values(self):
+
+        self.lstItems.delete(0, tk.END)
+
+        self.test.set(self.selected_test[1])
+        self.batch.set(self.selected_batch[2])
+        self.result.set(self.selected_result[2])
+        dt = self.selected_result[3].strftime('%Y-%m-%d')
         self.recived.set(dt)
 
+        index = 0
+        self.dict_items = {}
+        args = (self.selected_result[0],)
         sql = "SELECT * FROM lst_rejections WHERE result_id =?"
-        args = (selected_result[0],)
         rs = self.engine.read(True, sql, args)
 
-        index = 0
-
-        self.dict_items={}
-
         if rs:
-            self.lstItems.delete(0, tk.END)
             for i in rs:
                 s = '{:20}{:20}'.format(i[3],i[1])
                 self.lstItems.insert(tk.END, (s))
@@ -104,8 +107,6 @@ class Dialog(tk.Toplevel):
                 self.dict_items[index]=i[0]
                 index+=1
                 
-        self.title("Rejections")
-
     def on_add(self, evt):
 
         self.obj = frames.rejection.Dialog(self,self.engine)
@@ -113,8 +114,7 @@ class Dialog(tk.Toplevel):
 
     def on_edit(self, evt):
         self.on_item_activated(self)
-        
-
+     
     def on_item_activated(self,evt):
 
         if self.lstItems.curselection():

@@ -24,7 +24,7 @@ from matplotlib import gridspec
 from engine import Engine
 
 import frames.tests
-import frames.batch 
+import frames.batch
 import frames.data
 import frames.units
 import frames.actions
@@ -361,7 +361,7 @@ class Biovarase(tk.Frame):
 
         index = 0
         self.dict_batchs = {}
-        sql = "SELECT * FROM lst_batchs WHERE test_id = ?"
+        sql = "SELECT * FROM lst_batches WHERE test_id = ?"
         rs = self.engine.read(True, sql, (self.selected_test[0],))
         
         if rs:
@@ -440,7 +440,7 @@ class Biovarase(tk.Frame):
 
             index = self.lstBatches.curselection()[0]
             pk = self.dict_batchs.get(index)
-            self.selected_batch = self.engine.get_selected('batchs','batch_id', pk)
+            self.selected_batch = self.engine.get_selected('batches','batch_id', pk)
             
             self.set_batch_data()
             self.set_results()
@@ -637,24 +637,24 @@ class Biovarase(tk.Frame):
 
     def on_analytical_goals(self):
 
-        sql = "SELECT batchs.batch_id,\
+        sql = "SELECT batches.batch_id,\
                          samples.sample,\
                       tests.test,\
-                      batchs.batch,\
-                      batchs.expiration,\
-                      batchs.target,\
+                      batches.batch,\
+                      batches.expiration,\
+                      batches.target,\
                       tests.cvw,\
                       tests.cvb\
                FROM tests\
                INNER JOIN samples \
                ON tests.sample_id = samples.sample_id\
-               INNER JOIN batchs \
-               ON tests.test_id = batchs.test_id\
+               INNER JOIN batches \
+               ON tests.test_id = batches.test_id\
                WHERE tests.enable = 1\
                AND tests.cvw !=0\
                AND tests.cvb !=0\
-               AND batchs.target !=0\
-               AND batchs.enable = 1\
+               AND batches.target !=0\
+               AND batches.enable = 1\
                ORDER BY tests.test,samples.sample"
 
         limit = int(self.elements.get())
@@ -710,7 +710,7 @@ class Biovarase(tk.Frame):
 
         if self.lstBatches.curselection():
             index = self.lstBatches.curselection()[0]
-            obj = frames.batch.Dialog(self,self.engine, index)
+            obj = frames.batch.Dialog(self, self.engine, index)
             obj.transient(self)
             obj.on_open(self.selected_test, self.selected_batch)
         else:

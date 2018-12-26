@@ -36,6 +36,14 @@ class Dialog(tk.Toplevel):
         f0.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
     def on_open(self,):
+        self.title("Tests")
+        self.set_values()
+        
+    def set_values(self):
+
+        self.lstTests.delete(0, tk.END)
+        index = 0
+        self.dict_items = {}
 
         sql = "SELECT tests.test_id,tests.test||' '||samples.sample, tests.enable\
                FROM tests\
@@ -44,12 +52,7 @@ class Dialog(tk.Toplevel):
         
         rs = self.engine.read(True, sql, ())
 
-        index = 0
-
-        self.dict_items = {}
-
         if rs:
-            self.lstTests.delete(0, tk.END)
             for i in rs:
                 s = "{:}".format(i[1])
                 self.lstTests.insert(tk.END, s)
@@ -57,8 +60,7 @@ class Dialog(tk.Toplevel):
                     self.lstTests.itemconfig(index, {'bg':'light gray'})
                 self.dict_items[index] = i[0]
                 index += 1
-                        
-        self.title("Tests")
+        
 
     def on_add(self, evt):
 

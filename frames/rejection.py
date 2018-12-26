@@ -59,7 +59,10 @@ class Dialog(tk.Toplevel):
                                                     column=1,
                                                     sticky=tk.W)
 
-        self.engine.get_save_cancel(self, self)
+        if self.index is not None:
+            self.engine.get_save_cancel_delete(self, self)
+        else:
+            self.engine.get_save_cancel(self, self)
 
     def on_open(self, selected_test, selected_batch, selected_result, selected_rejection = None):
 
@@ -108,7 +111,24 @@ class Dialog(tk.Toplevel):
                 self.parent.lstItems.selection_set(self.index)
                 
             self.on_cancel()
-           
+
+    def on_delete(self, evt=None):
+
+        if self.index is not None:
+            if messagebox.askyesno(self.engine.title, self.engine.delete, parent=self) == True:
+        
+                sql = "DELETE FROM rejections WHERE rejection_id =?"
+                args = (self.selected_rejection[0],)
+                self.engine.write(sql,args)
+                self.parent.on_open(self.selected_test,self.selected_batch,self.selected_result)
+                if self.index is not None:
+                    self.parent.lstItems.see(self.index)
+                    self.parent.lstItems.selection_set(self.index)
+                self.on_cancel()
+    
+            else:
+                messagebox.showinfo(self.engine.title,self.engine.abort)
+        
     def on_cancel(self, evt=None):
         self.destroy()
 

@@ -2,7 +2,6 @@
 import tkinter as tk
 from tkinter import messagebox
 
-
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
 __credits__ = ["hal9000",]
@@ -135,6 +134,9 @@ class Dialog(tk.Toplevel):
         if self.index is not None:
             if messagebox.askyesno(self.engine.title, self.engine.delete, parent=self) == True:
                 sql = "DELETE FROM results WHERE result_id =?"
+                args = (self.selected_result[0],)
+                self.engine.write(sql,args)
+                sql = "DELETE FROM rejections WHERE result_id =?"
                 args = (self.selected_result[0],)
                 self.engine.write(sql,args)
                 self.parent.set_results()

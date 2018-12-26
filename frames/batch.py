@@ -108,13 +108,13 @@ class Dialog(tk.Toplevel):
 
             if self.index is not None:
 
-                sql = self.engine.get_update_sql('batchs','batch_id')
+                sql = self.engine.get_update_sql('batches','batch_id')
 
                 args.append(self.selected_batch[0])
                        
             else:
 
-                sql = self.engine.get_insert_sql('batchs',len(args))
+                sql = self.engine.get_insert_sql('batches',len(args))
 
             self.engine.write(sql,args)
             self.parent.set_batches()

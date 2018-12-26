@@ -38,24 +38,25 @@ class Dialog(tk.Toplevel):
         f0.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
     def on_open(self,):
+               
+        self.title("Correttive Actions")
+        self.set_values()
 
-        sql = "SELECT * FROM actions"
+    def set_values(self):
 
-        rs = self.engine.read(True, sql, ())
-
+        self.lstActions.delete(0, tk.END)
         index = 0
         self.dict_items = {}
+        sql = "SELECT * FROM actions"
+        rs = self.engine.read(True, sql, ())
 
         if rs:
-            self.lstActions.delete(0, tk.END)
             for i in rs:
                 self.lstActions.insert(tk.END, i[1])
                 if i[2] != 1:
                     self.lstActions.itemconfig(index, {'bg':'light gray'})
                 self.dict_items[index] = i[0]
                 index += 1
-                        
-        self.title("Correttive Actions")
 
     def on_add(self, evt):
 

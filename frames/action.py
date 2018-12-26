@@ -90,7 +90,7 @@ class Dialog(tk.Toplevel):
                 sql = self.engine.get_insert_sql('actions',len(args))
 
             self.engine.write(sql,args)
-            self.parent.on_open()
+            self.parent.set_values()
             
             if self.index is not None:
                 self.parent.lstActions.see(self.index)

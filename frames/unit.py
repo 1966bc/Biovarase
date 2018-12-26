@@ -86,7 +86,7 @@ class Dialog(tk.Toplevel):
 
                 
             self.engine.write(sql, args)
-            self.parent.on_open()
+            self.parent.set_values()
             
             if self.index is not None:
                 
