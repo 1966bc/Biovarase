@@ -7,7 +7,7 @@ import sys
 
 
 SQL_BATCHES = "SELECT *\
-               FROM batchs\
+               FROM batches\
                WHERE enable =1\
                AND test_id =?"
 
@@ -55,7 +55,7 @@ class Exporter(object):
 
         row +=1
 
-        sql = "SELECT * FROM rpt_rejections WHERE modified >=?"
+        sql = "SELECT * FROM rejections_to_export WHERE modified >=?"
 
         rs = self.read(True, sql, args)
 

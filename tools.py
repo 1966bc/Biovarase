@@ -220,6 +220,25 @@ class Tools(object):
 
         return bts
 
+
+    def get_add_edit_delete_cancel(self, caller, container):
+
+        bts = self.get_label_frame(container)
+
+        caller.btnAdd = self.get_button(bts, "Add")
+        caller.btnAdd.bind("<Return>", caller.on_add)
+        caller.btnAdd.bind("<Button-1>", caller.on_add)
+        caller.btnEdit = self.get_button(bts, "Edit")
+        caller.btnEdit.bind("<Button-1>", caller.on_edit)
+        caller.btnDelete = self.get_button(bts, "Delete")
+        caller.btnDelete.bind("<Button-1>", caller.on_delete)
+        caller.btCancel = self.get_button(bts, "Close")
+        caller.btCancel.bind("<Button-1>", caller.on_cancel)
+
+        bts.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
+
+        return bts
+
     def get_calendar(self, caller, container, row=None):
 
         w = tk.LabelFrame(container, borderwidth=2)
@@ -284,11 +303,7 @@ class Tools(object):
 
     def get_tree(self, container, cols,):
 
-        #ttk.Style().configure("Treeview",
-        #                      background="lightyellow",
-        #                      fieldbackground="lightyellow",
-        #                      foreground="black")
-        
+
         headers = []
 
         for col in cols:
