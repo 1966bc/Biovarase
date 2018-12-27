@@ -47,6 +47,8 @@ class Biovarase(tk.Frame):
     def __init__(self, engine):
         super().__init__()
 
+        self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
+
         self.engine = engine
         self.status_bar_text = tk.StringVar()
         self.average = tk.DoubleVar()
@@ -81,7 +83,8 @@ class Biovarase(tk.Frame):
     def set_title(self):
         s = "{0} {1}".format(self.engine.title, __version__)
         self.master.title(s)
-        self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
+        #self.winfo_toplevel().title("Biovarase")
+        
 
     def center_ui(self):
 
@@ -234,8 +237,7 @@ class Biovarase(tk.Frame):
         #-----------------------------------------------------------------------
         
         #create graph!
-        f2 = self.engine.get_frame(self)
-        f2.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1, padx=5, pady=5)
+        f2 = tk.Frame(self,)
         #Figure: The top level container for all the plot elements.
         gs = gridspec.GridSpec(1, 2, width_ratios=[2, 1]) 
         fig = Figure()
@@ -246,7 +248,8 @@ class Biovarase(tk.Frame):
         self.canvas = FigureCanvasTkAgg(fig, f2)
         toolbar = nav_tool(self.canvas, f2)
         toolbar.update()
-        self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        self.canvas._tkcanvas.pack(fill=tk.BOTH, expand=1)
+        f2.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
 
     def init_status_bar(self):
 
@@ -261,7 +264,8 @@ class Biovarase(tk.Frame):
 
     def on_open(self):
 
-        self.on_reset()
+        self.elements.set(self.engine.get_elements())
+        self.set_tests()
     
     def on_reset(self):
 
@@ -496,7 +500,7 @@ class Biovarase(tk.Frame):
     def get_values(self, rs):
 
         """args = self.engine.get_qc(self.selected_batch, rs)
-            args = (count_rs,
+            args = (0, count_rs,
                     1, target,
                     2, sd,
                     3, series,
