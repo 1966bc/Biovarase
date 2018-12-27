@@ -61,7 +61,13 @@ class Tools(object):
         return tk.LabelFrame(container, text=text, relief=tk.GROOVE, bd=1, padx=5, pady=5,)    
 
     def get_button(self, container, text, row=None, col=None):
-        w = tk.Button(container, text=text, borderwidth=1, relief=tk.RAISED, padx=5, pady=5,)
+        w = tk.Button(container,
+                      text=text,
+                      borderwidth=1,
+                      underline=0,
+                      relief=tk.RAISED,
+                      padx=5,
+                      pady=5,)
 
         if row is not None:
             w.grid(row=row, column=col, sticky=tk.W+tk.E, padx=5, pady=5)
