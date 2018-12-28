@@ -66,6 +66,8 @@ class Dialog(tk.Toplevel):
         self.btnBatch.bind("<Button-1>", self.on_add_batch)
         self.btnResult = self.engine.get_button(w, "Result")
         self.btnResult.bind("<Button-1>", self.on_add_result)
+        self.btnReset = self.engine.get_button(w, "Reset")
+        self.btnReset.bind("<Button-1>", self.on_reset_database)
         self.btClose = self.engine.get_button(w, "Close")
         self.btClose.bind("<Button-1>", self.on_cancel)
         w.pack(fill=tk.BOTH, side=tk.RIGHT)
@@ -227,7 +229,30 @@ class Dialog(tk.Toplevel):
             
         else:
             msg = "Please select a batch."
-            messagebox.showwarning(self.engine.title,msg)                  
+            messagebox.showwarning(self.engine.title,msg)
+
+    def on_reset_database(self, evt):
+
+
+        msg = "You are about to delete the entire database.\nAre you sure? "
+
+        if messagebox.askyesno(self.engine.title, msg, parent=self) == True:
+
+            self.engine.dump_db()
+            
+            sql = ("DELETE FROM tests",
+                   "DELETE FROM batches",
+                   "DELETE FROM results",
+                   "DELETE FROM rejections",)
+
+            for statement in sql:
+                self.engine.write(statement,())
+            
+            
+            self.parent.on_reset()
+            self.on_cancel()  
+        else:
+            messagebox.showinfo(self.engine.title,self.engine.abort)              
 
     def on_cancel(self, evt=None):
         if self.obj is not None:
