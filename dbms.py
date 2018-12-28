@@ -4,6 +4,7 @@
 import sys
 import inspect
 import sqlite3 as lite
+import datetime
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -78,6 +79,15 @@ class DBMS(object):
             print (sys.exc_info()[0])
             print (sys.exc_info()[1])
             print (sys.exc_info()[2])
+
+    def dump_db(self,):
+
+        
+        dt = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        s = dt + ".sql"
+        with open(s, 'w') as f:
+            for line in self.con.iterdump():
+                f.write('%s\n' % line)
 
 
     def get_last_row_id(self, cur):
