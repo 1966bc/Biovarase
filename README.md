@@ -39,6 +39,31 @@ regards.
 ...
 ## changelog
 
+**2019-01-01**
+
+Hi all and happy new year.
+
+Add a new powerfull toplevel frame.
+
+In the main frame, select a test and after go to menu bar on File/Batchs Plots.
+
+The following Toplevel framewill appear.
+
+![alt tag](https://user-images.githubusercontent.com/5463566/50571419-fdc9b680-0da9-11e9-9404-3f57ece11968.png)
+
+It' cool, not?
+
+The number of graphs are created at run time, look at this code line in batch_plots.py file.
+
+count = len(batches)*100+11
+
+count is subplot args and depend of the numbers of batch data to show. 
+
+regards.
+
+
+
+
 **2018-12-25**
 
 Hi all and merry christmas, this is the new 4.2 version of Biovarase.
