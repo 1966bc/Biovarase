@@ -45,9 +45,9 @@ Hi all and happy new year.
 
 Add a new powerfull toplevel frame.
 
-In the main frame, select a test and after go to menu bar on File/Batchs Plots.
+In the main frame, select a test and after go to menu bar and press File/Batchs Plots.
 
-The following Toplevel framewill appear.
+The following Toplevel frame will appear.
 
 ![alt tag](https://user-images.githubusercontent.com/5463566/50571419-fdc9b680-0da9-11e9-9404-3f57ece11968.png)
 
