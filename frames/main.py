@@ -32,6 +32,7 @@ import frames.rejections
 import frames.result
 import frames.analytical
 import frames.export_rejections
+import frames.batch_plots
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -114,7 +115,8 @@ class Biovarase(tk.Frame):
         m_main.add_cascade(label="?", underline=0, menu=m_about)
 
 
-        items = (("Reset",self.on_reset),
+        items = (("Batchs Plots", self.on_batch_plots),
+                 ("Reset",self.on_reset),
                  ("Tests",self.on_tests),
                  ("Data",self.on_data),
                  ("Units",self.on_units),
@@ -697,6 +699,18 @@ class Biovarase(tk.Frame):
     def on_export_rejections(self,):
         f = frames.export_rejections.Dialog(self,self.engine)
         f.on_open()
+
+    def on_batch_plots(self,):
+
+        if self.cbTests.current() != -1:
+            index = self.cbTests.current()
+            pk = self.dict_tests[index]
+            selected_test = self.engine.get_selected('lst_tests','test_id', pk)
+            f = frames.batch_plots.Dialog(self,self.engine)
+            f.on_open(selected_test,int(self.elements.get()))
+        else:
+            msg = "Not enough data to plot.\nSelect a test."
+            messagebox.showwarning(self.engine.title,msg)        
         
         
     def on_add_batch(self):
