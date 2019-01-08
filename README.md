@@ -51,7 +51,7 @@ The following Toplevel frame will appear.
 
 ![alt tag](https://user-images.githubusercontent.com/5463566/50571419-fdc9b680-0da9-11e9-9404-3f57ece11968.png)
 
-It' cool, not?
+It's cool, not?
 
 The number of graphs are created at run time, look at this code line in batch_plots.py file.
 
