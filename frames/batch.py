@@ -32,7 +32,7 @@ class Dialog(tk.Toplevel):
         self.enable =  tk.BooleanVar()
 
         self.vcmd = (self.register(self.validate),
-                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%tk.W')
+                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
         self.init_ui()
 
