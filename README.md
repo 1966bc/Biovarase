@@ -39,6 +39,36 @@ regards.
 ...
 ## changelog
 
+**2019-02-06**
+
+Migrate almost anything from tkinter to ttk.
+
+Improve the field control function in tools.py module, now we check even if the user try to use a value not
+
+present on combobox, before save a record.
+
+```python
+def on_fields_control(self, container):
+
+        msg = "Please fill all fields."
+
+        for w in container.winfo_children():
+            for field in w.winfo_children():
+                if type(field) in(ttk.Entry,ttk.Combobox):
+                    if not field.get():
+                        messagebox.showwarning(self.title,msg)
+                        field.focus()
+                        return 0
+                    elif type(field)==ttk.Combobox:
+                          if field.get() not in field.cget('values'):
+                              msg = "You can choice only values in the list."
+                              messagebox.showwarning(self.title,msg)
+                              field.focus()
+                              return 0
+```
+
+
+
 **2019-01-01**
 
 Hi all and happy new year.
