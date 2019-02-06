@@ -1,5 +1,6 @@
 """ This is the result module of Biovarase."""
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 
 __author__ = "1966bc aka giuseppe costanzi"
@@ -22,6 +23,7 @@ class Dialog(tk.Toplevel):
         self.parent = parent
         self.engine = engine
         self.index = index
+        
         self.day =  tk.IntVar()
         self.month =  tk.IntVar()
         self.year =  tk.IntVar()
@@ -29,58 +31,69 @@ class Dialog(tk.Toplevel):
         self.batch = tk.StringVar()
         self.result = tk.DoubleVar()
         self.enable =  tk.BooleanVar()
-        self.vcmd = (self.register(self.validate),
-                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%tk.W')
 
+        self.vcmd = self.engine.get_validate_float(self)
+        self.engine.center_me(self)
+        self.set_style()
         self.init_ui()
 
+
+    def set_style(self):
+        
+        s = ttk.Style()
+
+        s.configure('Data.TLabel',
+                    font=('Helvetica', 12, 'bold'))
+ 
     def init_ui(self):
 
         w = self.engine.get_init_ui(self)
 
-        r = 0
-        tk.Label(w, text="Test:").grid(row=r, sticky=tk.W)
-        tk.Label(w,
-                 font = "Verdana 12 bold",
+        r =0
+        c =1
+        ttk.Label(w, text="Test:").grid(row=r, sticky=tk.W)
+        ttk.Label(w,
+                 style='Data.TLabel',
                  textvariable = self.test).grid(row=r,
-                                                column=1,
+                                                column=c,
                                                 sticky=tk.W,
                                                 padx=5, pady=5)
 
-        r = 1
-        tk.Label(w, text="Batch:").grid(row=r, sticky=tk.W)
-        tk.Label(w,
-                 font = "Verdana 12 bold",
-                 textvariable = self.batch).grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        r +=1
+        ttk.Label(w, text="Batch:").grid(row=r, sticky=tk.W)
+        ttk.Label(w,
+                 style='Data.TLabel',
+                 textvariable = self.batch).grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
-        r = 2
-        tk.Label(w, text="Result:").grid(row=r, sticky=tk.W)
-        self.txtResult = tk.Entry(w,
+        r +=1
+        ttk.Label(w, text="Result:").grid(row=r, sticky=tk.W)
+        self.txtResult = ttk.Entry(w,
                                   width=8,
-                                  bg='white',
+                                 
+                                  justify=tk.CENTER,
                                   validate = 'key',
                                   validatecommand = self.vcmd,
                                   textvariable=self.result)
         self.txtResult.grid(row=r, column=1,sticky=tk.W, padx=5, pady=5)
 
-        r = 3
-        tk.Label(w, text="Recived:").grid(row=r, column=0, sticky=tk.W)
+        r +=1
+        ttk.Label(w, text="Recived:").grid(row=r, sticky=tk.W)
 
-        self.engine.get_calendar(self, w, r)
+        self.engine.get_calendar(self, w, r, c)
 
-        r = 4
-        tk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
-        tk.Checkbutton(w,
+        r +=1
+        ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
+        ttk.Checkbutton(w,
                        onvalue=1,
                        offvalue=0,
                        variable = self.enable,).grid(row=r,
-                                                     column=1,
+                                                     column=c,
                                                      sticky=tk.W)
 
         if self.index is not None:
-            self.engine.get_save_cancel_delete(self, self)
+            self.engine.get_save_cancel_delete(self, w)
         else:
-            self.engine.get_save_cancel(self, self)
+            self.engine.get_save_cancel(self, w)
 
 
     def on_open(self, selected_test, selected_batch, selected_result=None):
@@ -103,8 +116,7 @@ class Dialog(tk.Toplevel):
         
     def on_save(self, evt=None):
 
-        fields = (self.txtResult,)
-        if self.engine.on_fields_control( fields)==False:return
+        if self.engine.on_fields_control( self)==False:return
         if self.engine.get_calendar_date(self)==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
@@ -162,20 +174,3 @@ class Dialog(tk.Toplevel):
 
         self.result.set(self.selected_result[2])
         self.enable.set(self.selected_result[4])
-
-    def validate(self, action, index, value_if_allowed,
-                 prior_value, text, validation_type,
-                 trigger_type, widget_name):
-        # action=1 -> insert
-        if(action=='1'):
-            if text:
-                try:
-                    float(value_if_allowed)
-                    return True
-                except ValueError:
-                    return False
-            else:
-                return False
-        else:
-            return True    
-         

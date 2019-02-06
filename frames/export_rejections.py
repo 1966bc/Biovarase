@@ -31,12 +31,13 @@ class Dialog(tk.Toplevel):
 
         w = self.engine.get_init_ui(self)
 
-        r=0
-        tk.Label(w, text="Export From:").grid(row=r,column=0,sticky=tk.W)
+        r =0
+        tk.Label(w, text="Export From:").grid(row=r,sticky=tk.W)
 
-        self.engine.get_calendar(self,w,r)
+        r +=1
+        self.engine.get_calendar(self, w, r,)
 
-        self.engine.get_export_cancel(self, self)
+        self.engine.get_export_cancel(self, w)
 
 
     def on_open(self):

@@ -1,5 +1,6 @@
 """ This is the unit module of Biovarase."""
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 
 __author__ = "1966bc aka giuseppe costanzi"
@@ -29,16 +30,18 @@ class Dialog(tk.Toplevel):
 
         w = self.engine.get_init_ui(self)
 
-        tk.Label(w, text="Unit:").grid(row=0, sticky=tk.W)
-        self.txtUnit = tk.Entry(w, bg='white', textvariable=self.unit)
-        self.txtUnit.grid(row=0, column=1, padx=5, pady=5)
+        r = 0
+        c = 1
 
-        tk.Label(w, text="Enable:").grid(row=1, sticky=tk.W)
-        tk.Checkbutton(w, onvalue=1, offvalue=0, variable = self.enable,).grid(row=1, column=1,sticky=tk.W)
+        ttk.Label(w, text="Unit:").grid(row=r, sticky=tk.W)
+        self.txtUnit = ttk.Entry(w, textvariable=self.unit)
+        self.txtUnit.grid(row=r, column=c, padx=5, pady=5)
+
+        r +=1
+        ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
+        ttk.Checkbutton(w, onvalue=1, offvalue=0, variable = self.enable,).grid(row=r, column=c,sticky=tk.W)
         
-        self.engine.get_save_cancel(self, self)
-        
-        self.winfo_toplevel().wm_geometry("")
+        self.engine.get_save_cancel(self, w)        
 
     def on_open(self,selected_item = None):
 
@@ -67,7 +70,9 @@ class Dialog(tk.Toplevel):
 
     def on_save(self, evt):
 
-        if self.engine.on_fields_control( (self.txtUnit,))==False:return
+        
+
+        if self.engine.on_fields_control(self)==False:return
 
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 

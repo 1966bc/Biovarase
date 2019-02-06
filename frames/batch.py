@@ -1,5 +1,6 @@
 """ This is the batch module of Biovarase."""
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 
 
@@ -22,6 +23,7 @@ class Dialog(tk.Toplevel):
         self.parent = parent
         self.engine = engine
         self.index = index
+
         self.day =  tk.IntVar()
         self.month =  tk.IntVar()
         self.year =  tk.IntVar()
@@ -31,53 +33,54 @@ class Dialog(tk.Toplevel):
         self.sd = tk.DoubleVar()
         self.enable =  tk.BooleanVar()
 
-        self.vcmd = (self.register(self.validate),
-                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
-
+        self.vcmd = self.engine.get_validate_float(self)
+        self.engine.center_me(self)
         self.init_ui()
 
     def init_ui(self):
 
         w = self.engine.get_init_ui(self)
 
-        r = 0
-        tk.Label(w, text="Batch:").grid(row=r, sticky=tk.W)
-        self.txtBatch = tk.Entry(w, bg='white', textvariable=self.batch)
-        self.txtBatch.grid(row=r, column=1, padx=5, pady=5)
+        r =0
+        c =1
+        ttk.Label(w, text="Batch:").grid(row=r, sticky=tk.W)
+        self.txtBatch = ttk.Entry(w, textvariable=self.batch)
+        self.txtBatch.grid(row=r, column=c, padx=5, pady=5)
 
-        r = 1
-        tk.Label(w, text="Expiration:").grid(row=r,column=0,sticky=tk.W)
+        r +=1
+        ttk.Label(w, text="Expiration:").grid(row=r,sticky=tk.W)
+        self.engine.get_calendar(self,w,r,c)
 
-        self.engine.get_calendar(self,w,r)
+        r +=1
+        ttk.Label(w, text="Target:").grid(row=r, sticky=tk.W)
+        self.txtTarget = ttk.Entry(w,
+                                  width=8,
+                                  justify=tk.CENTER,
+                                  validate = 'key',
+                                  validatecommand = self.vcmd,
+                                  textvariable=self.target)
+        self.txtTarget.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
-        r = 2
-        tk.Label(w, text="Target:").grid(row=r, sticky=tk.W)
-        self.txtTarget = tk.Entry(w,
-                               bg='white',
-                               validate = 'key',
-                               validatecommand = self.vcmd,
-                               textvariable=self.target)
-        self.txtTarget.grid(row=r, column=1, padx=5, pady=5)
+        r +=1
+        ttk.Label(w, text="SD:").grid(row=r, sticky=tk.W)
+        self.txtSD = ttk.Entry(w,
+                              width=8,
+                              justify=tk.CENTER,
+                              validate = 'key',
+                              validatecommand = self.vcmd,
+                              textvariable=self.sd)
+        self.txtSD.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
-        r = 3
-        tk.Label(w, text="SD:").grid(row=r, sticky=tk.W)
-        self.txtSD = tk.Entry(w,
-                           bg='white',
-                           validate = 'key',
-                           validatecommand = self.vcmd,
-                           textvariable=self.sd)
-        self.txtSD.grid(row=r, column=1, padx=5, pady=5)
-
-        r = 4
-        tk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
-        tk.Checkbutton(w,
+        r +=1
+        ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
+        ttk.Checkbutton(w,
                        onvalue=1,
                        offvalue=0,
                        variable=self.enable).grid(row=r,
-                                                  column=1,
+                                                  column=c,
                                                   sticky=tk.W)
 
-        self.engine.get_save_cancel(self, self) 
+        self.engine.get_save_cancel(self, w) 
         
 
     def on_open(self, selected_test, selected_batch = None):
@@ -98,9 +101,7 @@ class Dialog(tk.Toplevel):
         
     def on_save(self, evt=None):
 
-        fields =  (self.txtBatch, self.txtTarget, self.txtSD)
-        
-        if self.engine.on_fields_control(fields)==False:return
+        if self.engine.on_fields_control(self)==False:return
         if self.engine.get_calendar_date(self)==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
@@ -151,19 +152,3 @@ class Dialog(tk.Toplevel):
         self.sd.set(self.selected_batch[5])
         self.enable.set(self.selected_batch[6])
       
-
-    def validate(self, action, index, value_if_allowed,
-                 prior_value, text, validation_type,
-                 trigger_type, widget_name):
-        # action=1 -> insert
-        if(action=='1'):
-            if text:
-                try:
-                    float(value_if_allowed)
-                    return True
-                except ValueError:
-                    return False
-            else:
-                return False
-        else:
-            return True          

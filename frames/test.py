@@ -1,7 +1,7 @@
 """ This is the test module of Biovarase."""
 import tkinter as tk
-from tkinter import messagebox
 from tkinter import ttk
+from tkinter import messagebox
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -19,8 +19,8 @@ class Dialog(tk.Toplevel):
     def __init__(self, parent, engine, index=None):
         super().__init__(name='test')
         
-        self.transient(parent)
         self.resizable(0, 0)
+        self.transient(parent) 
         self.parent = parent
         self.engine = engine
         self.index = index
@@ -29,9 +29,9 @@ class Dialog(tk.Toplevel):
         self.cvw = tk.DoubleVar()
         self.cvb = tk.DoubleVar()
         self.enable = tk.BooleanVar()
-        self.vcmd = (self.register(self.validate),
-                     '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%tk.W')
-
+        self.vcmd = self.engine.get_validate_float(self)
+        
+        self.engine.center_me(self)
         self.init_ui()
 
     def init_ui(self):
@@ -39,48 +39,51 @@ class Dialog(tk.Toplevel):
         w = self.engine.get_init_ui(self)
 
         r = 0
-        tk.Label(w, text="Samples:").grid(row=r, sticky=tk.W)
+        ttk.Label(w, text="Samples:").grid(row=r, sticky=tk.W)
         self.cbSamples = ttk.Combobox(w)
-        self.cbSamples.grid(row=0, column=1)
+        self.cbSamples.grid(row=0, column=1, sticky=tk.W)
 
-        r = 1
-        tk.Label(w, text="Units:").grid(row=r, sticky=tk.W)
+        r +=1
+        ttk.Label(w, text="Units:").grid(row=r, sticky=tk.W)
         self.cbUnits = ttk.Combobox(w)
-        self.cbUnits.grid(row=r, column=1)
+        self.cbUnits.grid(row=r, column=1, sticky=tk.W)
 
-        r = 2
-        tk.Label(w, text="Test:").grid(row=r, sticky=tk.W)
-        self.txTest = tk.Entry(w, bg='white', textvariable=self.test)
-        self.txTest.grid(row=r, column=1, padx=5, pady=5)
+        r +=1
+        ttk.Label(w, text="Test:").grid(row=r, sticky=tk.W)
+        self.txTest = ttk.Entry(w, textvariable=self.test)
+        self.txTest.grid(row=r, column=1,sticky=tk.W, padx=5, pady=5)
 
-        r = 3
-        tk.Label(w, text="Cvw:").grid(row=r, sticky=tk.W)
-        self.txtCVW = tk.Entry(w,
-                               bg='white',
-                               validate='key',
-                               validatecommand=self.vcmd,
-                               textvariable=self.cvw)
-        self.txtCVW.grid(row=r, column=1, padx=5, pady=5)
+        r +=1
+        ttk.Label(w, text="Cvw:").grid(row=r, sticky=tk.W)
+        self.txtCVW = ttk.Entry(w,
+                                width=8,
+                                justify=tk.CENTER,
+                                validate='key',
+                                validatecommand=self.vcmd,
+                                textvariable=self.cvw)
+        self.txtCVW.grid(row=r, column=1,sticky=tk.W, padx=5, pady=5)
 
-        r = 4
-        tk.Label(w, text="Cvb:").grid(row=r, sticky=tk.W)
-        self.txtCVB = tk.Entry(w,
-                               bg='white',
-                               validate='key',
-                               validatecommand=self.vcmd,
-                               textvariable=self.cvb)
-        self.txtCVB.grid(row=r, column=1, padx=5, pady=5)
+        r +=1
+        ttk.Label(w, text="Cvb:").grid(row=r, sticky=tk.W)
+        self.txtCVB = ttk.Entry(w,
+                                width=8,
+                                justify=tk.CENTER,
+                                validate='key',
+                                validatecommand=self.vcmd,
+                                textvariable=self.cvb)
+        self.txtCVB.grid(row=r, column=1,sticky=tk.W, padx=5, pady=5)
 
-        r = 5
-        tk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
-        tk.Checkbutton(w,
+        r +=1
+        ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
+        ttk.Checkbutton(w,
                        onvalue=1,
                        offvalue=0,
                        variable=self.enable).grid(row=r,
                                                   column=1,
                                                   sticky=tk.W)
 
-        self.engine.get_save_cancel(self, self)
+        self.engine.get_save_cancel(self, w)       
+    
 
     def on_open(self, selected_test=None):
 
@@ -97,12 +100,12 @@ class Dialog(tk.Toplevel):
 
         self.title(msg)
         self.txTest.focus()
+
+        
         
     def on_save(self, evt=None):
 
-        fields = (self.cbSamples, self.txTest, self.txtCVW, self.txtCVB)
-        
-        if self.engine.on_fields_control(fields) == False: return
+        if self.engine.on_fields_control(self)==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
             args = self.get_values()
@@ -140,6 +143,7 @@ class Dialog(tk.Toplevel):
             values.append(i[1])
 
         self.cbSamples['values'] = values
+        
 
     def set_units(self):
 
@@ -158,7 +162,7 @@ class Dialog(tk.Toplevel):
         self.cbUnits['values'] = values         
 
     def get_values(self,):
-
+        
         return [self.dict_samples[self.cbSamples.current()],
                 self.dict_units[self.cbUnits.current()],
                 self.test.get(),
@@ -182,22 +186,6 @@ class Dialog(tk.Toplevel):
         self.cvw.set(self.selected_test[4])
         self.cvb.set(self.selected_test[5])
         self.enable.set(self.selected_test[6])
-
-    def validate(self, action, index, value_if_allowed,
-                 prior_value, text, validation_type,
-                 trigger_type, widget_name):
-        # action=1 -> insert
-        if action == '1':
-            if text :
-                try:
-                    float(value_if_allowed)
-                    return True
-                except ValueError:
-                    return False
-            else:
-                return False
-        else:
-            return True
 
     def on_cancel(self, evt=None):
         self.destroy()        

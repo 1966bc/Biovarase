@@ -1,7 +1,7 @@
 """ This is the action rejection of Biovarase."""
 import tkinter as tk
-from tkinter import messagebox
 from tkinter import ttk
+from tkinter import messagebox
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -22,37 +22,37 @@ class Dialog(tk.Toplevel):
         self.parent = parent
         self.engine = engine
         self.index = index
+        
         self.day =  tk.IntVar()
         self.month =  tk.IntVar()
         self.year =  tk.IntVar()
         self.description = tk.StringVar()
         self.enable =  tk.BooleanVar()
-        self.vcmd = (self.register(self.validate),
-                '%d', '%i', '%P', '%s', '%S', '%values', '%V', '%tk.W')
-
+        
+        self.engine.center_me(self)
         self.init_ui()
 
     def init_ui(self):
 
         w = self.engine.get_init_ui(self)
 
-        r = 0       
+        r =0       
         tk.Label(w, text="Actions:").grid(row=r, sticky=tk.W)
         self.cbActions = ttk.Combobox(w,)
-        self.cbActions.grid(row=r, column=1)
+        self.cbActions.grid(row=r, column=1, sticky=tk.W,padx=5, pady=5)
 
-        r = 1
-        tk.Label(w, text="Description:").grid(row=r, sticky=tk.W)
-        self.txDescription = tk.Entry(w, bg='white', textvariable=self.description,)
-        self.txDescription.grid(row=r, column=1, padx=5, pady=5,ipady=2)
+        r +=1
+        ttk.Label(w, text="Description:").grid(row=r, sticky=tk.W)
+        self.txDescription = ttk.Entry(w, textvariable=self.description,)
+        self.txDescription.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
-        r = 2
-        tk.Label(w, text="Modified:").grid(row=r,column=0,sticky=tk.W)
-        self.engine.get_calendar(self, w, r)
+        r +=1
+        ttk.Label(w, text="Modified:").grid(row=r, column=0, sticky=tk.W)
+        self.engine.get_calendar(self, w, r,1)
 
-        r = 3
-        tk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
-        tk.Checkbutton(w,
+        r +=1
+        ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
+        ttk.Checkbutton(w,
                        onvalue=1,
                        offvalue=0,
                        variable = self.enable).grid(row=r,
@@ -60,9 +60,9 @@ class Dialog(tk.Toplevel):
                                                     sticky=tk.W)
 
         if self.index is not None:
-            self.engine.get_save_cancel_delete(self, self)
+            self.engine.get_save_cancel_delete(self, w)
         else:
-            self.engine.get_save_cancel(self, self)
+            self.engine.get_save_cancel(self, w)
 
     def on_open(self, selected_test, selected_batch, selected_result, selected_rejection = None):
 
@@ -86,9 +86,7 @@ class Dialog(tk.Toplevel):
         
     def on_save(self, evt=None):
         
-        fields = (self.txDescription, self.cbActions)
-        
-        if self.engine.on_fields_control(fields)==False:return
+        if self.engine.on_fields_control(self)==False:return
         if self.engine.get_calendar_date(self)==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
@@ -169,19 +167,3 @@ class Dialog(tk.Toplevel):
         self.day.set(int(self.selected_rejection[4].day))
       
         self.enable.set(self.selected_rejection[5])
-
-    def validate(self, action, index, value_if_allowed,
-                 prior_value, text, validation_type,
-                 trigger_type, widget_name):
-        # action=1 -> insert
-        if(action=='1'):
-            if text :
-                try:
-                    float(value_if_allowed)
-                    return True
-                except ValueError:
-                    return False
-            else:
-                return False
-        else:
-            return True        

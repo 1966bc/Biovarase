@@ -21,6 +21,7 @@ class Dialog(tk.Toplevel):
 
         self.parent = parent
         self.engine = engine
+        self.minsize(800,400)
         self.data = tk.StringVar()
         self.obj = None
         self.init_ui()
@@ -38,9 +39,16 @@ class Dialog(tk.Toplevel):
         w.pack(side=tk.TOP, fill=tk.X, expand=0)
         
         w = tk.LabelFrame(f1, text='Batchs')
-        self.lstBatches = self.engine.get_listbox(w, height=5)
-        self.lstBatches.bind("<<ListboxSelect>>", self.on_selected_batch)
-        self.lstBatches.bind("<Double-Button-1>", self.on_batch_activated)
+        cols = (["#0",'id','w',False,0,0],
+                ["#1",'Batch','w',True,50,50],
+                ["#2",'Expiration','w',True,50,50],
+                ["#3",'Target','w',True,50,50],
+                ["#4",'SD','w',True,50,50],)
+        
+        self.lstBatches = self.engine.get_tree(w, cols)
+        self.lstBatches.bind("<<TreeviewSelect>>", self.on_selected_batch)
+        self.lstBatches.bind("<Double-1>", self.on_batch_activated)
+
         w.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         
         f1.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
@@ -54,10 +62,14 @@ class Dialog(tk.Toplevel):
                  pady=5).pack(side=tk.TOP,
                               fill=tk.X,
                               expand=0)
+
+        cols = (["#0",'id','w',False,0,0],
+                ["#1",'Recived','w',True,50,50],
+                ["#2",'Result','w',True,50,50],)
         
-        self.lstResults = self.engine.get_listbox(f2,)
-        self.lstResults.bind("<<ListboxSelect>>", self.on_result_selected)
-        self.lstResults.bind("<Double-Button-1>", self.on_result_activated)
+        self.lstResults = self.engine.get_tree(f2, cols)
+        self.lstResults.bind("<<TreeviewSelect>>", self.on_result_selected)
+        self.lstResults.bind("<Double-1>", self.on_result_activated)
         w.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         f2.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
         
@@ -102,9 +114,15 @@ class Dialog(tk.Toplevel):
 
     def set_batches(self,):
 
-        self.lstBatches.delete(0, tk.END)
-        self.lstResults.delete(0, tk.END)
-        msg = "Batch: %s Results: %s"%("None","0")
+        self.lstBatches.tag_configure('is_enable', background=self.engine.get_rgb(211, 211, 211))
+
+        for i in self.lstBatches.get_children():
+            self.lstBatches.delete(i)
+            
+        for i in self.lstResults.get_children():
+            self.lstResults.delete(i)
+            
+        msg = "Batch: None Results: 0"
         self.data.set(msg)
 
         sql = "SELECT batch_id,\
@@ -118,56 +136,57 @@ class Dialog(tk.Toplevel):
         
         
         rs = self.engine.read(True, sql, (self.selected_test[0],))
-        index = 0
-        self.dict_batchs = {}
+        
         
         if rs:
             for i in rs:
-                try:
-                    s = '{0:12}{1:16}{2:16}{3:16}'.format(i[1],i[2],i[3],i[4])
-                    self.lstBatches.insert(tk.END, (s))
-                    if i[5] !=1:
-                        self.lstBatches.itemconfig(index, {'bg':'gray'})
-                    self.dict_batchs[index]=i[0]
-                    index +=1
-                except:
-                    print(inspect.stack()[0][3])
-                    print (i)
-                    print (sys.exc_info()[0])
-                    print (sys.exc_info()[1])
-                    print (sys.exc_info()[2])
-                        
+
+                if i[5]!=1:
+                    
+                    self.lstBatches.insert('', tk.END,
+                                           iid=i[0],
+                                           text=i[0],
+                                           values=(i[1],i[2],i[3],i[4]),
+                                           tags = ('is_enable',))
+                else:
+                    self.lstBatches.insert('', tk.END,
+                                           iid=i[0],
+                                           text=i[0],
+                                           values=(i[1],i[2],i[3],i[4]))                        
     
     def set_results(self,):
 
-        self.lstResults.delete(0, tk.END)
+        for i in self.lstResults.get_children():
+            self.lstResults.delete(i)
 
-        index = 0
-        self.dict_results={}
+        self.lstResults.tag_configure('is_enable', background=self.engine.get_rgb(211, 211, 211))
+
 
         sql = "SELECT result_id,\
-                      ROUND(result,2),\
                       strftime('%d-%m-%Y', recived),\
+                      ROUND(result,2),\
                       enable\
                FROM results\
                WHERE batch_id = ?\
                ORDER BY recived DESC"
 
         rs = self.engine.read(True, sql, (self.selected_batch[0],))
-        msg = "Batch: %s Results: %s"%(self.selected_batch[2], len(rs))
+        msg = "Batch: {0} Results: {1}".format(self.selected_batch[2], len(rs))
         self.data.set(msg)
 
         if rs:
-            
             for i in rs:
-                s = '{0:10}{1:10}'.format(i[2],i[1])
-                self.lstResults.insert(tk.END, (s))
-                if i[3] != 1:
-                    self.lstResults.itemconfig(index, {'bg':'gray'})
-                self.dict_results[index]=i[0]
-                index+=1
-        
-            
+                if i[3]!=1:
+                    
+                    self.lstResults.insert('', tk.END,
+                                           iid=i[0],
+                                           text=i[0],
+                                           values=(i[1],i[2]), tags = ('is_enable',))
+                else:
+                    self.lstResults.insert('', tk.END,
+                                           iid=i[0],
+                                           text=i[0],
+                                           values=(i[1],i[2]))
 
     def on_selected_test(self,event):
 
@@ -179,41 +198,39 @@ class Dialog(tk.Toplevel):
                    
     def on_selected_batch(self, event):
 
-        if self.lstBatches.curselection():
-            index = self.lstBatches.curselection()[0]
-            pk = self.dict_batchs.get(index)
+        if self.lstBatches.focus():
+            pk = int(self.lstBatches.item(self.lstBatches.focus())['text'])
             self.selected_batch = self.engine.get_selected('batches','batch_id', pk)
             self.set_results()
 
     def on_result_selected(self, event):
 
-        if self.lstResults.curselection():
-            index = self.lstResults.curselection()[0]
-            pk = self.dict_results.get(index)
+         if self.lstResults.focus():
+            pk = int(self.lstResults.item(self.lstResults.focus())['text'])
             self.selected_result = self.engine.get_selected('results','result_id', pk)
+      
 
     def on_batch_activated(self, event):
 
-         if self.lstBatches.curselection():
-            index = self.lstBatches.curselection()[0]
-            self.obj = batch.Dialog(self,self.engine, index)
+        if self.lstBatches.focus():
+            item_iid = self.lstBatches.selection()
+            self.obj = batch.Dialog(self,self.engine, item_iid)
             self.obj.on_open(self.selected_test, self.selected_batch)
-
+             
     
     def on_result_activated(self, event):
 
-        if self.lstResults.curselection():
-            index = self.lstResults.curselection()[0]
-            self.obj = result.Dialog(self,self.engine, index)
+        if self.lstResults.focus():
+            item_iid = self.lstResults.selection()
+            self.obj = result.Dialog(self,self.engine, item_iid)
             self.obj.on_open(self.selected_test,
                              self.selected_batch,
                              self.selected_result)
-
+               
     def on_add_batch(self,evt):
 
-        if self.selected_test is not None:
+        if self.cbTests.current()!=-1:
             self.obj = batch.Dialog(self,self.engine,)
-            self.obj.transient(self)
             self.obj.on_open(self.selected_test)
         else:
             msg = "Please select a test."
@@ -222,9 +239,8 @@ class Dialog(tk.Toplevel):
         
     def on_add_result(self,evt):
 
-        if self.selected_batch is not None:
+        if self.lstBatches.focus():
             self.obj = result.Dialog(self, self.engine,)
-            self.obj.transient(self)
             self.obj.on_open(self.selected_test, self.selected_batch)
             
         else:
@@ -232,7 +248,6 @@ class Dialog(tk.Toplevel):
             messagebox.showwarning(self.engine.title,msg)
 
     def on_reset_database(self, evt):
-
 
         msg = "You are about to delete the entire database.\nAre you sure? "
 

@@ -1,5 +1,6 @@
 """ This is the tests module of Biovarase."""
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 import frames.test
 
@@ -17,16 +18,15 @@ class Dialog(tk.Toplevel):
     def __init__(self, parent, engine):
         super().__init__(name='tests')
 
-    
         self.parent = parent
         self.engine = engine
         self.obj = None
-        self.init_ui()
         self.engine.center_me(self)
-
+        self.init_ui()
+        
     def init_ui(self):
     
-        f0 = self.engine.get_frame(self)
+        f0 = self.engine.get_frame(self, 8)
         w = self.engine.get_frame(f0)
         self.lstTests = self.engine.get_listbox(w,)
         self.lstTests.bind("<<ListboxSelect>>", self.on_item_selected)

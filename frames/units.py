@@ -25,7 +25,7 @@ class Dialog(tk.Toplevel):
 
     def init_ui(self):
     
-        f0 = self.engine.get_frame(self)
+        f0 = self.engine.get_frame(self,8)
         f1 = tk.Frame(f0,)
         self.lstItems = self.engine.get_listbox(f1,)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
