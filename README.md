@@ -12,7 +12,7 @@ All the data are managed by SQLite database and matplotlib.
 - To show levey jennings graph, in the main windows select a test and choose the relative batch.
 - To manage batches in the main window select a test and on menubar choice Batchs/Add batch or Update batch.
 - To manage results in the main window select a batch and on menubar choice Results/Add result or Update result.
-- To manage rejections in the main window select a result, in the toplevel window that will open add or update rejection type.
+- To manage rejections in the main window select a result, in the window that will open add or update rejection type.
 - To manage actions in the main window use File/Actions.
 - To manage units in the main window use File/Units.
 - To insert, update or delete a test use File/Tests.
@@ -75,15 +75,15 @@ Hi all and happy new year.
 
 Add a new powerfull toplevel frame.
 
-In the main frame, select a test and after go to menu bar and press File/Batchs Plots.
+In the main frame, select a test and after go to menu bar and press File/Plots.
 
-The following Toplevel frame will appear.
+The following window will appear.
 
 ![alt tag](https://user-images.githubusercontent.com/5463566/50571419-fdc9b680-0da9-11e9-9404-3f57ece11968.png)
 
 It's cool, not?
 
-The number of graphs are created at run time, look at this code line in batch_plots.py file.
+The number of graphs are created at run time, look at this code line in plots.py file.
 
 count = len(batches)*100+11
 
