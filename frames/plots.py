@@ -1,4 +1,4 @@
-""" This is the batch_plots module of Biovarase."""
+""" This is the plots module of Biovarase."""
 import sys
 import inspect
 import tkinter as tk
