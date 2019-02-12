@@ -193,7 +193,7 @@ class Biovarase(ttk.Frame):
         self.cbTests.pack(side=tk.TOP, fill=tk.X,pady=5, expand=0)
 
 
-        w = ttk.LabelFrame(f0,text='Batchs')
+        w = ttk.LabelFrame(f0,text='Batches')
         self.lstBatches = self.engine.get_listbox(w,)
         self.lstBatches.bind("<<ListboxSelect>>", self.on_selected_batch)
         w.pack(side=tk.TOP, fill=tk.BOTH, expand=0)
