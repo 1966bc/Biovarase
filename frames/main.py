@@ -44,7 +44,7 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
-class Biovarase(tk.Frame):
+class Biovarase(ttk.Frame):
     def __init__(self, engine):
         super().__init__()
 
