@@ -194,7 +194,7 @@ class Biovarase(ttk.Frame):
 
 
         w = ttk.LabelFrame(f0,text='Batches')
-        self.lstBatches = self.engine.get_listbox(w,)
+        self.lstBatches = self.engine.get_listbox(w,height=5)
         self.lstBatches.bind("<<ListboxSelect>>", self.on_selected_batch)
         w.pack(side=tk.TOP, fill=tk.BOTH, expand=0)
 
