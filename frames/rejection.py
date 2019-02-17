@@ -17,6 +17,7 @@ class Dialog(tk.Toplevel):
     def __init__(self,parent, engine, index=None):
         super().__init__(name='rejection')
 
+        self.attributes('-topmost', True)
         self.resizable(0,0)
         self.transient(parent) 
         self.parent = parent

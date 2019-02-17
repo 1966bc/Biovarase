@@ -17,7 +17,8 @@ __status__ = "Production"
 class Dialog(tk.Toplevel):     
     def __init__(self, parent, engine):
         super().__init__(name='tests')
-
+        
+        self.attributes('-topmost', True)
         self.parent = parent
         self.engine = engine
         self.obj = None

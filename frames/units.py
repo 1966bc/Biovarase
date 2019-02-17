@@ -17,7 +17,8 @@ class Dialog(tk.Toplevel):
     def __init__(self, parent, engine):
         super().__init__(name='units')
 
-        #self.transient(parent)
+        self.attributes('-topmost', True)
+        self.transient(parent)
         self.parent = parent
         self.engine = engine
         self.obj = None

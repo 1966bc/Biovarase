@@ -19,6 +19,7 @@ class Dialog(tk.Toplevel):
     def __init__(self,parent, engine):
         super().__init__(name='data')
 
+        self.attributes('-topmost', True)
         self.parent = parent
         self.engine = engine
         self.minsize(800,400)
@@ -234,7 +235,7 @@ class Dialog(tk.Toplevel):
             self.obj.on_open(self.selected_test)
         else:
             msg = "Please select a test."
-            messagebox.showwarning(self.engine.title,msg)                    
+            messagebox.showwarning(self.engine.title, msg, parent=self)                    
 
         
     def on_add_result(self,evt):
@@ -245,13 +246,13 @@ class Dialog(tk.Toplevel):
             
         else:
             msg = "Please select a batch."
-            messagebox.showwarning(self.engine.title,msg)
+            messagebox.showwarning(self.engine.title, msg, parent=self)
 
     def on_reset_database(self, evt):
 
         msg = "You are about to delete the entire database.\nAre you sure? "
 
-        if messagebox.askyesno(self.engine.title, msg, parent=self) == True:
+        if messagebox.askyesno(self.engine.title, msg, default='no', parent=self) == True:
 
             self.engine.dump_db()
             
@@ -267,7 +268,7 @@ class Dialog(tk.Toplevel):
             self.parent.on_reset()
             self.on_cancel()  
         else:
-            messagebox.showinfo(self.engine.title,self.engine.abort)              
+            messagebox.showinfo(self.engine.title, self.engine.abort, parent=self)              
 
     def on_cancel(self, evt=None):
         if self.obj is not None:
