@@ -368,13 +368,13 @@ class Tools(object):
                     #for i in field.keys():
                     #    print (i)
                     if not field.get():
-                        messagebox.showwarning(self.title,msg)
+                        messagebox.showwarning(self.title,msg,parent=container)
                         field.focus()
                         return 0
                     elif type(field)==ttk.Combobox:
                           if field.get() not in field.cget('values'):
                               msg = "You can choice only values in the list."
-                              messagebox.showwarning(self.title,msg)
+                              messagebox.showwarning(self.title,msg,parent=container)
                               field.focus()
                               return 0
 
