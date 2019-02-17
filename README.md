@@ -39,6 +39,44 @@ regards.
 ...
 ## changelog
 
+**2019-02-16**
+
+Add to every toplevel this code
+
+```python
+self.attributes('-topmost', True)
+```
+
+to keep toplevel in front of main window.
+
+change reset function on data.py, set messagebox.askyesno default button on No.
+
+```python
+def on_reset_database(self, evt):
+
+        msg = "You are about to delete the entire database.\nAre you sure? "
+
+        if messagebox.askyesno(self.engine.title, msg, default='no', parent=self) == True:
+
+            self.engine.dump_db()
+            
+            sql = ("DELETE FROM tests",
+                   "DELETE FROM batches",
+                   "DELETE FROM results",
+                   "DELETE FROM rejections",)
+
+            for statement in sql:
+                self.engine.write(statement,())
+            
+            
+            self.parent.on_reset()
+            self.on_cancel()  
+        else:
+            messagebox.showinfo(self.engine.title, self.engine.abort, parent=self)              
+```
+
+
+
 **2019-02-06**
 
 Migrate almost anything from tkinter to ttk.
