@@ -79,6 +79,10 @@ class Dialog(tk.Toplevel):
 ```
 God bless *args, **kwargs....
 
+go here for stimuli your brain
+
+[skipperkongen](http://skipperkongen.dk/2012/04/27/python-init-multiple-heritance/)
+
 
 **2019-02-16**
 
