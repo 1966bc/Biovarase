@@ -39,6 +39,47 @@ regards.
 ...
 ## changelog
 
+**2019-02-28**
+
+Changed passing arguments mechanism, init method, between all toplevel.
+
+before
+```python
+
+#toplevel tests launch function from main.py
+def on_tests(self,):
+        f = frames.tests.Dialog(self,self.engine)
+        f.on_open()
+
+#tests.py init method
+class Dialog(tk.Toplevel):     
+    def __init__(self, parent, engine):
+        super().__init__(name='tests')
+
+        self.parent = parent
+        self.engine = engine
+```
+
+now
+```python
+
+#toplevel tests launch function from main.py
+def on_tests(self,):
+        f = frames.tests.Dialog(self, engine=self.engine)
+        f.on_open()
+
+#tests.py init method
+class Dialog(tk.Toplevel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(name='tests')
+        
+        self.parent = parent
+        self.engine = kwargs['engine']
+
+```
+God bless *args, **kwargs....
+
+
 **2019-02-16**
 
 Add to every toplevel this code
