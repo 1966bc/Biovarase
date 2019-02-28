@@ -15,15 +15,15 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 class Dialog(tk.Toplevel):     
-    def __init__(self, parent, engine, index=None):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(name='batch')  
 
         self.attributes('-topmost', True)
         self.resizable(0, 0)
         self.transient(parent) 
         self.parent = parent
-        self.engine = engine
-        self.index = index
+        self.engine = kwargs['engine']
+        self.index = kwargs['index']
 
         self.day =  tk.IntVar()
         self.month =  tk.IntVar()

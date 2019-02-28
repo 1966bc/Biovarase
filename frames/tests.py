@@ -14,13 +14,13 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
-class Dialog(tk.Toplevel):     
-    def __init__(self, parent, engine):
+class Dialog(tk.Toplevel):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(name='tests')
         
         self.attributes('-topmost', True)
         self.parent = parent
-        self.engine = engine
+        self.engine = kwargs['engine']
         self.obj = None
         self.engine.center_me(self)
         self.init_ui()
@@ -65,8 +65,7 @@ class Dialog(tk.Toplevel):
 
     def on_add(self, evt):
 
-        self.obj = frames.test.Dialog(self,self.engine)
-        self.obj.transient(self)
+        self.obj = frames.test.Dialog(self, engine=self.engine, index=None)
         self.obj.on_open()
 
     def on_edit(self, evt):
@@ -76,8 +75,7 @@ class Dialog(tk.Toplevel):
 
         if self.lstTests.curselection():
             index = self.lstTests.curselection()[0]
-            self.obj = frames.test.Dialog(self,self.engine,index)
-            self.obj.transient(self)
+            self.obj = frames.test.Dialog(self, engine=self.engine, index=index)
             self.obj.on_open(self.selected_test,)
                
         else:

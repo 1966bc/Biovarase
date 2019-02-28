@@ -13,12 +13,13 @@ __date__ = "2018-12-24"
 __status__ = "Production"
 
 class Dialog(tk.Toplevel):     
-    def __init__(self,parent, engine, index = None):
-        super().__init__(name='batch')  
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(name='analitical')  
 
-        self.transient(parent)
+        self.attributes('-topmost', True)
+        self.parent = parent
         self.resizable(0,0)
-        self.engine = engine
+        self.engine = kwargs['engine']
         self.engine.center_me(self)
         self.init_ui()
 

@@ -15,15 +15,15 @@ __status__ = "Production"
 
 
 class Dialog(tk.Toplevel):     
-    def __init__(self, parent, engine, index=None):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(name='action')
 
         self.attributes('-topmost', True)
         self.resizable(0, 0)
         self.transient(parent) 
         self.parent = parent
-        self.engine = engine
-        self.index = index
+        self.engine = kwargs['engine']
+        self.index = kwargs['index']
         self.unit = tk.StringVar()
         self.enable =  tk.BooleanVar()
         

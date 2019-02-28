@@ -36,12 +36,13 @@ __status__ = "Production"
 
 
 class Dialog(tk.Toplevel):     
-    def __init__(self,parent, engine):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(name='plots')
 
         self.parent = parent
-        self.engine = engine
+        self.engine = kwargs['engine']
         self.obj = None
+        self.engine.center_me(self)
         self.init_ui()
         self.minsize(1000, 600)
 

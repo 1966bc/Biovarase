@@ -14,15 +14,15 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 class Dialog(tk.Toplevel):     
-    def __init__(self, parent, engine):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(name='actions')
 
         self.attributes('-topmost', True)
         self.parent = parent
-        self.engine = engine
+        self.engine = kwargs['engine']
         self.obj = None
-        self.init_ui()
         self.engine.center_me(self)
+        self.init_ui()
 
     def init_ui(self):
     
@@ -61,7 +61,7 @@ class Dialog(tk.Toplevel):
 
     def on_add(self, evt):
 
-        self.obj = action.Dialog(self,self.engine)
+        self.obj = action.Dialog(self, engine=self.engine, index=None)
         self.obj.on_open()
 
     def on_edit(self, evt):
@@ -71,11 +71,11 @@ class Dialog(tk.Toplevel):
 
         if self.lstActions.curselection():
             index = self.lstActions.curselection()[0]
-            self.obj = action.Dialog(self,self.engine,index)
+            self.obj = action.Dialog(self, engine=self.engine, index=index)
             self.obj.on_open(self.selected_item,)
                
         else:
-            messagebox.showwarning(self.engine.title,self.engine.no_selected)
+            messagebox.showwarning(self.engine.title,self.engine.no_selected, parent=self)
                 
     def on_item_selected(self, evt):
 

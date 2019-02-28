@@ -14,15 +14,15 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 class Dialog(tk.Toplevel):     
-    def __init__(self, parent, engine, index=None):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(name='unit')
 
         self.attributes('-topmost', True)
         self.resizable(0,0)
         self.transient(parent)
         self.parent = parent
-        self.engine = engine
-        self.index = index
+        self.engine = kwargs['engine']
+        self.index = kwargs['index']
         self.unit = tk.StringVar()
         self.enable =  tk.BooleanVar()
         self.init_ui()
@@ -70,9 +70,7 @@ class Dialog(tk.Toplevel):
                 self.enable.get(),]
 
     def on_save(self, evt):
-
-        
-
+     
         if self.engine.on_fields_control(self)==False:return
 
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
@@ -90,7 +88,6 @@ class Dialog(tk.Toplevel):
 
                 sql = self.engine.get_insert_sql('units', len(args))
 
-                
             self.engine.write(sql, args)
             self.parent.set_values()
             

@@ -16,15 +16,16 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 class Dialog(tk.Toplevel):     
-    def __init__(self,parent, engine):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(name='data')
 
         self.attributes('-topmost', True)
         self.parent = parent
-        self.engine = engine
+        self.engine = kwargs['engine']
         self.minsize(800,400)
         self.data = tk.StringVar()
         self.obj = None
+        self.engine.center_me(self)
         self.init_ui()
         
     def init_ui(self):
@@ -215,7 +216,7 @@ class Dialog(tk.Toplevel):
 
         if self.lstBatches.focus():
             item_iid = self.lstBatches.selection()
-            self.obj = batch.Dialog(self,self.engine, item_iid)
+            self.obj = batch.Dialog(self, engine=self.engine, index=item_iid)
             self.obj.on_open(self.selected_test, self.selected_batch)
              
     
@@ -223,7 +224,7 @@ class Dialog(tk.Toplevel):
 
         if self.lstResults.focus():
             item_iid = self.lstResults.selection()
-            self.obj = result.Dialog(self,self.engine, item_iid)
+            self.obj = result.Dialog(self, engine=self.engine, index=item_iid)
             self.obj.on_open(self.selected_test,
                              self.selected_batch,
                              self.selected_result)
@@ -231,7 +232,7 @@ class Dialog(tk.Toplevel):
     def on_add_batch(self,evt):
 
         if self.cbTests.current()!=-1:
-            self.obj = batch.Dialog(self,self.engine,)
+            self.obj = batch.Dialog(self, engine=self.engine, index=None)
             self.obj.on_open(self.selected_test)
         else:
             msg = "Please select a test."
@@ -241,7 +242,7 @@ class Dialog(tk.Toplevel):
     def on_add_result(self,evt):
 
         if self.lstBatches.focus():
-            self.obj = result.Dialog(self, self.engine,)
+            self.obj = result.Dialog(self, engine=self.engine, index=None)
             self.obj.on_open(self.selected_test, self.selected_batch)
             
         else:

@@ -45,12 +45,12 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 class Biovarase(ttk.Frame):
-    def __init__(self, engine):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
         self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
 
-        self.engine = engine
+        self.engine = kwargs['engine']
         self.status_bar_text = tk.StringVar()
         self.average = tk.DoubleVar()
         self.bias = tk.DoubleVar()
@@ -498,7 +498,7 @@ class Biovarase(ttk.Frame):
 
         if self.lstResults.curselection():
                 index = self.lstResults.curselection()[0]
-                obj = frames.rejections.Dialog(self, self.engine,)
+                obj = frames.rejections.Dialog(self, engine= self.engine, index=None)
                 obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
 
 
@@ -709,30 +709,30 @@ class Biovarase(ttk.Frame):
 
     def on_tests(self,):
 
-        f = frames.tests.Dialog(self,self.engine)
+        f = frames.tests.Dialog(self, engine=self.engine)
         f.on_open()
 
     def on_units(self,):
 
-        f = frames.units.Dialog(self,self.engine)
+        f = frames.units.Dialog(self, engine=self.engine)
         f.on_open()
 
     def on_data(self,):
 
-        f = frames.data.Dialog(self,self.engine)
+        f = frames.data.Dialog(self, engine=self.engine)
         f.on_open()
 
     def on_actions(self,):
-        f = frames.actions.Dialog(self,self.engine)
+        f = frames.actions.Dialog(self, engine=self.engine)
         f.on_open()
 
     def on_analitical(self,):
 
-        f = frames.analytical.Dialog(self,self.engine)
+        f = frames.analytical.Dialog(self, engine=self.engine)
         f.on_open()
 
     def on_export_rejections(self,):
-        f = frames.export_rejections.Dialog(self,self.engine)
+        f = frames.export_rejections.Dialog(self, engine=self.engine)
         f.on_open()
 
     def on_plots(self,):
@@ -741,40 +741,37 @@ class Biovarase(ttk.Frame):
             index = self.cbTests.current()
             pk = self.dict_tests[index]
             selected_test = self.engine.get_selected('lst_tests','test_id', pk)
-            f = frames.plots.Dialog(self,self.engine)
+            f = frames.plots.Dialog(self, engine=self.engine)
             f.on_open(selected_test,int(self.elements.get()))
         else:
             msg = "Not enough data to plot.\nSelect a test."
             messagebox.showwarning(self.engine.title,msg)
 
-
     def on_add_batch(self):
 
         if self.cbTests.current() != -1:
-            obj = frames.batch.Dialog(self,self.engine,)
-            obj.transient(self)
+            obj = frames.batch.Dialog(self, engine=self.engine, index=None)
             obj.on_open(self.selected_test)
 
         else:
             msg = "Attention please.\nBefore add a batch you must select a test."
-            messagebox.showinfo(self.engine.title, msg)
+            messagebox.showinfo(self.engine.title, msg, parent=self)
 
     def on_update_batch(self):
 
         if self.lstBatches.curselection():
             index = self.lstBatches.curselection()[0]
-            obj = frames.batch.Dialog(self, self.engine, index)
+            obj = frames.batch.Dialog(self, engine=self.engine, index=index)
             obj.transient(self)
             obj.on_open(self.selected_test, self.selected_batch)
         else:
             msg = "Attention please.\nSelect a batch."
             messagebox.showinfo(self.engine.title, msg)
 
-
     def on_add_result(self,):
 
         if self.selected_batch is not None:
-            obj = frames.result.Dialog(self, self.engine,)
+            obj = frames.result.Dialog(self, engine=self.engine, index=None)
             obj.on_open(self.selected_test, self.selected_batch)
         else:
             msg = "Attention please.\nBefore add a result you must select a batch."
@@ -785,7 +782,7 @@ class Biovarase(ttk.Frame):
         try:
             if self.lstResults.curselection():
                 index = self.lstResults.curselection()[0]
-                obj = frames.result.Dialog(self, self.engine, index)
+                obj = frames.result.Dialog(self, engine=self.engine, index=index)
                 obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
 
             else:
@@ -804,16 +801,15 @@ class Biovarase(ttk.Frame):
 
     def on_exit(self):
         """Close all"""
-        if messagebox.askokcancel(self.engine.title, "Do you want to quit?"):
+        if messagebox.askokcancel(self.engine.title, "Do you want to quit?", parent=self):
             self.engine.con.close()
             self.master.quit()
 
 def main():
 
-    app = Biovarase(Engine())
+    app = Biovarase(engine=Engine())
     app.on_open()
     app.mainloop()
-
 
 if __name__ == '__main__':
     main()
