@@ -7,12 +7,9 @@ import os
 import datetime
 from datetime import date
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 from tkinter import font
-from tkinter import ttk
-from tkinter.scrolledtext import ScrolledText
-from PIL import Image, ImageTk
-
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -110,29 +107,7 @@ class Tools(object):
         return w
 
 
-    def get_scale(self, container, text, frm, to, width, var=None, callback=None):
-
-        w = self.get_label_frame(container, text = text,)
-        
-        tk.Scale(w,
-                 from_=frm,
-                 to=to,
-                 orient=tk.HORIZONTAL,
-                 variable=var).pack(anchor=tk.N) 
-        return w
-
-    def get_radio_buttons(self, container, text, ops, v, callback=None):
-
-        w = self.get_label_frame(container, text = text)
-        
-        for index, text in enumerate(ops):
-            ttk.Radiobutton(w,
-                            text=text,
-                            variable=v,
-                            command=callback,
-                            value=index,).pack(anchor=tk.W)     
-        return w
-
+  
     def set_font(self,family,size,weight=None):
 
         if weight is not None:
@@ -162,32 +137,14 @@ class Tools(object):
         sb.pack(fill=tk.Y, expand=1)
 
         return w
-
-    def get_text_box(self, container, height=None, width=None, row=None, col=None):
-
-        w = ScrolledText(container,
-                    bg='white',
-                    relief=tk.GROOVE,
-                    height=height,
-                    width=width,
-                    font='TkFixedFont',)
-     
-        if row is not None:
-            #print(row,col)
-            w.grid(row=row, column=1,sticky=tk.W)
-        else:
-            w.pack(side=tk.LEFT,fill=tk.BOTH, expand =1)
-           
-        return w
-        
-
+      
     def get_save_cancel(self, caller, container):
 
-        caller.btnSave = self.get_button(container, "Salva",0,2)
+        caller.btnSave = self.get_button(container, "Save",0,2)
         caller.btnSave.bind("<Button-1>", caller.on_save)
         caller.btnSave.bind("<Return>", caller.on_save)
     
-        caller.btCancel = self.get_button(container, "Chiudi", 1,2)
+        caller.btCancel = self.get_button(container, "Close", 1,2)
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
 
 
@@ -224,85 +181,6 @@ class Tools(object):
         caller.btCancel = self.get_button(container, "Close")
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
 
-       
-
-
-    def get_add_edit_delete_cancel(self, caller, container):
-
-        bts = self.get_label_frame(container)
-
-        caller.btnAdd = self.get_button(bts, "Add")
-        caller.btnAdd.bind("<Return>", caller.on_add)
-        caller.btnAdd.bind("<Button-1>", caller.on_add)
-        caller.btnEdit = self.get_button(bts, "Edit")
-        caller.btnEdit.bind("<Button-1>", caller.on_edit)
-        caller.btnDelete = self.get_button(bts, "Delete")
-        caller.btnDelete.bind("<Button-1>", caller.on_delete)
-        caller.btCancel = self.get_button(bts, "Close")
-        caller.btCancel.bind("<Button-1>", caller.on_cancel)
-
-        bts.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
-
-        return bts
-
-    def get_a_pic(self, filename=None):
-
-        if filename is not None:
-            if os.path.isfile(filename):
-                pass
-            else:
-                filename = os.path.join('images', 'logo.jpg')
-        else:
-            filename = os.path.join('images', 'logo.jpg')
-            
-        image = Image.open(filename)
-        image = image.resize((80, 80), Image.ANTIALIAS)
-        return ImageTk.PhotoImage(image)
-    
-
-    def get_toolbar(self, caller, callbacks):
-
-        toolbar = ttk.Frame(caller,)
-
-        for k, v in enumerate(callbacks):
-            
-            img = tk.PhotoImage(file=os.path.join('icons', v[0]))
-            btn =ttk.Button(toolbar,
-                      width=20,
-                      image=img,
-                      command=v[1])
-            btn.image = img
-            btn.pack(side=tk.TOP, padx=2, pady=2)
-
-        toolbar.pack(side=tk.LEFT, fill=tk.Y, expand=0)              
-            
-
-        return  toolbar
-
-
-    def get_stopwatch(self, caller, container, row=None):
-
-        w = tk.LabelFrame(container, borderwidth=2)
-
-        d = tk.Spinbox(w, bg='white', fg='blue',width=2, from_=0, to=24, textvariable=caller.h,relief=tk.GROOVE,)
-        
-        m = tk.Spinbox(w, bg='white',fg='blue', width=2, from_=0, to=60, textvariable=caller.m,relief=tk.GROOVE,)
-
-        y = tk.Spinbox(w, bg='white', fg='blue',width=4, from_=0, to=60, textvariable=caller.s,relief=tk.GROOVE,)
-
-        for p,i in enumerate((d,m,y)):
-             if row is not None:
-                 i.grid(row=0, column=p, padx=5, pady=5,sticky=tk.W)
-             else:
-                 i.pack(side=tk.LEFT, fill=tk.X, padx=2)
-                 
-                 
-        if row is not None:
-            w.grid(row = row, column = 1,sticky=tk.W)
-        else:
-            w.pack()
-
-        return w
 
 
     def get_calendar(self, caller, container, row=None, column=None):
@@ -431,12 +309,6 @@ class Tools(object):
              '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
 
-    def limit_chars(self, c, v, *args):
-        
-        if len(v.get())>c:
-               v.set(v.get()[:-1])
-         
-
     def validate_integer(self, action, index, value_if_allowed,
                  prior_value, text, validation_type,
                  trigger_type, widget_name):
@@ -468,25 +340,7 @@ class Tools(object):
         else:
             return True              
 
-    def get_widget_attributes(self,container):
-        all_widgets = container.winfo_children()
-        for widg in all_widgets:
-            print('\nWidget Name: {}'.format(widg.winfo_class()))
-            keys = widg.keys()
-            for key in keys:
-                print("Attribute: {:<20}".format(key), end=' ')
-                value = widg[key]
-                vtype = type(value)
-                print('Value: {:<30} Type: {}'.format(value, str(vtype)))
-
-    def get_widgets(self,container):
-        all_widgets = container.winfo_children()
-        for widg in all_widgets:
-            print(widg)
-            print('\nWidget Name: {}'.format(widg.winfo_class()))
-            #keys = widg.keys()
-            
-                                
+                                         
 def main():
     
     foo = Tools()
