@@ -71,7 +71,7 @@ class Dialog(tk.Toplevel):
             self.obj.on_open(self.selected_item,)
                
         else:
-            messagebox.showwarning(self.engine.title, self.engine.no_selected)
+            messagebox.showwarning(self.engine.title, self.engine.no_selected, parent=self)
       
     def on_item_selected(self, evt):
 
