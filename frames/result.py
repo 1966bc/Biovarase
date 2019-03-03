@@ -123,10 +123,12 @@ class Dialog(tk.Toplevel):
 
             args =  self.get_values()
 
-            if self.index is not None:
+            if self.index is not None:            
+                
                 sql = self.engine.get_update_sql('results','result_id')
-                args.append(self.selected_result[0])
     
+                args = (*args, self.selected_result[0])
+                
             else:
                 sql = self.engine.get_insert_sql('results',len(args))
       
@@ -155,14 +157,14 @@ class Dialog(tk.Toplevel):
                 self.parent.set_results()
                 self.on_cancel()  
             else:
-                messagebox.showinfo(self.engine.title,self.engine.abort)
+                messagebox.showinfo(self.engine.title,self.engine.abort, parent=self)
 
     def get_values(self,):
 
-        return [self.selected_batch[0],
+        return (self.selected_batch[0],
                 self.result.get(),
                 self.engine.get_calendar_timestamp(self),
-                self.enable.get()]
+                self.enable.get())
        
     def set_values(self,):
 

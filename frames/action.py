@@ -69,8 +69,8 @@ class Dialog(tk.Toplevel):
 
     def get_values(self,):
 
-        return [self.unit.get(),
-                self.enable.get(),]
+        return (self.unit.get(),
+                self.enable.get(),)
 
     def on_save(self, evt):
 
@@ -84,8 +84,8 @@ class Dialog(tk.Toplevel):
 
                 sql = self.engine.get_update_sql('actions','action_id')
 
-                args.append(self.selected_item[0])
-                   
+                args = (*args, self.selected_item[0])
+   
             else:
                 sql = self.engine.get_insert_sql('actions',len(args))
 
@@ -99,7 +99,7 @@ class Dialog(tk.Toplevel):
             self.on_cancel()
 
         else:
-            messagebox.showinfo(self.engine.title, self.engine.abort)
+            messagebox.showinfo(self.engine.title, self.engine.abort, parent=self)
            
     def on_cancel(self, evt=None):
         self.destroy()

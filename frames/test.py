@@ -101,8 +101,6 @@ class Dialog(tk.Toplevel):
         self.title(msg)
         self.txTest.focus()
 
-        
-        
     def on_save(self, evt=None):
 
         if self.engine.on_fields_control(self)==False:return
@@ -114,7 +112,7 @@ class Dialog(tk.Toplevel):
 
                 sql = self.engine.get_update_sql('tests', 'test_id')
 
-                args.append(self.selected_test[0])
+                args = (*args, self.selected_test[0])
                        
             else:
                 sql = self.engine.get_insert_sql('tests', len(args))
@@ -163,12 +161,12 @@ class Dialog(tk.Toplevel):
 
     def get_values(self,):
         
-        return [self.dict_samples[self.cbSamples.current()],
+        return (self.dict_samples[self.cbSamples.current()],
                 self.dict_units[self.cbUnits.current()],
                 self.test.get(),
                 self.cvw.get(),
                 self.cvb.get(),
-                self.enable.get()]
+                self.enable.get())
     
     def set_values(self,):
 

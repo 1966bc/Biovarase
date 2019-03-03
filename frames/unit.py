@@ -46,13 +46,11 @@ class Dialog(tk.Toplevel):
 
     def on_open(self,selected_item = None):
 
-        if selected_item is not None:
-            self.insert_mode = False
+        if self.index is not None:
             self.selected_item = selected_item
             msg = "Update  unit %s" % (self.selected_item[1],)
             self.set_values()
         else:
-            self.insert_mode = True
             msg = "Insert new unit"
             self.enable.set(1)
 
@@ -66,8 +64,8 @@ class Dialog(tk.Toplevel):
 
     def get_values(self,):
 
-        return [self.unit.get(),
-                self.enable.get(),]
+        return (self.unit.get(),
+                self.enable.get(),)
 
     def on_save(self, evt):
      
@@ -77,14 +75,13 @@ class Dialog(tk.Toplevel):
 
             args =  self.get_values()
 
-            if self.insert_mode == False:
-
-                args.append(self.selected_item[0])
+            if self.index is not None:
 
                 sql = self.engine.get_update_sql('units', 'unit_id')
-                
-            
-            elif self.insert_mode == True:
+
+                args = (*args, self.selected_item[0])
+                            
+            else:
 
                 sql = self.engine.get_insert_sql('units', len(args))
 
@@ -92,7 +89,6 @@ class Dialog(tk.Toplevel):
             self.parent.set_values()
             
             if self.index is not None:
-                
                 self.parent.lstItems.see(self.index)
                 self.parent.lstItems.selection_set(self.index)
                 

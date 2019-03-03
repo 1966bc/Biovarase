@@ -112,7 +112,7 @@ class Dialog(tk.Toplevel):
 
                 sql = self.engine.get_update_sql('batches','batch_id')
 
-                args.append(self.selected_batch[0])
+                args = (*args, self.selected_batch[0])
                        
             else:
 
@@ -128,7 +128,7 @@ class Dialog(tk.Toplevel):
             self.on_cancel()
 
         else:
-            messagebox.showinfo(self.engine.title,self.engine.abort)
+            messagebox.showinfo(self.engine.title,self.engine.abort, parent=self)
                
             
     def on_cancel(self, evt=None):
@@ -136,12 +136,12 @@ class Dialog(tk.Toplevel):
 
     def get_values(self,):
 
-        return [self.selected_test[0],
+        return (self.selected_test[0],
                 self.batch.get(),
                 self.engine.get_calendar_date(self,),
                 self.target.get(),
                 self.sd.get(),
-                self.enable.get()]
+                self.enable.get())
     
     def set_values(self,):
 

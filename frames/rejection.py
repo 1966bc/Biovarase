@@ -97,7 +97,7 @@ class Dialog(tk.Toplevel):
 
                 sql = self.engine.get_update_sql('rejections','rejection_id')
 
-                args.append(self.selected_rejection[0])
+                args = (*args, self.selected_rejection[0])
                        
             else:
                 sql = self.engine.get_insert_sql('rejections',len(args))
@@ -120,17 +120,16 @@ class Dialog(tk.Toplevel):
                 args = (self.selected_rejection[0],)
                 self.engine.write(sql,args)
                 self.parent.on_open(self.selected_test,self.selected_batch,self.selected_result)
+
                 if self.index is not None:
                     self.parent.lstItems.see(self.index)
                     self.parent.lstItems.selection_set(self.index)
+
                 self.on_cancel()
     
             else:
-                messagebox.showinfo(self.engine.title,self.engine.abort)
+                messagebox.showinfo(self.engine.title,self.engine.abort, parent=self)
         
-    def on_cancel(self, evt=None):
-        self.destroy()
-
     def set_actions(self):
 
         index = 0
@@ -150,11 +149,11 @@ class Dialog(tk.Toplevel):
 
     def get_values(self,):
 
-        return [self.selected_result[0],
+        return (self.selected_result[0],
                 self.dict_actions[self.cbActions.current()],
                 self.description.get(),
                 self.engine.get_calendar_timestamp(self),
-                self.enable.get()]
+                self.enable.get())
     
     def set_values(self,):
 
@@ -168,3 +167,6 @@ class Dialog(tk.Toplevel):
         self.day.set(int(self.selected_rejection[4].day))
       
         self.enable.set(self.selected_rejection[5])
+
+    def on_cancel(self, evt=None):
+        self.destroy()
