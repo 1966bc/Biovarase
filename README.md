@@ -39,6 +39,65 @@ regards.
 ...
 ## changelog
 
+**2019-03-03**
+
+Changed passing arguments mechanism, when build args for update sql statements.
+
+Now we use a tuple instead of a list.
+
+before
+
+```python
+#from test.py
+
+def get_values(self,):
+        
+        return [self.dict_samples[self.cbSamples.current()],
+                self.dict_units[self.cbUnits.current()],
+                self.test.get(),
+                self.cvw.get(),
+                self.cvb.get(),
+                self.enable.get()]
+                
+#on on_save callback....
+
+args = self.get_values()
+
+if self.index is not None:
+    
+    sql = self.engine.get_update_sql('tests', 'test_id')
+    #args is a list
+    args.append(self.selected_test[0])
+
+```
+
+now
+
+```python
+
+
+def get_values(self,):
+        
+        return (self.dict_samples[self.cbSamples.current()],
+                self.dict_units[self.cbUnits.current()],
+                self.test.get(),
+                self.cvw.get(),
+                self.cvb.get(),
+                self.enable.get())
+            
+args = self.get_values()
+
+#on on_save callback....
+
+if self.index is not None:
+    
+    sql = self.engine.get_update_sql('tests', 'test_id')
+    #args is a tuple    
+    args = (*args, self.selected_test[0])
+```
+
+
+
 **2019-02-28**
 
 Changed passing arguments mechanism, init method, between all toplevel.
