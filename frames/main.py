@@ -33,6 +33,7 @@ import frames.result
 import frames.analytical
 import frames.export_rejections
 import frames.plots
+import frames.elements
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -44,13 +45,14 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
-class Biovarase(ttk.Frame):
+class Biovarase(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
-
+   
         self.engine = kwargs['engine']
+
+        self.protocol("WM_DELETE_WINDOW",self.on_exit)
+
         self.status_bar_text = tk.StringVar()
         self.average = tk.DoubleVar()
         self.bias = tk.DoubleVar()
@@ -73,10 +75,10 @@ class Biovarase(ttk.Frame):
 
     def set_style(self):
 
-        self.master.style = ttk.Style()
+        self.style = ttk.Style()
         #('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
-        self.master.style.theme_use("clam")
-        self.master.style.configure('.', background=self.engine.get_rgb(240,240,237))
+        self.style.theme_use("clam")
+        self.style.configure('.', background=self.engine.get_rgb(240,240,237))
 
         s = ttk.Style()
         s.configure('TargetAverage.TLabel',
@@ -103,23 +105,23 @@ class Biovarase(ttk.Frame):
 
     def set_icon(self):
         imgicon = tk.PhotoImage(file='biovarase.png')
-        self.master.call('wm', 'iconphoto', self.master._w, '-default', imgicon)
+        self.call('wm', 'iconphoto', self._w, '-default', imgicon)
 
     def set_title(self):
         s = "{0} {1}".format(self.engine.title, __version__)
-        self.master.title(s)
+        self.title(s)
 
     def center_ui(self):
 
-        ws = self.master.winfo_screenwidth()
-        hs = self.master.winfo_screenheight()
+        ws = self.winfo_screenwidth()
+        hs = self.winfo_screenheight()
         # calculate position x, y
         d = self.engine.get_dimensions()
         w = int(d['w'])
         h = int(d['h'])
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
-        self.master.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        self.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
     def init_menu(self):
 
@@ -142,6 +144,7 @@ class Biovarase(ttk.Frame):
                  ("Tests",self.on_tests),
                  ("Data",self.on_data),
                  ("Units",self.on_units),
+                 ("Elements", self.on_elements),
                  ("Actions",self.on_actions),
                  ("Analytica", self.on_analitical),)
 
@@ -177,29 +180,30 @@ class Biovarase(ttk.Frame):
 
         m_about.add_command(label="About",underline=0, command=self.on_about)
 
-        self.master.config(menu=m_main)
-
+        self.config(menu=m_main)
 
     def init_ui(self):
 
-        self.pack(fill=tk.BOTH, expand=1,)
+        self.main_frame = self.engine.get_frame(self, 8)
 
-        #-----------------------------------------------------------------------
-        f0 = self.engine.get_frame(self, 8)
+        f0 = ttk.Frame(self.main_frame,)
 
-        ttk.Label(f0, text='Tests').pack(side=tk.TOP, fill=tk.X, expand=0)
-        self.cbTests =  ttk.Combobox(f0)
+        f1 = ttk.Frame(f0,)
+
+        ttk.Label(f1, text='Tests').pack(side=tk.TOP, fill=tk.X, expand=0)
+        self.cbTests =  ttk.Combobox(f1)
         self.cbTests.bind("<<ComboboxSelected>>", self.on_selected_test)
         self.cbTests.pack(side=tk.TOP, fill=tk.X,pady=5, expand=0)
 
-
-        w = ttk.LabelFrame(f0,text='Batches')
+        
+        w = ttk.LabelFrame(f1,text='Batches')
         self.lstBatches = self.engine.get_listbox(w,height=5)
         self.lstBatches.bind("<<ListboxSelect>>", self.on_selected_batch)
         w.pack(side=tk.TOP, fill=tk.BOTH, expand=0)
 
-        f1 = ttk.Frame(f0,)
-        w = tk.LabelFrame(f1,text='Batch data', font='Helvetica 10 bold')
+        f2 = ttk.Frame(f1,)
+        
+        w = tk.LabelFrame(f2,text='Batch data', font='Helvetica 10 bold')
 
         ttk.Label(w, text="Target").pack()
         ttk.Label(w,
@@ -220,11 +224,11 @@ class Biovarase(ttk.Frame):
                  textvariable = self.expiration).pack(fill=tk.X,
                                                       padx=2,pady=2)
 
-        self.engine.get_spin_box(w, "Elements",1, 365, 3, self.elements).pack()
+        #self.engine.get_spin_box(w, "Elements",1, 365, 3, self.elements).pack()
 
         w.pack(side=tk.LEFT, fill=tk.Y, expand=0)
 
-        w = tk.LabelFrame(f1,text='Cal data',font='Helvetica 10 bold')
+        w = tk.LabelFrame(f2,text='Cal data',font='Helvetica 10 bold')
 
         ttk.Label(w, text="Average").pack()
         ttk.Label(w,
@@ -244,6 +248,12 @@ class Biovarase(ttk.Frame):
                  anchor = tk.CENTER,
                  textvariable = self.calculated_cv).pack(fill=tk.X,
                                                          padx=2,pady=2)
+
+        w.pack(side=tk.LEFT, fill=tk.Y, expand=0)
+
+
+        w = tk.LabelFrame(f2,text='Other data',font='Helvetica 10 bold')
+        
         ttk.Label(w, text="Westgard").pack()
 
         self.lblWestgard = ttk.Label(w,
@@ -261,21 +271,16 @@ class Biovarase(ttk.Frame):
                   anchor = tk.CENTER,
                   textvariable = self.range).pack(fill=tk.X, padx=2,pady=2)
 
-        w.pack(side=tk.RIGHT,fill=tk.Y, expand=1)
+        w.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
 
-        f1.pack(side=tk.TOP, fill=tk.Y, expand=0)
-
-        w = ttk.LabelFrame(f0,text='Results')
+        w = ttk.LabelFrame(f1,text='Results')
         self.lstResults = self.engine.get_listbox(w,)
         self.lstResults.bind("<<ListboxSelect>>", self.on_selected_result)
         self.lstResults.bind('<Double-Button-1>', self.on_result_activated)
-        w.pack(side=tk.TOP,fill=tk.BOTH, expand=1)
-
-        f0.pack(side=tk.LEFT, fill=tk.Y, expand=0)
-        #-----------------------------------------------------------------------
+        w.pack(side=tk.BOTTOM,fill=tk.BOTH, expand=1)
 
         #create graph!
-        f2 = ttk.Frame(self,)
+        f3 = ttk.Frame(f0,)
         #Figure: The top level container for all the plot elements.
         gs = gridspec.GridSpec(1, 2, width_ratios=[2, 1])
         fig = Figure()
@@ -283,32 +288,43 @@ class Biovarase(ttk.Frame):
         fig.subplots_adjust(bottom=0.10, right=0.96, left= 0.06, top=0.88,wspace=0.10)
         self.lj = fig.add_subplot(gs[0], facecolor=('xkcd:light grey'))
         self.frq = fig.add_subplot(gs[1], facecolor=('xkcd:light grey'))
-        self.canvas = FigureCanvasTkAgg(fig, f2)
-        toolbar = nav_tool(self.canvas, f2)
+        self.canvas = FigureCanvasTkAgg(fig, f3)
+        toolbar = nav_tool(self.canvas, f3)
         toolbar.update()
         self.canvas._tkcanvas.pack(fill=tk.BOTH, expand=1)
-        f2.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
+        
+        f0.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        f1.pack(side=tk.LEFT, fill=tk.Y, expand=0)
+        f2.pack(side=tk.LEFT, fill=tk.Y, expand=0)
+        f3.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
+        
+        self.main_frame.pack(fill=tk.BOTH, expand=1)
+        
 
     def init_status_bar(self):
 
-        self.status = ttk.Label(self.master,
+        self.status = ttk.Label(self.main_frame,
                                 style='Statusbar.TLabel',
-                                text = self.engine.title,
+                                textvariable = self.elements,
                                 relief=tk.SUNKEN,
                                 anchor=tk.W,)
         self.status.pack(side=tk.BOTTOM, fill=tk.X)
 
     def on_open(self):
-
+        
         self.elements.set(self.engine.get_elements())
         self.set_tests()
 
-    def on_reset(self):
+    def set_elements(self):
+        self.elements.set(self.engine.get_elements())
+        
 
+    def on_reset(self):
+        
         self.cbTests.set('')
         self.lstBatches.delete(0, tk.END)
         self.lstResults.delete(0, tk.END)
-        self.elements.set(self.engine.get_elements())
+        self.set_elements()
         self.set_tests()
         self.reset_batch_data()
         self.reset_cal_data()
@@ -717,6 +733,11 @@ class Biovarase(ttk.Frame):
         f = frames.units.Dialog(self, engine=self.engine)
         f.on_open()
 
+    def on_elements(self,):
+        f = frames.elements.Dialog(self, engine=self.engine)
+        f.on_open()
+        
+
     def on_data(self,):
 
         f = frames.data.Dialog(self, engine=self.engine)
@@ -797,16 +818,15 @@ class Biovarase(ttk.Frame):
 
 
     def on_about(self,):
-        messagebox.showinfo(self.engine.title, self.engine.about)
+        messagebox.showinfo(self.engine.title, self.engine.about, parent=self)
 
     def on_exit(self):
         """Close all"""
         if messagebox.askokcancel(self.engine.title, "Do you want to quit?", parent=self):
             self.engine.con.close()
-            self.master.quit()
+            self.quit()
 
 def main():
-
     app = Biovarase(engine=Engine())
     app.on_open()
     app.mainloop()
