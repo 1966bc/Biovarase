@@ -50,13 +50,38 @@ of Alan D. Moore, that I am intensely studying, I've changed the way to setting 
 Now we inherit from the class Tk instead of Frame.
 
 ```python
-class Biovarase(tk.Tk):
+class App(tk.Tk):
+    """Biovarase Main Application"""
+
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.engine = Engine()
+
+        self.protocol("WM_DELETE_WINDOW", self.on_exit)
+            
+        self.set_title()
+        self.set_icon()
+        self.set_style()
+
+        app = Biovarase(self,engine=Engine())
+        app.on_open()
+        app.pack(fill=tk.BOTH, expand=1)
+
+```
+
+that call...
+
+```python
+
+class Biovarase(ttk.Frame):
+    
+    def __init__(self, parent, *args, **kwargs):
         super().__init__()
-   
+
+        self.parent = parent
         self.engine = kwargs['engine']
 
-        self.protocol("WM_DELETE_WINDOW",self.on_exit)
 
 ```
 
