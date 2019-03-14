@@ -39,6 +39,51 @@ regards.
 ...
 ## changelog
 
+**2019-03-14**
+
+Hello everybody, after having taken inspiration from this book
+
+[Python GUI programming with Tkinter](https://www.packtpub.com/application-development/python-gui-programming-tkinter)
+
+of Alan D. Moore, that I am intensely studying, I've changed the way to setting up the application.
+
+Now we inherit from the class Tk instead of Frame.
+
+```python
+class Biovarase(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+   
+        self.engine = kwargs['engine']
+
+        self.protocol("WM_DELETE_WINDOW",self.on_exit)
+
+```
+
+notice that I've change 
+
+```python
+self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
+
+```
+
+with
+
+```python
+self.protocol("WM_DELETE_WINDOW",self.on_exit)
+
+```
+Minor refatcoring:
+
+- keep out elements soinbox from main frame
+- add Elements frame to manage element numbers to compute data
+- the Elements frame can be call from main menu, it's a file voices 
+- the elements number are write/read on the elements file on main directory
+
+
+The book is very cool, now I think that Tkinter can constructively be compare with other tools as wxPython or Qt.
+
+
 **2019-03-03**
 
 Changed passing arguments mechanism, when build args for update sql statements.
