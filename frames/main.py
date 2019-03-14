@@ -46,8 +46,7 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 class Biovarase(ttk.Frame):
-    """A friendly little module"""
-
+    
     def __init__(self, parent, *args, **kwargs):
         super().__init__()
 
