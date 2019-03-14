@@ -75,13 +75,13 @@ self.protocol("WM_DELETE_WINDOW",self.on_exit)
 ```
 Minor refatcoring:
 
-- keep out elements soinbox from main frame
-- add Elements frame to manage element numbers to compute data
-- the Elements frame can be call from main menu, it's a file voices 
-- the elements number are write/read on the elements file on main directory
+- keep out elements spinbox from main frame
+- add Elements toplevel to manage element numbers to compute data
+- the Elements toplevel can be call from main menu, it's a file voices 
+- the elements number are write/read on the elements file on main directory and show on status bar text
 
 
-The book is very cool, now I think that Tkinter can constructively be compare with other tools as wxPython or Qt.
+The book is very cool , thank you alan, now I think that Tkinter can constructively be compare with other tools as wxPython or Qt.
 
 
 **2019-03-03**
