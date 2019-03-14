@@ -70,6 +70,19 @@ class Engine(DBMS, Tools, Exporter, Launcher, Westgards):
             print (sys.exc_info()[1])
             print (sys.exc_info()[2])
 
+    def set_elements(self, elements):
+
+        try:
+            with open('elements', 'w') as f:
+                f.write(str(elements))
+           
+            
+        except:
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])            
+
     def get_dimensions(self):
 
         try:
