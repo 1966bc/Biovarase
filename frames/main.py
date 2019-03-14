@@ -45,13 +45,14 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
-class Biovarase(tk.Tk):
-    def __init__(self, *args, **kwargs):
-        super().__init__()
-   
-        self.engine = kwargs['engine']
+class Biovarase(ttk.Frame):
+    """A friendly little module"""
 
-        self.protocol("WM_DELETE_WINDOW",self.on_exit)
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__()
+
+        self.parent = parent
+        self.engine = kwargs['engine']
 
         self.status_bar_text = tk.StringVar()
         self.average = tk.DoubleVar()
@@ -66,19 +67,12 @@ class Biovarase(tk.Tk):
         self.expiration = tk.StringVar()
 
         self.set_style()
-        self.set_icon()
-        self.set_title()
-        self.center_ui()
         self.init_menu()
         self.init_ui()
         self.init_status_bar()
+        self.center_ui()
 
     def set_style(self):
-
-        self.style = ttk.Style()
-        #('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
-        self.style.theme_use("clam")
-        self.style.configure('.', background=self.engine.get_rgb(240,240,237))
 
         s = ttk.Style()
         s.configure('TargetAverage.TLabel',
@@ -102,26 +96,17 @@ class Biovarase(tk.Tk):
         s.configure('Statusbar.TLabel',
                     foreground='black',)
 
-
-    def set_icon(self):
-        imgicon = tk.PhotoImage(file='biovarase.png')
-        self.call('wm', 'iconphoto', self._w, '-default', imgicon)
-
-    def set_title(self):
-        s = "{0} {1}".format(self.engine.title, __version__)
-        self.title(s)
-
     def center_ui(self):
-
-        ws = self.winfo_screenwidth()
-        hs = self.winfo_screenheight()
+        
+        ws = self.parent.winfo_screenwidth()
+        hs = self.parent.winfo_screenheight()
         # calculate position x, y
         d = self.engine.get_dimensions()
         w = int(d['w'])
         h = int(d['h'])
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
-        self.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        self.parent.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
     def init_menu(self):
 
@@ -163,7 +148,7 @@ class Biovarase(tk.Tk):
 
         m_file.add_separator()
 
-        m_file.add_command(label="Exit", underline=0, command=self.on_exit)
+        m_file.add_command(label="Exit", underline=0, command=self.parent.on_exit)
 
 
         items = (("Add batch", self.on_add_batch),
@@ -180,7 +165,7 @@ class Biovarase(tk.Tk):
 
         m_about.add_command(label="About",underline=0, command=self.on_about)
 
-        self.config(menu=m_main)
+        self.parent.config(menu=m_main)
 
     def init_ui(self):
 
@@ -224,9 +209,7 @@ class Biovarase(tk.Tk):
                  textvariable = self.expiration).pack(fill=tk.X,
                                                       padx=2,pady=2)
 
-        #self.engine.get_spin_box(w, "Elements",1, 365, 3, self.elements).pack()
-
-        w.pack(side=tk.LEFT, fill=tk.Y, expand=0)
+        w.pack(side=tk.LEFT, fill=tk.X, expand=0)
 
         w = tk.LabelFrame(f2,text='Cal data',font='Helvetica 10 bold')
 
@@ -249,7 +232,7 @@ class Biovarase(tk.Tk):
                  textvariable = self.calculated_cv).pack(fill=tk.X,
                                                          padx=2,pady=2)
 
-        w.pack(side=tk.LEFT, fill=tk.Y, expand=0)
+        w.pack(side=tk.LEFT, fill=tk.X, expand=0)
 
 
         w = tk.LabelFrame(f2,text='Other data',font='Helvetica 10 bold')
@@ -271,7 +254,7 @@ class Biovarase(tk.Tk):
                   anchor = tk.CENTER,
                   textvariable = self.range).pack(fill=tk.X, padx=2,pady=2)
 
-        w.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
+        w.pack(side=tk.RIGHT, fill=tk.X, expand=0)
 
         w = ttk.LabelFrame(f1,text='Results')
         self.lstResults = self.engine.get_listbox(w,)
@@ -300,7 +283,6 @@ class Biovarase(tk.Tk):
         
         self.main_frame.pack(fill=tk.BOTH, expand=1)
         
-
     def init_status_bar(self):
 
         self.status = ttk.Label(self.main_frame,
@@ -513,7 +495,6 @@ class Biovarase(tk.Tk):
     def on_result_activated(self, event):
 
         if self.lstResults.curselection():
-                index = self.lstResults.curselection()[0]
                 obj = frames.rejections.Dialog(self, engine= self.engine, index=None)
                 obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
 
@@ -721,7 +702,7 @@ class Biovarase(tk.Tk):
             self.engine.get_analitical_goals(limit,rs)
         else:
             msg = "No record data to compute analytical goals."
-            messagebox.showwarning(self.engine.title,msg)
+            messagebox.showwarning(self.engine.title, msg, parent=self)
 
     def on_tests(self,):
 
@@ -737,7 +718,6 @@ class Biovarase(tk.Tk):
         f = frames.elements.Dialog(self, engine=self.engine)
         f.on_open()
         
-
     def on_data(self,):
 
         f = frames.data.Dialog(self, engine=self.engine)
@@ -820,15 +800,48 @@ class Biovarase(tk.Tk):
     def on_about(self,):
         messagebox.showinfo(self.engine.title, self.engine.about, parent=self)
 
+
+class App(tk.Tk):
+    """Biovarase Main Application"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.engine = Engine()
+
+        self.protocol("WM_DELETE_WINDOW", self.on_exit)
+            
+        self.set_title()
+        self.set_icon()
+        self.set_style()
+
+        app = Biovarase(self,engine=Engine())
+        app.on_open()
+        app.pack(fill=tk.BOTH, expand=1)
+
+    def set_style(self):
+        self.style = ttk.Style()
+        #('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
+        self.style.theme_use("clam")
+        self.style.configure('.', background=self.engine.get_rgb(240,240,237))
+
+    def set_title(self):
+        s = "{0} {1}".format(self.engine.title,  __version__)
+        self.title(s)
+        
+    def set_icon(self):
+        imgicon = tk.PhotoImage(file='biovarase.png')
+        self.call('wm', 'iconphoto', self._w, '-default', imgicon)        
+
     def on_exit(self):
         """Close all"""
         if messagebox.askokcancel(self.engine.title, "Do you want to quit?", parent=self):
             self.engine.con.close()
-            self.quit()
+            self.quit()        
 
 def main():
-    app = Biovarase(engine=Engine())
-    app.on_open()
+    
+    app = App()
     app.mainloop()
 
 if __name__ == '__main__':
