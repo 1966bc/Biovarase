@@ -16,11 +16,13 @@ __status__ = "Production"
 
 class Dialog(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='elements')  
+        super().__init__(name='elements')
 
-        self.resizable(0,0)
+
         self.parent = parent
         self.engine = kwargs['engine']
+
+        self.resizable(0,0)
         self.elements = tk.IntVar()
         self.vcmd = self.engine.get_validate_integer(self)
         self.init_ui()

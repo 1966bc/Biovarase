@@ -18,12 +18,12 @@ class Dialog(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='test')
 
-        self.attributes('-topmost', True)
-        self.resizable(0, 0)
-        self.transient(parent) 
         self.parent = parent
         self.engine = kwargs['engine']
         self.index = kwargs['index']
+        
+        self.resizable(0, 0)
+        self.transient(parent) 
 
         self.test = tk.StringVar()
         self.cvw = tk.DoubleVar()
@@ -31,8 +31,8 @@ class Dialog(tk.Toplevel):
         self.enable = tk.BooleanVar()
         self.vcmd = self.engine.get_validate_float(self)
         
-        self.engine.center_me(self)
         self.init_ui()
+        self.engine.center_me(self)
 
     def init_ui(self):
 

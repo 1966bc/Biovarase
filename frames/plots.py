@@ -2,10 +2,9 @@
 import sys
 import inspect
 import tkinter as tk
-from tkinter import messagebox
 from tkinter import ttk
+from tkinter import messagebox
 import time
-
 
 import matplotlib.pyplot as plt
 plt.rcParams.update({'figure.max_open_warning': 0})
@@ -42,9 +41,10 @@ class Dialog(tk.Toplevel):
         self.parent = parent
         self.engine = kwargs['engine']
         self.obj = None
-        self.engine.center_me(self)
-        self.init_ui()
         self.minsize(1000, 600)
+        
+        self.init_ui()
+        self.engine.center_me(self)
 
     def init_ui(self):
 

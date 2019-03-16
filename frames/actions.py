@@ -1,5 +1,6 @@
 """ This is the actions module of Biovarase."""
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 import frames.action as action
 
@@ -17,18 +18,20 @@ class Dialog(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='actions')
 
-        self.attributes('-topmost', True)
         self.parent = parent
         self.engine = kwargs['engine']
-        self.obj = None
-        self.engine.center_me(self)
+        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
+
+        self.attributes('-topmost', True)
+        self.objs = []
         self.init_ui()
+        self.engine.center_me(self)
 
     def init_ui(self):
     
         f0 = self.engine.get_frame(self)
 
-        f1 = tk.Frame(f0,)
+        f1 = ttk.Frame(f0,)
         self.lstActions = self.engine.get_listbox(f1,)
         self.lstActions.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstActions.bind("<Double-Button-1>", self.on_item_activated)
@@ -61,8 +64,9 @@ class Dialog(tk.Toplevel):
 
     def on_add(self, evt):
 
-        self.obj = action.Dialog(self, engine=self.engine, index=None)
-        self.obj.on_open()
+        obj = action.Dialog(self, engine=self.engine, index=None)
+        obj.on_open()
+        self.objs.append(obj)
 
     def on_edit(self, evt):
         self.on_item_activated()
@@ -71,8 +75,9 @@ class Dialog(tk.Toplevel):
 
         if self.lstActions.curselection():
             index = self.lstActions.curselection()[0]
-            self.obj = action.Dialog(self, engine=self.engine, index=index)
-            self.obj.on_open(self.selected_item,)
+            obj = action.Dialog(self, engine=self.engine, index=index)
+            obj.on_open(self.selected_item,)
+            self.objs.append(obj)
                
         else:
             messagebox.showwarning(self.engine.title,self.engine.no_selected, parent=self)
@@ -85,11 +90,7 @@ class Dialog(tk.Toplevel):
             self.selected_item = self.engine.get_selected('actions','action_id', pk)
             
     def on_cancel(self, evt=None):
-
-        """force closing of the childs...
-        """     
-        
-        if self.obj is not None:
-            self.obj.destroy()
+        for obj in self.objs:
+            obj.destroy()
         self.destroy()
     

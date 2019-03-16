@@ -18,19 +18,22 @@ class Dialog(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='rejections')
 
+        self.parent = parent
+        self.engine = kwargs['engine']
+        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
+
         self.attributes('-topmost', True)
         self.transient(parent) 
         self.resizable(0, 0)
-        self.parent = parent
-        self.engine = kwargs['engine']
-        
+
         self.test = tk.StringVar()
         self.batch = tk.StringVar()
         self.result = tk.StringVar()
         self.recived = tk.StringVar()
         self.obj = None
-        self.engine.center_me(self)
+
         self.init_ui()
+        self.engine.center_me(self)
 
     def init_ui(self):
     

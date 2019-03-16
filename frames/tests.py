@@ -17,23 +17,30 @@ __status__ = "Production"
 class Dialog(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='tests')
-        
-        self.attributes('-topmost', True)
+
         self.parent = parent
         self.engine = kwargs['engine']
+        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
+        
+        self.attributes('-topmost', True)
+        
         self.obj = None
-        self.engine.center_me(self)
+        
         self.init_ui()
+        self.engine.center_me(self)
         
     def init_ui(self):
     
         f0 = self.engine.get_frame(self, 8)
-        w = self.engine.get_frame(f0)
+        
+        w = ttk.Frame(f0,)
         self.lstTests = self.engine.get_listbox(w,)
         self.lstTests.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstTests.bind("<Double-Button-1>", self.on_item_activated)
         w.pack(side=tk.LEFT, fill=tk.BOTH,padx=5, pady=5, expand =1)
+        
         self.engine.get_add_edit_cancel(self,f0)
+        
         f0.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
     def on_open(self,):

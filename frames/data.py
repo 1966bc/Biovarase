@@ -1,7 +1,7 @@
 """ This is the data module of Biovarase."""
 import tkinter as tk
-from tkinter import messagebox
 from tkinter import ttk
+from tkinter import messagebox
 import frames.batch as batch
 import frames.result as result
 
@@ -19,14 +19,17 @@ class Dialog(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='data')
 
-        self.attributes('-topmost', True)
         self.parent = parent
         self.engine = kwargs['engine']
+        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
+
+        self.attributes('-topmost', True)
         self.minsize(800,400)
         self.data = tk.StringVar()
-        self.obj = None
-        self.engine.center_me(self)
+        self.objs = []
+        
         self.init_ui()
+        self.engine.center_me(self)
         
     def init_ui(self):
     
@@ -216,24 +219,27 @@ class Dialog(tk.Toplevel):
 
         if self.lstBatches.focus():
             item_iid = self.lstBatches.selection()
-            self.obj = batch.Dialog(self, engine=self.engine, index=item_iid)
-            self.obj.on_open(self.selected_test, self.selected_batch)
+            obj = batch.Dialog(self, engine=self.engine, index=item_iid)
+            obj.on_open(self.selected_test, self.selected_batch)
+            self.objs.append(obj)
              
     
     def on_result_activated(self, event):
 
         if self.lstResults.focus():
             item_iid = self.lstResults.selection()
-            self.obj = result.Dialog(self, engine=self.engine, index=item_iid)
-            self.obj.on_open(self.selected_test,
+            obj = result.Dialog(self, engine=self.engine, index=item_iid)
+            obj.on_open(self.selected_test,
                              self.selected_batch,
                              self.selected_result)
+            self.objs.append(obj)
                
     def on_add_batch(self,evt):
 
         if self.cbTests.current()!=-1:
-            self.obj = batch.Dialog(self, engine=self.engine, index=None)
-            self.obj.on_open(self.selected_test)
+            obj = batch.Dialog(self, engine=self.engine, index=None)
+            obj.on_open(self.selected_test)
+            self.objs.append(obj)
         else:
             msg = "Please select a test."
             messagebox.showwarning(self.engine.title, msg, parent=self)                    
@@ -242,8 +248,9 @@ class Dialog(tk.Toplevel):
     def on_add_result(self,evt):
 
         if self.lstBatches.focus():
-            self.obj = result.Dialog(self, engine=self.engine, index=None)
-            self.obj.on_open(self.selected_test, self.selected_batch)
+            obj = result.Dialog(self, engine=self.engine, index=None)
+            obj.on_open(self.selected_test, self.selected_batch)
+            self.objs.append(obj)
             
         else:
             msg = "Please select a batch."
@@ -265,14 +272,13 @@ class Dialog(tk.Toplevel):
             for statement in sql:
                 self.engine.write(statement,())
             
-            
             self.parent.on_reset()
             self.on_cancel()  
         else:
             messagebox.showinfo(self.engine.title, self.engine.abort, parent=self)              
 
     def on_cancel(self, evt=None):
-        if self.obj is not None:
-            self.obj.destroy()
+        for obj in self.objs:
+            obj.destroy()
         self.destroy()
     

@@ -17,15 +17,19 @@ class Dialog(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='unit')
 
-        self.attributes('-topmost', True)
-        self.resizable(0,0)
-        self.transient(parent)
+
         self.parent = parent
         self.engine = kwargs['engine']
         self.index = kwargs['index']
+
+        self.transient(parent)
+        self.resizable(0,0)
+        
         self.unit = tk.StringVar()
         self.enable =  tk.BooleanVar()
+        
         self.init_ui()
+        self.engine.center_me(self)
 
     def init_ui(self):
 

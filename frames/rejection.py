@@ -17,21 +17,21 @@ class Dialog(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='rejection')
 
-        self.attributes('-topmost', True)
-        self.resizable(0,0)
-        self.transient(parent) 
         self.parent = parent
         self.engine = kwargs['engine']
         self.index = kwargs['index']
-        
+
+        self.resizable(0,0)
+        self.transient(parent) 
+                
         self.day =  tk.IntVar()
         self.month =  tk.IntVar()
         self.year =  tk.IntVar()
         self.description = tk.StringVar()
         self.enable =  tk.BooleanVar()
         
-        self.engine.center_me(self)
         self.init_ui()
+        self.engine.center_me(self)
 
     def init_ui(self):
 

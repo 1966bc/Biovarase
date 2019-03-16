@@ -16,14 +16,14 @@ __status__ = "Production"
 
 class Dialog(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='result')  
+        super().__init__(name='result')
 
-        self.attributes('-topmost', True)
-        self.resizable(0, 0)
-        self.transient(parent) 
         self.parent = parent
         self.engine = kwargs['engine']
         self.index = kwargs['index']
+
+        self.transient(parent) 
+        self.resizable(0, 0)
         
         self.day =  tk.IntVar()
         self.month =  tk.IntVar()
@@ -34,9 +34,9 @@ class Dialog(tk.Toplevel):
         self.enable =  tk.BooleanVar()
 
         self.vcmd = self.engine.get_validate_float(self)
-        self.engine.center_me(self)
         self.set_style()
         self.init_ui()
+        self.engine.center_me(self)
 
 
     def set_style(self):

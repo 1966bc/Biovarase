@@ -1,5 +1,6 @@
 """ This is the units module of Biovarase."""
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 import frames.unit as unit
 
@@ -15,19 +16,21 @@ __status__ = "Production"
 
 class Dialog(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='units')        
-        
-        self.attributes('-topmost', True)
+        super().__init__(name='units')
+
         self.parent = parent
         self.engine = kwargs['engine']
-        self.obj = None
-        self.engine.center_me(self)
+        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
+        
+        self.attributes('-topmost', True)
+        self.objs = []
         self.init_ui()
+        self.engine.center_me(self)
 
     def init_ui(self):
     
         f0 = self.engine.get_frame(self,8)
-        f1 = tk.Frame(f0,)
+        f1 = ttk.Frame(f0,)
         self.lstItems = self.engine.get_listbox(f1,)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
@@ -57,8 +60,9 @@ class Dialog(tk.Toplevel):
 
     def on_add(self, evt):
 
-        self.obj = unit.Dialog(self, engine=self.engine,index =None)
-        self.obj.on_open()
+        obj = unit.Dialog(self, engine=self.engine,index =None)
+        obj.on_open()
+        self.objs.append(obj)
 
     def on_edit(self, evt):
         self.on_item_activated()
@@ -67,8 +71,9 @@ class Dialog(tk.Toplevel):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
-            self.obj = unit.Dialog(self, engine=self.engine, index=index)
-            self.obj.on_open(self.selected_item,)
+            obj = unit.Dialog(self, engine=self.engine, index=index)
+            obj.on_open(self.selected_item,)
+            self.objs.append(obj)
                
         else:
             messagebox.showwarning(self.engine.title, self.engine.no_selected, parent=self)
@@ -81,7 +86,7 @@ class Dialog(tk.Toplevel):
             self.selected_item = self.engine.get_selected('units', 'unit_id', pk)
 
     def on_cancel(self, evt=None):
-        if self.obj is not None:
-            self.obj.destroy()
+        for obj in self.objs:
+            obj.destroy()
         self.destroy()
     
