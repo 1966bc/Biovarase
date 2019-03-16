@@ -58,8 +58,8 @@ Now we inherit from the class Tk instead of Frame.
 class App(tk.Tk):
     """Biovarase Main Application"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
 
         self.engine = Engine()
 
@@ -68,10 +68,10 @@ class App(tk.Tk):
         self.set_title()
         self.set_icon()
         self.set_style()
-
-        app = Biovarase(self,engine=self.engine)
-        app.on_open()
-        app.pack(fill=tk.BOTH, expand=1)
+       
+        frame = Biovarase(self, engine=self.engine)
+        frame.on_open()
+        frame.pack(fill=tk.BOTH, expand=1)
 
 ```
 
