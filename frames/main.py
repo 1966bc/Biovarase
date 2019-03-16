@@ -2,9 +2,8 @@
 import sys
 import inspect
 import tkinter as tk
-from tkinter import messagebox
 from tkinter import ttk
-
+from tkinter import messagebox
 
 import matplotlib.pyplot as plt
 
@@ -434,7 +433,7 @@ class Biovarase(ttk.Frame):
 
                 for i in rs:
 
-                    s = '{}{:10}'.format(i[2],i[1])
+                    s = '{}{:12}'.format(i[2],i[1])
                     self.lstResults.insert(tk.END, s)
 
                     result = float(round(i[1],2))
@@ -814,7 +813,7 @@ class App(tk.Tk):
         self.set_icon()
         self.set_style()
 
-        app = Biovarase(self,engine=Engine())
+        app = Biovarase(self,engine=self.engine)
         app.on_open()
         app.pack(fill=tk.BOTH, expand=1)
 
