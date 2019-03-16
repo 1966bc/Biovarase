@@ -51,7 +51,7 @@ class Biovarase(ttk.Frame):
 
         self.parent = parent
         self.engine = kwargs['engine']
-
+       
         self.status_bar_text = tk.StringVar()
         self.average = tk.DoubleVar()
         self.bias = tk.DoubleVar()
@@ -744,7 +744,7 @@ class Biovarase(ttk.Frame):
             f.on_open(selected_test,int(self.elements.get()))
         else:
             msg = "Not enough data to plot.\nSelect a test."
-            messagebox.showwarning(self.engine.title,msg)
+            messagebox.showwarning(self.engine.title,msg, parent=self)
 
     def on_add_batch(self):
 
@@ -765,7 +765,7 @@ class Biovarase(ttk.Frame):
             obj.on_open(self.selected_test, self.selected_batch)
         else:
             msg = "Attention please.\nSelect a batch."
-            messagebox.showinfo(self.engine.title, msg)
+            messagebox.showinfo(self.engine.title, msg, parent=self)
 
     def on_add_result(self,):
 
@@ -774,7 +774,7 @@ class Biovarase(ttk.Frame):
             obj.on_open(self.selected_test, self.selected_batch)
         else:
             msg = "Attention please.\nBefore add a result you must select a batch."
-            messagebox.showinfo(self.engine.title, msg)
+            messagebox.showinfo(self.engine.title, msg, parent=self)
 
     def on_update_result(self,):
 
@@ -786,7 +786,7 @@ class Biovarase(ttk.Frame):
 
             else:
                 msg = "Attention please.\nSelect a result."
-                messagebox.showinfo(self.engine.title, msg)
+                messagebox.showinfo(self.engine.title, msg, parent=self)
 
         except:
             print(inspect.stack()[0][3])
@@ -802,8 +802,8 @@ class Biovarase(ttk.Frame):
 class App(tk.Tk):
     """Biovarase Main Application"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
 
         self.engine = Engine()
 
@@ -812,10 +812,10 @@ class App(tk.Tk):
         self.set_title()
         self.set_icon()
         self.set_style()
-
-        app = Biovarase(self,engine=self.engine)
-        app.on_open()
-        app.pack(fill=tk.BOTH, expand=1)
+       
+        frame = Biovarase(self, engine=self.engine)
+        frame.on_open()
+        frame.pack(fill=tk.BOTH, expand=1)
 
     def set_style(self):
         self.style = ttk.Style()
