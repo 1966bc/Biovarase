@@ -1,5 +1,5 @@
 """ This is the analytical module of Biovarase.
-It show analyticak goals rules"""
+It shows analyticak goals rules"""
 import tkinter as tk
 
 __author__ = "1966bc aka giuseppe costanzi"
@@ -14,14 +14,16 @@ __status__ = "Production"
 
 class Dialog(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='analitical')  
+        super().__init__(name='analitical')
+
+        self.parent = parent
+        self.engine = kwargs['engine']
 
         self.attributes('-topmost', True)
-        self.parent = parent
         self.resizable(0,0)
-        self.engine = kwargs['engine']
-        self.engine.center_me(self)
+    
         self.init_ui()
+        self.engine.center_me(self)
 
     def init_ui(self):
 
