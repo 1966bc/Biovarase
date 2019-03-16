@@ -769,7 +769,7 @@ class Biovarase(ttk.Frame):
 
     def on_add_result(self,):
 
-        if self.selected_batch is not None:
+        if self.lstResults.curselection():
             obj = frames.result.Dialog(self, engine=self.engine, index=None)
             obj.on_open(self.selected_test, self.selected_batch)
         else:
