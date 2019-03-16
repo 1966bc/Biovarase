@@ -31,7 +31,7 @@ Releasing on
 
 To start with Biovarase execute biovarase.py, on linux after unpucking do something like
 
-> bbc@hal9000:~$ cd Biovarase-master/
+> bc@hal9000:~$ cd Biovarase-master/
 
 > bc@hal9000:~/Biovarase-master$ chmod +x biovarase.py
 
