@@ -125,6 +125,7 @@ class Tools(object):
         w = tk.Listbox(container,
                     relief=tk.GROOVE,
                     selectmode=tk.BROWSE,
+                    exportselection=0,
                     height=height,
                     width=width,
                     background = 'white',
