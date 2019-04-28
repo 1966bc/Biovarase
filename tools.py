@@ -221,8 +221,8 @@ class Tools(object):
         try:
             return datetime.date(caller.year.get(), caller.month.get(), caller.day.get())
         except:
-            msg = "Errore di formattazione nella data:\n%s"%str(sys.exc_info()[1])
-            messagebox.showerror(self.title, msg)
+            msg = "Date format error:\n%s"%str(sys.exc_info()[1])
+            messagebox.showerror(self.title, msg, parent=caller)
             return False
 
     def get_calendar_timestamp(self, caller):
@@ -232,8 +232,8 @@ class Tools(object):
             return datetime.datetime(caller.year.get(), caller.month.get(), caller.day.get(), t.hour , t.minute, t.second)
             
         except:
-            msg = "Errore di formattazione nella data:\n%s"%str(sys.exc_info()[1])
-            messagebox.showerror(self.title, msg)
+            msg = "Date format error:\n%s"%str(sys.exc_info()[1])
+            messagebox.showerror(self.title, msg, parent=caller)
             return False
 
     def on_fields_control(self, container):
