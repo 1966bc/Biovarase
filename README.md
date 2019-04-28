@@ -44,6 +44,83 @@ regards.
 ...
 ## changelog
 
+**2019-04-28**
+
+Hello everybody, I've update the main.py module of Biovarase.
+
+Now we pass a number of arbitrary args or kwargs to the main class when we launch main.py script. 
+
+Notice that we pass some default attributes and the Engine class as dictionary and even sys.argv as tuple for future need:
+
+
+
+
+>args = []
+    
+>for i in sys.argv:
+>    args.append(i)
+    
+>kwargs={"style":"clam", "icon":"biovarase.png", "title":"Biovarase", "engine":Engine()}    
+
+
+
+
+```python
+
+class App(tk.Tk):
+    """Biovarase Main Application start here"""
+    def __init__(self, *args, **kwargs):
+        super(App, self).__init__()
+
+        self.protocol("WM_DELETE_WINDOW", self.on_exit)
+
+        self.engine = kwargs['engine']
+        self.set_title(kwargs['title'])
+        self.set_icon(kwargs['icon'])
+        self.set_style(kwargs['style'])
+       
+        frame = Biovarase(self, *args, **kwargs)
+        frame.on_open()
+        frame.pack(fill=tk.BOTH, expand=1)
+
+    def set_title(self, title):
+        s = "{0} {1}".format(title,  __version__)
+        self.title(s)        
+
+    def set_style(self, style):
+        self.style = ttk.Style()
+        self.style.theme_use(style)        
+        self.style.configure('.', background=self.engine.get_rgb(240,240,237))
+
+    def set_icon(self, icon):
+        imgicon = tk.PhotoImage(file=icon)
+        self.call('wm', 'iconphoto', self._w, '-default', imgicon)        
+
+    def on_exit(self):
+        """Close all"""
+        if messagebox.askokcancel(self.title(), "Do you want to quit?", parent=self):
+            self.engine.con.close()
+            self.quit()        
+
+def main():
+
+    args = []
+    
+    for i in sys.argv:
+        args.append(i)
+    
+    kwargs={"style":"clam", "icon":"biovarase.png", "title":"Biovarase", "engine":Engine()}
+
+    app = App(*args, **kwargs)
+
+    app.mainloop()
+    
+if __name__ == '__main__':
+    main()
+
+```
+
+
 **2019-03-14**
 
 Hello everybody, after having taken inspiration from this book
