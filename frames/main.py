@@ -798,49 +798,53 @@ class Biovarase(ttk.Frame):
     def on_about(self,):
         messagebox.showinfo(self.engine.title, self.engine.about, parent=self)
 
-
 class App(tk.Tk):
-    """Biovarase Main Application"""
-
-    def __init__(self):
-        super().__init__()
-
-        self.engine = Engine()
+    """Biovarase Main Application start here"""
+    def __init__(self, *args, **kwargs):
+        super(App, self).__init__()
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
-            
-        self.set_title()
-        self.set_icon()
-        self.set_style()
+
+        self.engine = kwargs['engine']
+        self.set_title(kwargs['title'])
+        self.set_icon(kwargs['icon'])
+        self.set_style(kwargs['style'])
        
-        frame = Biovarase(self, engine=self.engine)
+        frame = Biovarase(self, *args, **kwargs)
         frame.on_open()
         frame.pack(fill=tk.BOTH, expand=1)
 
-    def set_style(self):
+    def set_title(self, title):
+        s = "{0} {1}".format(title,  __version__)
+        self.title(s)        
+
+    def set_style(self, style):
         self.style = ttk.Style()
-        #('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
-        self.style.theme_use("clam")
+        self.style.theme_use(style)        
         self.style.configure('.', background=self.engine.get_rgb(240,240,237))
 
-    def set_title(self):
-        s = "{0} {1}".format(self.engine.title,  __version__)
-        self.title(s)
-        
-    def set_icon(self):
-        imgicon = tk.PhotoImage(file='biovarase.png')
+    def set_icon(self, icon):
+        imgicon = tk.PhotoImage(file=icon)
         self.call('wm', 'iconphoto', self._w, '-default', imgicon)        
 
     def on_exit(self):
         """Close all"""
-        if messagebox.askokcancel(self.engine.title, "Do you want to quit?", parent=self):
+        if messagebox.askokcancel(self.title(), "Do you want to quit?", parent=self):
             self.engine.con.close()
             self.quit()        
 
 def main():
-    
-    app = App()
-    app.mainloop()
 
+    args = []
+    
+    for i in sys.argv:
+        args.append(i)
+    
+    kwargs={"style":"clam", "icon":"biovarase.png", "title":"Biovarase", "engine":Engine()}
+
+    app = App(*args, **kwargs)
+
+    app.mainloop()
+    
 if __name__ == '__main__':
     main()
