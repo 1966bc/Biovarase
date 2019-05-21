@@ -44,6 +44,26 @@ regards.
 ...
 ## changelog
 
+
+**2019-05-21**
+
+Hello everybody, in this new update you will find a new type of plot, named 
+
+Total Error Plot
+
+
+
+For more information you can see this video
+
+https://www.youtube.com/watch?v=b7R2tJWWrvM&list=PL8260BF796E272C8A&index=9
+
+on Biorad QC youtube video, named Biological Variation Part 9.
+
+By the way all videos are very interesting.
+
+Minor refactoring on bias compute.
+
+
 **2019-04-28**
 
 Hello everybody, I've update the main.py module of Biovarase.
