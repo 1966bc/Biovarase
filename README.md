@@ -66,7 +66,7 @@ Add in the main window the TE% value, it's compute on engine.py module with this
 
 ```python
 
-def get_bias(self, avg, target):
+    def get_bias(self, avg, target):
         try:
             bias = abs(round(float((avg-target)/float(target))*100,2))
         except ZeroDivisionError:
