@@ -47,21 +47,41 @@ regards.
 
 **2019-05-21**
 
-Hello everybody, in this new update you will find a new type of plot, named 
-
-Total Error Plot
+Hello everybody, in this new update you will find a new type of plot, named  **Total Error Plot**
 
 ![alt tag](https://user-images.githubusercontent.com/5463566/58125411-cbadd980-7c10-11e9-9ba4-5c1ed8474f88.png)
 
 
+You can launch this plot, after selecting a test,clicking on menu File/Te voice.
 
 For more information you can see this video
 
 https://www.youtube.com/watch?v=b7R2tJWWrvM&list=PL8260BF796E272C8A&index=9
 
-on Biorad QC youtube video, named Biological Variation Part 9.
+on Biorad QC youtube chanel video, named Biological Variation Part 9.
 
 By the way all videos are very interesting.
+
+Add in the main window the TE% value, it's compute on engine.py module with this two funcions.
+
+```python
+
+def get_bias(self, avg, target):
+        try:
+            bias = abs(round(float((avg-target)/float(target))*100,2))
+        except ZeroDivisionError:
+            bias = None
+        return bias
+
+    def get_et(self, target, avg, cv):
+
+        bias = self.get_bias(avg, target)
+
+        return round(bias + (1.65*cv),2)
+
+
+
+```
 
 Minor refactoring on bias compute.
 
