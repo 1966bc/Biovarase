@@ -58,8 +58,6 @@ class Dialog(tk.Toplevel):
         #Figure: The top level container for all the plot elements.
         #figsize:width, height in inches, figsize=(6.4, 4.8)
         self.fig = Figure()
-        #fig.suptitle(self.engine.title, fontsize=20,fontweight='bold')
-        #self.fig.subplots_adjust(bottom=0.10, right=0.98, left=0.10, top=0.88,wspace=0.08)
         self.fig.subplots_adjust(hspace=0.65, left=0.125, right=0.9)
         self.canvas = FigureCanvasTkAgg(self.fig, f0)
         toolbar = nav_tool(self.canvas, f0)
@@ -79,7 +77,7 @@ class Dialog(tk.Toplevel):
 
         s = "Total Error Plots %s"%selected_test[3]
 
-        self.um = self.get_um(selected_test[4])
+        self.um = self.get_um(selected_test[2])
 
         self.elements = elements
 
