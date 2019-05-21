@@ -56,9 +56,9 @@ You can launch this plot, after selecting a test,clicking on menu File/Te voice.
 
 For more information you can see this video
 
-https://www.youtube.com/watch?v=b7R2tJWWrvM&list=PL8260BF796E272C8A&index=9
+[Biological Variation Part 9](https://www.youtube.com/watch?v=b7R2tJWWrvM&list=PL8260BF796E272C8A&index=9)
 
-on Biorad QC youtube chanel video, named Biological Variation Part 9.
+on Biorad QC youtube chanel video.
 
 By the way all videos are very interesting.
 
