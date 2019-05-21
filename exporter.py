@@ -4,6 +4,7 @@
 import tempfile
 import xlwt
 import sys
+import inspect
 
 
 SQL_BATCHES = "SELECT *\
@@ -37,6 +38,59 @@ class Exporter(object):
         
     def __str__(self):
         return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Exporter.__mro__])
+
+
+    def get_counts(self, args):
+
+
+        try:
+
+            sql = "SELECT tests.test_id,\
+                          tests.test,\
+                          samples.sample,\
+                          COUNT(results.batch_id)\
+                   FROM tests\
+                   INNER JOIN batches ON tests.test_id = batches.test_id\
+                   INNER JOIN samples ON tests.sample_id = samples.sample_id\
+                   INNER JOIN results ON batches.batch_id = results.batch_id\
+                   WHERE tests.enable=1\
+                   AND results.recived >=?\
+                   GROUP BY batches.test_id\
+                   ORDER BY tests.test"
+            
+            
+            rs = self.read(True, sql, args)
+            
+
+            path = tempfile.mktemp (".xls")
+            obj = xlwt.Workbook()
+            ws = obj.add_sheet('Biovarase', cell_overwrite_ok=True)
+
+            #ws.col(0).width = 200 * 20
+            #ws.col(1).width = 300 * 20 
+            row = 0
+
+            #indexing is zero based, row then column
+            cols =('Test','Sample','Count',)
+            for c,t in enumerate(cols):
+                ws.write(row,c, t,)
+
+            row +=1
+
+            if rs:
+                for i in rs:
+                    ws.write(row, 0, i[1])
+                    ws.write(row, 1, i[2],)
+                    ws.write(row, 2, i[3])
+                    row +=1
+
+            obj.save(path)
+            self.launch(path)
+
+        except:
+            self.on_log(inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0])
 
 
     def get_rejections(self, args):
@@ -197,11 +251,14 @@ class Exporter(object):
         path = tempfile.mktemp (".xls")
         obj = xlwt.Workbook()
         ws = obj.add_sheet('Biovarase', cell_overwrite_ok=True)
+        ws.col(0).width = 50 * 20
+        for f in range(4,19):
+            ws.col(f).width = 80 * 25
         row = 0
         #indexing is zero based, row then column
         cols =('T','analyte','batch','expiration','target','avg',
-               'CVa','CVw','CVb','Imp%','Bias%','ETa','CVt','k imp',
-               'k bias','ETs','records',)
+               'CVa','CVw','CVb','Imp%','Bias%','TEa%','CVt','k imp',
+               'k bias','TE%','Drc%','records',)
         for c,t in enumerate(cols):
             ws.write(row,c, t, self.xls_style_font(True, False, 'Arial'))
 
@@ -255,14 +312,139 @@ class Exporter(object):
                     else:
                         ws.write(row, 14, xlwt.Formula(x[0]))
 
-                    x = self.get_ets(avg, target, cvw, cvb, sd)
+                    x = self.get_ets(avg, target, cvw, cvb, sd, cva)
                     ws.write(row,15,x[0],self.xls_bg_colour(x[1]))
+                    x = self.get_formula_drc(row)
+                    ws.write(row, 16, xlwt.Formula(x))
                     #records
-                    ws.write(row, 16, elements,)
+                    ws.write(row, 17, elements,)
                     row +=1
 
         obj.save(path)
         self.launch(path)
+
+
+    def get_formula_imp(self, row):
+        return "ROUND((H%s * 0.5);2)"%(row+1,)
+
+    def get_formula_bias(self, row):
+
+        return "ROUND(SQRT(POWER(H%s;2)+POWER(I%s;2))*0.25;2)"%(row+1,row+1,)
+
+    def get_formula_eta(self, row):
+        return "ROUND((1.65*J%s)+ K%s;2)"%(row+1, row+1,)
+
+    def get_formula_cvt(self, row):
+        return "ROUND(SQRT(POWER(G%s;2)+POWER(H%s;2));2)"%(row+1,row+1,)
+
+    def get_formula_k_imp(self, cva, cvw, row):
+
+        try:
+
+            k = round((cva/cvw),2)
+
+            if 0.25 <= k <= 0.50:
+                c ="green"
+            elif 0.50 <= k <= 0.75:
+                c = "yellow"
+            elif  k > 0.75:
+                c = "red"
+            else:
+                c = None
+
+            f = "ROUND(G%s/H%s;2)"%(row+1,row+1)
+            return f,c
+        except:
+            return None
+
+    def get_formula_k_bias(self,avg, target, cvw, cva, row):
+
+        """return bias k 0.125,0.25,0.375"""
+
+        k = round(self.get_bias(avg, target)/self.get_cvt(cva,cvw),2)
+
+        if 0.125 <= k <= 0.25:
+            c ="green"
+        elif 0.25 <= k <= 0.375:
+            c = "yellow"
+        elif  k > 0.375:
+            c = "red"
+        else:
+            c = None
+
+        f = "ROUND((((F%s-E%s)/E%s)*100)/SQRT(POWER(H%s;2)+POWER(I%s;2));2)"%(row+1,row+1,
+                                                                              row+1,row+1,
+                                                                              row+1,)
+        return f,c
+
+    def get_ets(self, avg, target, cvw, cvb, sd, cva):
+
+        """The European goals for imprecion and inaccuracy can be transformed
+           to a biologic allowable total error (TEBA), as described
+           by EQA-Organizers, according to the following formula:
+           TEBA| = |BiasA| + 1.65 * sA (or CVA)
+           
+           x = ETA
+           y = ETS"""
+
+
+        try:
+            x = round(self.get_allowable_bias(cvw, cvb) + (1.65 * self.get_imp(cvw)),2)
+            y = self.get_et(target, avg, cva)
+            
+
+            if y < x:
+                c = "green"
+            elif y == x:
+                c = "yellow"
+            elif y > x:
+                c = "red"
+
+            return y,c
+        except ZeroDivisionError:
+            return None
+
+
+    def get_imp(self,cvw):
+        """The Cotlove/Harris concept defines the maximum allowable imprecision,
+           CVA,as the maximum imprecision, that when added to the within-subject
+           biological variation, CVw, will maximimally increase the total CV by 12%,
+           which is achieved when:
+           CVa <= 0.5*CVw"""
+        return round(cvw*0.5,2)
+
+    def get_formula_drc(self,row):
+        """compute critical difference"""
+        #=ROUND((ROUND(SQRT(POWER(G30,2)+POWER(H30,2))*2.77,2))*F30/100,2)
+        #return "ROUND((ROUND(SQRT(POWER(G%s;2)+POWER(H%s;2))*2.77;2))*F%s/100,2)"%(row+1,row+1,row+1,)
+        return "(ROUND(SQRT(POWER(G%s;2)+POWER(H%s;2))*2.77;2))"%(row+1,row+1,)
+
+
+    def get_delta_esc(self,cvw,cvb,sd):
+        """compute delta sistematic criticalerror"""
+
+        bias = self.get_allowable_bias(cvw,cvb)
+        eta = round((1.65 * self.get_imp(cvw)) + (self.get_cvt(cvw,cvb)*0.25),2)
+        x = (eta-bias)/sd
+        y = round(x-1.65,2)
+        if y > 3:
+            c = "green"
+        elif y > 2 and y <= 3:
+            c = "yellow"
+        elif y < 2:
+            c = "red"
+        else:
+            c = None
+        return y,c
+
+    def get_delta_ecc(self,cvw,cvb,sd):
+
+        bias = self.get_allowable_bias(cvw,cvb)
+        eta = round((1.65 * self.get_imp(cvw)) + (self.get_cvt(cvw,cvb)*0.25),2)
+        x = eta-bias
+        y = sd * 1.65
+        return round(x/y,2)
+        
 
     def xls_bg_colour(self,colour):
 

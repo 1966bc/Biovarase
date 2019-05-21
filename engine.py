@@ -4,6 +4,7 @@
 This class  inherit from other classes."""
 import sys
 import inspect
+import time
 import numpy as np
 import math
 
@@ -53,9 +54,18 @@ class Engine(DBMS, Tools, Exporter, Launcher, Westgards):
 
     def __str__(self):
         return "class: %s\nMRO: %s\ncon: %s" % (self.__class__.__name__,  [x.__name__ for x in Engine.__mro__],self.con)
-
+    
     def get_python_version(self,):
         return "Python version: %s" % ".".join(map(str, sys.version_info[:3]))
+
+
+    def on_log(self, function, exc_value, exc_type):
+
+        now = time.strftime("%Y-%m-%d %H:%M:%S")
+        log_text = "{0}\n {1}\n{2}\n{3}\n\n".format(now, function, exc_value, exc_type)
+        log_file = open('log.txt','a')
+        log_file.write(log_text)
+        log_file.close()
 
     def get_elements(self):
 
@@ -203,133 +213,28 @@ class Engine(DBMS, Tools, Exporter, Launcher, Westgards):
 
     def get_bias(self, avg, target):
         try:
-            bias = round(float(avg-target)/float(target)*100,2)
+            bias = abs(round(float((avg-target)/float(target))*100,2))
         except ZeroDivisionError:
             bias = None
         return bias
 
     def get_cvt(self,cvw,cva):
-
         return round(math.sqrt(cva**2 + cvw**2),2)
 
-    def get_bias_theoretical(self,cvw,cvb):
+    def get_allowable_bias(self,cvw,cvb):
         return round(math.sqrt((math.pow(cvw,2) + math.pow(cvb,2)))*0.25,2)
 
-    def get_eta(self, target, avg, cv):
+    def get_et(self, target, avg, cv):
 
-        bias = (target-avg)
+        bias = self.get_bias(avg, target)
 
-        eta = bias+(1,65*cv)
+        return round(bias + (1.65*cv),2)
 
-        return eta
+    def percentage(self, percent, whole):
+        return (percent * whole) / 100.0
 
-    def get_formula_imp(self, row):
-        return "ROUND((H%s * 0.5);2)"%(row+1,)
-
-    def get_formula_bias(self, row):
-
-        return "ROUND(SQRT(POWER(H%s;2)+POWER(I%s;2))*0.25;2)"%(row+1,row+1,)
-
-    def get_formula_eta(self, row):
-        return "ROUND((1.65*J%s)+ K%s;2)"%(row+1, row+1,)
-
-    def get_formula_cvt(self, row):
-        return "ROUND(SQRT(POWER(G%s;2)+POWER(H%s;2));2)"%(row+1,row+1,)
-
-    def get_formula_k_imp(self, cva, cvw, row):
-
-        try:
-
-            k = round((cva/cvw),2)
-
-            if 0.25 <= k <= 0.50:
-                c ="green"
-            elif 0.50 <= k <= 0.75:
-                c = "yellow"
-            elif  k > 0.75:
-                c = "red"
-            else:
-                c = None
-
-            f = "ROUND(G%s/H%s;2)"%(row+1,row+1)
-            return f,c
-        except:
-            return None
-
-    def get_formula_k_bias(self,avg, target, cvw, cva, row):
-
-        """return bias k 0.125,0.25,0.375"""
-
-        k = round(self.get_bias(avg, target)/self.get_cvt(cva,cvw),2)
-
-        if 0.125 <= k <= 0.25:
-            c ="green"
-        elif 0.25 <= k <= 0.375:
-            c = "yellow"
-        elif  k > 0.375:
-            c = "red"
-        else:
-            c = None
-
-        f = "ROUND((((F%s-E%s)/E%s)*100)/SQRT(POWER(H%s;2)+POWER(I%s;2));2)"%(row+1,row+1,
-                                                                              row+1,row+1,
-                                                                              row+1,)
-        return f,c
-
-    def get_ets(self, avg, target, cvw, cvb, sd):
-
-        """return instrumental total error
-        x = ETA
-        y = ETS"""
-
-
-        try:
-            x = round(self.get_bias_theoretical(cvw, cvb) + (1.65 * self.get_imp(cvw)),2)
-            y = round(self.get_bias(avg, target) + (1.65 * sd),2)
-
-            if y < x:
-                c = "green"
-            elif y == x:
-                c = "yellow"
-            elif y > x:
-                c = "red"
-
-            return y,c
-        except ZeroDivisionError:
-            return None
-
-
-    def get_imp(self,cvw):
-        """ottimo CVa < 0.25 CVi
-           desiderabile CVa< 0.50 CVi
-           CVa < 0.75 CVi """
-        return round(cvw*0.5,2)
-
-    def get_delta_esc(self,cvw,cvb,sd):
-        """compute delta sistematic criticalerror"""
-
-        bias = self.get_bias_theoretical(cvw,cvb)
-        eta = round((1.65 * self.get_imp(cvw)) + (self.get_cvt(cvw,cvb)*0.25),2)
-        x = (eta-bias)/sd
-        y = round(x-1.65,2)
-        if y > 3:
-            c = "green"
-        elif y > 2 and y <= 3:
-            c = "yellow"
-        elif y < 2:
-            c = "red"
-        else:
-            c = None
-        return y,c
-
-    def get_delta_ecc(self,cvw,cvb,sd):
-
-        bias = self.get_bias_theoretical(cvw,cvb)
-        eta = round((1.65 * self.get_imp(cvw)) + (self.get_cvt(cvw,cvb)*0.25),2)
-        x = eta-bias
-        y = sd * 1.65
-        return round(x/y,2)
-
+   
+    
 
 def main():
 
