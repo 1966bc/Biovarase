@@ -51,6 +51,8 @@ Hello everybody, in this new update you will find a new type of plot, named
 
 Total Error Plot
 
+![alt tag](https://user-images.githubusercontent.com/5463566/58125411-cbadd980-7c10-11e9-9ba4-5c1ed8474f88.png)
+
 
 
 For more information you can see this video
