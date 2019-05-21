@@ -33,6 +33,9 @@ import frames.analytical
 import frames.export_rejections
 import frames.plots
 import frames.elements
+import frames.tea
+import frames.export_analytical_goals
+import frames.export_counts
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -57,12 +60,13 @@ class Biovarase(ttk.Frame):
         self.bias = tk.DoubleVar()
         self.westgard = tk.StringVar()
         self.calculated_sd = tk.DoubleVar()
-        self.calculated_cv = tk.DoubleVar()
+        self.cva = tk.DoubleVar()
         self.range = tk.DoubleVar()
         self.elements = tk.IntVar()
         self.target = tk.DoubleVar()
         self.sd = tk.DoubleVar()
         self.expiration = tk.StringVar()
+        self.te = tk.DoubleVar()
 
         self.set_style()
         self.init_menu()
@@ -71,19 +75,15 @@ class Biovarase(ttk.Frame):
         self.center_ui()
 
     def set_style(self):
-
+        
         s = ttk.Style()
-        s.configure('TargetAverage.TLabel',
+        s.configure('Target.TLabel',
+                    foreground=self.engine.get_rgb(255,69,0),
+                    background=self.engine.get_rgb(255,255,255))
+
+        s.configure('Average.TLabel',
                     foreground=self.engine.get_rgb(0,0,255),
-                    background=self.engine.get_rgb(230,230,250))
-
-        s.configure('SD.TLabel',
-                    foreground=self.engine.get_rgb(0,128,0),
-                    background=self.engine.get_rgb(255,250,205))
-
-        s.configure('CV.TLabel',
-                    foreground=self.engine.get_rgb(255,255,255),
-                    background=self.engine.get_rgb(205, 133, 0))
+                    background=self.engine.get_rgb(255,255,255))
 
         s.configure('white_bg.TLabel',
                     background=self.engine.get_rgb(255,255,255),)
@@ -91,8 +91,28 @@ class Biovarase(ttk.Frame):
         s.configure('westgard_violation_bg.TLabel',
                     background=self.engine.get_rgb(255,106,106),)
 
+        s.configure('westgard.TLabel',
+                    background=self.engine.get_rgb(205, 92, 92))
+
+        s.configure('westgard_ok.TLabel',
+                    background=self.engine.get_rgb(152,251,152))
+
         s.configure('Statusbar.TLabel',
-                    foreground='black',)
+                    foreground='blue',)
+
+        s.configure('listener_true.TLabel',
+                    foreground='green',)
+        
+        s.configure('listener_false.TLabel',
+                    foreground='red',)
+
+
+        s.configure('listener_false.TLabel',
+                    foreground='red',)
+
+        s.configure('black_and_withe.TLabel',
+                    background=self.engine.get_rgb(255,255,255),
+                    foreground=self.engine.get_rgb(0,0,0),)
 
     def center_ui(self):
         
@@ -123,6 +143,7 @@ class Biovarase(ttk.Frame):
 
 
         items = (("Plots", self.on_plots),
+                 ("Tea", self.on_tea),
                  ("Reset",self.on_reset),
                  ("Tests",self.on_tests),
                  ("Data",self.on_data),
@@ -139,7 +160,8 @@ class Biovarase(ttk.Frame):
 
         items = (("Quick Data Analysis", self.engine.get_quick_data_analysis),
                  ("Rejections",self.on_export_rejections),
-                 ("Analytical Goals",self.on_analytical_goals),)
+                 ("Analytical Goals",self.on_analytical_goals),
+                  ("Counts", self.on_export_counts),)
 
         for i in items:
             s_menu.add_command(label=i[0], underline=0, command=i[1])
@@ -174,7 +196,8 @@ class Biovarase(ttk.Frame):
         f1 = ttk.Frame(f0,)
 
         ttk.Label(f1, text='Tests').pack(side=tk.TOP, fill=tk.X, expand=0)
-        self.cbTests =  ttk.Combobox(f1)
+        #self.cbTests =  ttk.Combobox(f1,state='readonly')
+        self.cbTests =  ttk.Combobox(f1,)
         self.cbTests.bind("<<ComboboxSelected>>", self.on_selected_test)
         self.cbTests.pack(side=tk.TOP, fill=tk.X,pady=5, expand=0)
 
@@ -190,21 +213,21 @@ class Biovarase(ttk.Frame):
 
         ttk.Label(w, text="Target").pack()
         ttk.Label(w,
-                  style='TargetAverage.TLabel',
+                  style='Target.TLabel',
                   anchor = tk.CENTER,
                   textvariable = self.target).pack(fill=tk.X,
                                                   padx=2, pady=2)
         ttk.Label(w, text="SD").pack()
         ttk.Label(w,
-                  style='SD.TLabel',
+                  style='black_and_withe.TLabel',
                   anchor = tk.CENTER,
                   textvariable = self.sd).pack(fill=tk.X,
                                               padx=2,pady=2)
-        ttk.Label(w, text="Expiration").pack()
+        ttk.Label(w, text="TE%").pack()
         ttk.Label(w,
-                 style='white_bg.TLabel',
+                 style='black_and_withe.TLabel',
                  anchor = tk.CENTER,
-                 textvariable = self.expiration).pack(fill=tk.X,
+                 textvariable = self.te).pack(fill=tk.X,
                                                       padx=2,pady=2)
 
         w.pack(side=tk.LEFT, fill=tk.X, expand=0)
@@ -213,21 +236,21 @@ class Biovarase(ttk.Frame):
 
         ttk.Label(w, text="Average").pack()
         ttk.Label(w,
-                 style='TargetAverage.TLabel',
+                 style='Average.TLabel',
                  anchor = tk.CENTER,
                  textvariable = self.average).pack(fill=tk.X,
                                                    padx=2, pady=2)
-        ttk.Label(w, text="SD").pack()
+        ttk.Label(w, text="sd").pack()
         ttk.Label(w,
-                  style='SD.TLabel',
+                  style='black_and_withe.TLabel',
                   anchor = tk.CENTER,
                   textvariable = self.calculated_sd).pack(fill=tk.X,
                                                          padx=2, pady=2)
         ttk.Label(w, text="CV%").pack()
         ttk.Label(w,
-                 style='SD.TLabel',
+                 style='black_and_withe.TLabel',
                  anchor = tk.CENTER,
-                 textvariable = self.calculated_cv).pack(fill=tk.X,
+                 textvariable = self.cva).pack(fill=tk.X,
                                                          padx=2,pady=2)
 
         w.pack(side=tk.LEFT, fill=tk.X, expand=0)
@@ -243,14 +266,19 @@ class Biovarase(ttk.Frame):
                                      textvariable=self.westgard)
         self.lblWestgard.pack(fill=tk.X, padx=2,pady=2)
 
-        ttk.Label(w, text="Bias").pack()
-        ttk.Label(w, style='white_bg.TLabel',
-                  anchor = tk.CENTER,
-                  textvariable = self.bias).pack(fill=tk.X, padx=2,pady=2)
+
         ttk.Label(w, text="Range").pack()
-        ttk.Label(w, style='white_bg.TLabel',
+        ttk.Label(w, style='black_and_withe.TLabel',
                   anchor = tk.CENTER,
                   textvariable = self.range).pack(fill=tk.X, padx=2,pady=2)
+
+        ttk.Label(w, text="Bias%").pack()
+        ttk.Label(w,
+                  style='black_and_withe.TLabel',
+                  anchor = tk.CENTER,
+                  textvariable = self.bias).pack(fill=tk.X, padx=2,pady=2)
+        
+      
 
         w.pack(side=tk.RIGHT, fill=tk.X, expand=0)
 
@@ -263,10 +291,10 @@ class Biovarase(ttk.Frame):
         #create graph!
         f3 = ttk.Frame(f0,)
         #Figure: The top level container for all the plot elements.
-        gs = gridspec.GridSpec(1, 2, width_ratios=[2, 1])
+        gs = gridspec.GridSpec(1, 2, width_ratios=[3, 1])
         fig = Figure()
         fig.suptitle(self.engine.title, fontsize=16)
-        fig.subplots_adjust(bottom=0.10, right=0.96, left= 0.06, top=0.88,wspace=0.10)
+        fig.subplots_adjust(bottom=0.10, right=0.96, left= 0.08, top=0.88,wspace=0.10)
         self.lj = fig.add_subplot(gs[0], facecolor=('xkcd:light grey'))
         self.frq = fig.add_subplot(gs[1], facecolor=('xkcd:light grey'))
         self.canvas = FigureCanvasTkAgg(fig, f3)
@@ -329,9 +357,10 @@ class Biovarase(ttk.Frame):
 
         self.average.set(0)
         self.calculated_sd.set(0)
-        self.calculated_cv.set(0)
+        self.cva.set(0)
         self.bias.set(0)
         self.range.set(0)
+        self.te.set(0)
         self.westgard.set('No Data')
         self.set_westgard_alarm()
 
@@ -345,7 +374,7 @@ class Biovarase(ttk.Frame):
 
         self.average.set(args[5])
         self.calculated_sd.set(args[6])
-        self.calculated_cv.set(args[7])
+        self.cva.set(args[7])
         self.bias.set(args[8])
         self.range.set(args[9])
 
@@ -481,6 +510,7 @@ class Biovarase(ttk.Frame):
 
             self.set_batch_data()
             self.set_results()
+            self.set_et()
 
     def on_selected_result(self,event):
 
@@ -493,7 +523,7 @@ class Biovarase(ttk.Frame):
     def on_result_activated(self, event):
 
         if self.lstResults.curselection():
-                obj = frames.rejections.Dialog(self, engine= self.engine, index=None)
+                obj = frames.rejections.Dialog(self, engine= self.engine,)
                 obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
 
 
@@ -573,6 +603,15 @@ class Biovarase(ttk.Frame):
             self.reset_cal_data()
             self.reset_graph()
 
+    def set_et(self,):
+
+        if self.target.get() !=0:
+            et = self.engine.get_et(self.target.get(), self.average.get(), self.cva.get())
+            #x = round((self.target.get() * et)/100,2)
+            self.te.set(et)
+        else:
+            self.te.set(0)            
+
     def set_lj(self, count_rs, target, sd, series, count_series,
                compute_average, compute_sd, compute_cv, x_labels, dates):
 
@@ -626,7 +665,7 @@ class Biovarase(ttk.Frame):
         self.lj.set_title(s, weight='bold',loc='left')
 
 
-        bottom_text = (self.format_interval_date(dates), count_series, count_rs)
+        bottom_text = ("from %s to %s"%(dates[0],dates[-1]), count_series, count_rs)
 
         self.lj.text(0.95, 0.01,
                      '%s computed %s on %s results'%bottom_text,
@@ -653,54 +692,11 @@ class Biovarase(ttk.Frame):
             self.frq.set_xlabel("No unit assigned yet")
 
 
-    def format_interval_date(self,dates):
-
-        try:
-
-            x = min(dates)
-            s1 = "%s-%s-%s" %(x.day,x.month,x.year)
-            x = max(dates)
-            s2 = "%s-%s-%s" %(x.day,x.month,x.year)
-
-            return  "from %s to %s"%(s1,s2)
-
-        except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
-
-
     def on_analytical_goals(self):
 
-        sql = "SELECT batches.batch_id,\
-                         samples.sample,\
-                      tests.test,\
-                      batches.batch,\
-                      batches.expiration,\
-                      batches.target,\
-                      tests.cvw,\
-                      tests.cvb\
-               FROM tests\
-               INNER JOIN samples \
-               ON tests.sample_id = samples.sample_id\
-               INNER JOIN batches \
-               ON tests.test_id = batches.test_id\
-               WHERE tests.enable = 1\
-               AND tests.cvw !=0\
-               AND tests.cvb !=0\
-               AND batches.target !=0\
-               AND batches.enable = 1\
-               ORDER BY tests.test,samples.sample"
+        f = frames.export_analytical_goals.Dialog(self,engine=self.engine)
+        f.on_open()    
 
-        limit = int(self.elements.get())
-        rs = self.engine.read(True, sql, ())
-
-        if rs:
-            self.engine.get_analitical_goals(limit,rs)
-        else:
-            msg = "No record data to compute analytical goals."
-            messagebox.showwarning(self.engine.title, msg, parent=self)
 
     def on_tests(self,):
 
@@ -734,6 +730,10 @@ class Biovarase(ttk.Frame):
         f = frames.export_rejections.Dialog(self, engine=self.engine)
         f.on_open()
 
+    def on_export_counts(self,):
+        f = frames.export_counts.Dialog(self,self.engine)
+        f.on_open()          
+
     def on_plots(self,):
 
         if self.cbTests.current() != -1:
@@ -745,6 +745,18 @@ class Biovarase(ttk.Frame):
         else:
             msg = "Not enough data to plot.\nSelect a test."
             messagebox.showwarning(self.engine.title,msg, parent=self)
+
+    def on_tea(self,):
+
+        if self.cbTests.current() != -1:
+            index = self.cbTests.current()
+            pk = self.dict_tests[index]
+            selected_test = self.engine.get_selected('tests', 'test_id', pk)
+            f = frames.tea.Dialog(self,self.engine)
+            f.on_open(selected_test,int(self.elements.get()))
+        else:
+            msg = "Not enough data to plot.\nSelect a test."
+            messagebox.showwarning(self.engine.title,msg, parent=self)            
 
     def on_add_batch(self):
 
