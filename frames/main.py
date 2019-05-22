@@ -54,6 +54,7 @@ class Biovarase(ttk.Frame):
 
         self.parent = parent
         self.engine = kwargs['engine']
+        self.args = args
        
         self.status_bar_text = tk.StringVar()
         self.average = tk.DoubleVar()
@@ -482,12 +483,11 @@ class Biovarase(ttk.Frame):
                 self.reset_graph()
 
         except:
-
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
-            print(self.selected_batch[0])
+            self.engine.on_log(self,
+                               inspect.stack()[0][3],
+                               sys.exc_info()[1],
+                               sys.exc_info()[0],
+                               sys.modules[__name__])
 
 
     def on_selected_test(self,event):
@@ -575,7 +575,11 @@ class Biovarase(ttk.Frame):
                     10, x_labels,
                     11, dates)
             """
-        args = self.engine.get_qc(self.selected_batch, rs)
+
+        target = self.selected_batch[4]
+        sd = self.selected_batch[5]
+        args = self.engine.get_qc(target, sd, rs)
+
         if args is not None:
             self.set_calculated_data(args)
             self.set_westgard(args[3])
@@ -852,7 +856,7 @@ def main():
     for i in sys.argv:
         args.append(i)
     
-    kwargs={"style":"clam", "icon":"biovarase.png", "title":"Biovarase", "engine":Engine()}
+    kwargs={"style":"clam", "icon":"biovarase.png", "title":"Biovarase", "engine":Engine(*args)}
 
     app = App(*args, **kwargs)
 
