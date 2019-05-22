@@ -115,8 +115,11 @@ class Dialog(tk.Toplevel):
         for batch in batches:
                             
             rs = self.engine.read(True, sql, ((batch[0],self.elements)))
+            target = batch[4]
+            sd = batch[5]
+            args = self.engine.get_qc(target, sd, rs)
 
-            args = self.engine.get_qc(batch, rs)
+            
            
             if args is not None:
 
