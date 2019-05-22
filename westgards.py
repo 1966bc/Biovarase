@@ -10,17 +10,26 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-25"
+__date__ = "2019-05-22"
 __status__ = "Production"
 
-class Westgards(object):
 
-    def __init__(self,):
-        super(Westgards, self).__init__()
+class Westgards(object):
+    def __init__(self,*args, **kwargs):
+        super(Westgards, self).__init__( *args, **kwargs)
+
+        self.args = args
+        self.kwargs = kwargs
         
-         
+        #print("args type: {0} len:{1}".format(type(self.args),len(self.args)))
+
+        #for p,i in enumerate(self.args):
+            #print("{} {}".format(p, i))
+
+      
     def __str__(self):
-        return "class: %s" % (self.__class__.__name__, )
+        return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in DBMS.__mro__],)
+
         
 
     def get_westgard_violation_rule(self, target, sd, series,selected_batch=None, selected_test=None):
@@ -47,6 +56,8 @@ class Westgards(object):
 
         self.get_standard_deviations(target, sd)
 
+    
+        
         if self.get_rule_12S():
             if self.get_rule_13S():
                 return "1:3S"
@@ -67,6 +78,8 @@ class Westgards(object):
                 return "10:x"
             else:
                 return "Accept"
+
+        
     
     def get_standard_deviations(self,target, sd):
 
@@ -123,8 +136,7 @@ class Westgards(object):
         #print ("Westgard rule 2:2s tested")
 
         last_two_values = self.series[-2:]
-        
-
+    
         #print(self.selected_test)
         #print(self.selected_batch)
         #print(last_two_values)

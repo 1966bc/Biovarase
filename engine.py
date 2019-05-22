@@ -24,11 +24,11 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
-class Engine(DBMS, Tools, Exporter, Launcher, Westgards):
+class Engine(DBMS, Tools, Westgards, Exporter, Launcher,):
 
-    def __init__(self,*args, **kwargs):
-
-        super(Engine, self).__init__( *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__( *args, **kwargs)
+        
 
         self.args = args
         self.kwargs = kwargs
@@ -59,14 +59,6 @@ class Engine(DBMS, Tools, Exporter, Launcher, Westgards):
         return "Python version: %s" % ".".join(map(str, sys.version_info[:3]))
 
 
-    def on_log(self, function, exc_value, exc_type):
-
-        now = time.strftime("%Y-%m-%d %H:%M:%S")
-        log_text = "{0}\n {1}\n{2}\n{3}\n\n".format(now, function, exc_value, exc_type)
-        log_file = open('log.txt','a')
-        log_file.write(log_text)
-        log_file.close()
-
     def get_elements(self):
 
         try:
@@ -75,10 +67,11 @@ class Engine(DBMS, Tools, Exporter, Launcher, Westgards):
             f.close()
             return e
         except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
+            self.engine.on_log(self,
+                               inspect.stack()[0][3],
+                               sys.exc_info()[1],
+                               sys.exc_info()[0],
+                               sys.modules[__name__])
 
     def set_elements(self, elements):
 
@@ -88,10 +81,11 @@ class Engine(DBMS, Tools, Exporter, Launcher, Westgards):
            
             
         except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])            
+            self.engine.on_log(self,
+                               inspect.stack()[0][3],
+                               sys.exc_info()[1],
+                               sys.exc_info()[0],
+                               sys.modules[__name__])      
 
     def get_dimensions(self):
 
@@ -104,46 +98,55 @@ class Engine(DBMS, Tools, Exporter, Launcher, Westgards):
 
             return d
         except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
+            self.engine.on_log(self,
+                               inspect.stack()[0][3],
+                               sys.exc_info()[1],
+                               sys.exc_info()[0],
+                               sys.modules[__name__])
 
 
-    def get_qc(self, selected_batch, rs):
+    def get_qc(self, target, sd, rs):
 
-        dates = []
-        x_labels = []
-        series = []
 
-        target = selected_batch[4]
-        sd = selected_batch[5]
-        count_rs = len(rs)
+        try:
 
-        rs = tuple(i for i in rs if i[4]!=0)
+            dates = []
+            x_labels = []
+            series = []
 
-        if rs:
+            count_rs = len(rs)
 
-            for i in reversed(rs):
-                #print(i)
-                series.append(i[1])
-                x_labels.append(i[2])
-                dates.append(i[3])
+            rs = tuple(i for i in rs if i[4]!=0)
 
-            count_series = len(series)
-            compute_average = round(np.mean(series),2)
-            compute_sd = round(np.std(series),2)
-            compute_cv = round((compute_sd/compute_average)*100,2)
-            compute_bias = round((compute_average-target)/(target)*100,2)
-            compute_range = round(np.ptp(series),2)
+            if rs:
 
-            args = (count_rs, target, sd, series, count_series,
-                    compute_average, compute_sd, compute_cv, compute_bias,
-                    compute_range, x_labels, dates)
-            return args
+                for i in reversed(rs):
+                    #print(i)
+                    series.append(i[1])
+                    x_labels.append(i[2])
+                    dates.append(i[3])
 
-        else:
-            return None
+                count_series = len(series)
+                compute_average = round(np.mean(series),2)
+                compute_sd = round(np.std(series),2)
+                compute_cv = round((compute_sd/compute_average)*100,2)
+                compute_bias = round((compute_average-target)/(target)*100,2)
+                compute_range = round(np.ptp(series),2)
+
+                return (count_rs, target, sd, series, count_series,
+                        compute_average, compute_sd, compute_cv, compute_bias,
+                        compute_range, x_labels, dates)
+           
+
+            else:
+                return None
+        except:
+             self.engine.on_log(self,
+                               inspect.stack()[0][3],
+                               sys.exc_info()[1],
+                               sys.exc_info()[0],
+                               sys.modules[__name__])
+
 
     def get_series(self, batch_id):
 
@@ -196,10 +199,11 @@ class Engine(DBMS, Tools, Exporter, Launcher, Westgards):
             else:
                 return False
         except:
-            print (batch_id,limit)
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
+            self.engine.on_log(self,
+                               inspect.stack()[0][3],
+                               sys.exc_info()[1],
+                               sys.exc_info()[0],
+                               sys.modules[__name__])
             return False
 
 
@@ -233,8 +237,6 @@ class Engine(DBMS, Tools, Exporter, Launcher, Westgards):
     def percentage(self, percent, whole):
         return (percent * whole) / 100.0
 
-   
-    
 
 def main():
 

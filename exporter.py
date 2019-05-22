@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-""" This is the exporter module of Biovarase. It set data to export datase in xls file format."""
-import tempfile
-import xlwt
+""" This is the exporter module of Biovarase. It set data to export dataset in xls file format."""
 import sys
 import inspect
+import tempfile
+import xlwt
 
 
 SQL_BATCHES = "SELECT *\
@@ -29,9 +29,12 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
+
+
 class Exporter(object):
     def __init__(self,*args, **kwargs):
-        super(Exporter, self).__init__( )
+        super(Exporter, self).__init__()
+        
 
         self.args = args
         self.kwargs = kwargs
@@ -88,9 +91,11 @@ class Exporter(object):
             self.launch(path)
 
         except:
-            self.on_log(inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0])
+            self.engine.on_log(self,
+                               inspect.stack()[0][3],
+                               sys.exc_info()[1],
+                               sys.exc_info()[0],
+                               sys.modules[__name__])
 
 
     def get_rejections(self, args):
@@ -238,10 +243,11 @@ class Exporter(object):
                             row +=1
                 except:
                    
-                    print (test,batch,rs_results)
-                    print (sys.exc_info()[0])
-                    print (sys.exc_info()[1])
-                    print (sys.exc_info()[2])
+                    self.engine.on_log(self,
+                                       inspect.stack()[0][3],
+                                       sys.exc_info()[1],
+                                       sys.exc_info()[0],
+                                       sys.modules[__name__])
                     
         obj.save(path)
         self.launch(path)                     

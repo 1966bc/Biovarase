@@ -31,6 +31,19 @@ class Tools(object):
         return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Tools.__mro__])
 
 
+    def on_log(self, container, function, exc_value, exc_type, module):
+
+        now = datetime.datetime.now()
+        log_text = "{0}\n {1}\n{2}\n{3}\n{4}\n\n".format(now, function, exc_value, exc_type, module)
+        log_file = open('log.txt','a')
+        log_file.write(log_text)
+        log_file.close()
+
+        msg = "Except type: {0}\n\nModule:{1}\n\nFunction{2}\n\n{3}".format(exc_type, module, function, exc_value)
+        messagebox.showwarning(self.title, msg, parent=container)
+        
+
+
     def get_rgb(self, r,g,b):
         """translates an rgb tuple of int to a tkinter friendly color code"""
         return "#%02x%02x%02x" % (r,g,b)
@@ -339,7 +352,9 @@ class Tools(object):
             else:
                 return False
         else:
-            return True              
+            return True
+
+            
 
                                          
 def main():

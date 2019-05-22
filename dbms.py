@@ -23,8 +23,17 @@ class DBMS(object):
 
         self.args = args
         self.kwargs = kwargs
+
+        #print("args type: {}".format(type(self.args)))
+
+        #for p,i in enumerate(self.args):
+            #print("{} {}".format(p, i))
+
+            
         path = 'biovarase.db'
         self.get_connection(path)
+
+        
 
     def get_connection(self, path):
 
@@ -43,19 +52,20 @@ class DBMS(object):
 
         except:
             self.con.rollback()
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
-            print (sql,args)
+            self.engine.on_log(self,
+                               inspect.stack()[0][3],
+                               sys.exc_info()[1],
+                               sys.exc_info()[0],
+                               sys.modules[__name__])
         finally:
             try:
                 cur.close()
             except:
-                print (sys.exc_info()[0])
-                print (sys.exc_info()[1])
-                print (sys.exc_info()[2])
-                print (sql,args)
+                self.engine.on_log(self,
+                               inspect.stack()[0][3],
+                               sys.exc_info()[1],
+                               sys.exc_info()[0],
+                               sys.modules[__name__])
 
 
     def read(self, fetch, sql, args=()):
@@ -74,11 +84,11 @@ class DBMS(object):
             return rs
 
         except:
-            print(inspect.stack()[0][3])
-            print (fetch, sql, args)
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
+            self.engine.on_log(self,
+                               inspect.stack()[0][3],
+                               sys.exc_info()[1],
+                               sys.exc_info()[0],
+                               sys.modules[__name__])
 
     def dump_db(self,):
 
@@ -122,10 +132,11 @@ class DBMS(object):
 
             return tuple(fields)
         except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
+            self.engine.on_log(self,
+                               inspect.stack()[0][3],
+                               sys.exc_info()[1],
+                               sys.exc_info()[0],
+                               sys.modules[__name__])
 
 
     # FIXME This function sometimes returns incorrect data when pass datetime type on timestamp field.
@@ -152,10 +163,11 @@ class DBMS(object):
         try:
             return "INSERT INTO %s(%s)VALUES(%s)"%(table,",".join(self.get_fields(table)), ",".join("?"*n))
         except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
+            self.engine.on_log(self,
+                               inspect.stack()[0][3],
+                               sys.exc_info()[1],
+                               sys.exc_info()[0],
+                               sys.modules[__name__])
 
 
     # FIXME This function sometimes fails  when recive datetime type on timestamp field.
