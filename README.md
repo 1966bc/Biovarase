@@ -44,7 +44,35 @@ regards.
 ...
 ## changelog
 
+**2019-05-26**
 
+Hello everybody, after having separated all qc funcions in a new module 
+
+named qc.py it’s time to implement a new feature  **Sigma**.
+
+You can see this new wonderful feature launch the analytical goal from
+
+File/Export/Analitycal Goals
+
+I've add even the compute of delta sistematic critical error.
+
+```python
+
+def get_sigma(self, cvw, cvb, target, series):
+        """Compute sigma."""
+        
+        avg = self.get_mean(series)
+        tea = self.get_tea(cvw, cvb)
+        bias = self.get_bias(avg, target)
+        cv = self.get_cv(series)
+        sigma = (tea - bias)/cv
+        
+        return round(sigma,2)
+```    
+
+tea is Total Error Allowable.
+
+        
 **2019-05-21**
 
 Hello everybody, in this new update you will find a new type of plot, named  **Total Error Plot**
