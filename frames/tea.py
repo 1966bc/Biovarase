@@ -33,7 +33,7 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-05-20"
+__date__ = "2018-12-24"
 __status__ = "Production"
 
 
@@ -58,6 +58,8 @@ class Dialog(tk.Toplevel):
         #Figure: The top level container for all the plot elements.
         #figsize:width, height in inches, figsize=(6.4, 4.8)
         self.fig = Figure()
+        #fig.suptitle(self.engine.title, fontsize=20,fontweight='bold')
+        #self.fig.subplots_adjust(bottom=0.10, right=0.98, left=0.10, top=0.88,wspace=0.08)
         self.fig.subplots_adjust(hspace=0.65, left=0.125, right=0.9)
         self.canvas = FigureCanvasTkAgg(self.fig, f0)
         toolbar = nav_tool(self.canvas, f0)
@@ -67,7 +69,7 @@ class Dialog(tk.Toplevel):
         f0.pack(fill=tk.BOTH, expand=1)
         
 
-    def on_open(self,selected_test, elements):
+    def on_open(self,selected_test):
 
         s = "Biovarase Total Error Plots for: {0}"
 
@@ -78,8 +80,6 @@ class Dialog(tk.Toplevel):
         s = "Total Error Plots %s"%selected_test[3]
 
         self.um = self.get_um(selected_test[2])
-
-        self.elements = elements
 
         self.title(s)
         
@@ -94,6 +94,7 @@ class Dialog(tk.Toplevel):
                FROM batches\
                WHERE test_id =? AND enable =1\
                ORDER BY expiration DESC"
+        
         args = (selected_test[0],)
         rs = self.engine.read(True, sql, args)
         
@@ -105,44 +106,57 @@ class Dialog(tk.Toplevel):
             self.set_values(batches)
 
     def set_values(self, batches):
-        
-        #nrows, ncols, and index
-        
+
+    
         count = len(batches)*100+11
-        #print(count)
+    
         sql = "SELECT * FROM lst_results WHERE batch_id = ? LIMIT ?"
-       
+          
         for batch in batches:
                             
-            rs = self.engine.read(True, sql, ((batch[0],self.elements)))
+            rs = self.engine.read(True, sql, ((batch[0],int(self.engine.get_elements()))))
             target = batch[4]
             sd = batch[5]
-            args = self.engine.get_qc(target, sd, rs)
+            series = self.engine.get_series(batch[0],int(self.engine.get_elements()))
+            mean = self.engine.get_mean(series)
+            cv = self.engine.get_cv(series)
+            x_labels = self.get_x_labels(rs)
 
-            
-           
-            if args is not None:
-
-                self.set_axs(count,
-                             args[0],
-                             args[1],
-                             args[2],
-                             args[3],
-                             args[4],
-                             args[5],
-                             args[6],
-                             args[7],
-                             args[10],
-                             args[11],
-                             batch)
-                count +=1
+    
+            self.set_axs(count,
+                         len(rs),
+                         target,
+                         sd,
+                         series,
+                         len(series),
+                         mean,
+                         self.engine.get_sd(series),
+                         cv,
+                         x_labels[0],
+                         x_labels[1],
+                         batch)
+            count +=1
 
         
         self.canvas.draw()
 
+    def get_x_labels(self,rs):
+
+        x_labels = []
+        dates = []
+
+        rs = tuple(i for i in rs if i[4]!=0)
+ 
+        if rs:
+            for i in reversed(rs):
+                x_labels.append(i[2])
+                dates.append(i[2])
+
+        return (x_labels, dates)          
+
 
     def set_axs(self,count, count_rs, target, sd, series, count_series,
-                compute_average, compute_sd, compute_cv, x_labels, dates, batch):
+                compute_average, compute_sd, compute_cv, x_labels, dates,batch):
 
        
         #obj.clear()
@@ -150,8 +164,8 @@ class Dialog(tk.Toplevel):
         obj.grid(True)
 
         
-        et = self.engine.get_et(target, compute_average, compute_cv)
-        a = self.engine.percentage(100,et)
+        te = self.engine.get_te(target, compute_average, compute_cv)
+        a = self.engine.percentage(100,te)
         b = a + 4
         c = self.engine.percentage(b,target)
         #print(et,a,b,c)
@@ -195,7 +209,7 @@ class Dialog(tk.Toplevel):
                          batch[4],
                          batch[5],
                          batch[3],
-                         compute_average, compute_sd, compute_cv, et, c)
+                         compute_average, compute_sd, compute_cv, te, c)
         
         obj.set_title(title, loc='left')            
 

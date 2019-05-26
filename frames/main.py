@@ -371,13 +371,19 @@ class Biovarase(ttk.Frame):
         self.target.set(self.selected_batch[4])
         self.sd.set(self.selected_batch[5])
 
-    def set_calculated_data(self, args):
+    def set_calculated_data(self, mean, sd, cv, bias, crange):
 
-        self.average.set(args[5])
-        self.calculated_sd.set(args[6])
-        self.cva.set(args[7])
-        self.bias.set(args[8])
-        self.range.set(args[9])
+        self.average.set(mean)
+        self.calculated_sd.set(sd)
+        self.cva.set(cv)
+        self.bias.set(bias)
+        self.range.set(crange)
+
+        if self.target.get() !=0:
+            et = self.engine.get_te(self.target.get(), self.average.get(), self.cva.get())
+            self.te.set(et)
+        else:
+            self.te.set(0)
 
     def set_westgard(self,series):
 
@@ -510,7 +516,7 @@ class Biovarase(ttk.Frame):
 
             self.set_batch_data()
             self.set_results()
-            self.set_et()
+            
 
     def on_selected_result(self,event):
 
@@ -551,8 +557,6 @@ class Biovarase(ttk.Frame):
 
             self.lstResults.itemconfig(index, d)
 
-
-
     def get_um(self,):
 
         sql = "SELECT unit FROM lst_tests WHERE test_id =?"
@@ -561,60 +565,57 @@ class Biovarase(ttk.Frame):
 
     def get_values(self, rs):
 
-        """args = self.engine.get_qc(self.selected_batch, rs)
-            args = (0, count_rs,
-                    1, target,
-                    2, sd,
-                    3, series,
-                    4, count_series,
-                    5, compute_average,
-                    6, compute_sd,
-                    7, compute_cv,
-                    8, compute_bias,
-                    9, compute_range,
-                    10, x_labels,
-                    11, dates)
-            """
-
         target = self.selected_batch[4]
         sd = self.selected_batch[5]
-        args = self.engine.get_qc(target, sd, rs)
+        series = self.engine.get_series(self.selected_batch[0],int(self.engine.get_elements()))
+        mean = self.engine.get_mean(series)
+       
+        cv = self.engine.get_cv(series)
+        bias = self.engine.get_bias(mean,target)
+        crange = self.engine.get_range(series)
+        x_labels = self.get_x_labels(rs)
 
-        if args is not None:
-            self.set_calculated_data(args)
-            self.set_westgard(args[3])
-            self.set_lj(args[0],
-                        args[1],
-                        args[2],
-                        args[3],
-                        args[4],
-                        args[5],
-                        args[6],
-                        args[7],
-                        args[10],
-                        args[11],)
+        self.set_calculated_data(mean, self.engine.get_sd(series), cv, bias, crange)
 
-            self.set_histogram(args[3],
-                               args[1],
-                               args[5],
-                               args[2],
-                               args[7],
-                               args[6])
+        self.set_westgard(series)
 
-            self.canvas.draw()
+        self.set_lj(len(rs),
+                        target,
+                        sd,
+                        series,
+                        len(series),
+                        mean,
+                        self.engine.get_sd(series),
+                        cv,
+                        x_labels[0],
+                        x_labels[1],)
 
-        else:
-            self.reset_cal_data()
-            self.reset_graph()
+        self.set_histogram(series,
+                               target,
+                               mean,
+                               sd,
+                               cv,
+                               self.engine.get_sd(series))
+                
+        self.canvas.draw()
 
-    def set_et(self,):
+           
 
-        if self.target.get() !=0:
-            et = self.engine.get_et(self.target.get(), self.average.get(), self.cva.get())
-            #x = round((self.target.get() * et)/100,2)
-            self.te.set(et)
-        else:
-            self.te.set(0)            
+    def get_x_labels(self,rs):
+
+        x_labels = []
+        dates = []
+
+        rs = tuple(i for i in rs if i[4]!=0)
+ 
+        if rs:
+            for i in reversed(rs):
+                x_labels.append(i[2])
+                dates.append(i[3])
+
+        return (x_labels, dates)   
+
+            
 
     def set_lj(self, count_rs, target, sd, series, count_series,
                compute_average, compute_sd, compute_cv, x_labels, dates):
@@ -743,9 +744,9 @@ class Biovarase(ttk.Frame):
         if self.cbTests.current() != -1:
             index = self.cbTests.current()
             pk = self.dict_tests[index]
-            selected_test = self.engine.get_selected('lst_tests','test_id', pk)
+            selected_test = self.engine.get_selected('tests','test_id', pk)
             f = frames.plots.Dialog(self, engine=self.engine)
-            f.on_open(selected_test,int(self.elements.get()))
+            f.on_open(selected_test)
         else:
             msg = "Not enough data to plot.\nSelect a test."
             messagebox.showwarning(self.engine.title,msg, parent=self)
@@ -757,7 +758,7 @@ class Biovarase(ttk.Frame):
             pk = self.dict_tests[index]
             selected_test = self.engine.get_selected('tests', 'test_id', pk)
             f = frames.tea.Dialog(self,self.engine)
-            f.on_open(selected_test,int(self.elements.get()))
+            f.on_open(selected_test)
         else:
             msg = "Not enough data to plot.\nSelect a test."
             messagebox.showwarning(self.engine.title,msg, parent=self)            
