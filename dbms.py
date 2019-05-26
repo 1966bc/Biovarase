@@ -23,17 +23,9 @@ class DBMS(object):
 
         self.args = args
         self.kwargs = kwargs
-
-        #print("args type: {}".format(type(self.args)))
-
-        #for p,i in enumerate(self.args):
-            #print("{} {}".format(p, i))
-
-            
+      
         path = 'biovarase.db'
         self.get_connection(path)
-
-        
 
     def get_connection(self, path):
 
@@ -52,20 +44,19 @@ class DBMS(object):
 
         except:
             self.con.rollback()
-            self.engine.on_log(self,
-                               inspect.stack()[0][3],
-                               sys.exc_info()[1],
-                               sys.exc_info()[0],
-                               sys.modules[__name__])
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])   
+
         finally:
             try:
                 cur.close()
             except:
-                self.engine.on_log(self,
-                               inspect.stack()[0][3],
-                               sys.exc_info()[1],
-                               sys.exc_info()[0],
-                               sys.modules[__name__])
+                print(inspect.stack()[0][3])
+                print (sys.exc_info()[0])
+                print (sys.exc_info()[1])
+                print (sys.exc_info()[2])  
 
 
     def read(self, fetch, sql, args=()):
@@ -84,11 +75,10 @@ class DBMS(object):
             return rs
 
         except:
-            self.engine.on_log(self,
-                               inspect.stack()[0][3],
-                               sys.exc_info()[1],
-                               sys.exc_info()[0],
-                               sys.modules[__name__])
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])  
 
     def dump_db(self,):
 
@@ -132,11 +122,10 @@ class DBMS(object):
 
             return tuple(fields)
         except:
-            self.engine.on_log(self,
-                               inspect.stack()[0][3],
-                               sys.exc_info()[1],
-                               sys.exc_info()[0],
-                               sys.modules[__name__])
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])  
 
 
     # FIXME This function sometimes returns incorrect data when pass datetime type on timestamp field.
@@ -189,6 +178,26 @@ class DBMS(object):
         return d
 
 
+    def get_series(self, batch_id, limit = None):
+        
+        series = []
+
+        sql = "SELECT ROUND(result,2),enable\
+               FROM results\
+               WHERE batch_id =?\
+               ORDER BY recived DESC\
+               LIMIT ?"
+
+        rs = self.read(True, sql, (batch_id, limit))
+
+        rs = tuple(i for i in rs if i[1]!=0)
+
+        for i in reversed(rs):
+            series.append(i[0])
+
+        return series
+
+
 def main():
 
     bar = DBMS()
@@ -203,6 +212,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-

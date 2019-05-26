@@ -166,7 +166,7 @@ class Exporter(object):
                 
                 rs_results = self.read(False, SQL_RESULTS, (batch[0],))
                 
-                series = self.get_series(batch[0])
+                series = self.get_series(batch[0], int(self.get_elements()))
                 
                 if len(series) > 9:
                     rule = self.get_westgard_violation_rule(batch[4], batch[5], series, batch, test)
@@ -178,19 +178,12 @@ class Exporter(object):
                 try:
                     if rs_results:
 
-                        args = self.get_series_stat(series)
-
-          
-
-                        compute_avg = args[0]
-                        compute_sd = args[1]
-                        compute_cv = args[2]
-
+                        compute_cv = self.get_cv(series)
+                        compute_sd = self.get_sd(series)
+                        compute_avg = self.get_mean(series)
                         target = float(batch[4])
                         sd = float(batch[5])
                         bias = self.get_bias(compute_avg, target)
-
-    
                         result = float(rs_results[0])
                         date = rs_results[1].strftime("%d-%m-%Y")
 
@@ -211,10 +204,7 @@ class Exporter(object):
                             #elif (target - (sd*2) <= result <= target - (sd*3)):
                             elif result < (target - (sd*2)) and result > (target - (sd*3)):
                                 c = "yellow"
-
-
-          
-                                                        
+                             
                         ws.write(row,0,test[1])
                         ws.write(row,1,batch[2])
                         ws.write(row,2,target)
@@ -226,9 +216,6 @@ class Exporter(object):
                         ws.write(row,8,compute_cv)
                         ws.write(row,10,date)
                         
-                
-                        
-                    
                         if rule not in('Accept','No data'):
                             
                             ws.write(row,9,rule,self.xls_bg_colour('blue'))
@@ -236,14 +223,14 @@ class Exporter(object):
                             ws.write(row,9,rule,)
 
                         if c :
-                            ws.write(row,4,result,self.xls_bg_colour(c))
+                            ws.write(row,3,result,self.xls_bg_colour(c))
                             row +=1
                         else:
-                            ws.write(row,4,result,)
+                            ws.write(row,3,result,)
                             row +=1
                 except:
                    
-                    self.engine.on_log(self,
+                    self.on_log(self,
                                        inspect.stack()[0][3],
                                        sys.exc_info()[1],
                                        sys.exc_info()[0],
@@ -264,7 +251,7 @@ class Exporter(object):
         #indexing is zero based, row then column
         cols =('T','analyte','batch','expiration','target','avg',
                'CVa','CVw','CVb','Imp%','Bias%','TEa%','CVt','k imp',
-               'k bias','TE%','Drc%','records',)
+               'k bias','TE%','Sigma','Sce','Drc%','records',)
         for c,t in enumerate(cols):
             ws.write(row,c, t, self.xls_style_font(True, False, 'Arial'))
 
@@ -272,69 +259,87 @@ class Exporter(object):
         
         for i in rs:
             
-            args = self.get_stat(i[0], limit)
+            series = self.get_series(i[0], limit)
+
+            if len(series) > 5:
+
+                cva = self.get_cv(series)
+                sd = self.get_sd(series)
+                avg = self.get_mean(series)
+                cvw = i[6]
+                cvb = i[7]
+                target = float(i[5])
             
-            if args:
-                if args[0] > 5:
+          
 
-                    elements = args[0]
-                    cva = round(args[1],2)
-                    sd = round(args[3],2)
-                    avg = args[2]
-                    cvw = i[6]
-                    cvb = i[7]
-                    target = float(i[5])
                    
-                    ws.write(row, 0, i[1])
-                    ws.write(row, 1, i[2], self.xls_style_font(True, False, 'Times New Roman'))
-                    ws.write(row, 2, str(i[3]))
-                    ws.write(row, 3, str(i[4]))
-                    ws.write(row, 4, target)
-                    ws.write(row, 5, avg)
+                ws.write(row, 0, i[1])
+                ws.write(row, 1, i[2], self.xls_style_font(True, False, 'Times New Roman'))
+                ws.write(row, 2, str(i[3]))
+                ws.write(row, 3, str(i[4]))
+                ws.write(row, 4, target)
+                ws.write(row, 5, avg)
 
-                    #if cva is > cvw*0.50 
-                    if cva > self.get_imp(cvw):
-                        ws.write(row, 6, float(cva), self.xls_bg_colour("blue"))
-                    else:
-                        ws.write(row, 6, float(cva))
-                        
-                    ws.write(row, 7, float(cvw))
-                    ws.write(row, 8, float(cvb))
-                    ws.write(row, 9, xlwt.Formula(self.get_formula_imp(row)),)
-                    ws.write(row, 10, xlwt.Formula(self.get_formula_bias(row,)),)
-                    ws.write(row, 11, xlwt.Formula(self.get_formula_eta(row)),)
-                    ws.write(row, 12, xlwt.Formula(self.get_formula_cvt(row)),)
+                #if cva is > cvw*0.50 
+                if cva > self.get_imp(cvw):
+                    ws.write(row, 6, float(cva), self.xls_bg_colour("blue"))
+                else:
+                    ws.write(row, 6, float(cva))
+                    
+                ws.write(row, 7, float(cvw))
+                ws.write(row, 8, float(cvb))
+                ws.write(row, 9, xlwt.Formula(self.get_formula_imp(row)),)
+                ws.write(row, 10, xlwt.Formula(self.get_formula_bias(row,)),)
+                ws.write(row, 11, xlwt.Formula(self.get_formula_eta(row)),)
+                ws.write(row, 12, xlwt.Formula(self.get_formula_cvt(row)),)
 
-                    x = self.get_formula_k_imp(cva, cvw, row)
-                    if x is not None:
-                        if x[1] is not None:
-                            ws.write(row, 13, xlwt.Formula(x[0]), self.xls_bg_colour(x[1]))
-                        else:
-                            ws.write(row, 13, xlwt.Formula(x[0]))
-
-                    x = self.get_formula_k_bias(avg, target, cva, cvw, row)
+                x = self.get_formula_k_imp(cva, cvw, row)
+                if x is not None:
                     if x[1] is not None:
-                        ws.write(row, 14, xlwt.Formula(x[0]), self.xls_bg_colour(x[1]))
+                        ws.write(row, 13, xlwt.Formula(x[0]), self.xls_bg_colour(x[1]))
                     else:
-                        ws.write(row, 14, xlwt.Formula(x[0]))
+                        ws.write(row, 13, xlwt.Formula(x[0]))
 
-                    x = self.get_ets(avg, target, cvw, cvb, sd, cva)
-                    ws.write(row,15,x[0],self.xls_bg_colour(x[1]))
-                    x = self.get_formula_drc(row)
-                    ws.write(row, 16, xlwt.Formula(x))
-                    #records
-                    ws.write(row, 17, elements,)
-                    row +=1
+                x = self.get_formula_k_bias(avg, target, cva, cvw, row)
+                if x[1] is not None:
+                    ws.write(row, 14, xlwt.Formula(x[0]), self.xls_bg_colour(x[1]))
+                else:
+                    ws.write(row, 14, xlwt.Formula(x[0]))
+
+                x = self.get_tea_tes_comparision(avg, target, cvw, cvb, sd, cva)
+                ws.write(row,15,x[0],self.xls_bg_colour(x[1]))
+
+                #compute sigma
+                x = self.get_sigma(cvw, cvb, target, series)
+                ws.write(row, 16, x)
+
+                #compute sistematic critical error
+                x = self.get_sce(cvw, cvb, target, series)
+                ws.write(row,17,x[0],self.xls_bg_colour(x[1]))
+
+                #compute critical difference
+                x = self.get_formula_drc(row)
+                ws.write(row, 18, xlwt.Formula(x))
+                
+                #records
+                ws.write(row, 19, len(series),)
+                row +=1
 
         obj.save(path)
         self.launch(path)
+
+
+    def get_formula_drc(self,row):
+        """compute critical difference"""
+        #=ROUND((ROUND(SQRT(POWER(G30,2)+POWER(H30,2))*2.77,2))*F30/100,2)
+        #return "ROUND((ROUND(SQRT(POWER(G%s;2)+POWER(H%s;2))*2.77;2))*F%s/100,2)"%(row+1,row+1,row+1,)
+        return "(ROUND(SQRT(POWER(G%s;2)+POWER(H%s;2))*2.77;2))"%(row+1,row+1,)
 
 
     def get_formula_imp(self, row):
         return "ROUND((H%s * 0.5);2)"%(row+1,)
 
     def get_formula_bias(self, row):
-
         return "ROUND(SQRT(POWER(H%s;2)+POWER(I%s;2))*0.25;2)"%(row+1,row+1,)
 
     def get_formula_eta(self, row):
@@ -348,7 +353,7 @@ class Exporter(object):
         try:
 
             k = round((cva/cvw),2)
-
+            
             if 0.25 <= k <= 0.50:
                 c ="green"
             elif 0.50 <= k <= 0.75:
@@ -356,19 +361,20 @@ class Exporter(object):
             elif  k > 0.75:
                 c = "red"
             else:
-                c = None
-
+                c = "green"
+          
             f = "ROUND(G%s/H%s;2)"%(row+1,row+1)
             return f,c
-        except:
+
+        except (ZeroDivisionError,ValueError):
             return None
 
     def get_formula_k_bias(self,avg, target, cvw, cva, row):
 
         """return bias k 0.125,0.25,0.375"""
-
+        
         k = round(self.get_bias(avg, target)/self.get_cvt(cva,cvw),2)
-
+     
         if 0.125 <= k <= 0.25:
             c ="green"
         elif 0.25 <= k <= 0.375:
@@ -376,83 +382,21 @@ class Exporter(object):
         elif  k > 0.375:
             c = "red"
         else:
-            c = None
-
+            c = "green"
+       
         f = "ROUND((((F%s-E%s)/E%s)*100)/SQRT(POWER(H%s;2)+POWER(I%s;2));2)"%(row+1,row+1,
                                                                               row+1,row+1,
-                                                                              row+1,)
+                                                                              row+1,)             
         return f,c
-
-    def get_ets(self, avg, target, cvw, cvb, sd, cva):
-
-        """The European goals for imprecion and inaccuracy can be transformed
-           to a biologic allowable total error (TEBA), as described
-           by EQA-Organizers, according to the following formula:
-           TEBA| = |BiasA| + 1.65 * sA (or CVA)
-           
-           x = ETA
-           y = ETS"""
-
-
-        try:
-            x = round(self.get_allowable_bias(cvw, cvb) + (1.65 * self.get_imp(cvw)),2)
-            y = self.get_et(target, avg, cva)
-            
-
-            if y < x:
-                c = "green"
-            elif y == x:
-                c = "yellow"
-            elif y > x:
-                c = "red"
-
-            return y,c
-        except ZeroDivisionError:
-            return None
-
-
-    def get_imp(self,cvw):
-        """The Cotlove/Harris concept defines the maximum allowable imprecision,
-           CVA,as the maximum imprecision, that when added to the within-subject
-           biological variation, CVw, will maximimally increase the total CV by 12%,
-           which is achieved when:
-           CVa <= 0.5*CVw"""
-        return round(cvw*0.5,2)
-
-    def get_formula_drc(self,row):
-        """compute critical difference"""
-        #=ROUND((ROUND(SQRT(POWER(G30,2)+POWER(H30,2))*2.77,2))*F30/100,2)
-        #return "ROUND((ROUND(SQRT(POWER(G%s;2)+POWER(H%s;2))*2.77;2))*F%s/100,2)"%(row+1,row+1,row+1,)
-        return "(ROUND(SQRT(POWER(G%s;2)+POWER(H%s;2))*2.77;2))"%(row+1,row+1,)
-
-
-    def get_delta_esc(self,cvw,cvb,sd):
-        """compute delta sistematic criticalerror"""
-
-        bias = self.get_allowable_bias(cvw,cvb)
-        eta = round((1.65 * self.get_imp(cvw)) + (self.get_cvt(cvw,cvb)*0.25),2)
-        x = (eta-bias)/sd
-        y = round(x-1.65,2)
-        if y > 3:
-            c = "green"
-        elif y > 2 and y <= 3:
-            c = "yellow"
-        elif y < 2:
-            c = "red"
-        else:
-            c = None
-        return y,c
-
-    def get_delta_ecc(self,cvw,cvb,sd):
-
-        bias = self.get_allowable_bias(cvw,cvb)
-        eta = round((1.65 * self.get_imp(cvw)) + (self.get_cvt(cvw,cvb)*0.25),2)
-        x = eta-bias
-        y = sd * 1.65
-        return round(x/y,2)
         
 
     def xls_bg_colour(self,colour):
+
+        """ Colour index
+        8 through 63. 0 = Black, 1 = White, 2 = Red, 3 = Green, 4 = Blue, 5 = Yellow, 6 = Magenta,
+        7 = Cyan, 16 = Maroon, 17 = Dark Green, 18 = Dark Blue, 19 = Dark Yellow , almost brown),
+        20 = Dark Magenta, 21 = Teal, 22 = Light Gray, 23 = Dark Gray, """
+
 
         dict_colour = {"green":3,
                        "red":2,
