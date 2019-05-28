@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-""" This is the launcher module of Biovarase. 
-It open file generate from Biovarase."""
 import os
 import subprocess
 import threading
@@ -13,16 +10,12 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-25"
+__date__ = "2019-05-28"
 __status__ = "Production"
 
-
-class Launcher(threading.Thread):
+class Launcher(object):
     def __init__(self,*args, **kwargs):
-
         super(Launcher, self).__init__( *args, **kwargs)
-        
-        threading.Thread.__init__(self)
 
         self.args = args
         self.kwargs = kwargs
@@ -30,13 +23,12 @@ class Launcher(threading.Thread):
     def __str__(self):
         return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Launcher.__mro__])        
         
-    def run(self):
-        self.open_file(self.path)
-
     def launch(self, path):
-        self.path = path
-        self.run()
 
+        x = threading.Thread(target=self.open_file(path), daemon=True)
+
+        x.start()    
+        
     def open_file(self,path):
 
         if os.path.exists(path):
@@ -44,7 +36,7 @@ class Launcher(threading.Thread):
                 subprocess.call(["xdg-open", path])
             else:
                 os.startfile(path)
-
+  
 def main():
 
     foo = Launcher()
