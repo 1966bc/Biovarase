@@ -25,9 +25,7 @@ class Launcher(object):
         
     def launch(self, path):
 
-        x = threading.Thread(target=self.open_file(path), daemon=True)
-
-        x.start()    
+        threading.Thread(target=self.open_file(path), daemon=True).start()    
         
     def open_file(self,path):
 
