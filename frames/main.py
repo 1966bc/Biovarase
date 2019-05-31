@@ -818,7 +818,7 @@ class Biovarase(ttk.Frame):
 class App(tk.Tk):
     """Biovarase Main Application start here"""
     def __init__(self, *args, **kwargs):
-        super(App, self).__init__()
+        super().__init__()
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
 
@@ -856,8 +856,10 @@ def main():
     
     for i in sys.argv:
         args.append(i)
+
+    database = {"path":'biovarase.db'}
     
-    kwargs={"style":"clam", "icon":"biovarase.png", "title":"Biovarase", "engine":Engine(*args)}
+    kwargs={"style":"clam", "icon":"biovarase.png", "title":"Biovarase", "engine":Engine(*args,**database)}
 
     app = App(*args, **kwargs)
 
