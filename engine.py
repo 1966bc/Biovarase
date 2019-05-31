@@ -7,9 +7,9 @@ import inspect
 from dbms import DBMS
 from tools import Tools
 from qc import QC
+from westgards import Westgards
 from exporter import Exporter
 from launcher import Launcher
-from westgards import Westgards
 
 
 __author__ = "1966bc aka giuseppe costanzi"
@@ -32,11 +32,9 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
         self.kwargs = kwargs
 
         self.title = "Biovarase"
-
         platform = "Developed on Debian Release 9 (stretch) 64-bit"
-        s = "%s ver %s\nwritten by\n1966bc\nLocation:\nMilk galaxy\nSolar System\nThird planet(Earth) Italy(Rome)\ngiuseppecostanzi@gmail.com\n%s"
-        msg = (s % (self.title, __version__, platform))
-
+        s = "{0} ver {1}\nwritten by\n1966bc\nLocation:\nMilk galaxy\nSolar System\nThird planet(Earth) Italy(Rome)\ngiuseppecostanzi@gmail.com\n{2}"
+        msg = s.format(self.title, __version__, platform)
         self.about = msg
 
         self.no_selected = "Attention!\nNo record selected!"
@@ -48,7 +46,7 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
         
 
     def __str__(self):
-        return "class: %s\nMRO: %s\ncon: %s" % (self.__class__.__name__,  [x.__name__ for x in Engine.__mro__],self.con)
+        return "class: {0}\nMRO:{1}".format(self.__class__.__name__,  [x.__name__ for x in Engine.__mro__])
     
     def get_python_version(self,):
         return "Python version: %s" % ".".join(map(str, sys.version_info[:3]))
@@ -63,11 +61,11 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
             return e
         except:
             self.on_log(self,
-                               inspect.stack()[0][3],
-                               sys.exc_info()[1],
-                               sys.exc_info()[0],
-                               sys.modules[__name__])
-
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
+            
     def set_elements(self, elements):
 
         try:
@@ -77,10 +75,10 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
             
         except:
             self.on_log(self,
-                               inspect.stack()[0][3],
-                               sys.exc_info()[1],
-                               sys.exc_info()[0],
-                               sys.modules[__name__])      
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
     def get_dimensions(self):
 
@@ -94,16 +92,15 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
             return d
         except:
             self.on_log(self,
-                               inspect.stack()[0][3],
-                               sys.exc_info()[1],
-                               sys.exc_info()[0],
-                               sys.modules[__name__])
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 def main():
 
     foo = Engine()
     print(foo)
-    elements = foo.get_elements()
-    print(elements)
+    print(foo.con)
     input('end')
 
 if __name__ == "__main__":
