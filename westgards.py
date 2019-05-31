@@ -21,11 +21,6 @@ class Westgards(object):
         self.args = args
         self.kwargs = kwargs
         
-        #print("args type: {0} len:{1}".format(type(self.args),len(self.args)))
-
-        #for p,i in enumerate(self.args):
-            #print("{} {}".format(p, i))
-
       
     def __str__(self):
         return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in DBMS.__mro__],)
