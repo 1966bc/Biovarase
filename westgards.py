@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """ This is the westgard module of Biovarase. 
-It provides to perform the calculations for the rules of westgard."""
+It provides to perform the calculations for the westgard's rules."""
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
