@@ -4,9 +4,6 @@
 This class  inherit from other classes."""
 import sys
 import inspect
-import time
-import numpy as np
-import math
 
 from dbms import DBMS
 from tools import Tools
