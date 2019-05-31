@@ -306,7 +306,7 @@ class Exporter(object):
                 else:
                     ws.write(row, 14, xlwt.Formula(x[0]))
 
-                x = self.get_tea_tes_comparision(avg, target, cvw, cvb, sd, cva)
+                x = self.get_tea_tes_comparision(avg, target, cvw, cvb, cva)
                 ws.write(row,15,x[0],self.xls_bg_colour(x[1]))
 
                 #compute sigma
