@@ -24,8 +24,6 @@ class QC(object):
 
         self.args = args
         self.kwargs = kwargs
-        #print("args type: {0} len:{1}".format(type(self.args),len(self.args)))
-        
          
     def __str__(self):
         return "class: %s" % (self.__class__.__name__, )
