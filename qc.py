@@ -136,7 +136,7 @@ class QC(object):
         return sce,c
 
 
-    def get_tea_tes_comparision(self, avg, target, cvw, cvb, sd, cva):
+    def get_tea_tes_comparision(self, avg, target, cvw, cvb, cva):
 
         """Confronting total error allowable vs total error instrumental
            
