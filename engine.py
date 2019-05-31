@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-""" This is the engine of Biovarase. This module show inheritance.
-This class  inherit from other classes."""
+""" This is the engine module of Biovarase. This class  inherit from other classes."""
 import sys
 import inspect
 
