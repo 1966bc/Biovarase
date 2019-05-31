@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-""" This is the westgard module of Biovarase. 
-It provides to perform the calculations for the westgard's rules."""
+""" This is the westgard module of Biovarase.
+    It provides to perform the westgard's rules calculations."""
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -18,15 +18,11 @@ class Westgards(object):
     def __init__(self,*args, **kwargs):
         super(Westgards, self).__init__( *args, **kwargs)
 
-        self.args = args
-        self.kwargs = kwargs
-        
       
     def __str__(self):
-        return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in DBMS.__mro__],)
+        return "class: {0}\nMRO: {1}".format(self.__class__.__name__,  [x.__name__ for x in Westgards.__mro__],)
 
         
-
     def get_westgard_violation_rule(self, target, sd, series,selected_batch=None, selected_test=None):
         """This function recive target, sd and a value series
            to compute westgard violtetion rule.
@@ -37,22 +33,14 @@ class Westgards(object):
             @rtype: string
             """
         
-        #print(target, sd)
-        #print (len(series))
-        #print (type(series))
-        #for i in series:
-            #print(i)
         self.target = target
         self.sd = sd
         self.series = series
         self.selected_batch = selected_batch
         self.selected_test = selected_test
         
-
         self.get_standard_deviations(target, sd)
-
     
-        
         if self.get_rule_12S():
             if self.get_rule_13S():
                 return "1:3S"
@@ -132,12 +120,7 @@ class Westgards(object):
 
         last_two_values = self.series[-2:]
     
-        #print(self.selected_test)
-        #print(self.selected_batch)
-        #print(last_two_values)
-        #print(len(self.series))
-        #print(self.series)
-        
+
         x = (all(i >= self.sd2 for i in last_two_values))
         y = (all(i <= self.sd_2 for i in last_two_values))
 
