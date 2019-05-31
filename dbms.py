@@ -17,16 +17,21 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 
-class DBMS(object):
+class DBMS():
     def __init__(self, *args, **kwargs):
-        super(DBMS, self).__init__( *args, **kwargs)
-
+        
         self.args = args
         self.kwargs = kwargs
-      
-        path = 'biovarase.db'
-        self.get_connection(path)
 
+        self.set_connection(kwargs)
+
+    def __str__(self):
+        return "class: %s" % (self.__class__.__name__, )        
+        
+    def set_connection(self,kwargs):
+
+        self.get_connection(kwargs["path"])
+        
     def get_connection(self, path):
 
         self.con = lite.connect(path,
@@ -200,7 +205,14 @@ class DBMS(object):
 
 def main():
 
-    bar = DBMS()
+    args = []
+    
+    for i in sys.argv:
+        args.append(i)
+
+    kwargs = {"path":'biovarase.db'}
+
+    bar = DBMS(*args, **kwargs)
     print (bar)
     sql = "SELECT name FROM sqlite_master WHERE type = 'view'"
     rs = bar.read(True, sql)

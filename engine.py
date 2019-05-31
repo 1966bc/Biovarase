@@ -23,11 +23,11 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
-
     def __init__(self, *args, **kwargs):
-        super().__init__( *args, **kwargs)
+        super(Engine, self).__init__(*args, **kwargs)
+        #for base_class in Engine.__bases__:
+             #base_class.__init__(self, *args, **kwargs)
         
-
         self.args = args
         self.kwargs = kwargs
 
@@ -98,7 +98,15 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
                         sys.modules[__name__])
 def main():
 
-    foo = Engine()
+    args = []
+    
+    for i in sys.argv:
+        args.append(i)
+
+    kwargs = {"path":'biovarase.db'}
+    
+
+    foo = Engine(*args, **kwargs)
     print(foo)
     print(foo.con)
     input('end')

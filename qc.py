@@ -18,16 +18,14 @@ __date__ = "2019-05-25"
 __status__ = "Production"
 
 
-class QC(object):
-    def __init__(self,*args, **kwargs):
-        super(QC, self).__init__( *args, **kwargs)
-
+class QC():
+    def __init__(self, *args, **kwargs):
+       
         self.args = args
         self.kwargs = kwargs
-         
+        
     def __str__(self):
         return "class: %s" % (self.__class__.__name__, )
-
 
     def get_sd(self, values):
         """Standard deviation is a statistic that quantifies how
@@ -41,6 +39,7 @@ class QC(object):
 
         return round(np.std(values),2)
 
+
     def get_cv(self, values):
         """The Coefficient of Variation [CV] is the ratio of the
            standard deviation to the mean and is expressed
@@ -51,6 +50,7 @@ class QC(object):
         
         return round((sd/mean)*100,2)
 
+    
     def get_mean(self, values):
         """To calculate a mean for a specific level of control,
           first, add all the values collected for that control.
@@ -58,6 +58,7 @@ class QC(object):
           number of values."""
         return round(np.mean(values),2)
 
+    
     def get_range(self, values):
         """Range is a measure of dispersion which is the difference between 
            the largest and the smallest observed value of a quantitative 
@@ -65,6 +66,7 @@ class QC(object):
         
         return round(np.ptp(values),2)
 
+    
     def get_bias(self, avg, target):
         """Bias is the systematic, signed deviation of the test results
            from the accepted reference value."""
@@ -80,15 +82,18 @@ class QC(object):
                        sys.modules[__name__])
         return bias
 
-    def get_cvt(self,cvw,cva):
+    
+    def get_cvt(self, cvw, cva):
         
         return round(math.sqrt(cva**2 + cvw**2),2)
 
-    def get_allowable_bias(self,cvw,cvb):
+    
+    def get_allowable_bias(self, cvw, cvb):
         """The specification for analytical bias."""
         
         return abs(round(math.sqrt((math.pow(cvw,2) + math.pow(cvb,2)))*0.25,2))
 
+    
     def get_te(self, target, avg, cv):
         """Compute Totale Error as Te = |Bias| + 1.65 * cv."""
         
@@ -96,12 +101,13 @@ class QC(object):
 
         return round(bias + (1.65*cv),2)
 
+    
     def get_tea(self, cvw, cvb):
         """Compute Totale Error Allowable."""
         
         return round(self.get_allowable_bias(cvw, cvb) + (1.65 * self.get_imp(cvw)),2)
-        
 
+    
     def get_sigma(self, cvw, cvb, target, series):
         """Compute sigma."""
         
@@ -113,7 +119,7 @@ class QC(object):
         
         return round(sigma,2)
 
-
+    
     def get_sce(self, cvw, cvb, target, series):
         """compute delta sistematic critical error."""
 
@@ -133,7 +139,7 @@ class QC(object):
             c = None
         return sce,c
 
-
+    
     def get_tea_tes_comparision(self, avg, target, cvw, cvb, cva):
 
         """Confronting total error allowable vs total error instrumental
@@ -142,7 +148,10 @@ class QC(object):
            y = Tes instrumental,  computed"""
         
         try:
-            x = round(self.get_allowable_bias(cvw, cvb) + (1.65 * self.get_imp(cvw)),2)
+            
+            x = round(self.get_allowable_bias(cvw, cvb)
+                      + (1.65 * self.get_imp(cvw)),2)
+            
             y = self.get_te(target, avg, cva)
             
             if y < x:
@@ -159,8 +168,8 @@ class QC(object):
         except ZeroDivisionError:
             return None
 
-
-    def get_imp(self,cvw):
+        
+    def get_imp(self, cvw):
         """The Cotlove/Harris concept defines the maximum allowable imprecision,
            CVA,as the maximum imprecision, that when added to the within-subject
            biological variation, CVw, will maximimally increase the total CV by 12%,
@@ -168,6 +177,7 @@ class QC(object):
         
         return round(cvw*0.5,2)
 
+    
     def percentage(self, percent, whole):
         return (percent * whole) / 100.0        
 

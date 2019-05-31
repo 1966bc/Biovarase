@@ -31,20 +31,16 @@ __status__ = "Production"
 
 
 
-class Exporter(object):
-    def __init__(self,*args, **kwargs):
-        super(Exporter, self).__init__()
+class Exporter():
+    def __init__(self, *args, **kwargs):
         
-
         self.args = args
         self.kwargs = kwargs
         
     def __str__(self):
-        return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Exporter.__mro__])
-
+        return "class: %s" % (self.__class__.__name__, )
 
     def get_counts(self, args):
-
 
         try:
 

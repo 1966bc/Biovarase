@@ -14,11 +14,12 @@ __date__ = "2019-05-22"
 __status__ = "Production"
 
 
-class Westgards(object):
+class Westgards():
     def __init__(self,*args, **kwargs):
-        super(Westgards, self).__init__( *args, **kwargs)
-
-      
+        
+        self.args = args
+        self.kwargs = kwargs
+        
     def __str__(self):
         return "class: {0}\nMRO: {1}".format(self.__class__.__name__,  [x.__name__ for x in Westgards.__mro__],)
 

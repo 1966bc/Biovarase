@@ -21,15 +21,14 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
-class Tools(object):
-
+class Tools():
     def __init__(self,*args, **kwargs):
 
-        super(Tools, self).__init__( *args, **kwargs)
+        self.args = args
+        self.kwargs = kwargs
         
     def __str__(self):
-        return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Tools.__mro__])
-
+        return "class: %s" % (self.__class__.__name__, )
 
     def on_log(self, container, function, exc_value, exc_type, module):
 
