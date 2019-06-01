@@ -66,8 +66,6 @@ class DBMS():
 
     def read(self, fetch, sql, args=()):
 
-        #print  sql, args
-
         try:
             cur = self.con.cursor()
             cur.execute(sql,args)
@@ -87,7 +85,6 @@ class DBMS():
 
     def dump_db(self,):
 
-        
         dt = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         s = dt + ".sql"
         with open(s, 'w') as f:
