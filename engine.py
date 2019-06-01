@@ -24,7 +24,7 @@ __status__ = "Production"
 
 class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
     def __init__(self, *args, **kwargs):
-        super(Engine, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         #for base_class in Engine.__bases__:
              #base_class.__init__(self, *args, **kwargs)
         
