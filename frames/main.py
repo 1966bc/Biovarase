@@ -4,7 +4,6 @@ import inspect
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import datetime
 
 import matplotlib.pyplot as plt
 
@@ -96,21 +95,8 @@ class Biovarase(ttk.Frame):
         s.configure('westgard.TLabel',
                     background=self.engine.get_rgb(205, 92, 92))
 
-        s.configure('westgard_ok.TLabel',
-                    background=self.engine.get_rgb(152,251,152))
-
         s.configure('Statusbar.TLabel',
                     foreground='blue',)
-
-        s.configure('listener_true.TLabel',
-                    foreground='green',)
-        
-        s.configure('listener_false.TLabel',
-                    foreground='red',)
-
-
-        s.configure('listener_false.TLabel',
-                    foreground='red',)
 
         s.configure('black_and_withe.TLabel',
                     background=self.engine.get_rgb(255,255,255),
