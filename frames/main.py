@@ -4,6 +4,7 @@ import inspect
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+import datetime
 
 import matplotlib.pyplot as plt
 
@@ -294,8 +295,8 @@ class Biovarase(ttk.Frame):
         #Figure: The top level container for all the plot elements.
         gs = gridspec.GridSpec(1, 2, width_ratios=[3, 1])
         fig = Figure()
-        fig.suptitle(self.engine.title, fontsize=16)
-        fig.subplots_adjust(bottom=0.10, right=0.96, left= 0.08, top=0.88,wspace=0.10)
+        #fig.suptitle(self.engine.title, fontsize=16)
+        fig.subplots_adjust(bottom=0.10, right=0.96, left= 0.08, top=0.95,wspace=0.10)
         self.lj = fig.add_subplot(gs[0], facecolor=('xkcd:light grey'))
         self.frq = fig.add_subplot(gs[1], facecolor=('xkcd:light grey'))
         self.canvas = FigureCanvasTkAgg(fig, f3)
@@ -661,16 +662,14 @@ class Biovarase(ttk.Frame):
             self.lj.set_ylabel("No unit assigned yet")
 
 
-        s = "{0} Batch: {1} Target: {2} SD: {3} Exp: {4}".format(self.selected_test[1],
-                                                         self.selected_batch[2],
-                                                         self.selected_batch[4],
-                                                         self.selected_batch[5],
-                                                         self.selected_batch[3],)
+        s = "{0} {1}".format(self.selected_test[1], self.selected_batch[2],)
 
-        self.lj.set_title(s, weight='bold',loc='left')
+        self.lj.set_title(s, weight='bold',loc='center')
 
-
-        bottom_text = ("from %s to %s"%(dates[0],dates[-1]), count_series, count_rs)
+       
+        bottom_text = ("from %s to %s"%(dates[0].strftime("%Y-%m-%d"),
+                                        dates[-1].strftime("%Y-%m-%d")),
+                       count_series, count_rs)
 
         self.lj.text(0.95, 0.01,
                      '%s computed %s on %s results'%bottom_text,
@@ -678,6 +677,7 @@ class Biovarase(ttk.Frame):
                      horizontalalignment='right',
                      transform=self.lj.transAxes,
                      color='black',weight='bold')
+
 
     def set_histogram(self, series, target, avg, sd, cv, compute_sd):
 
@@ -688,8 +688,6 @@ class Biovarase(ttk.Frame):
         self.frq.axvline(target, color='orange',linewidth=2)
         self.frq.axvline(avg, color='b',linewidth=2)
         self.frq.set_ylabel('Frequency')
-        title = "avg = %.2f,  std = %.2f cv = %.2f" % (avg, compute_sd, cv)
-        self.frq.set_title(title)
         um = self.get_um()
         if um is  not None:
             self.frq.set_xlabel(str(um[0]))
