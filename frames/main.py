@@ -98,7 +98,7 @@ class Biovarase(ttk.Frame):
 
         s.configure('black_and_withe.TLabel',
                     background=self.engine.get_rgb(255,255,255),
-                    foreground=self.engine.get_rgb(0,0,0),)
+                    foreground=self.engine.get_rgb(77,77,77),)
 
     def center_ui(self):
         
