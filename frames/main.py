@@ -78,6 +78,7 @@ class Biovarase(ttk.Frame):
     def set_style(self):
         
         s = ttk.Style()
+        
         s.configure('Target.TLabel',
                     foreground=self.engine.get_rgb(255,69,0),
                     background=self.engine.get_rgb(255,255,255))
@@ -86,14 +87,11 @@ class Biovarase(ttk.Frame):
                     foreground=self.engine.get_rgb(0,0,255),
                     background=self.engine.get_rgb(255,255,255))
 
-        s.configure('white_bg.TLabel',
-                    background=self.engine.get_rgb(255,255,255),)
-
-        s.configure('westgard_violation_bg.TLabel',
+        s.configure('westgard_violation.TLabel',
                     background=self.engine.get_rgb(255,106,106),)
 
-        s.configure('westgard.TLabel',
-                    background=self.engine.get_rgb(205, 92, 92))
+        s.configure('westgard_ok.TLabel',
+                    background=self.engine.get_rgb(152,251,152))
 
         s.configure('Statusbar.TLabel',
                     foreground='blue',)
@@ -249,7 +247,7 @@ class Biovarase(ttk.Frame):
         ttk.Label(w, text="Westgard").pack()
 
         self.lblWestgard = ttk.Label(w,
-                                     style='white_bg.TLabel',
+                                     style='black_and_withe.TLabel',
                                      anchor = tk.CENTER,
                                      textvariable=self.westgard)
         self.lblWestgard.pack(fill=tk.X, padx=2,pady=2)
@@ -349,7 +347,7 @@ class Biovarase(ttk.Frame):
         self.bias.set(0)
         self.range.set(0)
         self.te.set(0)
-        self.westgard.set('No Data')
+        self.westgard.set("")
         self.set_westgard_alarm()
 
     def set_batch_data(self):
@@ -376,8 +374,8 @@ class Biovarase(ttk.Frame):
 
         if len(series) > 9:
             rule = self.engine.get_westgard_violation_rule(self.selected_batch[4],
-                                             self.selected_batch[5],
-                                             series)
+                                                           self.selected_batch[5],
+                                                           series)
         else:
             rule = "No data"
 
@@ -386,12 +384,14 @@ class Biovarase(ttk.Frame):
 
     def set_westgard_alarm(self):
 
-        if self.westgard.get() not in("Accept","No data"):
-            self.lblWestgard.configure(style='westgard_violation_bg.TLabel',)
+        if self.westgard.get() == "Accept":
+            self.lblWestgard.configure(style='westgard_ok.TLabel',)
+        elif self.westgard.get() in("No Data", ""):
+            self.lblWestgard.configure(style='black_and_withe.TLabel',)
         else:
-            self.lblWestgard.configure(style='white_bg.TLabel',)
-
-
+            self.lblWestgard.configure(style='westgard_violation.TLabel',)
+            
+            
     def set_tests(self):
 
         index = 0
