@@ -11,11 +11,17 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-05-28"
+__date__ = "2019-06-01"
 __status__ = "Production"
 
 class Launcher():
     def __init__(self, *args, **kwargs):
+        super().__init__()
+        
+        #notice that we don't use super().__init__(*args, **kwargs)
+        #here because this class is the last in mro call of engine.py
+        #class: Engine
+        #MRO:['Engine', 'DBMS', 'Tools', 'QC', 'Westgards', 'Exporter', 'Launcher', 'object']
 
         self.args = args
         self.kwargs = kwargs
