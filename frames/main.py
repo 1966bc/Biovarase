@@ -82,8 +82,9 @@ class Biovarase(ttk.Frame):
                     foreground=self.engine.get_rgb(255,69,0),
                     background=self.engine.get_rgb(255,255,255))
 
+        ##1966BC Color Hex  (25,102,188) 
         s.configure('Average.TLabel',
-                    foreground=self.engine.get_rgb(0,0,255),
+                    foreground=self.engine.get_rgb(25,102,188),
                     background=self.engine.get_rgb(255,255,255))
 
         s.configure('westgard_violation.TLabel',
