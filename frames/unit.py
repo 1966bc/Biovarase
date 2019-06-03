@@ -13,7 +13,7 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
-class Dialog(tk.Toplevel):     
+class Widget(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='unit')
 

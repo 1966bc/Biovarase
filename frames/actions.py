@@ -14,22 +14,20 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
-class Dialog(tk.Toplevel):     
+class Widget(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='actions')
 
         self.parent = parent
         self.engine = kwargs['engine']
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
-
-        self.attributes('-topmost', True)
         self.objs = []
         self.init_ui()
         self.engine.center_me(self)
 
     def init_ui(self):
     
-        f0 = self.engine.get_frame(self)
+        f0 = self.engine.get_frame(self,8)
 
         f1 = ttk.Frame(f0,)
         self.lstActions = self.engine.get_listbox(f1,)
@@ -64,7 +62,7 @@ class Dialog(tk.Toplevel):
 
     def on_add(self, evt):
 
-        obj = action.Dialog(self, engine=self.engine, index=None)
+        obj = action.Widget(self, engine=self.engine, index=None)
         obj.on_open()
         self.objs.append(obj)
 
@@ -75,7 +73,7 @@ class Dialog(tk.Toplevel):
 
         if self.lstActions.curselection():
             index = self.lstActions.curselection()[0]
-            obj = action.Dialog(self, engine=self.engine, index=index)
+            obj = action.Widget(self, engine=self.engine, index=index)
             obj.on_open(self.selected_item,)
             self.objs.append(obj)
                

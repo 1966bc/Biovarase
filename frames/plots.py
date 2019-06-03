@@ -35,14 +35,13 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-24"
 __status__ = "Production"
 
-
-class Dialog(tk.Toplevel):     
-    def __init__(self,parent, engine):
+class Widget(tk.Toplevel):     
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(name='plots')
 
         self.parent = parent
+        self.engine = kwargs['engine']
         self.minsize(1200, 600)
-        self.engine = engine
         self.obj = None
         self.engine.center_me(self)
         self.init_ui()

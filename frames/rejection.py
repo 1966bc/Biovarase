@@ -13,23 +13,20 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
-class Dialog(tk.Toplevel):     
+class Widget(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='rejection')
 
         self.parent = parent
         self.engine = kwargs['engine']
         self.index = kwargs['index']
-
         self.resizable(0,0)
         self.transient(parent) 
-                
         self.day =  tk.IntVar()
         self.month =  tk.IntVar()
         self.year =  tk.IntVar()
         self.description = tk.StringVar()
         self.enable =  tk.BooleanVar()
-        
         self.init_ui()
         self.engine.center_me(self)
 

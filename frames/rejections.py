@@ -14,14 +14,13 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 
-class Dialog(tk.Toplevel):     
+class Widget(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='rejections')
 
         self.parent = parent
         self.engine = kwargs['engine']
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
-
         self.attributes('-topmost', True)
         self.transient(parent) 
         self.resizable(0, 0)
@@ -112,7 +111,7 @@ class Dialog(tk.Toplevel):
                 
     def on_add(self, evt):
 
-        self.obj = frames.rejection.Dialog(self, engine=self.engine, index=None)
+        self.obj = frames.rejection.Widget(self, engine=self.engine, index=None)
         self.obj.on_open(self.selected_test,self.selected_batch, self.selected_result)
 
     def on_edit(self, evt):
@@ -122,7 +121,7 @@ class Dialog(tk.Toplevel):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
-            self.obj = frames.rejection.Dialog(self, engine=self.engine, index=index)
+            self.obj = frames.rejection.Widget(self, engine=self.engine, index=index)
             self.obj.on_open(self.selected_test,
                              self.selected_batch,
                              self.selected_result,

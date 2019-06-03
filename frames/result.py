@@ -14,17 +14,16 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 
-class Dialog(tk.Toplevel):     
+class Widget(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='result')
 
         self.parent = parent
         self.engine = kwargs['engine']
         self.index = kwargs['index']
-
         self.transient(parent) 
         self.resizable(0, 0)
-        
+
         self.day =  tk.IntVar()
         self.month =  tk.IntVar()
         self.year =  tk.IntVar()

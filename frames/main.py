@@ -33,8 +33,8 @@ import frames.export_rejections
 import frames.plots
 import frames.elements
 import frames.tea
-import frames.export_analytical_goals
-import frames.export_counts
+import frames.analytical_goals
+import frames.counts
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -516,7 +516,7 @@ class Biovarase(ttk.Frame):
     def on_result_activated(self, event):
 
         if self.lstResults.curselection():
-                obj = frames.rejections.Dialog(self, engine= self.engine,)
+                obj = frames.rejections.Widget(self, engine= self.engine,)
                 obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
 
 
@@ -682,46 +682,31 @@ class Biovarase(ttk.Frame):
 
 
     def on_analytical_goals(self):
-
-        f = frames.export_analytical_goals.Dialog(self,engine=self.engine)
-        f.on_open()    
-
+        frames.analytical_goals.Widget(self,engine=self.engine).on_open()    
 
     def on_tests(self,):
-
-        f = frames.tests.Dialog(self, engine=self.engine)
-        f.on_open()
+        frames.tests.Widget(self, engine=self.engine).on_open()
 
     def on_units(self,):
-
-        f = frames.units.Dialog(self, engine=self.engine)
-        f.on_open()
+        frames.units.Widget(self, engine=self.engine).on_open()
 
     def on_elements(self,):
-        f = frames.elements.Dialog(self, engine=self.engine)
-        f.on_open()
+        frames.elements.Widget(self, engine=self.engine).on_open()
         
     def on_data(self,):
-
-        f = frames.data.Dialog(self, engine=self.engine)
-        f.on_open()
+        frames.data.Widget(self, engine=self.engine).on_open()
 
     def on_actions(self,):
-        f = frames.actions.Dialog(self, engine=self.engine)
-        f.on_open()
+        frames.actions.Widget(self, engine=self.engine).on_open()
 
     def on_analitical(self,):
-
-        f = frames.analytical.Dialog(self, engine=self.engine)
-        f.on_open()
+        frames.analytical.Widget(self, engine=self.engine).on_open()
 
     def on_export_rejections(self,):
-        f = frames.export_rejections.Dialog(self, engine=self.engine)
-        f.on_open()
+        frames.export_rejections.Widget(self, engine=self.engine).on_open()
 
     def on_export_counts(self,):
-        f = frames.export_counts.Dialog(self,self.engine)
-        f.on_open()          
+        frames.counts.Widget(self,self.engine).on_open()          
 
     def on_plots(self,):
 
@@ -729,8 +714,7 @@ class Biovarase(ttk.Frame):
             index = self.cbTests.current()
             pk = self.dict_tests[index]
             selected_test = self.engine.get_selected('tests','test_id', pk)
-            f = frames.plots.Dialog(self, engine=self.engine)
-            f.on_open(selected_test)
+            frames.plots.Widget(self, engine=self.engine).on_open(selected_test)
         else:
             msg = "Not enough data to plot.\nSelect a test."
             messagebox.showwarning(self.engine.title,msg, parent=self)
@@ -741,8 +725,7 @@ class Biovarase(ttk.Frame):
             index = self.cbTests.current()
             pk = self.dict_tests[index]
             selected_test = self.engine.get_selected('tests', 'test_id', pk)
-            f = frames.tea.Dialog(self,self.engine)
-            f.on_open(selected_test)
+            frames.tea.Widget(self,engine=self.engine).on_open(selected_test)
         else:
             msg = "Not enough data to plot.\nSelect a test."
             messagebox.showwarning(self.engine.title,msg, parent=self)            
@@ -750,7 +733,7 @@ class Biovarase(ttk.Frame):
     def on_add_batch(self):
 
         if self.cbTests.current() != -1:
-            obj = frames.batch.Dialog(self, engine=self.engine, index=None)
+            obj = frames.batch.Widget(self, engine=self.engine, index=None)
             obj.on_open(self.selected_test)
 
         else:
@@ -761,7 +744,7 @@ class Biovarase(ttk.Frame):
 
         if self.lstBatches.curselection():
             index = self.lstBatches.curselection()[0]
-            obj = frames.batch.Dialog(self, engine=self.engine, index=index)
+            obj = frames.batch.Widget(self, engine=self.engine, index=index)
             obj.transient(self)
             obj.on_open(self.selected_test, self.selected_batch)
         else:
@@ -771,7 +754,7 @@ class Biovarase(ttk.Frame):
     def on_add_result(self,):
 
         if self.lstBatches.curselection():
-            obj = frames.result.Dialog(self, engine=self.engine, index=None)
+            obj = frames.result.Widget(self, engine=self.engine, index=None)
             obj.on_open(self.selected_test, self.selected_batch)
         else:
             msg = "Attention please.\nBefore add a result you must select a batch."
@@ -782,7 +765,7 @@ class Biovarase(ttk.Frame):
         try:
             if self.lstResults.curselection():
                 index = self.lstResults.curselection()[0]
-                obj = frames.result.Dialog(self, engine=self.engine, index=index)
+                obj = frames.result.Widget(self, engine=self.engine, index=index)
                 obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
 
             else:

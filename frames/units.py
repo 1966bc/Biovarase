@@ -14,7 +14,7 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
-class Dialog(tk.Toplevel):     
+class Widget(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='units')
 
@@ -60,7 +60,7 @@ class Dialog(tk.Toplevel):
 
     def on_add(self, evt):
 
-        obj = unit.Dialog(self, engine=self.engine,index =None)
+        obj = unit.Widget(self, engine=self.engine,index =None)
         obj.on_open()
         self.objs.append(obj)
 
@@ -71,7 +71,7 @@ class Dialog(tk.Toplevel):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
-            obj = unit.Dialog(self, engine=self.engine, index=index)
+            obj = unit.Widget(self, engine=self.engine, index=index)
             obj.on_open(self.selected_item,)
             self.objs.append(obj)
                

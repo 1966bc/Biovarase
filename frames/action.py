@@ -14,20 +14,17 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 
-class Dialog(tk.Toplevel):     
+class Widget(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='action')
 
         self.parent = parent
         self.engine = kwargs['engine']
         self.index = kwargs['index']
-
         self.resizable(0, 0)
         self.transient(parent) 
-        
         self.unit = tk.StringVar()
         self.enable =  tk.BooleanVar()
-        
         self.init_ui()
         self.engine.center_me(self)
 
@@ -58,7 +55,7 @@ class Dialog(tk.Toplevel):
             msg = "{0} {1}".format("Update ", self.selected_item[1])
             self.set_values()
         else:
-            msg = "Insert new"
+            msg = "Insert new action"
             self.enable.set(1)
 
         self.title(msg)

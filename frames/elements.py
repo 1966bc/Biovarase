@@ -14,14 +14,12 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 
-class Dialog(tk.Toplevel):     
+class Widget(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='elements')
 
-
         self.parent = parent
         self.engine = kwargs['engine']
-
         self.resizable(0,0)
         self.elements = tk.IntVar()
         self.vcmd = self.engine.get_validate_integer(self)
@@ -54,13 +52,10 @@ class Dialog(tk.Toplevel):
 
         self.elements.set(self.engine.get_elements())
         self.txElements.focus()
-
-
         self.title("Set elements")
         
     def on_save(self, evt=None):
 
-        
         if self.engine.on_fields_control(self)==False:return
 
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
