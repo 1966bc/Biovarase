@@ -21,9 +21,6 @@ from matplotlib.ticker import FormatStrFormatter
 from matplotlib.figure import Figure
 from matplotlib import gridspec
 
-from engine import Engine
-
-
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
