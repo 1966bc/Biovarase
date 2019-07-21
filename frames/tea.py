@@ -1,4 +1,4 @@
-""" This is the main module of Biovarase."""
+""" This is the tea module of Biovarase."""
 import tkinter as tk
 
 
