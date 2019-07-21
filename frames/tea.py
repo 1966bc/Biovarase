@@ -1,13 +1,6 @@
 """ This is the main module of Biovarase."""
-import sys
-import inspect
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import ttk
-import time
 
-
-import matplotlib.pyplot as plt
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -16,10 +9,8 @@ try:
 except:
     from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg as nav_tool
     
-import matplotlib.ticker
-from matplotlib.ticker import FormatStrFormatter
 from matplotlib.figure import Figure
-from matplotlib import gridspec
+
 
 
 __author__ = "1966bc aka giuseppe costanzi"
