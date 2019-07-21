@@ -1,7 +1,6 @@
 """ This is the tea module of Biovarase."""
 import tkinter as tk
 
-
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 try:
@@ -10,8 +9,6 @@ except:
     from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg as nav_tool
     
 from matplotlib.figure import Figure
-
-
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
