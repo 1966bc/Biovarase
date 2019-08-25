@@ -44,6 +44,32 @@ regards.
 ...
 ## changelog
 
+**2019-08-25**
+
+Hello everybody,
+
+here  new items of the project:
+
+- Possibility to set the value of ddof used to calculate the standard deviation with munpy, see check box on the left of the 
+
+statusbar and clicking on it see what happends to sd value.
+
+- Possibility to set the value of Z Score value.  You can see the Z Score set on the left side of the statusbar, if you want 
+
+change it go to main mane, Edit/Set Z Score, open the window and change it, if you don't remember the Z Score legal value go to 
+
+main menu on File/Z Score.
+
+- Possibility to show error bar , show check box on the left of the statusbar and see what happends
+
+- Total refactoring of Tea PLot windows, before the system calculation it'was wrong, now we compute upper and lower limit use 
+
+total error allowable funcion plus 4% as recommended by Biorad on this very interesting
+
+[Biological Variation Part 9](https://www.youtube.com/watch?v=b7R2tJWWrvM&list=PL8260BF796E272C8A&index=9)
+
+- Rearrangement of the main menu.
+
 **2019-05-26**
 
 Hello everybody, after having separated all qc funcions in a new module 
