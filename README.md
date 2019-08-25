@@ -60,6 +60,8 @@ You can see the Z Score set on the left side of the statusbar, if you want  chan
 
 the window and change it, if you don't remember the Z Score legal value go to main menu on File/Z Score.
 
+![alt tag]https://user-images.githubusercontent.com/5463566/63646648-60473c80-c716-11e9-9d5e-72b17ff18198.png
+
 
 
 - Possibility to show error bar , show check box on the left of the statusbar and see what happends
