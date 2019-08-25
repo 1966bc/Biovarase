@@ -38,7 +38,11 @@ class QC():
            or inconsistent (high standard deviation, high
            imprecision)."""
 
-        return round(np.std(values),2)
+        a = np.array(values)
+        
+        return round(np.std(a,
+                            ddof = self.get_ddof(),
+                            dtype = np.float64),2)
 
 
     def get_cv(self, values):
@@ -57,7 +61,9 @@ class QC():
           first, add all the values collected for that control.
           Then divide the sum of these values by the total
           number of values."""
-        return round(np.mean(values),2)
+        a = np.array(values)
+        return round(np.mean(a,
+                             dtype = np.float64),2)
 
     
     def get_range(self, values):
@@ -100,13 +106,13 @@ class QC():
         
         bias = self.get_bias(avg, target)        
 
-        return round(bias + (1.65*cv),2)
+        return round(bias + (self.get_zscore()*cv),2)
 
     
     def get_tea(self, cvw, cvb):
         """Compute Totale Error Allowable."""
         
-        return round(self.get_allowable_bias(cvw, cvb) + (1.65 * self.get_imp(cvw)),2)
+        return round((self.get_zscore() * self.get_imp(cvw)) + self.get_allowable_bias(cvw, cvb),2)
 
     
     def get_sigma(self, cvw, cvb, target, series):
@@ -149,23 +155,20 @@ class QC():
            y = Tes instrumental,  computed"""
         
         try:
+            TEa = round(self.get_allowable_bias(cvw, cvb) + (self.get_zscore() * self.get_imp(cvw)),2)
+            Tes = self.get_te(target, avg, cva)
             
-            x = round(self.get_allowable_bias(cvw, cvb)
-                      + (1.65 * self.get_imp(cvw)),2)
-            
-            y = self.get_te(target, avg, cva)
-            
-            if y < x:
+            if Tes < TEa:
                 c = "green"
                 r = "<"
-            elif y == x:
+            elif Tes == TEa:
                 c = "yellow"
                 r = "="
-            elif y > x:
+            elif Tes > TEa:
                 c = "red"
                 r = ">"
 
-            return y,c
+            return Tes,c
         except ZeroDivisionError:
             return None
 
@@ -190,10 +193,6 @@ def main():
     series = (4.0, 4.1, 4.0, 4.2, 4.1, 4.1, 4.2)
     mean = foo.get_mean(series)
     print("mean: {0}".format(mean))
-    sd = foo.get_sd(series)
-    print("sd: {0}".format(sd))
-    cv = foo.get_cv(series)
-    print("cv: {0}".format(cv))
     input('end')
        
 if __name__ == "__main__":

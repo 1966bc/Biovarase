@@ -59,10 +59,11 @@ class Westgards():
         else:
             if self.get_rule_41S():
                 return "4:1S"
-            elif self.get_rule_10X():
-                return "10:x"
             else:
-                return "Accept"
+                if self.get_rule_10X():
+                    return "10:x"
+                else:
+                    return "Accept"
 
         
     
