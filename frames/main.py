@@ -33,6 +33,8 @@ import frames.elements
 import frames.tea
 import frames.analytical_goals
 import frames.counts
+import frames.zscore
+import frames.set_zscore
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -65,7 +67,11 @@ class Biovarase(ttk.Frame):
         self.sd = tk.DoubleVar()
         self.expiration = tk.StringVar()
         self.te = tk.DoubleVar()
-
+        self.ddof = tk.IntVar()
+        self.show_error_bar = tk.IntVar()
+        self.zscore = tk.DoubleVar()
+        self.enable_rejections = tk.BooleanVar()
+        
         self.set_style()
         self.init_menu()
         self.init_ui()
@@ -116,11 +122,13 @@ class Biovarase(ttk.Frame):
 
         m_file = tk.Menu(m_main, tearoff=0, bd = 1)
         s_menu = tk.Menu(m_file)
-        m_results = tk.Menu(m_main, tearoff=0, bd = 1)
-        m_batches = tk.Menu(m_main, tearoff=0, bd = 1)
-        m_about = tk.Menu(m_main, tearoff=0, bd = 1)
+        m_edit = tk.Menu(m_main, tearoff=0, bd=1)
+        m_batches = tk.Menu(m_main, tearoff=0, bd=1)
+        m_results = tk.Menu(m_main, tearoff=0, bd=1)
+        m_about = tk.Menu(m_main, tearoff=0, bd=1)
 
         m_main.add_cascade(label="File", underline=0, menu=m_file)
+        m_main.add_cascade(label="Edit", underline=0, menu=m_edit)
         m_main.add_cascade(label="Batches", underline=0, menu=m_batches)
         m_main.add_cascade(label="Results", underline=0, menu=m_results)
         m_main.add_cascade(label="?", underline=0, menu=m_about)
@@ -129,12 +137,8 @@ class Biovarase(ttk.Frame):
         items = (("Plots", self.on_plots),
                  ("Tea", self.on_tea),
                  ("Reset",self.on_reset),
-                 ("Tests",self.on_tests),
-                 ("Data",self.on_data),
-                 ("Units",self.on_units),
-                 ("Elements", self.on_elements),
-                 ("Actions",self.on_actions),
-                 ("Analytica", self.on_analitical),)
+                 ("Analytica", self.on_analitical),
+                 ("Z Score", self.on_zscore),)
 
         for i in items:
             m_file.add_command(label=i[0],underline=0, command=i[1])
@@ -153,6 +157,16 @@ class Biovarase(ttk.Frame):
         m_file.add_separator()
 
         m_file.add_command(label="Exit", underline=0, command=self.parent.on_exit)
+
+        items = (("Tests", self.on_tests),
+                 ("Data", self.on_data),
+                 ("Units", self.on_units),
+                 ("Actions", self.on_actions),
+                 ("Set Elements", self.on_elements),
+                 ("Set Z Score", self.on_set_zscore),)
+
+        for i in items:
+            m_edit.add_command(label=i[0], underline=0, command=i[1])
 
 
         items = (("Add batch", self.on_add_batch),
@@ -269,7 +283,7 @@ class Biovarase(ttk.Frame):
         w = ttk.LabelFrame(f1,text='Results')
         self.lstResults = self.engine.get_listbox(w,)
         self.lstResults.bind("<<ListboxSelect>>", self.on_selected_result)
-        self.lstResults.bind('<Double-Button-1>', self.on_result_activated)
+        self.lstResults.bind('<Double-Button-1>', self.on_update_result)
         w.pack(side=tk.BOTTOM,fill=tk.BOTH, expand=1)
 
         #create graph!
@@ -295,22 +309,70 @@ class Biovarase(ttk.Frame):
         
     def init_status_bar(self):
 
-        self.status = ttk.Label(self.main_frame,
+        self.status_bar_text.set("Ready Player One!")
+
+        w = ttk.Frame(self.main_frame,)
+        
+        self.status = ttk.Label(w,
+                                font=self.engine.set_font(family='TkDefaultFont',size=10, weight='bold'),
+                                textvariable=self.status_bar_text,
+                                relief=tk.FLAT,
                                 style='Statusbar.TLabel',
-                                textvariable = self.elements,
-                                relief=tk.SUNKEN,
-                                anchor=tk.W,)
-        self.status.pack(side=tk.BOTTOM, fill=tk.X)
+                                anchor=tk.W)  
+        
+        ttk.Label(w,font=self.engine.set_font(family='TkDefaultFont',size=10, weight='bold'),
+                  textvariable=self.elements,
+                  relief=tk.FLAT,
+                  anchor=tk.W).pack(side=tk.RIGHT, fill=tk.X)
+        ttk.Label(w, text="Elements").pack(side=tk.RIGHT, fill=tk.X)
+
+
+        ttk.Label(w,font=self.engine.set_font(family='TkDefaultFont',size=10, weight='bold'),
+                  textvariable=self.zscore,
+                  relief=tk.FLAT,
+                  anchor=tk.W).pack(side=tk.RIGHT, fill=tk.X)
+        ttk.Label(w, text="Z Score").pack(side=tk.RIGHT, fill=tk.X)
+        
+        ttk.Checkbutton(w,
+                        text ='Enable Rejections',
+                        onvalue=1,
+                        offvalue=0,
+                        variable=self.enable_rejections,).pack(side=tk.RIGHT, fill=tk.X)
+         
+        ttk.Checkbutton(w,
+                        text ='Show Error Bar',
+                        onvalue=1,
+                        offvalue=0,
+                        variable=self.show_error_bar,
+                        command=self.on_show_error_bar).pack(side=tk.RIGHT, fill=tk.X)
+
+        ttk.Checkbutton(w,
+                        text ='Delta Degree of Freedom',
+                        onvalue=1,
+                        offvalue=0,
+                        variable=self.ddof,
+                        command=self.on_ddof).pack(side=tk.RIGHT, fill=tk.X)
+        
+        
+        self.status.pack(side=tk.LEFT, fill=tk.X, expand=1)
+
+        w.pack(side=tk.BOTTOM, fill=tk.X)
 
     def on_open(self):
         
         self.elements.set(self.engine.get_elements())
         self.set_tests()
-
+        self.enable_rejections.set(False)
+        self.ddof.set(self.engine.get_ddof())
+        self.show_error_bar.set(self.engine.get_show_error_bar())
+        self.set_zscore()
+        
     def set_elements(self):
         self.elements.set(self.engine.get_elements())
-        
 
+    def set_zscore(self):
+        self.zscore.set(self.engine.get_zscore())        
+        
     def on_reset(self):
         
         self.cbTests.set('')
@@ -511,13 +573,23 @@ class Biovarase(ttk.Frame):
             pk = self.dict_results.get(index)
             self.selected_result = self.engine.get_selected('results','result_id', pk)
 
-    def on_result_activated(self, event):
+    def on_update_result(self, event=None):
 
         if self.lstResults.curselection():
-                obj = frames.rejections.Widget(self, engine= self.engine,)
-                obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
 
+            index = self.lstResults.curselection()[0]
 
+            if self.enable_rejections.get()==False:
+                obj = frames.result.Widget(self, engine=self.engine, index=index)
+            else:
+                obj = frames.rejections.Widget(self, engine=self.engine)
+
+            obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
+
+        else:
+            msg = "Attention please.\nSelect a result."
+            messagebox.showinfo(self.parent.title(), msg, parent=self)
+            
     def set_results_row_color(self, index, result, is_enabled, target, sd):
 
         if is_enabled == 0:
@@ -554,14 +626,12 @@ class Biovarase(ttk.Frame):
         sd = self.selected_batch[5]
         series = self.engine.get_series(self.selected_batch[0],int(self.engine.get_elements()))
         mean = self.engine.get_mean(series)
-       
         cv = self.engine.get_cv(series)
         bias = self.engine.get_bias(mean,target)
         crange = self.engine.get_range(series)
         x_labels = self.get_x_labels(rs)
-
-        self.set_calculated_data(mean, self.engine.get_sd(series), cv, bias, crange)
-
+        computed_sd = self.engine.get_sd(series)
+        self.set_calculated_data(mean, computed_sd, cv, bias, crange)
         self.set_westgard(series)
 
         self.set_lj(len(rs),
@@ -570,7 +640,7 @@ class Biovarase(ttk.Frame):
                         series,
                         len(series),
                         mean,
-                        self.engine.get_sd(series),
+                        computed_sd,
                         cv,
                         x_labels[0],
                         x_labels[1],)
@@ -580,7 +650,7 @@ class Biovarase(ttk.Frame):
                                mean,
                                sd,
                                cv,
-                               self.engine.get_sd(series))
+                               computed_sd)
                 
         self.canvas.draw()
 
@@ -604,6 +674,12 @@ class Biovarase(ttk.Frame):
 
     def set_lj(self, count_rs, target, sd, series, count_series,
                compute_average, compute_sd, compute_cv, x_labels, dates):
+
+        if self.engine.get_show_error_bar() !=0:
+            show_error_bar =True
+            et = self.engine.get_te(target, compute_average, compute_cv)
+        else:
+            show_error_bar =False
 
         self.lj.clear()
         self.lj.grid(True)
@@ -631,6 +707,9 @@ class Biovarase(ttk.Frame):
 
         for x,y in enumerate(series):
             self.lj.text(x, y, str(y),)
+            if show_error_bar:
+                self.lj.errorbar(x, y, yerr=self.engine.percentage(et,y), uplims=True, lolims=True, ecolor='green')
+
 
         self.lj.plot(lines[0],color="red",label='+3 sd',linestyle='--')
         self.lj.plot(lines[1],color="yellow",label='+2 sd',linestyle='--')
@@ -671,13 +750,36 @@ class Biovarase(ttk.Frame):
         self.frq.hist(series, color='g')
         self.frq.axvline(target, color='orange',linewidth=2)
         self.frq.axvline(avg, color='b',linewidth=2)
-        self.frq.set_ylabel('Frequency')
+        #self.frq.set_ylabel('Frequency')
         um = self.get_um()
         if um is  not None:
             self.frq.set_xlabel(str(um[0]))
         else:
             self.frq.set_xlabel("No unit assigned yet")
 
+    def on_ddof(self,):
+
+        if self.ddof.get() == True:
+            self.engine.set_ddof(1)
+        else:
+            self.engine.set_ddof(0)
+        
+        self.ddof.set(self.engine.get_ddof())
+
+        self.set_results()
+             
+
+    def on_show_error_bar(self,):
+
+        if self.show_error_bar.get() == True:
+            self.engine.set_show_error_bar(1)
+        else:
+            self.engine.set_show_error_bar(0)
+        
+        self.show_error_bar.set(self.engine.get_show_error_bar())
+
+        self.set_results()
+        
 
     def on_analytical_goals(self):
         frames.analytical_goals.Widget(self,engine=self.engine).on_open()    
@@ -690,6 +792,12 @@ class Biovarase(ttk.Frame):
 
     def on_elements(self,):
         frames.elements.Widget(self, engine=self.engine).on_open()
+
+    def on_set_zscore(self,):
+        frames.set_zscore.Widget(self, engine=self.engine).on_open()
+
+    def on_zscore(self,):
+        frames.zscore.Widget(self,self.engine).on_open()            
         
     def on_data(self,):
         frames.data.Widget(self, engine=self.engine).on_open()
@@ -758,24 +866,7 @@ class Biovarase(ttk.Frame):
             msg = "Attention please.\nBefore add a result you must select a batch."
             messagebox.showinfo(self.engine.title, msg, parent=self)
 
-    def on_update_result(self,):
-
-        try:
-            if self.lstResults.curselection():
-                index = self.lstResults.curselection()[0]
-                obj = frames.result.Widget(self, engine=self.engine, index=index)
-                obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
-
-            else:
-                msg = "Attention please.\nSelect a result."
-                messagebox.showinfo(self.engine.title, msg, parent=self)
-
-        except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
-
+    
 
     def on_about(self,):
         messagebox.showinfo(self.engine.title, self.engine.about, parent=self)

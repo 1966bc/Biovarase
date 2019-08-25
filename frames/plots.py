@@ -13,7 +13,6 @@ except:
 from matplotlib.figure import Figure
 
 
-
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
 __credits__ = ["hal9000",]
@@ -21,7 +20,7 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-24"
+__date__ = "2019-08-25"
 __status__ = "Production"
 
 class Widget(tk.Toplevel):     
@@ -104,29 +103,30 @@ class Widget(tk.Toplevel):
         for batch in batches:
                             
             rs = self.engine.read(True, sql, ((batch[0],int(self.engine.get_elements()))))
-            target = batch[4]
-            sd = batch[5]
-            series = self.engine.get_series(batch[0],int(self.engine.get_elements()))
-            mean = self.engine.get_mean(series)
-            cv = self.engine.get_cv(series)
-            x_labels = self.get_x_labels(rs)
+            if rs:
+                
+                target = batch[4]
+                sd = batch[5]
+                series = self.engine.get_series(batch[0],int(self.engine.get_elements()))
+                mean = self.engine.get_mean(series)
+                cv = self.engine.get_cv(series)
+                x_labels = self.get_x_labels(rs)
 
-    
-            self.set_axs(count,
-                         len(rs),
-                         target,
-                         sd,
-                         series,
-                         len(series),
-                         mean,
-                         self.engine.get_sd(series),
-                         cv,
-                         x_labels[0],
-                         x_labels[1],
-                         batch)
-           
-           
-            count +=1
+        
+                self.set_axs(count,
+                             len(rs),
+                             target,
+                             sd,
+                             series,
+                             len(series),
+                             mean,
+                             self.engine.get_sd(series),
+                             cv,
+                             x_labels[0],
+                             x_labels[1],
+                             batch)
+               
+                count +=1
 
         
         self.canvas.draw()

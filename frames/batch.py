@@ -95,6 +95,8 @@ class Widget(tk.Toplevel):
         else:
             msg = "{0} {1}".format("Insert new batch for ", selected_test[1])
             self.engine.set_calendar_date(self)
+            self.target.set('')
+            self.sd.set('')
             self.enable.set(1)
 
         self.title(msg)

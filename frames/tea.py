@@ -17,7 +17,7 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-24"
+__date__ = "2019-08-25"
 __status__ = "Production"
 
 
@@ -53,6 +53,9 @@ class Widget(tk.Toplevel):
         
 
     def on_open(self,selected_test):
+
+        self.cvw = selected_test[5]
+        self.cvb = selected_test[6]
 
         s = "Biovarase Total Error Plots for: {0}"
 
@@ -98,27 +101,42 @@ class Widget(tk.Toplevel):
         for batch in batches:
                             
             rs = self.engine.read(True, sql, ((batch[0],int(self.engine.get_elements()))))
-            target = batch[4]
-            sd = batch[5]
-            series = self.engine.get_series(batch[0],int(self.engine.get_elements()))
-            mean = self.engine.get_mean(series)
-            cv = self.engine.get_cv(series)
-            x_labels = self.get_x_labels(rs)
+
+            if rs:
+                target = batch[4]
+                sd = batch[5]
+                series = self.engine.get_series(batch[0],int(self.engine.get_elements()))
+                mean = self.engine.get_mean(series)
+                cv = self.engine.get_cv(series)
+                ets = self.engine.get_te(target, mean, cv)
+                x_labels = self.get_x_labels(rs)
+
+                #compute upper and lower limits
+                tea = self.engine.get_tea(self.cvw, self.cvb)
+                x = self.engine.percentage(tea,target)
+                y = self.engine.percentage(4,x)
+                #print(x,y)
+                upper_limit = round(target + (x+y),2)
+                lower_limit = round(target - (x+y),2)
 
     
-            self.set_axs(count,
-                         len(rs),
-                         target,
-                         sd,
-                         series,
-                         len(series),
-                         mean,
-                         self.engine.get_sd(series),
-                         cv,
-                         x_labels[0],
-                         x_labels[1],
-                         batch)
-            count +=1
+                self.set_axs(count,
+                             len(rs),
+                             target,
+                             sd,
+                             series,
+                             len(series),
+                             mean,
+                             self.engine.get_sd(series),
+                             cv,
+                             x_labels[0],
+                             x_labels[1],
+                             batch,
+                             tea,
+                             upper_limit,
+                             lower_limit,
+                             ets)
+                count +=1
 
         
         self.canvas.draw()
@@ -139,26 +157,15 @@ class Widget(tk.Toplevel):
 
 
     def set_axs(self,count, count_rs, target, sd, series, count_series,
-                compute_average, compute_sd, compute_cv, x_labels, dates,batch):
+                compute_average, compute_sd, compute_cv, x_labels, dates,batch,
+                tea, upper_limit, lower_limit,ets):
 
        
         #obj.clear()
         obj = self.fig.add_subplot(count, facecolor=('xkcd:light grey'),)
         obj.grid(True)
 
-        
-        te = self.engine.get_te(target, compute_average, compute_cv)
-        a = self.engine.percentage(100,te)
-        b = a + 4
-        c = self.engine.percentage(b,target)
-        #print(et,a,b,c)
-        
         lines = ([],[],[],)        
-
-        upper_limit = target + c
-        lower_limit = target - c
-
-        #print(upper_limit, target, lower_limit)
 
         for i in range(len(series)+1):
 
@@ -186,13 +193,15 @@ class Widget(tk.Toplevel):
         else:
             obj.set_ylabel("No unit assigned yet")
 
-        s = "Batch: {0} Target: {1} SD: {2} Exp: {3} avg: {4:.2f},  std: {5:.2f} cv: {6:.2f} ET%: {7:.2f} ET+4%: {8:.2f}"
+        s = "Batch: {0} Target: {1} Upper: {2} Lower: {3} ETa%: {4:.2f} Ets%: {5:.2f} Z Score: {6:.2f}"
 
         title = s.format(batch[2],
                          batch[4],
-                         batch[5],
-                         batch[3],
-                         compute_average, compute_sd, compute_cv, te, c)
+                         upper_limit,
+                         lower_limit,
+                         tea,
+                         ets,
+                         self.engine.get_zscore())
         
         obj.set_title(title, loc='left')            
 

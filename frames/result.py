@@ -101,6 +101,7 @@ class Widget(tk.Toplevel):
         self.selected_batch = selected_batch
         self.test.set(selected_test[1])
         self.batch.set(self.selected_batch[2])
+        
 
         if self.index is not None:
             self.selected_result = selected_result
@@ -109,6 +110,7 @@ class Widget(tk.Toplevel):
         else:
             msg = "Add"
             self.enable.set(1)
+            self.result.set('')
             self.engine.set_calendar_date(self)
 
         self.title(msg)
