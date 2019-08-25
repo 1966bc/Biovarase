@@ -112,7 +112,7 @@ tea is Total Error Allowable.
 
 Hello everybody, in this new update you will find a new type of plot, named  **Total Error Plot**
 
-![alt tag](https://user-images.githubusercontent.com/5463566/58125411-cbadd980-7c10-11e9-9ba4-5c1ed8474f88.png)
+![alt tag](https://user-images.githubusercontent.com/5463566/63646807-dcdb1a80-c718-11e9-8794-bbf3ef6c1736.png)
 
 
 You can launch this plot, after selecting a test,clicking on menu File/Te voice.
