@@ -52,7 +52,10 @@ here  new items of the project:
 
 - Possibility to set the value of ddof used to calculate the standard deviation with munpy, see check box on the left of the 
 
-statusbar and clicking on it see what happends to sd value.
+statusbar and clicking on it see what happends to sd value. See below link for more info.
+
+[numpy std reference](https://docs.scipy.org/doc/numpy/reference/generated/numpy.std.html)
+
 
 - Possibility to set the value of Z Score value.  
 
