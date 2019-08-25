@@ -193,7 +193,7 @@ class Widget(tk.Toplevel):
         else:
             obj.set_ylabel("No unit assigned yet")
 
-        s = "Batch: {0} Target: {1} Upper: {2} Lower: {3} ETa%: {4:.2f} Et%: {5:.2f} Z Score: {6:.2f}"
+        s = "Batch: {0} Target: {1} Upper: {2} Lower: {3} ETa%: {4:.2f} ET%: {5:.2f} Z Score: {6:.2f}"
 
         title = s.format(batch[2],
                          batch[4],
