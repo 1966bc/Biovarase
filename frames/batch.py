@@ -22,8 +22,9 @@ class Widget(tk.Toplevel):
         self.engine = kwargs['engine']
         self.index = kwargs['index']
 
-        self.resizable(0, 0)
-        self.transient(parent) 
+        self.attributes('-topmost', True)
+        self.transient(parent)
+        self.resizable(0,0) 
         
         self.day =  tk.IntVar()
         self.month =  tk.IntVar()

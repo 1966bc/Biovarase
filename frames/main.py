@@ -36,14 +36,14 @@ import frames.counts
 import frames.zscore
 import frames.set_zscore
 
-__author__ = "1966bc aka giuseppe costanzi"
+__author__ = "1966bc"
 __copyright__ = "Copyleft"
 __credits__ = ["hal9000",]
 __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-25"
+__date__ = "2019-08-25"
 __status__ = "Production"
 
 class Biovarase(ttk.Frame):
@@ -53,6 +53,7 @@ class Biovarase(ttk.Frame):
 
         self.parent = parent
         self.engine = kwargs['engine']
+        self.info = kwargs['info']
         self.args = args
        
         self.status_bar_text = tk.StringVar()
@@ -203,6 +204,7 @@ class Biovarase(ttk.Frame):
         w = ttk.LabelFrame(f1,text='Batches')
         self.lstBatches = self.engine.get_listbox(w,height=5)
         self.lstBatches.bind("<<ListboxSelect>>", self.on_selected_batch)
+        self.lstBatches.bind('<Double-Button-1>', self.on_update_batch)
         w.pack(side=tk.TOP, fill=tk.BOTH, expand=0)
 
         f2 = ttk.Frame(f1,)
@@ -564,7 +566,6 @@ class Biovarase(ttk.Frame):
             self.set_batch_data()
             self.set_results()
             
-
     def on_selected_result(self,event):
 
         if self.lstResults.curselection():
@@ -768,7 +769,6 @@ class Biovarase(ttk.Frame):
 
         self.set_results()
              
-
     def on_show_error_bar(self,):
 
         if self.show_error_bar.get() == True:
@@ -780,7 +780,6 @@ class Biovarase(ttk.Frame):
 
         self.set_results()
         
-
     def on_analytical_goals(self):
         frames.analytical_goals.Widget(self,engine=self.engine).on_open()    
 
@@ -846,12 +845,11 @@ class Biovarase(ttk.Frame):
             msg = "Attention please.\nBefore add a batch you must select a test."
             messagebox.showinfo(self.engine.title, msg, parent=self)
 
-    def on_update_batch(self):
+    def on_update_batch(self, evt=None):
 
         if self.lstBatches.curselection():
             index = self.lstBatches.curselection()[0]
             obj = frames.batch.Widget(self, engine=self.engine, index=index)
-            obj.transient(self)
             obj.on_open(self.selected_test, self.selected_batch)
         else:
             msg = "Attention please.\nSelect a batch."
@@ -867,9 +865,9 @@ class Biovarase(ttk.Frame):
             messagebox.showinfo(self.engine.title, msg, parent=self)
 
     
-
     def on_about(self,):
-        messagebox.showinfo(self.engine.title, self.engine.about, parent=self)
+        messagebox.showinfo(self.engine.title, self.info, parent=self)
+        
 
 class App(tk.Tk):
     """Biovarase Main Application start here"""
@@ -877,12 +875,12 @@ class App(tk.Tk):
         super().__init__()
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
-
+        self.style = ttk.Style()
         self.engine = kwargs['engine']
         self.set_title(kwargs['title'])
         self.set_icon(kwargs['icon'])
         self.set_style(kwargs['style'])
-       
+
         frame = Biovarase(self, *args, **kwargs)
         frame.on_open()
         frame.pack(fill=tk.BOTH, expand=1)
@@ -892,7 +890,6 @@ class App(tk.Tk):
         self.title(s)        
 
     def set_style(self, style):
-        self.style = ttk.Style()
         self.style.theme_use(style)        
         self.style.configure('.', background=self.engine.get_rgb(240,240,237))
 
@@ -916,6 +913,13 @@ def main():
     database = {"path":'biovarase.db'}
     
     kwargs={"style":"clam", "icon":"biovarase.png", "title":"Biovarase", "engine":Engine(*args,**database)}
+
+    msg = "{0}\nauthor: {1}\ncopyright: {2}\ncredits: {3}\nlicense: {4}\nversion: {5}\nmaintainer: {6}\nemail: {7}\ndate: {8}\nstatus: {9}"
+    info = msg.format("Biovarase"
+                      ,__author__,__copyright__,__credits__,__license__,
+                      __version__,__maintainer__,__email__,__date__,__status__)
+
+    kwargs['info'] = info
 
     app = App(*args, **kwargs)
 

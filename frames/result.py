@@ -1,4 +1,5 @@
 """ This is the result module of Biovarase."""
+import sys
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -30,6 +31,7 @@ class Widget(tk.Toplevel):
         self.test = tk.StringVar()
         self.batch = tk.StringVar()
         self.result = tk.DoubleVar()
+        self.recived_time = tk.StringVar()
         self.enable =  tk.BooleanVar()
 
         self.vcmd = self.engine.get_validate_float(self)
@@ -78,8 +80,15 @@ class Widget(tk.Toplevel):
 
         r +=1
         ttk.Label(w, text="Recived:").grid(row=r, sticky=tk.W)
-
+        
         self.engine.get_calendar(self, w, r, c)
+
+        r +=1
+        ttk.Label(w, text="Time:").grid(row=r, sticky=tk.W)
+        ttk.Label(w,
+                  style='Data.TLabel',
+                  textvariable = self.recived_time).grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+
 
         r +=1
         ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
@@ -173,8 +182,17 @@ class Widget(tk.Toplevel):
             self.year.set(int(self.selected_result[3].year))
             self.month.set(int(self.selected_result[3].month))
             self.day.set(int(self.selected_result[3].day))
+
+            t = "{0}:{1}:{0}".format(self.selected_result[3].hour,
+                                     self.selected_result[3].minute,
+                                     self.selected_result[3].second)
+
+            self.recived_time.set(t)
+            
         except:
-            pass
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])  
 
         self.result.set(self.selected_result[2])
         self.enable.set(self.selected_result[4])
