@@ -1,5 +1,5 @@
 # Biovarase
-## A clinical quality control data management open source project
+## A clinical quality control open source project
 
 ![alt tag](https://user-images.githubusercontent.com/5463566/63646393-325ff900-c712-11e9-8f87-c23032c47ece.png)
 
