@@ -71,7 +71,11 @@ class Calendarium(tk.Frame):
     def get_calendarium(self, container, row=None, col=None):
         
 
-        w = tk.LabelFrame(container, text=self.name, borderwidth=2,padx=2,pady=2)
+        w = tk.LabelFrame(container,
+                          text=self.name,
+                          borderwidth=1,
+                          padx=2,pady=2,
+                          relief=tk.GROOVE,)
 
 
         day_label = tk.LabelFrame(w, text="Day")
