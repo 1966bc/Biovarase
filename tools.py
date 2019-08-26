@@ -196,59 +196,6 @@ class Tools():
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
 
 
-
-    def get_calendar(self, caller, container, row=None, column=None):
-
-        w = tk.LabelFrame(container, borderwidth=2)
-
-        d = tk.Spinbox(w, bg='white', fg='blue',width=2, from_=1, to=31, textvariable=caller.day,relief=tk.GROOVE,)
-        
-        m = tk.Spinbox(w, bg='white',fg='blue', width=2, from_=1, to=12, textvariable=caller.month,relief=tk.GROOVE,)
-
-        y = tk.Spinbox(w, bg='white', fg='blue',width=4, from_=1900, to=3000, textvariable=caller.year,relief=tk.GROOVE,)
-
-        for p,i in enumerate((d,m,y)):
-             if row is not None:
-                 i.grid(row=0, column=p, padx=5, pady=5,sticky=tk.W)
-             else:
-                 i.pack(side=tk.LEFT, fill=tk.X, padx=2)
-                 
-                 
-        if row is not None:
-            w.grid(row = row, column = column,sticky=tk.W)
-        else:
-            w.pack()
-
-        return w
-
-    def set_calendar_date(self, caller):
-
-        today = date.today()
-
-        caller.day.set(today.day)
-        caller.month.set(today.month)
-        caller.year.set(today.year)
-
-    def get_calendar_date(self, caller):
-
-        try:
-            return datetime.date(caller.year.get(), caller.month.get(), caller.day.get())
-        except:
-            msg = "Date format error:\n%s"%str(sys.exc_info()[1])
-            messagebox.showerror(self.title, msg, parent=caller)
-            return False
-
-    def get_calendar_timestamp(self, caller):
-
-        try:
-            t = datetime.datetime.now()
-            return datetime.datetime(caller.year.get(), caller.month.get(), caller.day.get(), t.hour , t.minute, t.second)
-            
-        except:
-            msg = "Date format error:\n%s"%str(sys.exc_info()[1])
-            messagebox.showerror(self.title, msg, parent=caller)
-            return False
-
     def on_fields_control(self, container):
 
         msg = "Please fill all fields."
