@@ -77,7 +77,7 @@ class Widget(tk.Toplevel):
         self.txtResult.grid(row=r, column=1,sticky=tk.W, padx=5, pady=5)
 
         r +=1
-        ttk.Label(w, text="Recived:").grid(row=r, sticky=tk.W)
+        ttk.Label(w, text="Recived:").grid(row=r, sticky=tk.N+tk.W)
         
         self.recived_date = Calendarium(self,"")
         self.recived_date.get_calendarium(w,r,c)

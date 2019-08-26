@@ -47,7 +47,7 @@ class Widget(tk.Toplevel):
         self.txtBatch.grid(row=r, column=c, padx=5, pady=5)
 
         r +=1
-        ttk.Label(w, text="Expiration:").grid(row=r, sticky=tk.W)
+        ttk.Label(w, text="Expiration:").grid(row=r, sticky=tk.N+tk.W)
         self.expiration_date = Calendarium(self,"")
         self.expiration_date.get_calendarium(w,r,c)
 
