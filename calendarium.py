@@ -71,30 +71,35 @@ class Calendarium(tk.Frame):
     def get_calendarium(self, container, row=None, col=None):
         
 
-        w = tk.LabelFrame(container, text=self.name,  foreground="blue",borderwidth=2,padx=2,pady=2)
+        w = tk.LabelFrame(container, text=self.name, borderwidth=2,padx=2,pady=2)
 
-        d = tk.Spinbox(w, bg='white', fg='blue',width=2,
+
+        day_label = tk.LabelFrame(w, text="Day")
+
+        d = tk.Spinbox(day_label, bg='white', fg='blue',width=2,
                        from_=1, to=31,
                        validate = 'key',
                        validatecommand = self.vcmd,
                        textvariable=self.day,
                        relief=tk.GROOVE,)
-        
-        m = tk.Spinbox(w, bg='white',fg='blue', width=2,
+
+        month_label = tk.LabelFrame(w, text="Month")
+        m = tk.Spinbox(month_label, bg='white',fg='blue', width=2,
                        from_=1, to=12,
                        validate = 'key',
                        validatecommand = self.vcmd,
                        textvariable=self.month,
                        relief=tk.GROOVE,)
 
-        y = tk.Spinbox(w, bg='white', fg='blue',width=4,
+        year_label = tk.LabelFrame(w, text="Year")
+        y = tk.Spinbox(year_label, bg='white', fg='blue',width=4,
                        validate = 'key',
                        validatecommand = self.vcmd,
                        from_=1900, to=3000,
                        textvariable=self.year,
                        relief=tk.GROOVE,)
 
-        for p,i in enumerate((d,m,y)):
+        for p,i in enumerate((day_label,d,month_label,m,year_label,y)):
              if  row is not None:
                  i.grid(row=0, column=p, padx=5, pady=5,sticky=tk.W)
              else:
@@ -122,16 +127,6 @@ class Calendarium(tk.Frame):
             return datetime.date(self.year.get(), self.month.get(), self.day.get())
         except:
             return False
-
-    def get_timestamp(self):
-
-        try:
-            t = datetime.datetime.now()
-            return datetime.datetime(self.year.get(), self.month.get(), self.day.get(), t.hour , t.minute, t.second)
-            
-        except:
-            return False
-        
 
     def get_validate_integer(self, caller ):
         return (caller.register(self.validate_integer),
