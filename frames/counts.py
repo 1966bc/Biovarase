@@ -38,27 +38,27 @@ class Widget(tk.Toplevel):
 
         w = self.engine.get_init_ui(self)
 
-        self.start_date = Calendarium(self)
-        
-        self.start_date.get_calendarium(w,"Export From", 0)
+        self.export_date = Calendarium(self,"Export From")
+        self.export_date.get_calendarium(w,0,0)
         
         self.engine.get_export_cancel(self, self)
 
 
     def on_open(self):
     
-        self.start_date.set_today()
+        self.export_date.set_today()
 
         self.title("Export Counts")
 
     def on_export(self, evt=None):
 
-        if self.start_date.get_date()==False:
-            msg = "Date format error"
-            messagebox.showerror(self.engine.title, msg, parent=self)
-        else:
+        if self.export_date.get_date()==False:
+            msg = "{0} return a {1} date.".format(self.export_date.name,
+                                                  self.export_date.get_date(),)
+            messagebox.showinfo(self.engine.title, msg, parent=self)
+        else:            
             if messagebox.askyesno(self.engine.title, "Export data?", parent=self) == True:
-                args = (self.start_date.get_calendar_date(),)
+                args = (self.export_date.get_date(),)
                 self.engine.get_counts(args)
                 self.on_cancel()
     
