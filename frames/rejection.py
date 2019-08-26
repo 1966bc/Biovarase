@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from calendarium import Calendarium
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -22,9 +23,6 @@ class Widget(tk.Toplevel):
         self.index = kwargs['index']
         self.resizable(0,0)
         self.transient(parent) 
-        self.day =  tk.IntVar()
-        self.month =  tk.IntVar()
-        self.year =  tk.IntVar()
         self.description = tk.StringVar()
         self.enable =  tk.BooleanVar()
         self.init_ui()
@@ -34,19 +32,22 @@ class Widget(tk.Toplevel):
 
         w = self.engine.get_init_ui(self)
 
-        r =0       
+        r =0
+        c =1
         tk.Label(w, text="Actions:").grid(row=r, sticky=tk.W)
         self.cbActions = ttk.Combobox(w,)
-        self.cbActions.grid(row=r, column=1, sticky=tk.W,padx=5, pady=5)
+        self.cbActions.grid(row=r, column=c, sticky=tk.W,padx=5, pady=5)
 
         r +=1
         ttk.Label(w, text="Description:").grid(row=r, sticky=tk.W)
         self.txDescription = ttk.Entry(w, textvariable=self.description,)
-        self.txDescription.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        self.txDescription.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r +=1
         ttk.Label(w, text="Modified:").grid(row=r, column=0, sticky=tk.W)
-        self.engine.get_calendar(self, w, r,1)
+        self.modified_date = Calendarium(self,"")
+        self.modified_date.get_calendarium(w,r,c)
+        
 
         r +=1
         ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
@@ -54,7 +55,7 @@ class Widget(tk.Toplevel):
                        onvalue=1,
                        offvalue=0,
                        variable = self.enable).grid(row=r,
-                                                    column=1,
+                                                    column=c,
                                                     sticky=tk.W)
 
         if self.index is not None:
@@ -77,7 +78,8 @@ class Widget(tk.Toplevel):
         else:
             msg = "Add rejection"
             self.enable.set(1)
-            self.engine.set_calendar_date(self)
+            self.modified_date.set_today()
+            
 
         self.title(msg)
         self.cbActions.focus()
@@ -85,28 +87,34 @@ class Widget(tk.Toplevel):
     def on_save(self, evt=None):
         
         if self.engine.on_fields_control(self)==False:return
-        if self.engine.get_calendar_date(self)==False:return
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+        if self.modified_date.get_date()==False:
+            msg = "{0} return a {1} date.".format(self.modified_date.name,
+                                                  self.modified_date.get_date(),)
+            messagebox.showinfo(self.engine.title, msg, parent=self)
+            
+        else:
+            
+            if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
-            args =  self.get_values()
+                args =  self.get_values()
 
-            if self.index is not None:
+                if self.index is not None:
 
-                sql = self.engine.get_update_sql('rejections','rejection_id')
+                    sql = self.engine.get_update_sql('rejections','rejection_id')
 
-                args = (*args, self.selected_rejection[0])
-                       
-            else:
-                sql = self.engine.get_insert_sql('rejections',len(args))
+                    args = (*args, self.selected_rejection[0])
+                           
+                else:
+                    sql = self.engine.get_insert_sql('rejections',len(args))
 
-            self.engine.write(sql,args)
-            self.parent.on_open(self.selected_test,self.selected_batch,self.selected_result)
+                self.engine.write(sql,args)
+                self.parent.on_open(self.selected_test,self.selected_batch,self.selected_result)
 
-            if self.index is not None:
-                self.parent.lstItems.see(self.index)
-                self.parent.lstItems.selection_set(self.index)
-                
-            self.on_cancel()
+                if self.index is not None:
+                    self.parent.lstItems.see(self.index)
+                    self.parent.lstItems.selection_set(self.index)
+                    
+                self.on_cancel()
 
     def on_delete(self, evt=None):
 
@@ -149,7 +157,7 @@ class Widget(tk.Toplevel):
         return (self.selected_result[0],
                 self.dict_actions[self.cbActions.current()],
                 self.description.get(),
-                self.engine.get_calendar_timestamp(self),
+                self.modified_date.get_timestamp(),
                 self.enable.get())
     
     def set_values(self,):
@@ -159,9 +167,9 @@ class Widget(tk.Toplevel):
 
         self.description.set(self.selected_rejection[3])
 
-        self.year.set(int(self.selected_rejection[4].year))
-        self.month.set(int(self.selected_rejection[4].month))
-        self.day.set(int(self.selected_rejection[4].day))
+        self.modified_date.year.set(int(self.selected_rejection[4].year))
+        self.modified_date.month.set(int(self.selected_rejection[4].month))
+        self.modified_date.day.set(int(self.selected_rejection[4].day))
       
         self.enable.set(self.selected_rejection[5])
 

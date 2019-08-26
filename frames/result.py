@@ -3,6 +3,7 @@ import sys
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from calendarium import Calendarium
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -25,9 +26,6 @@ class Widget(tk.Toplevel):
         self.transient(parent) 
         self.resizable(0, 0)
 
-        self.day =  tk.IntVar()
-        self.month =  tk.IntVar()
-        self.year =  tk.IntVar()
         self.test = tk.StringVar()
         self.batch = tk.StringVar()
         self.result = tk.DoubleVar()
@@ -81,7 +79,9 @@ class Widget(tk.Toplevel):
         r +=1
         ttk.Label(w, text="Recived:").grid(row=r, sticky=tk.W)
         
-        self.engine.get_calendar(self, w, r, c)
+        self.recived_date = Calendarium(self,"")
+        self.recived_date.get_calendarium(w,r,c)
+
 
         r +=1
         ttk.Label(w, text="Time:").grid(row=r, sticky=tk.W)
@@ -120,36 +120,40 @@ class Widget(tk.Toplevel):
             msg = "Add"
             self.enable.set(1)
             self.result.set('')
-            self.engine.set_calendar_date(self)
-
+            self.recived_date.set_today()
+            
         self.title(msg)
         self.txtResult.focus()
         
     def on_save(self, evt=None):
 
         if self.engine.on_fields_control( self)==False:return
-        if self.engine.get_calendar_date(self)==False:return
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+        if self.recived_date.get_date()==False:
+            msg = "{0} return a {1} date.".format(self.recived_date.name,
+                                                  self.recived_date.get_date(),)
+            messagebox.showinfo(self.engine.title, msg, parent=self)
+        else:            
+            if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
-            args =  self.get_values()
+                args =  self.get_values()
 
-            if self.index is not None:            
-                
-                sql = self.engine.get_update_sql('results','result_id')
-    
-                args = (*args, self.selected_result[0])
-                
-            else:
-                sql = self.engine.get_insert_sql('results',len(args))
-      
-            self.engine.write(sql,args)
-            self.parent.set_results()
-                
-            if self.index is not None:
-                self.parent.lstResults.see(self.index)
-                self.parent.lstResults.selection_set(self.index)
+                if self.index is not None:            
                     
-            self.on_cancel()
+                    sql = self.engine.get_update_sql('results','result_id')
+        
+                    args = (*args, self.selected_result[0])
+                    
+                else:
+                    sql = self.engine.get_insert_sql('results',len(args))
+          
+                self.engine.write(sql,args)
+                self.parent.set_results()
+                    
+                if self.index is not None:
+                    self.parent.lstResults.see(self.index)
+                    self.parent.lstResults.selection_set(self.index)
+                        
+                self.on_cancel()
     
     def on_cancel(self, evt=None):
         self.destroy()
@@ -173,15 +177,15 @@ class Widget(tk.Toplevel):
 
         return (self.selected_batch[0],
                 self.result.get(),
-                self.engine.get_calendar_timestamp(self),
+                self.recived_date.get_timestamp(),
                 self.enable.get())
        
     def set_values(self,):
 
         try:
-            self.year.set(int(self.selected_result[3].year))
-            self.month.set(int(self.selected_result[3].month))
-            self.day.set(int(self.selected_result[3].day))
+            self.recived_date.year.set(int(self.selected_result[3].year))
+            self.recived_date.month.set(int(self.selected_result[3].month))
+            self.recived_date.day.set(int(self.selected_result[3].day))
 
             t = "{0}:{1}:{0}".format(self.selected_result[3].hour,
                                      self.selected_result[3].minute,

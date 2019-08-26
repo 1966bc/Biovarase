@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from calendarium import Calendarium
 
 
 __author__ = "1966bc aka giuseppe costanzi"
@@ -26,10 +27,6 @@ class Widget(tk.Toplevel):
         self.transient(parent)
         self.resizable(0,0) 
         
-        self.day =  tk.IntVar()
-        self.month =  tk.IntVar()
-        self.year =  tk.IntVar()
-
         self.batch = tk.StringVar()
         self.target = tk.DoubleVar()
         self.sd = tk.DoubleVar()
@@ -50,8 +47,10 @@ class Widget(tk.Toplevel):
         self.txtBatch.grid(row=r, column=c, padx=5, pady=5)
 
         r +=1
-        ttk.Label(w, text="Expiration:").grid(row=r,sticky=tk.W)
-        self.engine.get_calendar(self,w,r,c)
+        ttk.Label(w, text="Expiration:").grid(row=r, sticky=tk.W)
+        self.expiration_date = Calendarium(self,"")
+        self.expiration_date.get_calendarium(w,r,c)
+
 
         r +=1
         ttk.Label(w, text="Target:").grid(row=r, sticky=tk.W)
@@ -95,7 +94,7 @@ class Widget(tk.Toplevel):
             self.set_values()
         else:
             msg = "{0} {1}".format("Insert new batch for ", selected_test[1])
-            self.engine.set_calendar_date(self)
+            self.expiration_date.set_today()
             self.target.set('')
             self.sd.set('')
             self.enable.set(1)
@@ -106,32 +105,36 @@ class Widget(tk.Toplevel):
     def on_save(self, evt=None):
 
         if self.engine.on_fields_control(self)==False:return
-        if self.engine.get_calendar_date(self)==False:return
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+        if self.expiration_date.get_date()==False:
+            msg = "{0} return a {1} date.".format(self.expiration_date.name,
+                                                  self.expiration_date.get_date(),)
+            messagebox.showinfo(self.engine.title, msg, parent=self)
+        else:            
+            if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
-            args =  self.get_values()
+                args =  self.get_values()
 
-            if self.index is not None:
+                if self.index is not None:
 
-                sql = self.engine.get_update_sql('batches','batch_id')
+                    sql = self.engine.get_update_sql('batches','batch_id')
 
-                args = (*args, self.selected_batch[0])
-                       
+                    args = (*args, self.selected_batch[0])
+                           
+                else:
+
+                    sql = self.engine.get_insert_sql('batches',len(args))
+
+                self.engine.write(sql,args)
+                self.parent.set_batches()
+                
+                if self.index is not None:
+                    self.parent.lstBatches.see(self.index)
+                    self.parent.lstBatches.selection_set(self.index)
+                        
+                self.on_cancel()
+
             else:
-
-                sql = self.engine.get_insert_sql('batches',len(args))
-
-            self.engine.write(sql,args)
-            self.parent.set_batches()
-            
-            if self.index is not None:
-                self.parent.lstBatches.see(self.index)
-                self.parent.lstBatches.selection_set(self.index)
-                    
-            self.on_cancel()
-
-        else:
-            messagebox.showinfo(self.engine.title,self.engine.abort, parent=self)
+                messagebox.showinfo(self.engine.title,self.engine.abort, parent=self)
                
             
     def on_cancel(self, evt=None):
@@ -141,16 +144,16 @@ class Widget(tk.Toplevel):
 
         return (self.selected_test[0],
                 self.batch.get(),
-                self.engine.get_calendar_date(self,),
+                self.expiration_date.get_date(),
                 self.target.get(),
                 self.sd.get(),
                 self.enable.get())
     
     def set_values(self,):
 
-        self.year.set(int(self.selected_batch[3][0:4]))
-        self.month.set(int(self.selected_batch[3][5:7]))
-        self.day.set(int(self.selected_batch[3][8:10]))
+        self.expiration_date.year.set(int(self.selected_batch[3][0:4]))
+        self.expiration_date.month.set(int(self.selected_batch[3][5:7]))
+        self.expiration_date.day.set(int(self.selected_batch[3][8:10]))
         self.batch.set(self.selected_batch[2])
         self.target.set(self.selected_batch[4])
         self.sd.set(self.selected_batch[5])

@@ -1,6 +1,7 @@
 """ This is the export_rejections module of Biovarase."""
 import tkinter as tk
 from tkinter import messagebox
+from calendarium import Calendarium
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -22,10 +23,6 @@ class Widget(tk.Toplevel):
         self.resizable(0,0)
         self.transient(parent) 
         
-        self.day =  tk.IntVar()
-        self.month =  tk.IntVar()
-        self.year =  tk.IntVar()
-        
         self.init_ui()
         self.engine.center_me(self)
 
@@ -34,28 +31,29 @@ class Widget(tk.Toplevel):
         w = self.engine.get_init_ui(self)
 
         r =0
-        tk.Label(w, text="Export From:").grid(row=r,sticky=tk.W)
-
-        r +=1
-        self.engine.get_calendar(self, w, r,)
+        self.start_date = Calendarium(self,"Start Date")
+        self.start_date.get_calendarium(w,r)
 
         self.engine.get_export_cancel(self, w)
 
 
     def on_open(self):
 
-        self.engine.set_calendar_date(self)
+        self.start_date.set_today()
 
         self.title("Export Rejections Data")
         
     def on_export(self, evt=None):
 
-        if self.engine.get_calendar_date(self)==False:return
-        if messagebox.askyesno(self.engine.title, "Export data?", parent=self) == True:
+        if self.start_date.get_date()==False:
+            msg = "{0} return a {1} date.".format(self.start_date.name,self.start_date.get_date(),)
+            messagebox.showinfo(self.engine.title, msg, parent=self) 
 
-            args = (self.engine.get_calendar_date(self),)
-            self.engine.get_rejections(args)
-            self.on_cancel()
+        else:
+            if messagebox.askyesno(self.engine.title, "Export data?", parent=self) == True:
+                args = (self.start_date.get_date(),)
+                self.engine.get_rejections(args)
+                self.on_cancel()
     
     def on_cancel(self, evt=None):
         self.destroy()

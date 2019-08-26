@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from calendarium import Calendarium
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -22,11 +23,9 @@ class Widget(tk.Toplevel):
         self.parent = parent
         self.engine = engine
         self.index = index
-        self.day =  tk.IntVar()
-        self.month =  tk.IntVar()
-        self.year =  tk.IntVar()
         self.center_me()
         self.init_ui()
+        
                
     def center_me(self):
 
@@ -39,29 +38,29 @@ class Widget(tk.Toplevel):
 
         w = self.engine.get_init_ui(self)
 
-        ttk.Label(w, text="Export From:").grid(row=0,column=0,sticky=tk.W)
-
-        self.engine.get_calendar(self,w,1)
-
+        self.start_date = Calendarium(self)
+        
+        self.start_date.get_calendarium(w,"Export From", 0)
+        
         self.engine.get_export_cancel(self, self)
 
 
     def on_open(self):
     
-        self.engine.set_calendar_date(self)
+        self.start_date.set_today()
 
         self.title("Export Counts")
 
-        
     def on_export(self, evt=None):
 
-      
-        if self.engine.get_calendar_date(self)==False:return
-        if messagebox.askyesno(self.engine.title, "Export data?", parent=self) == True:
-            
-            args = (self.engine.get_calendar_date(self),)
-            self.engine.get_counts(args)
-            self.on_cancel()
+        if self.start_date.get_date()==False:
+            msg = "Date format error"
+            messagebox.showerror(self.engine.title, msg, parent=self)
+        else:
+            if messagebox.askyesno(self.engine.title, "Export data?", parent=self) == True:
+                args = (self.start_date.get_calendar_date(),)
+                self.engine.get_counts(args)
+                self.on_cancel()
     
     def on_cancel(self, evt=None):
         self.destroy()
