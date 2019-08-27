@@ -1,6 +1,5 @@
 """ This is the export_rejections module of Biovarase."""
 import tkinter as tk
-from tkinter import ttk
 from tkinter import messagebox
 from calendarium import Calendarium
 
