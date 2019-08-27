@@ -31,6 +31,7 @@ Notice that in the spinbox widget we allowed only integers.
 Calendarium use datetime.date to set/get date.
 
 """
+import sys
 import datetime
 from datetime import date
 import tkinter as tk
@@ -53,8 +54,7 @@ class Calendarium(tk.Frame):
         self.args = args
         self.kwargs = kwargs
 
-        self.vcmd = (self.register(self.validate),
-                     '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        self.vcmd = (self.register(self.validate), '%d', '%P', '%S')
 
         self.caller = caller
         self.name = name
@@ -104,10 +104,10 @@ class Calendarium(tk.Frame):
                        relief=tk.GROOVE,)
 
         for p,i in enumerate((day_label,d,month_label,m,year_label,y)):
-             if  row is not None:
-                 i.grid(row=0, column=p, padx=5, pady=5,sticky=tk.W)
-             else:
-                 i.pack(side=tk.LEFT, fill=tk.X, padx=2)
+            if  row is not None:
+                i.grid(row=0, column=p, padx=5, pady=5,sticky=tk.W)
+            else:
+                i.pack(side=tk.LEFT, fill=tk.X, padx=2)
                  
                  
         if row is not None:
@@ -129,7 +129,7 @@ class Calendarium(tk.Frame):
 
         try:
             return datetime.date(self.year.get(), self.month.get(), self.day.get())
-        except:
+        except ValueError:
             return False
 
         
@@ -145,13 +145,7 @@ class Calendarium(tk.Frame):
                                  t.second)
             
         
-    def get_validate_integer(self, caller ):
-        return (caller.register(self.validate_integer),
-             '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')        
-
-    def validate(self, action, index, value_if_allowed,
-                 prior_value, text, validation_type,
-                 trigger_type, widget_name):
+    def validate(self, action, value_if_allowed, text,):
         # action=1 -> insert
         if(action=='1'):
             if text in '0123456789':
@@ -163,4 +157,4 @@ class Calendarium(tk.Frame):
             else:
                 return False
         else:
-            return True        
+            return True          
