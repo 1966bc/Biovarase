@@ -252,17 +252,6 @@ class Tools():
 
         return w
 
-    def get_validate_text(self, caller, what=None ):
-
-        if what is not None:
-            callback = self.validate_integer
-        else:
-            callback = self.validate_float
-            
-        return (caller.register(callback),
-             '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
-
-
     def get_validate_integer(self, caller ):
         return (caller.register(self.validate_integer), '%d', '%P', '%S')
 
