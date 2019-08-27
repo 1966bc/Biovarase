@@ -2,10 +2,7 @@
 # -*- coding: utf-8 -*-
 """ This is the tools module of Biovarase. 
 It helps to draw the windwos."""
-import sys
-import os
 import datetime
-from datetime import date
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
