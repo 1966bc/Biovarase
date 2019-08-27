@@ -264,7 +264,7 @@ class Tools():
 
 
     def get_validate_integer(self, caller ):
-        return (caller.register(self.validate), '%d', '%P', '%S')
+        return (caller.register(self.validate_integer), '%d', '%P', '%S')
 
     def get_validate_float(self, caller ):
         return (caller.register(self.validate_float),'%d', '%P', '%S')
