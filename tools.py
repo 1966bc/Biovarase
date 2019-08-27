@@ -164,12 +164,16 @@ class Tools():
 
     def get_export_cancel(self, caller, container):
 
-        caller.btnExport = self.get_button(container, "Export",0,2)
+        w = self.get_frame(container,5)
+
+        caller.btnExport = self.get_button(w, "Export",0,1,)
         caller.btnExport.bind("<Button-1>", caller.on_export)
         caller.btnExport.bind("<Return>", caller.on_export)
     
-        caller.btCancel = self.get_button(container, "Close", 1,2)
+        caller.btCancel = self.get_button(w, "Close", 1,1)
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
+
+        w.grid(row=0, column=2, sticky=tk.N+tk.E, padx=5, pady=5)
 
 
     def get_save_cancel_delete(self, caller, container):
@@ -261,18 +265,15 @@ class Tools():
         return (caller.register(callback),
              '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
+
     def get_validate_integer(self, caller ):
-        return (caller.register(self.validate_integer),
-             '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        return (caller.register(self.validate), '%d', '%P', '%S')
 
     def get_validate_float(self, caller ):
-        return (caller.register(self.validate_float),
-             '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        return (caller.register(self.validate_float),'%d', '%P', '%S')
 
 
-    def validate_integer(self, action, index, value_if_allowed,
-                 prior_value, text, validation_type,
-                 trigger_type, widget_name):
+    def validate_integer(self, action, value_if_allowed, text,):
         # action=1 -> insert
         if(action=='1'):
             if text in '0123456789':
@@ -285,12 +286,11 @@ class Tools():
                 return False
         else:
             return True
-
-    def validate_float(self, action, index, value_if_allowed,
-                       prior_value, text, validation_type, trigger_type, widget_name):
+        
+    def validate_float(self, action, value_if_allowed, text,):
         # action=1 -> insert
         if(action=='1'):
-            if text in '0123456789.-+':
+            if text in '0123456789.':
                 try:
                     float(value_if_allowed)
                     return True
@@ -299,11 +299,8 @@ class Tools():
             else:
                 return False
         else:
-            return True
-
-            
-
-                                         
+            return True            
+                            
 def main():
     
     foo = Tools()
