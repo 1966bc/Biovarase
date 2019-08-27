@@ -132,6 +132,19 @@ class Calendarium(tk.Frame):
         except:
             return False
 
+        
+    def get_timestamp(self,):
+
+        t = datetime.datetime.now()
+        
+        return datetime.datetime(self.year.get(),
+                                 self.month.get(),
+                                 self.day.get(),
+                                 t.hour ,
+                                 t.minute,
+                                 t.second)
+            
+        
     def get_validate_integer(self, caller ):
         return (caller.register(self.validate_integer),
              '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')        
