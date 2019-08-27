@@ -1,4 +1,4 @@
-""" This is the elemets module of Biovarase."""
+""" This is the analitical_goals module of Biovarase."""
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
