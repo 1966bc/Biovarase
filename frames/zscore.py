@@ -1,4 +1,4 @@
-""" This is the analytical module of Biovarase."""
+""" This is the zscore module of Biovarase."""
 import tkinter as tk
 
 __author__ = "1966bc aka giuseppe costanzi"
