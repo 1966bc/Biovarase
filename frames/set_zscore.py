@@ -1,4 +1,4 @@
-""" This is the set z score module of Biovarase."""
+""" This is the set set_zscore module of Biovarase."""
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -17,7 +17,9 @@ __status__ = "Production"
 class Widget(tk.Toplevel):     
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='set_zscore')  
-
+        
+        self.attributes('-topmost', True)
+        self.transient(parent)
         self.resizable(0,0)
         self.parent = parent
         self.engine = kwargs['engine']
@@ -52,7 +54,7 @@ class Widget(tk.Toplevel):
     def on_open(self):
 
         self.z_score.set(self.engine.get_zscore())
-        self.title("Set")
+        self.title("Set Z Score")
         self.txValue.focus()
         
     def on_save(self, evt=None):
