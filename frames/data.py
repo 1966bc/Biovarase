@@ -81,7 +81,7 @@ class Widget(tk.Toplevel):
         self.btnBatch.bind("<Button-1>", self.on_add_batch)
         self.btnResult = self.engine.get_button(w, "Result")
         self.btnResult.bind("<Button-1>", self.on_add_result)
-        self.btnReset = self.engine.get_button(w, "Databae reset")
+        self.btnReset = self.engine.get_button(w, "Database reset")
         self.btnReset.bind("<Button-1>", self.on_reset_database)
         self.btClose = self.engine.get_button(w, "Close")
         self.btClose.bind("<Button-1>", self.on_cancel)
