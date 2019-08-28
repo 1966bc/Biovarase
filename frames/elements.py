@@ -10,7 +10,7 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-25"
+__date__ = "2019-08-28"
 __status__ = "Production"
 
 
@@ -45,6 +45,9 @@ class Widget(tk.Toplevel):
 
         for btn in bts:
             self.engine.get_button(f0, btn[0] ).bind("<Button-1>", btn[1])
+
+        self.bind("<Alt-s>", self.on_save)
+        self.bind("<Alt-c>", self.on_cancel)            
 
         f0.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 

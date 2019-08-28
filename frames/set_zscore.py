@@ -49,6 +49,9 @@ class Widget(tk.Toplevel):
         for btn in bts:
             self.engine.get_button(f0, btn[0] ).bind("<Button-1>", btn[1])
 
+        self.bind("<Alt-s>", self.on_save)
+        self.bind("<Alt-c>", self.on_cancel)               
+
         f0.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
     def on_open(self):
