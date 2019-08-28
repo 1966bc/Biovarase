@@ -154,9 +154,11 @@ class Tools():
         caller.btnSave = self.get_button(container, "Save",0,2)
         caller.btnSave.bind("<Button-1>", caller.on_save)
         caller.btnSave.bind("<Return>", caller.on_save)
-    
         caller.btCancel = self.get_button(container, "Close", 1,2)
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
+
+        caller.bind("<Alt-s>", caller.on_save)
+        caller.bind("<Alt-c>", caller.on_cancel)
 
 
     def get_export_cancel(self, caller, container):
@@ -169,6 +171,10 @@ class Tools():
     
         caller.btCancel = self.get_button(w, "Close", 1,1)
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
+
+        caller.bind("<Alt-e>", caller.on_export)
+        caller.bind("<Alt-c>", caller.on_cancel)
+        
 
         w.grid(row=0, column=2, sticky=tk.N+tk.E, padx=5, pady=5)
 
@@ -185,6 +191,10 @@ class Tools():
         caller.btCancel = self.get_button(container, "Close", 2,2)
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
 
+        caller.bind("<Alt-s>", caller.on_save)
+        caller.bind("<Alt-d>", caller.on_delete)
+        caller.bind("<Alt-c>", caller.on_cancel)
+
 
     def get_add_edit_cancel(self, caller, container):
 
@@ -195,6 +205,10 @@ class Tools():
         caller.btnEdit.bind("<Button-1>", caller.on_edit)
         caller.btCancel = self.get_button(container, "Close")
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
+
+        caller.bind("<Alt-a>", caller.on_add)
+        caller.bind("<Alt-e>", caller.on_edit)
+        caller.bind("<Alt-c>", caller.on_cancel)
 
 
     def on_fields_control(self, container):
