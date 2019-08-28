@@ -87,34 +87,28 @@ class Widget(tk.Toplevel):
     def on_save(self, evt=None):
         
         if self.engine.on_fields_control(self)==False:return
-        if self.modified_date.get_date()==False:
-            msg = "{0} return a {1} date.".format(self.modified_date.name,
-                                                  self.modified_date.get_date(),)
-            messagebox.showinfo(self.engine.title, msg, parent=self)
-            
-        else:
-            
-            if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+        if self.modified_date.get_date(self)==False:return
+        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
-                args =  self.get_values()
+            args =  self.get_values()
 
-                if self.index is not None:
+            if self.index is not None:
 
-                    sql = self.engine.get_update_sql('rejections','rejection_id')
+                sql = self.engine.get_update_sql('rejections','rejection_id')
 
-                    args = (*args, self.selected_rejection[0])
-                           
-                else:
-                    sql = self.engine.get_insert_sql('rejections',len(args))
+                args = (*args, self.selected_rejection[0])
+                       
+            else:
+                sql = self.engine.get_insert_sql('rejections',len(args))
 
-                self.engine.write(sql,args)
-                self.parent.on_open(self.selected_test,self.selected_batch,self.selected_result)
+            self.engine.write(sql,args)
+            self.parent.on_open(self.selected_test,self.selected_batch,self.selected_result)
 
-                if self.index is not None:
-                    self.parent.lstItems.see(self.index)
-                    self.parent.lstItems.selection_set(self.index)
-                    
-                self.on_cancel()
+            if self.index is not None:
+                self.parent.lstItems.see(self.index)
+                self.parent.lstItems.selection_set(self.index)
+                
+            self.on_cancel()
 
     def on_delete(self, evt=None):
 

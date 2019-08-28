@@ -45,15 +45,12 @@ class Widget(tk.Toplevel):
         
     def on_export(self, evt=None):
 
-        if self.start_date.get_date()==False:
-            msg = "{0} return a {1} date.".format(self.start_date.name,self.start_date.get_date(),)
-            messagebox.showinfo(self.engine.title, msg, parent=self) 
-
-        else:
-            if messagebox.askyesno(self.engine.title, "Export data?", parent=self) == True:
-                args = (self.start_date.get_date(),)
-                self.engine.get_rejections(args)
-                self.on_cancel()
+        if self.start_date.get_date(self)==False:return
+       
+        if messagebox.askyesno(self.engine.title, "Export data?", parent=self) == True:
+            args = (self.start_date.get_date(self),)
+            self.engine.get_rejections(args)
+            self.on_cancel()
     
     def on_cancel(self, evt=None):
         self.destroy()

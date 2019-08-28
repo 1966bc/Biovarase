@@ -105,36 +105,32 @@ class Widget(tk.Toplevel):
     def on_save(self, evt=None):
 
         if self.engine.on_fields_control(self)==False:return
-        if self.expiration_date.get_date()==False:
-            msg = "{0} return a {1} date.".format(self.expiration_date.name,
-                                                  self.expiration_date.get_date(),)
-            messagebox.showinfo(self.engine.title, msg, parent=self)
-        else:            
-            if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+        if self.expiration_date.get_date(self)==False:return
+        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
-                args =  self.get_values()
+            args =  self.get_values()
 
-                if self.index is not None:
+            if self.index is not None:
 
-                    sql = self.engine.get_update_sql('batches','batch_id')
+                sql = self.engine.get_update_sql('batches','batch_id')
 
-                    args = (*args, self.selected_batch[0])
-                           
-                else:
-
-                    sql = self.engine.get_insert_sql('batches',len(args))
-
-                self.engine.write(sql,args)
-                self.parent.set_batches()
-                
-                if self.index is not None:
-                    self.parent.lstBatches.see(self.index)
-                    self.parent.lstBatches.selection_set(self.index)
-                        
-                self.on_cancel()
-
+                args = (*args, self.selected_batch[0])
+                       
             else:
-                messagebox.showinfo(self.engine.title,self.engine.abort, parent=self)
+
+                sql = self.engine.get_insert_sql('batches',len(args))
+
+            self.engine.write(sql,args)
+            self.parent.set_batches()
+            
+            if self.index is not None:
+                self.parent.lstBatches.see(self.index)
+                self.parent.lstBatches.selection_set(self.index)
+                    
+            self.on_cancel()
+
+        else:
+            messagebox.showinfo(self.engine.title,self.engine.abort, parent=self)
                
             
     def on_cancel(self, evt=None):
@@ -144,7 +140,7 @@ class Widget(tk.Toplevel):
 
         return (self.selected_test[0],
                 self.batch.get(),
-                self.expiration_date.get_date(),
+                self.expiration_date.get_date(self),
                 self.target.get(),
                 self.sd.get(),
                 self.enable.get())
