@@ -4,15 +4,15 @@
 How import;
 from calendarium import Calendarium
 
-How nstantiate in your frame:
-self.start_date = Calendarium(self)
+How instantiate in your frame:
+
 self.start_date = Calendarium(self,"Start Date")
 
 How pack:
-#f is a tkinter widget such as Frame
-if use row and col
+#f is a tkinter widget such as Frame,LabelFrame
+if use grid method
 self.start_date.get_calendarium(f, row, col)
-If use pack()
+If use pack method
 self.start_date.get_calendarium(f,)
 
 Set today date:
@@ -20,12 +20,7 @@ self.start_date.set_today()
 
 Check if a date is right formated:
 
-before you must import this:
-from tkinter import messagebox
-
-if self.start_date.get_date()==False:
-    msg = "Date format error"
-    messagebox.showerror('My Title', msg, parent=self)
+if self.start_date.get_date(self)==False:return
 
 Notice that in the spinbox widget we allowed only integers.
 Calendarium use datetime.date to set/get date.
@@ -35,6 +30,7 @@ import sys
 import datetime
 from datetime import date
 import tkinter as tk
+from tkinter import messagebox
 
 
 __author__ = "1966bc aka giuseppe costanzi"
@@ -125,11 +121,13 @@ class Calendarium(tk.Frame):
         self.month.set(today.month)
         self.year.set(today.year)
 
-    def get_date(self,):
+    def get_date(self,caller):
 
         try:
             return datetime.date(self.year.get(), self.month.get(), self.day.get())
         except ValueError:
+            msg = "Date format error:\n%s"%str(sys.exc_info()[1])
+            messagebox.showerror(caller.title(), msg, parent=caller)
             return False
 
         
