@@ -18,7 +18,7 @@ __date__ = "2019-05-25"
 __status__ = "Production"
 
 
-class QC():
+class QC:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
        
