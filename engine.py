@@ -4,7 +4,6 @@
 import sys
 import inspect
 import datetime
-
 from dbms import DBMS
 from tools import Tools
 from qc import QC
@@ -20,30 +19,21 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-08-25"
+__date__ = "2019-08-29"
 __status__ = "Production"
 
 class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #for base_class in Engine.__bases__:
-             #base_class.__init__(self, *args, **kwargs)
         
         self.args = args
         self.kwargs = kwargs
 
         self.title = "Biovarase"
-        platform = "Developed on Debian Release 9 (stretch) 64-bit"
-        s = "{0} ver {1}\nwritten by\n1966bc\nLocation:\nMilk galaxy\nSolar System\nThird planet(Earth) Italy(Rome)\ngiuseppecostanzi@gmail.com\n{2}"
-        msg = s.format(self.title, __version__, platform)
-        self.about = msg
-
         self.no_selected = "Attention!\nNo record selected!"
-        self.mandatory = "Attention!\nField %s is mandatory!"
         self.delete = "Delete data?"
         self.ask_to_save = "Save data?"
         self.abort = "Operation aborted!"
-        self.copyleft = "GNU GPL Version 3, 29 June 2007"
         
 
     def __str__(self):
@@ -211,7 +201,6 @@ def main():
 
     kwargs = {"path":'biovarase.db'}
     
-
     foo = Engine(*args, **kwargs)
     print(foo)
     print(foo.con)
