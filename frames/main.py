@@ -35,6 +35,7 @@ import frames.analytical_goals
 import frames.counts
 import frames.zscore
 import frames.set_zscore
+import frames.quick_data_analysis
 
 __author__ = "1966bc"
 __copyright__ = "Copyleft"
@@ -147,7 +148,7 @@ class Biovarase(ttk.Frame):
         #keep this here
         m_file.add_cascade(label='Export', menu=s_menu, underline=0)
 
-        items = (("Quick Data Analysis", self.engine.get_quick_data_analysis),
+        items = (("Quick Data Analysis", self.on_quick_data_analysis),
                  ("Rejections",self.on_export_rejections),
                  ("Analytical Goals",self.on_analytical_goals),
                   ("Counts", self.on_export_counts),)
@@ -806,6 +807,9 @@ class Biovarase(ttk.Frame):
 
     def on_analitical(self,):
         frames.analytical.Widget(self, engine=self.engine).on_open()
+
+    def on_quick_data_analysis(self,):
+        frames.quick_data_analysis.Widget(self,engine=self.engine).on_open()        
 
     def on_export_rejections(self,):
         frames.export_rejections.Widget(self, engine=self.engine).on_open()
