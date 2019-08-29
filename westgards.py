@@ -14,7 +14,7 @@ __date__ = "2019-05-22"
 __status__ = "Production"
 
 
-class Westgards():
+class Westgards:
     def __init__(self,*args, **kwargs):
         super().__init__(*args, **kwargs)
         
