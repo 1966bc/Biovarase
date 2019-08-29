@@ -16,6 +16,7 @@ SQL_RESULTS = "SELECT result, recived\
                FROM results\
                WHERE batch_id =?\
                AND enable =1\
+               AND date(recived)=?\
                ORDER BY result_id\
                DESC LIMIT 1"
 
@@ -133,8 +134,7 @@ class Exporter:
         self.launch(path)
 
 
-  
-    def get_quick_data_analysis(self,):
+    def get_quick_data_analysis(self, selected_data):
 
         path = tempfile.mktemp (".xls")
         obj = xlwt.Workbook()
@@ -158,79 +158,81 @@ class Exporter:
 
             rs_batchs = self.read(True, SQL_BATCHES, (test[0],))
 
-            for batch in rs_batchs:
-                
-                rs_results = self.read(False, SQL_RESULTS, (batch[0],))
-                
-                series = self.get_series(batch[0], int(self.get_elements()))
-                
-                if len(series) > 9:
-                    rule = self.get_westgard_violation_rule(batch[4], batch[5], series, batch, test)
-                else:
-                    rule = "No data"
+            if rs_batchs:
 
-                c = None
+                for batch in rs_batchs:
 
-                try:
-                    if rs_results:
+                    rs_results = self.read(False, SQL_RESULTS, (batch[0], selected_data[0]))
 
-                        compute_cv = self.get_cv(series)
-                        compute_sd = self.get_sd(series)
-                        compute_avg = self.get_mean(series)
-                        target = float(batch[4])
-                        sd = float(batch[5])
-                        bias = self.get_bias(compute_avg, target)
-                        result = float(rs_results[0])
-                        date = rs_results[1].strftime("%d-%m-%Y")
+                    series = self.get_series(batch[0], int(self.get_elements()))
+                    
+                    if len(series) > 9:
+                        rule = self.get_westgard_violation_rule(batch[4], batch[5], series, batch, test)
+                    else:
+                        rule = "No data"
 
+                    c = None
+
+                    try:
+                        if rs_results:
+
+                            compute_cv = self.get_cv(series)
+                            compute_sd = self.get_sd(series)
+                            compute_avg = self.get_mean(series)
+                            target = float(batch[4])
+                            sd = float(batch[5])
+                            bias = self.get_bias(compute_avg, target)
+                            result = float(rs_results[0])
+                            date = rs_results[1].strftime("%d-%m-%Y")
+
+                                            
+                            if result > target:
+                                #result > 3sd
+                                if result > (target + (sd*3)):
+                                    c = "red"   
+                                #if result is > 2sd and < +3sd
+                                #elif (target + (sd*2) <= result <= target + (sd*3)):
+                                elif result > (target + (sd*2)) and result < (target + (sd*3)):
+                                    c =  "yellow"
                                         
-                        if result > target:
-                            #result > 3sd
-                            if result > (target + (sd*3)):
-                                c = "red"   
-                            #if result is > 2sd and < +3sd
-                            #elif (target + (sd*2) <= result <= target + (sd*3)):
-                            elif result > (target + (sd*2)) and result < (target + (sd*3)):
-                                c =  "yellow"
-                                    
-                        elif result < target:
-                            if result < (target - (sd*3)):
-                                c = "red"
-                            #if result is > -2sd and < -3sd
-                            #elif (target - (sd*2) <= result <= target - (sd*3)):
-                            elif result < (target - (sd*2)) and result > (target - (sd*3)):
-                                c = "yellow"
-                             
-                        ws.write(row,0,test[1])
-                        ws.write(row,1,batch[2])
-                        ws.write(row,2,target)
-                        ws.write(row,3,result)
-                        ws.write(row,4,compute_avg)
-                        ws.write(row,5,bias)
-                        ws.write(row,6,sd)
-                        ws.write(row,7,compute_sd)
-                        ws.write(row,8,compute_cv)
-                        ws.write(row,10,date)
-                        
-                        if rule not in('Accept','No data'):
+                            elif result < target:
+                                if result < (target - (sd*3)):
+                                    c = "red"
+                                #if result is > -2sd and < -3sd
+                                #elif (target - (sd*2) <= result <= target - (sd*3)):
+                                elif result < (target - (sd*2)) and result > (target - (sd*3)):
+                                    c = "yellow"
+                                 
+                            ws.write(row,0,test[1])
+                            ws.write(row,1,batch[2])
+                            ws.write(row,2,target)
+                            ws.write(row,3,result)
+                            ws.write(row,4,compute_avg)
+                            ws.write(row,5,bias)
+                            ws.write(row,6,sd)
+                            ws.write(row,7,compute_sd)
+                            ws.write(row,8,compute_cv)
+                            ws.write(row,10,date)
                             
-                            ws.write(row,9,rule,self.xls_bg_colour('blue'))
-                        else:
-                            ws.write(row,9,rule,)
+                            if rule not in('Accept','No data'):
+                                
+                                ws.write(row,9,rule,self.xls_bg_colour('blue'))
+                            else:
+                                ws.write(row,9,rule,)
 
-                        if c :
-                            ws.write(row,3,result,self.xls_bg_colour(c))
-                            row +=1
-                        else:
-                            ws.write(row,3,result,)
-                            row +=1
-                except:
-                   
-                    self.on_log(self,
-                                       inspect.stack()[0][3],
-                                       sys.exc_info()[1],
-                                       sys.exc_info()[0],
-                                       sys.modules[__name__])
+                            if c :
+                                ws.write(row,3,result,self.xls_bg_colour(c))
+                                row +=1
+                            else:
+                                ws.write(row,3,result,)
+                                row +=1
+                    except:
+                       
+                        self.on_log(self,
+                                           inspect.stack()[0][3],
+                                           sys.exc_info()[1],
+                                           sys.exc_info()[0],
+                                           sys.modules[__name__])
                     
         obj.save(path)
         self.launch(path)                     
