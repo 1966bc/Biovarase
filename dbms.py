@@ -17,9 +17,8 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 
-class DBMS():
+class DBMS:
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         
         self.args = args
         self.kwargs = kwargs
@@ -27,17 +26,17 @@ class DBMS():
         self.set_connection(kwargs)
 
     def __str__(self):
-        return "class: %s" % (self.__class__.__name__, )        
-        
-    def set_connection(self,kwargs):
+        return "class: %s" % (self.__class__.__name__, )
+
+    def set_connection(self, kwargs):
 
         self.get_connection(kwargs["path"])
-        
+
     def get_connection(self, path):
 
         self.con = lite.connect(path,
                                 detect_types=lite.PARSE_DECLTYPES|lite.PARSE_COLNAMES,
-                                isolation_level = 'IMMEDIATE')
+                                isolation_level='IMMEDIATE')
         self.con.text_factory = lite.OptimizedUnicode
 
 
@@ -45,24 +44,26 @@ class DBMS():
 
         try:
             cur = self.con.cursor()
-            cur.execute(sql,args)
+            cur.execute(sql, args)
             self.con.commit()
 
         except:
             self.con.rollback()
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])   
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
         finally:
             try:
                 cur.close()
             except:
-                print(inspect.stack()[0][3])
-                print (sys.exc_info()[0])
-                print (sys.exc_info()[1])
-                print (sys.exc_info()[2])  
+                self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
 
     def read(self, fetch, sql, args=()):
@@ -79,10 +80,12 @@ class DBMS():
             return rs
 
         except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])  
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
+            
 
     def dump_db(self,):
 
@@ -128,7 +131,7 @@ class DBMS():
             print(inspect.stack()[0][3])
             print (sys.exc_info()[0])
             print (sys.exc_info()[1])
-            print (sys.exc_info()[2])  
+            print (sys.exc_info()[2])
 
 
     # FIXME This function sometimes returns incorrect data when pass datetime type on timestamp field.
@@ -155,11 +158,11 @@ class DBMS():
         try:
             return "INSERT INTO %s(%s)VALUES(%s)"%(table,",".join(self.get_fields(table)), ",".join("?"*n))
         except:
-            self.engine.on_log(self,
-                               inspect.stack()[0][3],
-                               sys.exc_info()[1],
-                               sys.exc_info()[0],
-                               sys.modules[__name__])
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
 
     # FIXME This function sometimes fails  when recive datetime type on timestamp field.
@@ -182,7 +185,7 @@ class DBMS():
 
 
     def get_series(self, batch_id, limit = None):
-        
+
         series = []
 
         sql = "SELECT ROUND(result,2),enable\
@@ -204,7 +207,7 @@ class DBMS():
 def main():
 
     args = []
-    
+
     for i in sys.argv:
         args.append(i)
 

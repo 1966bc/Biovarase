@@ -16,7 +16,6 @@ __status__ = "Production"
 
 class Westgards:
     def __init__(self,*args, **kwargs):
-        super().__init__(*args, **kwargs)
         
         self.args = args
         self.kwargs = kwargs

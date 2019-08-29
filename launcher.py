@@ -14,15 +14,9 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2019-06-01"
 __status__ = "Production"
 
-class Launcher():
+class Launcher:
     def __init__(self, *args, **kwargs):
-        super().__init__()
         
-        #notice that we don't use super().__init__(*args, **kwargs)
-        #here because this class is the last in mro call of engine.py
-        #class: Engine
-        #MRO:['Engine', 'DBMS', 'Tools', 'QC', 'Westgards', 'Exporter', 'Launcher', 'object']
-
         self.args = args
         self.kwargs = kwargs
 

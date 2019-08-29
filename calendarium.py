@@ -44,7 +44,7 @@ __date__ = "2019-08-26"
 __status__ = "Beta"
 
 class Calendarium(tk.Frame):
-    def __init__(self,caller, name, *args, **kwargs):
+    def __init__(self, caller, name, *args, **kwargs):
         super().__init__()
 
         self.args = args
@@ -54,60 +54,58 @@ class Calendarium(tk.Frame):
 
         self.caller = caller
         self.name = name
-        
         self.day = tk.IntVar()
-        self.month =  tk.IntVar()
-        self.year =  tk.IntVar()
-       
-        
+        self.month = tk.IntVar()
+        self.year = tk.IntVar()
+
     def __str__(self):
         return "class: %s" % (self.__class__.__name__, )
 
 
     def get_calendarium(self, container, row=None, col=None):
-        
+
 
         w = tk.LabelFrame(container,
                           text=self.name,
                           borderwidth=1,
-                          padx=2,pady=2,
+                          padx=2, pady=2,
                           relief=tk.GROOVE,)
 
 
         day_label = tk.LabelFrame(w, text="Day")
 
-        d = tk.Spinbox(day_label, bg='white', fg='blue',width=2,
+        d = tk.Spinbox(day_label, bg='white', fg='blue', width=2,
                        from_=1, to=31,
-                       validate = 'key',
-                       validatecommand = self.vcmd,
+                       validate='key',
+                       validatecommand=self.vcmd,
                        textvariable=self.day,
                        relief=tk.GROOVE,)
 
         month_label = tk.LabelFrame(w, text="Month")
-        m = tk.Spinbox(month_label, bg='white',fg='blue', width=2,
+        m = tk.Spinbox(month_label, bg='white', fg='blue', width=2,
                        from_=1, to=12,
-                       validate = 'key',
-                       validatecommand = self.vcmd,
+                       validate='key',
+                       validatecommand=self.vcmd,
                        textvariable=self.month,
                        relief=tk.GROOVE,)
 
         year_label = tk.LabelFrame(w, text="Year")
-        y = tk.Spinbox(year_label, bg='white', fg='blue',width=4,
-                       validate = 'key',
-                       validatecommand = self.vcmd,
+        y = tk.Spinbox(year_label, bg='white', fg='blue', width=4,
+                       validate='key',
+                       validatecommand=self.vcmd,
                        from_=1900, to=3000,
                        textvariable=self.year,
                        relief=tk.GROOVE,)
 
-        for p,i in enumerate((day_label,d,month_label,m,year_label,y)):
+        for p, i in enumerate((day_label , d, month_label, m, year_label, y)):
             if  row is not None:
-                i.grid(row=0, column=p, padx=5, pady=5,sticky=tk.W)
+                i.grid(row=0, column=p, padx=5, pady=5, sticky=tk.W)
             else:
                 i.pack(side=tk.LEFT, fill=tk.X, padx=2)
-                 
-                 
+
+
         if row is not None:
-            w.grid(row = row, column = col,sticky=tk.W)
+            w.grid(row=row, column=col, sticky=tk.W)
         else:
             w.pack()
 
@@ -121,7 +119,7 @@ class Calendarium(tk.Frame):
         self.month.set(today.month)
         self.year.set(today.year)
 
-    def get_date(self,caller):
+    def get_date(self, caller):
 
         try:
             return datetime.date(self.year.get(), self.month.get(), self.day.get())
@@ -130,22 +128,22 @@ class Calendarium(tk.Frame):
             messagebox.showerror(caller.title(), msg, parent=caller)
             return False
 
-        
+
     def get_timestamp(self,):
 
         t = datetime.datetime.now()
-        
+
         return datetime.datetime(self.year.get(),
                                  self.month.get(),
                                  self.day.get(),
-                                 t.hour ,
+                                 t.hour,
                                  t.minute,
                                  t.second)
-            
-        
+
+
     def validate(self, action, value_if_allowed, text,):
         # action=1 -> insert
-        if(action=='1'):
+        if action == '1':
             if text in '0123456789':
                 try:
                     int(value_if_allowed)
@@ -155,4 +153,4 @@ class Calendarium(tk.Frame):
             else:
                 return False
         else:
-            return True          
+            return True
