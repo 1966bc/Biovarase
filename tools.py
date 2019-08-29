@@ -18,7 +18,7 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
-class Tools():
+class Tools:
     def __init__(self,*args, **kwargs):
         super().__init__(*args, **kwargs)
 
