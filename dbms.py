@@ -22,7 +22,6 @@ class DBMS:
         
         self.args = args
         self.kwargs = kwargs
-
         self.set_connection(kwargs)
 
     def __str__(self):
@@ -128,11 +127,11 @@ class DBMS:
 
             return tuple(fields)
         except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
-
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
     # FIXME This function sometimes returns incorrect data when pass datetime type on timestamp field.
     def get_update_sql(self,table,pk):
