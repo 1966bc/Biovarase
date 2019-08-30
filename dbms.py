@@ -190,8 +190,7 @@ class DBMS:
         sql = "SELECT ROUND(result,2),enable\
                FROM results\
                WHERE batch_id =?\
-               ORDER BY recived DESC\
-               LIMIT ?"
+               ORDER BY recived DESC LIMIT ?"
 
         rs = self.read(True, sql, (batch_id, limit))
 
