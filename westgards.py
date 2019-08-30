@@ -24,7 +24,7 @@ class Westgards:
         return "class: {0}\nMRO: {1}".format(self.__class__.__name__,  [x.__name__ for x in Westgards.__mro__],)
 
         
-    def get_westgard_violation_rule(self, target, sd, series,selected_batch=None, selected_test=None):
+    def get_westgard_violation_rule(self, target, sd, series, selected_batch=None, selected_test=None):
         """This function recive target, sd and a value series
            to compute westgard violtetion rule.
  
@@ -46,7 +46,7 @@ class Westgards:
             if self.get_rule_13S():
                 return "1:3S"
             elif self.get_rule_22S():
-                    return "2:2S"
+                return "2:2S"
             elif self.get_rule_R4S():
                 return "R:4S"
             elif self.get_rule_41S():
@@ -54,7 +54,7 @@ class Westgards:
             elif self.get_rule_10X():
                 return "10:X"
             else:
-                return "1:2S"                
+                return "1:2S"
         else:
             if self.get_rule_41S():
                 return "4:1S"
@@ -63,7 +63,6 @@ class Westgards:
                     return "10:x"
                 else:
                     return "Accept"
-
         
     
     def get_standard_deviations(self,target, sd):
@@ -92,10 +91,7 @@ class Westgards:
         #print ("Westgard rule 1:2s tested")
         #print(self.series[-1])
 
-        if self.series[-1] > self.sd2 or  self.series[-1] < self.sd_2:
-            return True
-        else:
-            return False
+        return self.series[-1] > self.sd2  or self.series[-1] < self.sd_2
 
     def get_rule_13S(self):
         """1:3s
@@ -106,13 +102,10 @@ class Westgards:
            +/- > 3sd"""
 
         #print ("Westgard rule 1:3s tested")
-       
-        
-        if self.series[-1] > self.sd3  or self.series[-1] < self.sd_3:
-            return True
-        else:
-            return False
+    
+        return self.series[-1] > self.sd3  or self.series[-1] < self.sd_3
 
+    
     def get_rule_22S(self):
         """2:2s:
            check if 2 consecutive control measurements exceed
