@@ -183,16 +183,26 @@ class DBMS:
         return d
 
 
-    def get_series(self, batch_id, limit = None):
+    def get_series(self, batch_id, limit = None, result_id=None):
 
         series = []
 
-        sql = "SELECT ROUND(result,2),enable\
-               FROM results\
-               WHERE batch_id =?\
-               ORDER BY recived DESC LIMIT ?"
+        if result_id is not None:
 
-        rs = self.read(True, sql, (batch_id, limit))
+            sql = "SELECT ROUND(result,2),enable\
+                   FROM results\
+                   WHERE batch_id =?\
+                   AND result_id <=?\
+                   ORDER BY recived DESC LIMIT ?"
+            rs = self.read(True, sql, (batch_id, result_id, limit))
+
+        else:
+
+            sql = "SELECT ROUND(result,2),enable\
+                   FROM results\
+                   WHERE batch_id =?\
+                   ORDER BY recived DESC LIMIT ?"
+            rs = self.read(True, sql, (batch_id, limit))
 
         rs = tuple(i for i in rs if i[1]!=0)
 

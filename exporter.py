@@ -47,7 +47,6 @@ class Exporter:
             
             
             rs = self.read(True, sql, args)
-            
 
             path = tempfile.mktemp (".xls")
             obj = xlwt.Workbook()
@@ -152,7 +151,7 @@ class Exporter:
 
                 for batch in rs_batchs:
 
-                    sql_results = "SELECT result, recived\
+                    sql_results = "SELECT result_id, result, recived\
                                    FROM results\
                                    WHERE batch_id =?\
                                    AND enable =1\
@@ -163,10 +162,10 @@ class Exporter:
 
                     if rs_results is not None:
 
-                        for result in rs_results:
+                        for i in rs_results:
+                            
+                            series = self.get_series(batch[0], int(self.get_elements()), i[0])
 
-                            series = self.get_series(batch[0], int(self.get_elements()))
-                    
                             if len(series) > 9:
                                 rule = self.get_westgard_violation_rule(batch[4], batch[5], series, batch, test)
                             else:
@@ -175,7 +174,7 @@ class Exporter:
                             c = None
 
                             try:
-                                if result:
+                                if i:
                                     
                                     compute_cv = self.get_cv(series)
                                     compute_sd = self.get_sd(series)
@@ -183,32 +182,32 @@ class Exporter:
                                     target = float(batch[4])
                                     sd = float(batch[5])
                                     bias = self.get_bias(compute_avg, target)
-                                    res = float(result[0])
-                                    date = result[1].strftime("%d-%m-%Y")
+                                    result = float(i[1])
+                                    date = i[2].strftime("%d-%m-%Y")
                                     
 
                                                     
-                                    if res > target:
+                                    if result > target:
                                         #result > 3sd
-                                        if res > (target + (sd*3)):
+                                        if result > (target + (sd*3)):
                                             c = "red"   
                                         #if result is > 2sd and < +3sd
                                         #elif (target + (sd*2) <= result <= target + (sd*3)):
-                                        elif res > (target + (sd*2)) and res < (target + (sd*3)):
+                                        elif result > (target + (sd*2)) and result < (target + (sd*3)):
                                             c =  "yellow"
                                                 
-                                    elif res < target:
-                                        if res < (target - (sd*3)):
+                                    elif result < target:
+                                        if result < (target - (sd*3)):
                                             c = "red"
                                         #if result is > -2sd and < -3sd
                                         #elif (target - (sd*2) <= result <= target - (sd*3)):
-                                        elif res < (target - (sd*2)) and result > (target - (sd*3)):
+                                        elif result < (target - (sd*2)) and result > (target - (sd*3)):
                                             c = "yellow"
                                          
                                     ws.write(row,0,test[1])
                                     ws.write(row,1,batch[2])
                                     ws.write(row,2,target)
-                                    ws.write(row,3,res)
+                                    ws.write(row,3,result)
                                     ws.write(row,4,compute_avg)
                                     ws.write(row,5,bias)
                                     ws.write(row,6,sd)
@@ -222,11 +221,13 @@ class Exporter:
                                     else:
                                         ws.write(row,9,rule,)
 
+                                        
+
                                     if c :
-                                        ws.write(row,3,res,self.xls_bg_colour(c))
+                                        ws.write(row,3,result,self.xls_bg_colour(c))
                                         row +=1
                                     else:
-                                        ws.write(row,3,res,)
+                                        ws.write(row,3,result,)
                                         row +=1
                                                                        
                             except:
