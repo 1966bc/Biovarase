@@ -1,6 +1,7 @@
 # Biovarase
 
-<img src="https://img.shields.io/badge/made%20with-python-blue.svg" alt="made with python">(https://www.python.org/downloads/)
+
+[![Python](https://img.shields.io/badge/python-2%2C%203-blue.svg)](https://www.python.org)
 
 ## A clinical quality control data management project
 
