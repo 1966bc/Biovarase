@@ -2,6 +2,8 @@
 
 
 [![Python 3](https://img.shields.io/badge/python-3%20-blue.svg)](https://www.python.org/downloads/)
+[![Tkinter](https://img.shields.io/badge/Tkinter%20-green.svg)](https://docs.python.org/3/library/tk.html)
+[![Matplotlib](https://img.shields.io/badge/Matplotlib%20-red.svg)](https://matplotlib.org/)
 [![license](https://img.shields.io/badge/license-GPL%203-orange.svg)](./LICENSE)
 
 ## A clinical quality control data management project
