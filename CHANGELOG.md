@@ -1,6 +1,44 @@
 # Biovarase
 ## changelog
 
+**2019-09-16**
+
+Delete Biovarase icon file, from now on we will load icon as a base 64 data.
+
+In the engine file we write  base 64 data of the incon file
+
+
+```python
+def get_icon(self):
+        return """iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAAXNSR0IArs4c
+                  6QAAAPBQTFRFAAAAAGbMas7///8A3/3/qeM7AFrH+v//AF/HAJn//v//ndgA
+                  AJgAhJGdipaii5ejhZKeACelwOoSZs0wACmlKC41Y8wwKS81p9s6ACykACSl
+                  LasAACmhJKcAdMgA3v3/NbcAa8QAyeoA1PYAAFzJACSk9/wAs+8UEJ8AXMYA
+                  ruYA//+bZs0yTLcA2/A6AF/JAGDW//94JSoy////IikyjNgmYGt0m9cF4f//
+                  gtUABJsA//9b//9NfN0y5PRgACaiACalX2lzQbMA//7//f8AP7IAACql2/QM
+                  Xb8A//+p6P//yOoAAGLWFKkAACWl8fqIerPNswAAAAF0Uk5TAEDm2GYAAAABY
+                  ktHRACIBR1IAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3AgREA0rdM
+                  kpsgAAAJBJREFUGNNVytUSwjAURdHcpKXQUsHd3d3dHf7/b4CZQHPP215zCPn
+                  OsHTdMog9U1UU1RRgE+h3Q0MBSPtK72KT/Ji2EDhS1IlBwgBSj7oAwQ4BXGqd
+                  OWO2gPxahrfTP0BQnjVH55j7J+DzspuWOZQ5QH1wKma1ZCPBL7Ao7VmuOqmkH
+                  /wSXxWiz7XHf4x84g33ag0Bx8dLigAAAABJRU5ErkJggg=="""
+
+```
+
+and in the main file...
+
+```python
+def set_icon(self, icon):
+        icon = tk.PhotoImage(data=self.engine.get_icon())
+        self.call('wm', 'iconphoto', self._w, '-default', icon)   
+
+```
+
+if you like you can use this link to convert your file
+
+[Base64.Guru](https://base64.guru/converter/encode/image/gif)
+
+
 **2019-08-25**
 
 Hello everybody,
