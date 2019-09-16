@@ -882,7 +882,7 @@ class App(tk.Tk):
         self.style = ttk.Style()
         self.engine = kwargs['engine']
         self.set_title(kwargs['title'])
-        self.set_icon(kwargs['icon'])
+        self.set_icon()
         self.set_style(kwargs['style'])
 
         frame = Biovarase(self, *args, **kwargs)
@@ -897,7 +897,7 @@ class App(tk.Tk):
         self.style.theme_use(style)        
         self.style.configure('.', background=self.engine.get_rgb(240,240,237))
 
-    def set_icon(self, icon):
+    def set_icon(self):
         icon = tk.PhotoImage(data=self.engine.get_icon())
         self.call('wm', 'iconphoto', self._w, '-default', icon)        
 
@@ -916,7 +916,7 @@ def main():
 
     database = {"path":'biovarase.db'}
     
-    kwargs={"style":"clam", "icon":"biovarase.png", "title":"Biovarase", "engine":Engine(*args,**database)}
+    kwargs={"style":"clam", "title":"Biovarase", "engine":Engine(*args,**database)}
 
     msg = "{0}\nauthor: {1}\ncopyright: {2}\ncredits: {3}\nlicense: {4}\nversion: {5}\nmaintainer: {6}\nemail: {7}\ndate: {8}\nstatus: {9}"
     info = msg.format("Biovarase"
