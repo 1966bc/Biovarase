@@ -898,8 +898,8 @@ class App(tk.Tk):
         self.style.configure('.', background=self.engine.get_rgb(240,240,237))
 
     def set_icon(self, icon):
-        imgicon = tk.PhotoImage(file=icon)
-        self.call('wm', 'iconphoto', self._w, '-default', imgicon)        
+        icon = tk.PhotoImage(data=self.engine.get_icon())
+        self.call('wm', 'iconphoto', self._w, '-default', icon)        
 
     def on_exit(self):
         """Close all"""
