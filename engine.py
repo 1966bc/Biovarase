@@ -189,8 +189,22 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
                        inspect.stack()[0][3],
                        sys.exc_info()[1],
                        sys.exc_info()[0],
-                       sys.modules[__name__])            
+                       sys.modules[__name__])
 
+    def get_icon(self):
+        return """iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAAXNSR0IArs4c
+                  6QAAAPBQTFRFAAAAAGbMas7///8A3/3/qeM7AFrH+v//AF/HAJn//v//ndgA
+                  AJgAhJGdipaii5ejhZKeACelwOoSZs0wACmlKC41Y8wwKS81p9s6ACykACSl
+                  LasAACmhJKcAdMgA3v3/NbcAa8QAyeoA1PYAAFzJACSk9/wAs+8UEJ8AXMYA
+                  ruYA//+bZs0yTLcA2/A6AF/JAGDW//94JSoy////IikyjNgmYGt0m9cF4f//
+                  gtUABJsA//9b//9NfN0y5PRgACaiACalX2lzQbMA//7//f8AP7IAACql2/QM
+                  Xb8A//+p6P//yOoAAGLWFKkAACWl8fqIerPNswAAAAF0Uk5TAEDm2GYAAAABY
+                  ktHRACIBR1IAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3AgREA0rdM
+                  kpsgAAAJBJREFUGNNVytUSwjAURdHcpKXQUsHd3d3dHf7/b4CZQHPP215zCPn
+                  OsHTdMog9U1UU1RRgE+h3Q0MBSPtK72KT/Ji2EDhS1IlBwgBSj7oAwQ4BXGqd
+                  OWO2gPxahrfTP0BQnjVH55j7J+DzspuWOZQ5QH1wKma1ZCPBL7Ao7VmuOqmkH
+                  /wSXxWiz7XHf4x84g33ag0Bx8dLigAAAABJRU5ErkJggg=="""
+        
                
 def main():
 
