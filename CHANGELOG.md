@@ -28,9 +28,16 @@ def get_icon(self):
 and in the main file...
 
 ```python
-def set_icon(self, icon):
+def set_icon(self):
         icon = tk.PhotoImage(data=self.engine.get_icon())
         self.call('wm', 'iconphoto', self._w, '-default', icon)   
+
+```
+
+and remember to delete icon from kwars....;)
+
+```python
+kwargs={"style":"clam", "title":"Biovarase", "engine":Engine(*args)}
 
 ```
 
