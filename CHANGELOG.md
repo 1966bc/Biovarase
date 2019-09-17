@@ -1,6 +1,23 @@
 # Biovarase
 ## changelog
 
+**2019-09-18**
+
+add fix in tools.py because with Python 3.7.3  and Tk '8.6.9' the color in treview doesent work
+
+[Treeview: wrong color change](https://bugs.python.org/issue36468)
+
+
+#### Fix for setting text colour for Tkinter 8.6.9
+        # From: https://core.tcl.tk/tk/info/509cafafae
+        #
+        # Returns the style map for 'option' with any styles starting with
+        # ('!disabled', '!selected', ...) filtered out.
+
+        # style.map() returns an empty list for missing options, so this
+        # should be future-safe.
+
+
 **2019-09-17**
 
 could have missed the unittest?!?!?
