@@ -3,7 +3,7 @@
 
 **2019-09-18**
 
-add fix in tools.py because with Python 3.7.3  and Tk '8.6.9' the color in treview doesent work
+add fix in tools.py because with Python 3.7.3  and Tk '8.6.9' the color in treview doesn't work
 
 [Treeview: wrong color change](https://bugs.python.org/issue36468)
 
