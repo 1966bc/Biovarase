@@ -28,6 +28,7 @@ class Widget(tk.Toplevel):
         self.objs = []
         self.init_ui()
         self.engine.center_me(self)
+        
 
     def init_ui(self):
 
@@ -120,7 +121,8 @@ class Widget(tk.Toplevel):
 
     def set_batches(self,):
 
-        self.lstBatches.tag_configure('is_enable', background=self.engine.get_rgb(211, 211, 211))
+        self.lstBatches.tag_configure('is_enable', background='#DFDFDF')
+        
 
         for i in self.lstBatches.get_children():
             self.lstBatches.delete(i)
@@ -143,7 +145,6 @@ class Widget(tk.Toplevel):
 
         rs = self.engine.read(True, sql, (self.selected_test[0],))
 
-
         if rs:
             for i in rs:
 
@@ -154,8 +155,9 @@ class Widget(tk.Toplevel):
                                            iid=i[0],
                                            text=i[0],
                                            values=(i[1], i[2], i[3], i[4]),
-                                           tags=('is_enable',))
+                                           tags=('is_enable'))
                 else:
+                    
                     self.lstBatches.insert('',
                                            tk.END,
                                            iid=i[0],
@@ -285,4 +287,3 @@ class Widget(tk.Toplevel):
         for obj in self.objs:
             obj.destroy()
         self.destroy()
-
