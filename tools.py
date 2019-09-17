@@ -233,6 +233,13 @@ class Tools:
 
     def get_tree(self, container, cols, size=None, show=None):
 
+
+        #this is a patch because with tkinter version with Tk 8.6.9 the color assignment with tags dosen't work
+        #https://bugs.python.org/issue36468
+        style = ttk.Style()
+        style.map('Treeview', foreground=self.fixed_map('foreground'),background=self.fixed_map('background'))
+
+
         ttk.Style().configure("Treeview.Heading",background = self.get_rgb(240,240,237))
         ttk.Style().configure("Treeview.Heading", font=('Helvetica', 10 ))
 
@@ -264,6 +271,21 @@ class Tools:
         sb.pack(fill=tk.Y, expand=1)
 
         return w
+
+    def fixed_map(self, option):
+        
+        style = ttk.Style()
+        # Fix for setting text colour for Tkinter 8.6.9
+        # From: https://core.tcl.tk/tk/info/509cafafae
+        #
+        # Returns the style map for 'option' with any styles starting with
+        # ('!disabled', '!selected', ...) filtered out.
+
+        # style.map() returns an empty list for missing options, so this
+        # should be future-safe.
+        return [elm for elm in style.map('Treeview', query_opt=option) if
+                elm[:2] != ('!disabled', '!selected')]        
+
 
     def get_validate_integer(self, caller ):
         return (caller.register(self.validate_integer), '%d', '%P', '%S')
