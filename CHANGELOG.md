@@ -1,6 +1,25 @@
 # Biovarase
 ## changelog
 
+**2019-09-17**
+
+could have missed the unittest?!?!?
+
+Add a folder named test, to launch unittest do somenthing
+
+```
+bc@hal9000:~/Biovarase-master/test$ python3 -m unittest
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.001s
+
+OK
+```
+
+this will run all the test named test*. py
+
+all tests are still at a primordial stage but this is the right way.
+
 **2019-09-16**
 
 Delete Biovarase icon file, from now on we will load icon as a base 64 data.
