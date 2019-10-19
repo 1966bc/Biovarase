@@ -14,7 +14,7 @@ __status__ = "Production"
 
 
 
-class Widget(tk.Toplevel):
+class UI(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='quick_data_analysis')
 
@@ -56,7 +56,7 @@ class Widget(tk.Toplevel):
 
     def on_export(self, evt=None):
 
-        if self.analysis_date.get_date(self) == False:return
+        if self.analysis_date.get_date(self) == False: return
 
         args = (self.analysis_date.get_date(self),)
         self.engine.get_quick_data_analysis(args)

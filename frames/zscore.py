@@ -11,48 +11,50 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-24"
 __status__ = "Production"
 
-class Widget(tk.Toplevel):     
-    def __init__(self,parent, engine, index = None):
-        super().__init__(name='zscore')  
+class UI(tk.Toplevel):
+    def __init__(self, parent, engine, index=None):
+        super().__init__(name='zscore')
 
         self.attributes('-topmost', True)
         self.transient(parent)
-        self.resizable(0,0)
+        self.resizable(0, 0)
         self.engine = engine
         self.engine.center_me(self)
         self.init_ui()
+
 
     def init_ui(self):
 
         w = self.engine.get_init_ui(self)
 
-        tk.Label(w, text="Z-Score").grid(row=0, sticky=tk.W,padx=10,pady=10)
-        tk.Label(w, text="2.33").grid(row=1,column=0,sticky=tk.W,padx=10,pady=10)
-        tk.Label(w, text="2.05").grid(row=2,column=0,sticky=tk.W,padx=10,pady=10)
-        tk.Label(w, text="1.88").grid(row=3,column=0,sticky=tk.W,padx=10,pady=10)
-        tk.Label(w, text="1.75").grid(row=4,column=0,sticky=tk.W,padx=10,pady=10)
-        tk.Label(w, text="1.65").grid(row=5,column=0,sticky=tk.W,padx=10,pady=10)
+        items = ("Z-Score", "2.33", "2.05", "0.75", "1.88", "1.75", "1.65")
 
-        tk.Label(w,text="Probability").grid(row=0,column=1, sticky=tk.W,padx=10,pady=10)
-        tk.Label(w,text="p>0.01").grid(row=1,column=1,sticky=tk.W,padx=10,pady=10)
-        tk.Label(w,text="p>0.02").grid(row=2,column=1,sticky=tk.W,padx=10,pady=10)
-        tk.Label(w,text="p>0.03").grid(row=3,column=1,sticky=tk.W,padx=10,pady=10)
-        tk.Label(w,text="p>0.04").grid(row=4,column=1,sticky=tk.W,padx=10,pady=10)
-        tk.Label(w,text="p>0.05").grid(row=5,column=1,sticky=tk.W,padx=10,pady=10)
+        r = 0
+        c = 0
+        for i in items:
+            tk.Label(w, text=i).grid(row=r, column=c, sticky=tk.W, padx=10, pady=10)
+            r += 1
 
-        tk.Label(w, text="Probability").grid(row=0,column=2, sticky=tk.W,padx=10,pady=10)
-        tk.Label(w,text="99%").grid(row=1,column=2,sticky=tk.W,padx=10,pady=10)
-        tk.Label(w,text="98%").grid(row=2,column=2,sticky=tk.W,padx=10,pady=10)
-        tk.Label(w,text="97%").grid(row=3,column=2,sticky=tk.W,padx=10,pady=10)
-        tk.Label(w,text="96%").grid(row=4,column=2,sticky=tk.W,padx=10,pady=10)
-        tk.Label(w,text="95%").grid(row=5,column=2,sticky=tk.W,padx=10,pady=10)
+        items = ("Probability", "p>0.01", "p>0.02", "p>0.03", "p>0.04", "p>0.05")
 
-       
+        r = 0
+        c = 1
+        for i in items:
+            tk.Label(w, text=i).grid(row=r, column=c, sticky=tk.W, padx=10, pady=10)
+            r += 1
+
+        items = ("Probability","99%", "98%", "97%", "96%", "95%")
+        r = 0
+        c = 2
+        for i in items:
+            tk.Label(w, text=i).grid(row=r, column=c, sticky=tk.W, padx=10, pady=10)
+            r += 1
+
 
     def on_open(self,):
 
         self.title("Probability")
-        
-         
+
+
     def on_cancel(self, evt=None):
         self.destroy()

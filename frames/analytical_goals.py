@@ -10,15 +10,15 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-05-02"
+__date__ = "2019-10-18"
 __status__ = "Production"
 
 
-class Widget(tk.Toplevel):     
+class UI(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='analytical_goals')  
+        super().__init__(name='analytical_goals')
 
-        self.resizable(0,0)
+        self.resizable(0, 0)
         self.parent = parent
         self.engine = kwargs['engine']
         self.elements = tk.IntVar()
@@ -26,39 +26,40 @@ class Widget(tk.Toplevel):
         self.init_ui()
         self.engine.center_me(self)
 
+
     def init_ui(self):
 
-        f0 = self.engine.get_frame(self, 8)
-        
-        w = tk.LabelFrame(f0,text='Set elements to export', font='Helvetica 10 bold')
+        w = self.engine.get_frame(self, 8)
 
-        self.txElements = ttk.Entry(w, width=8, justify=tk.CENTER,
+        f = tk.LabelFrame(w, text='Set elements to export', font='Helvetica 10 bold')
+
+        self.txElements = ttk.Entry(f, width=8, justify=tk.CENTER,
                                     textvariable=self.elements,
-                                    validate = 'key',
-                                    validatecommand = self.vcmd)
+                                    validate='key',
+                                    validatecommand=self.vcmd)
         self.txElements.pack()
 
-        w.pack(side=tk.LEFT, fill=tk.BOTH,padx=5, pady=5, expand =1)
+        f.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
 
-        bts = [('Export', self.on_save),
-               ('Close', self.on_cancel)]
+        bts = [('Export', self.on_save), ('Close', self.on_cancel)]
 
         for btn in bts:
-            self.engine.get_button(f0, btn[0] ).bind("<Button-1>", btn[1])
+            self.engine.get_button(w, btn[0]).bind("<Button-1>", btn[1])
 
-        f0.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
 
     def on_open(self):
 
         self.title("Analytical Goals")
         self.elements.set(self.engine.get_elements())
         self.txElements.focus()
-        
-        
+
+
     def on_save(self, evt=None):
 
-        
-        if self.engine.on_fields_control(self)==False:return
+
+        if self.engine.on_fields_control(self) == False: return
 
         sql = "SELECT batches.batch_id,\
                          samples.sample,\
@@ -84,7 +85,7 @@ class Widget(tk.Toplevel):
         rs = self.engine.read(True, sql, ())
 
         if rs:
-            self.engine.get_analitical_goals(limit,rs)
+            self.engine.get_analitical_goals(limit, rs)
             self.on_cancel()
         else:
             msg = "No record data to compute analytical goals."

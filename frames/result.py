@@ -12,25 +12,25 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-25"
+__date__ = "2019-10-18"
 __status__ = "Production"
 
 
-class Widget(tk.Toplevel):     
+class UI(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='result')
 
         self.parent = parent
         self.engine = kwargs['engine']
         self.index = kwargs['index']
-        self.transient(parent) 
+        self.transient(parent)
         self.resizable(0, 0)
 
         self.test = tk.StringVar()
         self.batch = tk.StringVar()
         self.result = tk.DoubleVar()
         self.recived_time = tk.StringVar()
-        self.enable =  tk.BooleanVar()
+        self.enable = tk.BooleanVar()
 
         self.vcmd = self.engine.get_validate_float(self)
         self.set_style()
@@ -39,65 +39,47 @@ class Widget(tk.Toplevel):
 
 
     def set_style(self):
-        
+
         s = ttk.Style()
 
-        s.configure('Data.TLabel',
-                    font=('Helvetica', 12, 'bold'))
- 
+        s.configure('Data.TLabel', font=('Helvetica', 12, 'bold'))
+
+
     def init_ui(self):
 
         w = self.engine.get_init_ui(self)
 
-        r =0
-        c =1
+        r = 0
+        c = 1
         ttk.Label(w, text="Test:").grid(row=r, sticky=tk.W)
-        ttk.Label(w,
-                 style='Data.TLabel',
-                 textvariable = self.test).grid(row=r,
-                                                column=c,
-                                                sticky=tk.W,
-                                                padx=5, pady=5)
+        lbl = ttk.Label(w, style='Data.TLabel', textvariable=self.test)
+        lbl.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
-        r +=1
+        r += 1
         ttk.Label(w, text="Batch:").grid(row=r, sticky=tk.W)
-        ttk.Label(w,
-                 style='Data.TLabel',
-                 textvariable = self.batch).grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        lbl = ttk.Label(w, style='Data.TLabel', textvariable=self.batch)
+        lbl.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
-        r +=1
+        r += 1
         ttk.Label(w, text="Result:").grid(row=r, sticky=tk.W)
-        self.txtResult = ttk.Entry(w,
-                                  width=8,
-                                 
-                                  justify=tk.CENTER,
-                                  validate = 'key',
-                                  validatecommand = self.vcmd,
-                                  textvariable=self.result)
-        self.txtResult.grid(row=r, column=1,sticky=tk.W, padx=5, pady=5)
+        self.txtResult = ttk.Entry(w, width=8, justify=tk.CENTER, validate='key', validatecommand=self.vcmd, textvariable=self.result)
+        self.txtResult.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
-        r +=1
+        r += 1
         ttk.Label(w, text="Recived:").grid(row=r, sticky=tk.N+tk.W)
-        
-        self.recived_date = Calendarium(self,"")
-        self.recived_date.get_calendarium(w,r,c)
 
+        self.recived_date = Calendarium(self, "")
+        self.recived_date.get_calendarium(w, r, c)
 
-        r +=1
-        ttk.Label(w, text="Time:").grid(row=r, sticky=tk.W)
-        ttk.Label(w,
-                  style='Data.TLabel',
-                  textvariable = self.recived_time).grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        r += 1
+        lbl = ttk.Label(w, text="Time:").grid(row=r, sticky=tk.W)
+        lbl = ttk.Label(w, style='Data.TLabel', textvariable=self.recived_time)
+        lbl.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
-
-        r +=1
+        r += 1
         ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
-        ttk.Checkbutton(w,
-                       onvalue=1,
-                       offvalue=0,
-                       variable = self.enable,).grid(row=r,
-                                                     column=c,
-                                                     sticky=tk.W)
+        chk = ttk.Checkbutton(w, onvalue=1, offvalue=0, variable=self.enable,)
+        chk.grid(row=r, column=c, sticky=tk.W)
 
         if self.index is not None:
             self.engine.get_save_cancel_delete(self, w)
@@ -110,7 +92,7 @@ class Widget(tk.Toplevel):
         self.selected_batch = selected_batch
         self.test.set(selected_test[1])
         self.batch.set(self.selected_batch[2])
-        
+
 
         if self.index is not None:
             self.selected_result = selected_result
@@ -121,39 +103,42 @@ class Widget(tk.Toplevel):
             self.enable.set(1)
             self.result.set('')
             self.recived_date.set_today()
-            
+
         self.title(msg)
         self.txtResult.focus()
-        
+
     def on_save(self, evt=None):
 
-        if self.engine.on_fields_control( self)==False:return
-        if self.recived_date.get_date(self)==False:return
-               
+        if self.engine.on_fields_control(self) == False: return
+        if self.recived_date.get_date(self) == False: return
+
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
 
-            args =  self.get_values()
+            args = self.get_values()
 
-            if self.index is not None:            
-                
-                sql = self.engine.get_update_sql('results','result_id')
-    
-                args = (*args, self.selected_result[0])
-                
-            else:
-                sql = self.engine.get_insert_sql('results',len(args))
-      
-            self.engine.write(sql,args)
-            self.parent.set_results()
-                
             if self.index is not None:
-                self.parent.lstResults.see(self.index)
-                self.parent.lstResults.selection_set(self.index)
-                    
+
+                sql = self.engine.get_update_sql('results', 'result_id')
+
+                args = (*args, self.selected_result[0])
+
+            else:
+                sql = self.engine.get_insert_sql('results', len(args))
+
+            self.engine.write(sql, args)
+            self.parent.set_results()
+
+            if self.index is not None:
+                if self.parent.winfo_name() == 'data':
+                    self.parent.lstResults.focus(self.index)
+                    self.parent.lstResults.see(self.index)
+                    self.parent.lstResults.selection_set(self.index)
+                else:
+                    self.parent.lstResults.see(self.index)
+                    self.parent.lstResults.selection_set(self.index)
+
             self.on_cancel()
-    
-    def on_cancel(self, evt=None):
-        self.destroy()
+
 
     def on_delete(self, evt=None):
 
@@ -161,14 +146,14 @@ class Widget(tk.Toplevel):
             if messagebox.askyesno(self.engine.title, self.engine.delete, parent=self) == True:
                 sql = "DELETE FROM results WHERE result_id =?"
                 args = (self.selected_result[0],)
-                self.engine.write(sql,args)
+                self.engine.write(sql, args)
                 sql = "DELETE FROM rejections WHERE result_id =?"
                 args = (self.selected_result[0],)
-                self.engine.write(sql,args)
+                self.engine.write(sql, args)
                 self.parent.set_results()
-                self.on_cancel()  
+                self.on_cancel()
             else:
-                messagebox.showinfo(self.engine.title,self.engine.abort, parent=self)
+                messagebox.showinfo(self.engine.title, self.engine.abort, parent=self)
 
     def get_values(self,):
 
@@ -176,7 +161,7 @@ class Widget(tk.Toplevel):
                 self.result.get(),
                 self.recived_date.get_timestamp(),
                 self.enable.get())
-       
+
     def set_values(self,):
 
         try:
@@ -189,11 +174,15 @@ class Widget(tk.Toplevel):
                                      self.selected_result[3].second)
 
             self.recived_time.set(t)
-            
+
         except:
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])  
+            print(sys.exc_info()[0])
+            print(sys.exc_info()[1])
+            print(sys.exc_info()[2])
 
         self.result.set(self.selected_result[2])
         self.enable.set(self.selected_result[4])
+
+    def on_cancel(self, evt=None):
+        self.destroy()
+

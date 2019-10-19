@@ -14,15 +14,15 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 
-class Widget(tk.Toplevel):     
+class UI(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='export_rejection')  
+        super().__init__(name='export_rejection')
 
         self.parent = parent
         self.engine = kwargs['engine']
-        self.resizable(0,0)
-        self.transient(parent) 
-        
+        self.resizable(0, 0)
+        self.transient(parent)
+
         self.init_ui()
         self.engine.center_me(self)
 
@@ -30,9 +30,9 @@ class Widget(tk.Toplevel):
 
         w = self.engine.get_init_ui(self)
 
-        r =0
-        self.start_date = Calendarium(self,"Start Date")
-        self.start_date.get_calendarium(w,r)
+        r = 0
+        self.start_date = Calendarium(self, "Start Date")
+        self.start_date.get_calendarium(w, r)
 
         self.engine.get_export_cancel(self, w)
 
@@ -42,16 +42,15 @@ class Widget(tk.Toplevel):
         self.start_date.set_today()
 
         self.title("Export Rejections Data")
-        
+
     def on_export(self, evt=None):
 
-        if self.start_date.get_date(self)==False:return
-       
+        if self.start_date.get_date(self) == False: return
+
         if messagebox.askyesno(self.engine.title, "Export data?", parent=self) == True:
             args = (self.start_date.get_date(self),)
             self.engine.get_rejections(args)
             self.on_cancel()
-    
+
     def on_cancel(self, evt=None):
         self.destroy()
-

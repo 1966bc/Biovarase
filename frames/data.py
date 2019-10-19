@@ -15,7 +15,7 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2019-09-18"
 __status__ = "Production"
 
-class Widget(tk.Toplevel):
+class UI(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='data')
 
@@ -28,7 +28,7 @@ class Widget(tk.Toplevel):
         self.objs = []
         self.init_ui()
         self.engine.center_me(self)
-        
+
 
     def init_ui(self):
 
@@ -122,7 +122,7 @@ class Widget(tk.Toplevel):
     def set_batches(self,):
 
         self.lstBatches.tag_configure('is_enable', background='#DFDFDF')
-        
+
 
         for i in self.lstBatches.get_children():
             self.lstBatches.delete(i)
@@ -157,7 +157,7 @@ class Widget(tk.Toplevel):
                                            values=(i[1], i[2], i[3], i[4]),
                                            tags=('is_enable'))
                 else:
-                    
+
                     self.lstBatches.insert('',
                                            tk.END,
                                            iid=i[0],
@@ -186,9 +186,9 @@ class Widget(tk.Toplevel):
 
         if rs:
             for i in rs:
-                
+
                 if i[3] != 1:
-                    
+
                     self.lstResults.insert('',
                                            tk.END,
                                            iid=i[0],
@@ -227,7 +227,7 @@ class Widget(tk.Toplevel):
 
         if self.lstBatches.focus():
             item_iid = self.lstBatches.selection()
-            obj = batch.Widget(self, engine=self.engine, index=item_iid)
+            obj = batch.UI(self, engine=self.engine, index=item_iid)
             obj.on_open(self.selected_test, self.selected_batch)
             self.objs.append(obj)
 
@@ -236,14 +236,14 @@ class Widget(tk.Toplevel):
 
         if self.lstResults.focus():
             item_iid = self.lstResults.selection()
-            obj = result.Widget(self, engine=self.engine, index=item_iid)
+            obj = result.UI(self, engine=self.engine, index=item_iid)
             obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
             self.objs.append(obj)
 
     def on_add_batch(self, evt):
 
         if self.cbTests.current() != -1:
-            obj = batch.Widget(self, engine=self.engine, index=None)
+            obj = batch.UI(self, engine=self.engine, index=None)
             obj.on_open(self.selected_test)
             self.objs.append(obj)
         else:
@@ -254,7 +254,7 @@ class Widget(tk.Toplevel):
     def on_add_result(self, evt):
 
         if self.lstBatches.focus():
-            obj = result.Widget(self, engine=self.engine, index=None)
+            obj = result.UI(self, engine=self.engine, index=None)
             obj.on_open(self.selected_test, self.selected_batch)
             self.objs.append(obj)
 
