@@ -10,16 +10,17 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-25"
+__date__ = "2019-10-20"
 __status__ = "Production"
 
 class UI(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='unit')
 
+        self.attributes('-topmost', True)
         self.transient(parent)
         self.resizable(0, 0)
-        
+
         self.parent = parent
         self.engine = kwargs['engine']
         self.table = kwargs['table']
@@ -54,10 +55,10 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             self.selected_item = selected_item
-            msg = "Update  unit %s" % (self.selected_item[1],)
+            msg = "Update {0}".format(self.winfo_name())
             self.set_values()
         else:
-            msg = "Insert new unit"
+            msg = "Insert {0}".format(self.winfo_name())
             self.enable.set(1)
 
         self.title(msg)
@@ -70,14 +71,14 @@ class UI(tk.Toplevel):
 
     def get_values(self,):
 
-        return (self.unit.get(),
-                self.enable.get(),)
+        return [self.unit.get(),
+                self.enable.get(),]
 
-    def on_save(self, evt):
+    def on_save(self, evt=None):
 
         if self.engine.on_fields_control(self) == False: return
 
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+        if messagebox.askyesno(self.master.title(), self.engine.ask_to_save, parent=self) == True:
 
             args = self.get_values()
 
@@ -85,14 +86,14 @@ class UI(tk.Toplevel):
 
                 sql = self.engine.get_update_sql(self.table, self.field)
 
-                args = (*args, self.selected_item[0])
+                args.append(self.selected_item[0])
 
             else:
 
                 sql = self.engine.get_insert_sql(self.table, len(args))
 
             self.engine.write(sql, args)
-            self.parent.set_values()
+            self.parent.on_open()
 
             if self.index is not None:
                 self.parent.lstItems.see(self.index)

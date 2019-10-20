@@ -10,7 +10,7 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-25"
+__date__ = "2019-10-20"
 __status__ = "Production"
 
 
@@ -90,39 +90,14 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             self.selected_item = selected_item
-            msg = "{0} {1}".format("Update ", self.selected_item[3])
+            msg = "Update {0}".format(self.winfo_name())
             self.set_values()
         else:
-            msg = "Insert new test"
+            msg = "Insert {0}".format(self.winfo_name())
             self.enable.set(1)
 
         self.title(msg)
         self.txTest.focus()
-
-    def on_save(self, evt=None):
-
-        if self.engine.on_fields_control(self) == False: return
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
-
-            args = self.get_values()
-
-            if self.index is not None:
-
-                sql = self.engine.get_update_sql(self.table, self.field)
-
-                args = (*args, self.selected_item[0])
-
-            else:
-                sql = self.engine.get_insert_sql(self.table, len(args))
-
-            self.engine.write(sql, args)
-            self.parent.on_open()
-
-            if self.index is not None:
-                self.parent.lstItems.see(self.index)
-                self.parent.lstItems.selection_set(self.index)
-
-            self.on_cancel()
 
     def set_samples(self):
 
@@ -159,12 +134,12 @@ class UI(tk.Toplevel):
 
     def get_values(self,):
 
-        return (self.dict_samples[self.cbSamples.current()],
+        return [self.dict_samples[self.cbSamples.current()],
                 self.dict_units[self.cbUnits.current()],
                 self.test.get(),
                 self.cvw.get(),
                 self.cvb.get(),
-                self.enable.get())
+                self.enable.get(),]
 
     def set_values(self,):
 
@@ -181,7 +156,36 @@ class UI(tk.Toplevel):
         self.test.set(self.selected_item[3])
         self.cvw.set(self.selected_item[4])
         self.cvb.set(self.selected_item[5])
-        self.enable.set(self.selected_item[6])
+        self.enable.set(self.selected_item[6])        
 
+    def on_save(self, evt=None):
+
+        if self.engine.on_fields_control(self) == False: return
+
+        if messagebox.askyesno(self.master.title(), self.engine.ask_to_save, parent=self) == True:
+
+            args = self.get_values()
+
+            if self.index is not None:
+
+                sql = self.engine.get_update_sql(self.table, self.field)
+
+                args.append(self.selected_item[0])
+
+            else:
+
+                sql = self.engine.get_insert_sql(self.table, len(args))
+
+            self.engine.write(sql, args)
+            self.parent.on_open()
+
+            if self.index is not None:
+                self.parent.lstItems.see(self.index)
+                self.parent.lstItems.selection_set(self.index)
+
+            self.on_cancel()
+
+            
     def on_cancel(self, evt=None):
         self.destroy()
+

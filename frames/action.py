@@ -18,6 +18,7 @@ class UI(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(name='action')
 
+        self.attributes('-topmost', True)
         self.transient(parent)
         self.resizable(0, 0)
 
@@ -53,10 +54,10 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             self.selected_item = selected_item
-            msg = "{0} {1}".format("Update ", self.selected_item[1])
+            msg = "Update {0}".format(self.winfo_name())
             self.set_values()
         else:
-            msg = "Insert new action"
+            msg = "Insert {0}".format(self.winfo_name())
             self.enable.set(1)
 
         self.title(msg)
@@ -67,16 +68,18 @@ class UI(tk.Toplevel):
         self.action.set(self.selected_item[1])
         self.enable.set(self.selected_item[2])
 
+
     def get_values(self,):
 
-        return (self.action.get(),
-                self.enable.get(),)
+        return [self.action.get(),
+                self.enable.get(),]
 
-    def on_save(self, evt):
+
+    def on_save(self, evt=None):
 
         if self.engine.on_fields_control(self) == False: return
 
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+        if messagebox.askyesno(self.master.title(), self.engine.ask_to_save, parent=self) == True:
 
             args = self.get_values()
 
@@ -84,13 +87,14 @@ class UI(tk.Toplevel):
 
                 sql = self.engine.get_update_sql(self.table, self.field)
 
-                args = (*args, self.selected_item[0])
+                args.append(self.selected_item[0])
 
             else:
+
                 sql = self.engine.get_insert_sql(self.table, len(args))
 
             self.engine.write(sql, args)
-            self.parent.set_values()
+            self.parent.on_open()
 
             if self.index is not None:
                 self.parent.lstItems.see(self.index)
@@ -98,8 +102,6 @@ class UI(tk.Toplevel):
 
             self.on_cancel()
 
-        else:
-            messagebox.showinfo(self.engine.title, self.engine.abort, parent=self)
 
     def on_cancel(self, evt=None):
         self.destroy()

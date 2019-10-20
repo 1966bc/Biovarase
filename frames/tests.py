@@ -25,7 +25,6 @@ class UI(tk.Toplevel):
         self.engine = kwargs['engine']
         self.table = "tests"
         self.field = "test_id"
-        
         self.obj = None
         self.init_ui()
         self.engine.center_me(self)
@@ -33,15 +32,12 @@ class UI(tk.Toplevel):
     def init_ui(self):
 
         f0 = self.engine.get_frame(self, 8)
-
-        w = ttk.Frame(f0,)
-        self.lstItems = self.engine.get_listbox(w,)
+        f1 = ttk.Frame(f0,)
+        self.lstItems = self.engine.get_listbox(f1,)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
-        w.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
-
+        f1.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
         self.engine.get_add_edit_cancel(self, f0)
-
         f0.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
     def on_open(self,):
@@ -76,8 +72,10 @@ class UI(tk.Toplevel):
         self.obj = ui.UI(self, engine=self.engine, table=self.table, field=self.field, index=None)
         self.obj.on_open()
 
+
     def on_edit(self, evt):
         self.on_item_activated()
+
 
     def on_item_activated(self, evt=None):
 
@@ -87,17 +85,19 @@ class UI(tk.Toplevel):
             self.obj.on_open(self.selected_item,)
 
         else:
-            messagebox.showwarning(self.engine.title, self.engine.no_selected, parent=self)
+            messagebox.showwarning(self.master.title(), self.engine.no_selected, parent=self)
+
 
     def on_item_selected(self, evt):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
             pk = self.dict_items.get(index)
-            self.selected_item = self.engine.get_selected('tests', 'test_id', pk)
+            self.selected_item = self.engine.get_selected(self.table, self.field, pk)
+
 
     def on_cancel(self, evt=None):
+
         if self.obj is not None:
             self.obj.destroy()
         self.destroy()
-

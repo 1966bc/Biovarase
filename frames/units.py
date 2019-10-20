@@ -25,7 +25,7 @@ class UI(tk.Toplevel):
         self.engine = kwargs['engine']
         self.table = "units"
         self.field = "unit_id"
-        self.objs = []
+        self.obj = None
         self.init_ui()
         self.engine.center_me(self)
 
@@ -62,23 +62,24 @@ class UI(tk.Toplevel):
 
     def on_add(self, evt):
 
-        obj = ui.UI(self, engine=self.engine, table=self.table, field=self.field, index=None)
-        obj.on_open()
-        self.objs.append(obj)
+        self.obj = ui.UI(self, engine=self.engine, table=self.table, field=self.field, index=None)
+        self.obj.on_open()
+
 
     def on_edit(self, evt):
         self.on_item_activated()
+
 
     def on_item_activated(self, evt=None):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
-            obj = ui.UI(self, engine=self.engine, table=self.table, field=self.field, index=index)
-            obj.on_open(self.selected_item,)
-            self.objs.append(obj)
+            self.obj = ui.UI(self, engine=self.engine, table=self.table, field=self.field, index=index)
+            self.obj.on_open(self.selected_item,)
 
         else:
-            messagebox.showwarning(self.engine.title, self.engine.no_selected, parent=self)
+            messagebox.showwarning(self.master.title(), self.engine.no_selected, parent=self)
+
 
     def on_item_selected(self, evt):
 
@@ -87,8 +88,9 @@ class UI(tk.Toplevel):
             pk = self.dict_items.get(index)
             self.selected_item = self.engine.get_selected(self.table, self.field, pk)
 
-    def on_cancel(self, evt=None):
-        for obj in self.objs:
-            obj.destroy()
-        self.destroy()
 
+    def on_cancel(self, evt=None):
+
+        if self.obj is not None:
+            self.obj.destroy()
+        self.destroy()
