@@ -852,6 +852,7 @@ class App(tk.Tk):
         self.style = ttk.Style()
         self.engine = kwargs['engine']
         self.set_title(kwargs['title'])
+        self.engine.title = self.title()
         self.set_icon()
         self.set_style(kwargs['style'])
 
