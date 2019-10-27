@@ -25,20 +25,19 @@ __status__ = "Production"
 class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         self.args = args
         self.kwargs = kwargs
 
-        self.title = "Biovarase"
         self.no_selected = "Attention!\nNo record selected!"
         self.delete = "Delete data?"
         self.ask_to_save = "Save data?"
         self.abort = "Operation aborted!"
-        
+
 
     def __str__(self):
-        return "class: {0}\nMRO:{1}".format(self.__class__.__name__,  [x.__name__ for x in Engine.__mro__])
-    
+        return "class: {0}\nMRO:{1}".format(self.__class__.__name__, [x.__name__ for x in Engine.__mro__])
+
     def get_python_version(self,):
         return "Python version: %s" % ".".join(map(str, sys.version_info[:3]))
 
@@ -53,7 +52,7 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
 
         now = datetime.datetime.now()
         log_text = "{0}\n{1}\n{2}\n{3}\n{4}\n\n".format(now, function, exc_value, exc_type, module)
-        log_file = open('log.txt','a')
+        log_file = open('log.txt', 'a')
         log_file.write(log_text)
         log_file.close()
 
@@ -61,12 +60,12 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
 
         now = datetime.datetime.now()
         s = "\n\n{0}\n{1}\n{2}\n\n".format(now, module, function)
-        f = open('debug.txt','a')
+        f = open('debug.txt', 'a')
         f.write(s)
         for i in args:
             s = "{0}\n".format(i)
             f.write(s)
-        f.close()        
+        f.close()
 
     def get_elements(self):
 
@@ -81,14 +80,14 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
-            
+
     def set_elements(self, elements):
 
         try:
             with open('elements', 'w') as f:
                 f.write(str(elements))
-           
-            
+
+
         except:
             self.on_log(self,
                         inspect.stack()[0][3],
@@ -121,25 +120,25 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
             return int(v)
         except FileNotFoundError:
             self.on_log(self,
-                       inspect.stack()[0][3],
-                       sys.exc_info()[1],
-                       sys.exc_info()[0],
-                       sys.modules[__name__])
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
     def set_ddof(self, value):
-        
+
         try:
             with open('ddof', 'w') as f:
                 f.write(str(value))
-                
+
         except:
             self.on_log(self,
-                       inspect.stack()[0][3],
-                       sys.exc_info()[1],
-                       sys.exc_info()[0],
-                       sys.modules[__name__])              
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
-            
+
     def get_zscore(self):
         try:
             f = open('zscore', 'r')
@@ -148,10 +147,10 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
             return float(v)
         except FileNotFoundError:
             self.on_log(self,
-                       inspect.stack()[0][3],
-                       sys.exc_info()[1],
-                       sys.exc_info()[0],
-                       sys.modules[__name__])
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
     def set_zscore(self, value):
         try:
@@ -159,10 +158,10 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
                 f.write(str(value))
         except FileNotFoundError:
             self.on_log(self,
-                       inspect.stack()[0][3],
-                       sys.exc_info()[1],
-                       sys.exc_info()[0],
-                       sys.modules[__name__])
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
     def get_show_error_bar(self):
         try:
@@ -172,24 +171,24 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
             return int(v)
         except FileNotFoundError:
             self.on_log(self,
-                       inspect.stack()[0][3],
-                       sys.exc_info()[1],
-                       sys.exc_info()[0],
-                       sys.modules[__name__])
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
 
     def set_show_error_bar(self, value):
-        
+
         try:
             with open('show_error_bar', 'w') as f:
                 f.write(str(value))
-                
+
         except:
             self.on_log(self,
-                       inspect.stack()[0][3],
-                       sys.exc_info()[1],
-                       sys.exc_info()[0],
-                       sys.modules[__name__])
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
     def get_icon(self):
         return """iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAAXNSR0IArs4c
@@ -204,17 +203,17 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
                   OsHTdMog9U1UU1RRgE+h3Q0MBSPtK72KT/Ji2EDhS1IlBwgBSj7oAwQ4BXGqd
                   OWO2gPxahrfTP0BQnjVH55j7J+DzspuWOZQ5QH1wKma1ZCPBL7Ao7VmuOqmkH
                   /wSXxWiz7XHf4x84g33ag0Bx8dLigAAAABJRU5ErkJggg=="""
-        
-               
+
+
 def main():
 
     args = []
-    
+
     for i in sys.argv:
         args.append(i)
 
     kwargs = {"path":'biovarase.db'}
-    
+
     foo = Engine(*args, **kwargs)
     print(foo)
     print(foo.con)

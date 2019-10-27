@@ -19,7 +19,7 @@ __status__ = "Production"
 
 class DBMS:
     def __init__(self, *args, **kwargs):
-        
+
         self.args = args
         self.kwargs = kwargs
         self.set_connection(kwargs)
@@ -59,22 +59,22 @@ class DBMS:
                 cur.close()
             except:
                 self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
+                            inspect.stack()[0][3],
+                            sys.exc_info()[1],
+                            sys.exc_info()[0],
+                            sys.modules[__name__])
 
 
     def read(self, fetch, sql, args=()):
 
         try:
             cur = self.con.cursor()
-            cur.execute(sql,args)
+            cur.execute(sql, args)
 
             if fetch == True:
-                rs =  cur.fetchall()
+                rs = cur.fetchall()
             else:
-                rs =  cur.fetchone()
+                rs = cur.fetchone()
             cur.close()
             return rs
 
@@ -84,7 +84,7 @@ class DBMS:
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
-            
+
 
     def dump_db(self,):
 
@@ -100,7 +100,7 @@ class DBMS:
         return cur.lastrowid
 
 
-    def get_fields(self,table):
+    def get_fields(self, table):
         """return fields name of the args table ordered by field number
 
         @param name: table,
@@ -121,7 +121,7 @@ class DBMS:
                 columns.append(field[0])
             cur.close()
 
-            for k,v in enumerate(columns):
+            for k, v in enumerate(columns):
                 if k > 0:
                     fields.append(v)
 
@@ -134,7 +134,7 @@ class DBMS:
                         sys.modules[__name__])
 
     # FIXME This function sometimes returns incorrect data when pass datetime type on timestamp field.
-    def get_update_sql(self,table,pk):
+    def get_update_sql(self, table, pk):
         """recive a table name and his pk to format an update sql statement
 
         @param name: table, pk
@@ -143,10 +143,10 @@ class DBMS:
         """
         """"""
 
-        return "UPDATE %s SET %s =? WHERE %s =?"%(table," =?, ".join(self.get_fields(table)),pk)
+        return "UPDATE %s SET %s =? WHERE %s =?"%(table, " =?, ".join(self.get_fields(table)), pk)
 
     # FIXME This function sometimes returns incorrect data when pass datetime type on timestamp field.
-    def get_insert_sql(self,table,n):
+    def get_insert_sql(self, table, n):
         """recive a table name and len of args, len(args),
            to format an insert sql statement
 
@@ -155,7 +155,7 @@ class DBMS:
         @rtype: string
         """
         try:
-            return "INSERT INTO %s(%s)VALUES(%s)"%(table,",".join(self.get_fields(table)), ",".join("?"*n))
+            return "INSERT INTO %s(%s)VALUES(%s)"%(table, ",".join(self.get_fields(table)), ",".join("?"*n))
         except:
             self.on_log(self,
                         inspect.stack()[0][3],
@@ -165,7 +165,7 @@ class DBMS:
 
 
     # FIXME This function sometimes fails  when recive datetime type on timestamp field.
-    def get_selected(self,table,field,*args):
+    def get_selected(self, table, field, *args):
         """recive table name, pk and make a dictionary
 
         @param name: table,field,*args
@@ -174,16 +174,16 @@ class DBMS:
         """
 
         d = {}
-        sql = 'SELECT * FROM %s WHERE %s = ? ' % (table,field)
+        sql = 'SELECT * FROM %s WHERE %s = ? ' % (table, field)
 
-        for k,v in enumerate(self.read(False,sql,args)):
-            d[k]=v
+        for k, v in enumerate(self.read(False, sql, args)):
+            d[k] = v
             #print k,v
 
         return d
 
 
-    def get_series(self, batch_id, limit = None, result_id=None):
+    def get_series(self, batch_id, limit=None, result_id=None):
 
         series = []
 
@@ -204,7 +204,7 @@ class DBMS:
                    ORDER BY recived DESC LIMIT ?"
             rs = self.read(True, sql, (batch_id, limit))
 
-        rs = tuple(i for i in rs if i[1]!=0)
+        rs = tuple(i for i in rs if i[1] != 0)
 
         for i in reversed(rs):
             series.append(i[0])
@@ -222,12 +222,12 @@ def main():
     kwargs = {"path":'biovarase.db'}
 
     bar = DBMS(*args, **kwargs)
-    print (bar)
+    print(bar)
     sql = "SELECT name FROM sqlite_master WHERE type = 'view'"
     rs = bar.read(True, sql)
     if rs:
         for i in enumerate(rs):
-            print (i)
+            print(i)
 
     input('end')
 
