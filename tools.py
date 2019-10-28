@@ -42,9 +42,13 @@ class Tools:
 
     def cols_configure(self, w):
 
-        w.columnconfigure(0, weight=1)
-        w.columnconfigure(1, weight=1)
+        w.columnconfigure(0, weight=0)
+        w.columnconfigure(1, weight=0)
         w.columnconfigure(2, weight=1)
+        
+        w.rowconfigure(0, weight=0)
+        w.rowconfigure(1, weight=0)
+        w.rowconfigure(2, weight=1)
 
     def get_init_ui(self, container):
         """All insert,update modules have this same configuration on init_ui.
@@ -52,7 +56,7 @@ class Tools:
            So, why rewrite every time?"""
         w = self.get_frame(container)
         self.cols_configure(w)
-        w.grid(row=0, column=0, sticky=tk.N+tk.W+tk.S+tk.E)
+        w.grid(row=0, column=0, sticky=tk.N+tk.W+tk.S+tk.E, ipadx=4, ipady=4)
 
         return w
 
@@ -161,7 +165,6 @@ class Tools:
 
         caller.bind("<Alt-e>", caller.on_export)
         caller.bind("<Alt-c>", caller.on_cancel)
-
 
         w.grid(row=0, column=2, sticky=tk.N+tk.E, padx=5, pady=5)
 
