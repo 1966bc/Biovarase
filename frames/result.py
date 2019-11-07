@@ -96,10 +96,10 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             self.selected_result = selected_result
-            msg = "Update"
+            msg = "Update {0} for {1}".format(self.winfo_name(), selected_test[1])
             self.set_values()
         else:
-            msg = "Add"
+            msg = "Insert {0} for {1}".format(self.winfo_name(), selected_test[1])
             self.enable.set(1)
             self.result.set('')
             self.recived_date.set_today()

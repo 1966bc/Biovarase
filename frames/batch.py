@@ -86,10 +86,10 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             self.selected_batch = selected_batch
-            msg = "{0} {1}".format("Update ", self.selected_batch[2])
+            msg = "Update {0} for {1}".format(self.winfo_name(), selected_test[1])
             self.set_values()
         else:
-            msg = "{0} {1}".format("Insert new batch for ", selected_test[1])
+            msg = "Insert {0} for {1}".format(self.winfo_name(), selected_test[1])
             self.expiration_date.set_today()
             self.target.set('')
             self.sd.set('')
@@ -149,10 +149,10 @@ class UI(tk.Toplevel):
 
     def set_values(self,):
 
+        self.batch.set(self.selected_batch[2])
         self.expiration_date.year.set(int(self.selected_batch[3][0:4]))
         self.expiration_date.month.set(int(self.selected_batch[3][5:7]))
         self.expiration_date.day.set(int(self.selected_batch[3][8:10]))
-        self.batch.set(self.selected_batch[2])
         self.target.set(self.selected_batch[4])
         self.sd.set(self.selected_batch[5])
         self.enable.set(self.selected_batch[6])

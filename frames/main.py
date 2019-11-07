@@ -188,10 +188,7 @@ class Biovarase(ttk.Frame):
 
     def init_ui(self):
 
-        self.main_frame = self.engine.get_frame(self, 8)
-
-        f0 = ttk.Frame(self.main_frame,)
-
+        f0 = self.engine.get_frame(self, 8)
         f1 = ttk.Frame(f0,)
 
         ttk.Label(f1, text='Tests').pack(side=tk.TOP, fill=tk.X, expand=0)
@@ -200,7 +197,6 @@ class Biovarase(ttk.Frame):
         self.cbTests.bind("<<ComboboxSelected>>", self.on_selected_test)
         self.cbTests.pack(side=tk.TOP, fill=tk.X, pady=5, expand=0)
 
-
         w = ttk.LabelFrame(f1, text='Batches')
         self.lstBatches = self.engine.get_listbox(w, height=5)
         self.lstBatches.bind("<<ListboxSelect>>", self.on_selected_batch)
@@ -208,8 +204,8 @@ class Biovarase(ttk.Frame):
         w.pack(side=tk.TOP, fill=tk.BOTH, expand=0)
 
         f2 = ttk.Frame(f1,)
-
-        w = tk.LabelFrame(f2, text='Batch data', font='Helvetica 10 bold')
+        
+        w = tk.LabelFrame(f2, text='Batch data', font=self.engine.set_font("Helvetica", 10, "bold"))
 
         ttk.Label(w, text="Target").pack()
         ttk.Label(w,
@@ -227,7 +223,7 @@ class Biovarase(ttk.Frame):
 
         w.pack(side=tk.LEFT, fill=tk.X, expand=0)
 
-        w = tk.LabelFrame(f2, text='Cal data', font='Helvetica 10 bold')
+        w = tk.LabelFrame(f2, text='Cal data', font=self.engine.set_font("Helvetica", 10, "bold"))
 
         ttk.Label(w, text="Average").pack()
         ttk.Label(w, style='Average.TLabel', anchor=tk.CENTER,
@@ -241,7 +237,7 @@ class Biovarase(ttk.Frame):
 
         w.pack(side=tk.LEFT, fill=tk.X, expand=0)
 
-        w = tk.LabelFrame(f2, text='Other data', font='Helvetica 10 bold')
+        w = tk.LabelFrame(f2, text='Other data', font=self.engine.set_font("Helvetica", 10, "bold"))
 
         ttk.Label(w, text="Westgard").pack()
 
@@ -289,15 +285,14 @@ class Biovarase(ttk.Frame):
         f2.pack(side=tk.LEFT, fill=tk.Y, expand=0)
         f3.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
 
-        self.main_frame.pack(fill=tk.BOTH, expand=1)
-
+    
     def init_status_bar(self):
 
         f = self.engine.set_font("TkDefaultFont", 12, "bold")
 
         self.status_bar_text.set("Ready Player One!")
 
-        w = ttk.Frame(self.main_frame,)
+        w = ttk.Frame(self,)
 
         self.status = ttk.Label(w, font=f,
                                 textvariable=self.status_bar_text,
@@ -487,38 +482,40 @@ class Biovarase(ttk.Frame):
     def set_results(self,):
 
         try:
-            self.lstResults.delete(0, tk.END)
-            index = 0
-            self.dict_results = {}
+            if self.lstBatches.curselection():
+                
+                self.lstResults.delete(0, tk.END)
+                index = 0
+                self.dict_results = {}
 
-            sql = "SELECT * FROM lst_results WHERE batch_id =? LIMIT?"
-            rs = self.engine.read(True, sql, (self.selected_batch[0], int(self.elements.get())))
+                sql = "SELECT * FROM lst_results WHERE batch_id =? LIMIT?"
+                rs = self.engine.read(True, sql, (self.selected_batch[0], int(self.elements.get())))
 
-            target = float(self.selected_batch[4])
-            sd = float(self.selected_batch[5])
+                target = float(self.selected_batch[4])
+                sd = float(self.selected_batch[5])
 
-            if rs:
+                if rs:
 
-                for i in rs:
+                    for i in rs:
 
-                    s = "{0}{1:12}".format(i[2], i[1])
-                    self.lstResults.insert(tk.END, s)
+                        s = "{0}{1:12}".format(i[2], i[1])
+                        self.lstResults.insert(tk.END, s)
 
-                    result = float(round(i[1], 2))
+                        result = float(round(i[1], 2))
 
-                    is_enabled = i[4]
+                        is_enabled = i[4]
 
-                    self.set_results_row_color(index, result, is_enabled, target, sd)
+                        self.set_results_row_color(index, result, is_enabled, target, sd)
 
-                    self.dict_results[index] = i[0]
+                        self.dict_results[index] = i[0]
 
-                    index += 1
+                        index += 1
 
-                self.get_values(rs)
+                    self.get_values(rs)
 
-            else:
-                self.reset_cal_data()
-                self.reset_graph()
+                else:
+                    self.reset_cal_data()
+                    self.reset_graph()
 
         except:
             print(self, inspect.stack()[0][3], sys.exc_info()[1],
@@ -855,7 +852,7 @@ class App(tk.Tk):
         self.engine.title = self.title()
         self.set_icon()
         self.set_style(kwargs['style'])
-
+        
         w = Biovarase(self, *args, **kwargs)
         w.on_open()
         w.pack(fill=tk.BOTH, expand=1)
