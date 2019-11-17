@@ -205,6 +205,10 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
                   /wSXxWiz7XHf4x84g33ag0Bx8dLigAAAABJRU5ErkJggg=="""
 
 
+    def get_expiration_date(self, expiration_date):
+        return (datetime.datetime.strptime(expiration_date, "%d-%m-%Y").date() - datetime.date.today()).days
+        
+
 def main():
 
     args = []
