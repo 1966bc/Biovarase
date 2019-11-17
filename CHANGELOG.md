@@ -1,6 +1,27 @@
 # Biovarase
 ## changelog
 
+
+**2019-11-18**
+add to main frame the expiration date for selected batch
+if the expiration date is less than the current date it will color the row red 
+if 15 days is missing it will color yellow
+in the database the expiration date field of the batches is datetime, but
+python return it as a string so we have to do this to compare the two dates
+
+```python
+
+def get_expiration_date(self, expiration_date):
+        return (datetime.datetime.strptime(expiration_date, "%d-%m-%Y").date() - datetime.date.today()).days
+
+```
+update years of batches and results with this statements:
+
+```
+UPDATE  batches SET expiration =  datetime(expiration, '+6 years')
+UPDATE  results SET recived =  datetime(recived, '+4 years')
+```
+
 **2019-09-18**
 
 add fix in tools.py because with Python 3.7.3  and Tk '8.6.9' the color in treview doesn't work
