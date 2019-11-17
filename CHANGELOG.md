@@ -3,6 +3,7 @@
 
 
 **2019-11-18**
+
 add to main frame the expiration date for selected batch
 if the expiration date is less than the current date it will color the row red 
 if 15 days is missing it will color yellow
