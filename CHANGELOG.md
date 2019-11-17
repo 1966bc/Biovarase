@@ -16,7 +16,7 @@ def get_expiration_date(self, expiration_date):
         return (datetime.datetime.strptime(expiration_date, "%d-%m-%Y").date() - datetime.date.today()).days
 
 ```
-Update in nthe database years of batches and results with this statements:
+Update in the database years of batches and results with this statements:
 
 ```
 UPDATE  batches SET expiration =  datetime(expiration, '+6 years')
