@@ -1,5 +1,6 @@
 """ This is the main module of Biovarase."""
 import sys
+import os
 import inspect
 import tkinter as tk
 from tkinter import ttk
@@ -462,12 +463,23 @@ class Biovarase(ttk.Frame):
         index = 0
         self.dict_batchs = {}
         sql = "SELECT * FROM lst_batches WHERE test_id = ?"
+      
         rs = self.engine.read(True, sql, (self.selected_test[0],))
+        
 
         if rs:
+            
             for i in rs:
-                s = "{0}".format(i[1])
+                
+                x = self.engine.get_expiration_date(i[2])
+                s = "{0:12} {1}".format(i[1], i[2])
                 self.lstBatches.insert(tk.END, (s))
+                
+                if x <= 0:
+                    self.lstBatches.itemconfig(index, {"bg":"red"})
+                elif x <= 15:
+                    self.lstBatches.itemconfig(index, {"bg":"yellow"})
+                    
                 self.dict_batchs[index] = i[0]
                 index += 1
 
@@ -849,7 +861,7 @@ class App(tk.Tk):
         self.style = ttk.Style()
         self.engine = kwargs['engine']
         self.set_title(kwargs['title'])
-        self.engine.title = self.title()
+        self.engine.title = kwargs['title']
         self.set_icon()
         self.set_style(kwargs['style'])
         
@@ -882,13 +894,14 @@ def main():
     for i in sys.argv:
         args.append(i)
 
-    database = {"path":'biovarase.db'}
+    
+    database = {"path":os.path.join(os.getcwd(), 'biovarase.db')}
 
     kwargs = {"style":"clam", "title":"Biovarase", "engine":Engine(*args, **database)}
 
     msg = "{0}\nauthor: {1}\ncopyright: {2}\ncredits: {3}\nlicense: {4}\nversion: {5}\
            \nmaintainer: {6}\nemail: {7}\ndate: {8}\nstatus: {9}"
-    info = msg.format("Biovarase", __author__, __copyright__, __credits__, __license__,
+    info = msg.format(kwargs['title'], __author__, __copyright__, __credits__, __license__,
                       __version__, __maintainer__, __email__, __date__, __status__)
 
     kwargs['info'] = info

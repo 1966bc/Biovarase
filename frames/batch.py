@@ -118,11 +118,11 @@ class UI(tk.Toplevel):
                 sql = self.engine.get_insert_sql('batches', len(args))
 
             self.engine.write(sql, args)
+            self.parent.set_batches()
 
 
             if self.index is not None:
                 if self.parent.winfo_name() == 'data':
-                    self.parent.set_batches()
                     self.parent.lstBatches.focus(self.index)
                     self.parent.lstBatches.selection_set(self.index)
 
