@@ -731,7 +731,8 @@ class Biovarase(ttk.Frame):
         self.frq.hist(series, color="g")
         self.frq.axvline(target, color="orange", linewidth=2)
         self.frq.axvline(avg, color="b", linewidth=2)
-        #self.frq.set_ylabel('Frequency')
+        self.frq.set_ylabel('Results Frequency')
+        self.frq.yaxis.set_label_position("right")
         um = self.get_um()
         if um is  not None:
             self.frq.set_xlabel(str(um[0]))
