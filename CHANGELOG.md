@@ -12,6 +12,9 @@ To show a Youden chart select first a test, after select at least two batches an
 if the number of results are the same the program will show the plot.
 
 
+![alt tag](https://user-images.githubusercontent.com/5463566/70794528-1efa9b80-1d9e-11ea-96ce-5abd49cbe4c2.png)
+
+
 
 
 **2019-11-18**
