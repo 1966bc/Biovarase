@@ -30,6 +30,7 @@ import frames.result
 import frames.analytical
 import frames.export_rejections
 import frames.plots
+import frames.youden
 import frames.elements
 import frames.tea
 import frames.analytical_goals
@@ -137,6 +138,7 @@ class Biovarase(ttk.Frame):
         m_main.add_cascade(label="?", underline=0, menu=m_about)
 
         items = (("Plots", self.on_plots),
+                 ("Youden", self.on_youden),
                  ("Tea", self.on_tea),
                  ("Reset", self.on_reset),
                  ("Analytica", self.on_analitical),
@@ -200,6 +202,7 @@ class Biovarase(ttk.Frame):
 
         w = ttk.LabelFrame(f1, text='Batches')
         self.lstBatches = self.engine.get_listbox(w, height=5)
+        self.lstBatches.selectmode=tk.MULTIPLE
         self.lstBatches.bind("<<ListboxSelect>>", self.on_selected_batch)
         self.lstBatches.bind('<Double-Button-1>', self.on_update_batch)
         w.pack(side=tk.TOP, fill=tk.BOTH, expand=0)
@@ -280,7 +283,7 @@ class Biovarase(ttk.Frame):
         toolbar = nav_tool(self.canvas, f3)
         toolbar.update()
         self.canvas._tkcanvas.pack(fill=tk.BOTH, expand=1)
-
+        
         f0.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         f1.pack(side=tk.LEFT, fill=tk.Y, expand=0)
         f2.pack(side=tk.LEFT, fill=tk.Y, expand=0)
@@ -807,6 +810,51 @@ class Biovarase(ttk.Frame):
         else:
             msg = "Not enough data to plot.\nSelect a test."
             messagebox.showwarning(self.engine.title, msg, parent=self)
+
+    def on_youden(self,):
+
+        if self.cbTests.current() != -1:
+            index = self.cbTests.current()
+            pk = self.dict_tests[index]
+            selected_test = self.engine.get_selected("tests", "test_id", pk)
+            items = self.lstBatches.curselection()
+            
+            pks = []
+            batches = []
+
+            if len(items)==2:
+
+                for index in items:
+                    pk = self.dict_batchs.get(index)
+                    pks.append(pk)
+
+                for pk in pks:
+                    batch = self.engine.get_selected("batches", "batch_id", pk)
+                    batches.append(batch)
+
+                sql = "SELECT * FROM lst_results WHERE batch_id = ? LIMIT ?"
+        
+                data = []
+                
+                for batch in batches:
+                    rs = self.engine.read(True, sql, ((batch[0], int(self.engine.get_elements()))))
+                    series = self.engine.get_series(batch[0], int(self.engine.get_elements()))
+                    data.append(series)
+
+                if len(data[0]) != len(data[1]):
+                    msg = "x and y data have diffeent size.\nIt's impossible to draw Youden plot."
+                    messagebox.showwarning(self.engine.title, msg, parent=self)
+
+                else:
+                    frames.youden.UI(self, engine=self.engine).on_open(selected_test, batches, data)
+
+            else:
+                msg = "Not enough data to plot a Youden plot.\nYou need to select at least two batches."
+                messagebox.showwarning(self.engine.title, msg, parent=self)                
+        else:
+            msg = "Not enough data to plot.\nSelect a test."
+            messagebox.showwarning(self.engine.title, msg, parent=self)
+            
 
     def on_tea(self,):
 
