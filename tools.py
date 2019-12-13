@@ -120,12 +120,11 @@ class Tools:
 
     def get_listbox(self, container, height=None, width=None):
 
-
         sb = ttk.Scrollbar(container, orient=tk.VERTICAL)
 
         w = tk.Listbox(container,
                        relief=tk.GROOVE,
-                       selectmode=tk.BROWSE,
+                       selectmode=tk.EXTENDED,
                        exportselection=0,
                        height=height,
                        width=width,
