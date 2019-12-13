@@ -1,6 +1,18 @@
 # Biovarase
 ## changelog
 
+**2019-12-13**
+
+Add Youden chart.
+
+Youden charts are used to compares two levels of controls and can help to differentiate between systematic and random error
+
+To show a Youden chart select first a test, after select at least two batches and on main menu select File/Youden, 
+
+if the number of results are the same the program will show the plot.
+
+
+
 
 **2019-11-18**
 
