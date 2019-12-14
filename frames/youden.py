@@ -1,7 +1,6 @@
 """ This is the youden module of Biovarase."""
 
 import tkinter as tk
-from tkinter import messagebox
 
 from matplotlib.figure import Figure
 
@@ -29,7 +28,7 @@ class UI(tk.Toplevel):
 
         self.parent = parent
         self.engine = kwargs['engine']
-        self.minsize(1200, 600)
+        #self.minsize(1200, 600)
         self.obj = None
         self.batches = []
         self.engine.center_me(self)
@@ -76,41 +75,55 @@ class UI(tk.Toplevel):
 
         self.canvas.draw()
 
-       
+
     def set_axs(self, data):
 
-        first_sample_target =  self.batches[0][4]
+        first_sample_target = self.batches[0][4]
         second_sample_target = self.batches[1][4]
-        
+
         first_sample_sd = self.batches[0][5]
         second_sample_sd = self.batches[1][5]
 
         x = data[0]
         y = data[1]
 
-        first_sample_low_limit = first_sample_target - (first_sample_sd*3)
-        first_sample_high_limit = first_sample_target + (first_sample_sd*3)
+        z = list(zip(x, y))
 
-        second_sample_low_limit = second_sample_target - (second_sample_sd*3)
-        second_sample_high_limit = second_sample_target + (second_sample_sd*3)
+        first_sample_low_limit = first_sample_target - (first_sample_sd*5)
+        first_sample_high_limit = first_sample_target + (first_sample_sd*5)
 
-      
+        second_sample_low_limit = second_sample_target - (second_sample_sd*5)
+        second_sample_high_limit = second_sample_target + (second_sample_sd*5)
+
         obj = self.fig.add_subplot(111, facecolor=('xkcd:light grey'),)
+
         obj.grid(True)
 
         obj.set_xlim(first_sample_low_limit, first_sample_high_limit)
-            
+
         obj.set_ylim(second_sample_low_limit, second_sample_high_limit)
 
-        obj.axvline(x=first_sample_target,linewidth=1, color='b')
-        obj.axvline(x=first_sample_target+(first_sample_sd*2),linewidth=3, color='yellow')
-        obj.axvline(x=first_sample_target-(first_sample_sd*2),linewidth=3, color='yellow')
+        obj.axvline(x=first_sample_target, linewidth=2, color='orange')
 
-        obj.axhline(y=second_sample_target,linewidth=1, color='b')
-        obj.axhline(y=second_sample_target+(second_sample_sd*2),linewidth=3, color='yellow')
-        obj.axhline(y=second_sample_target-(second_sample_sd*2),linewidth=3, color='yellow')
+        obj.axvline(x=first_sample_target+(first_sample_sd), ymin=0.4, ymax=0.6, linestyle='--', color='green')
+        obj.axvline(x=first_sample_target-(first_sample_sd), ymin=0.4, ymax=0.6, linestyle='--', color='green')
+        obj.axvline(x=first_sample_target+(first_sample_sd*2), ymin=0.3, ymax=0.7, linestyle='--', color='yellow')
+        obj.axvline(x=first_sample_target-(first_sample_sd*2), ymin=0.3, ymax=0.7, linestyle='--', color='yellow')
+        obj.axvline(x=first_sample_target+(first_sample_sd*3), ymin=0.2, ymax=0.8, linestyle='--', color='red')
+        obj.axvline(x=first_sample_target-(first_sample_sd*3), ymin=0.2, ymax=0.8, linestyle='--', color='red')
 
-        obj.scatter(x, y, marker='8', s=100)
+        obj.axhline(y=second_sample_target, linewidth=2, color='orange')
+        obj.axhline(y=second_sample_target+(second_sample_sd), xmin=0.4, xmax=0.6, linestyle='--', color='green')
+        obj.axhline(y=second_sample_target-(second_sample_sd), xmin=0.4, xmax=0.6, linestyle='--', color='green')
+        obj.axhline(y=second_sample_target+(second_sample_sd*2), xmin=0.3, xmax=0.7, linestyle='--', color='yellow')
+        obj.axhline(y=second_sample_target-(second_sample_sd*2), xmin=0.3, xmax=0.7, linestyle='--', color='yellow')
+        obj.axhline(y=second_sample_target+(second_sample_sd*3), xmin=0.2, xmax=0.8, linestyle='--', color='red')
+        obj.axhline(y=second_sample_target-(second_sample_sd*3), xmin=0.2, xmax=0.8, linestyle='--', color='red')
+
+        obj.scatter(x, y, marker='8', s=80)
+
+        for i, txt in enumerate(z):
+            obj.annotate(txt, (x[i], y[i]), size=8,)
 
 
         if self.um is  not None:
@@ -119,9 +132,9 @@ class UI(tk.Toplevel):
         else:
             obj.set_ylabel("No unit assigned yet")
             obj.set_xlabel("No unit assigned yet")
-            
 
-        s = "Batch: {0} Target: {1} sd: {2} Batch: {3} Target: {4:.2f} sd: {5:.2f}"
+
+        s = "Batch: {0} Target: {1:.2f} sd: {2:.2f} Batch: {3} Target: {4:.2f} sd: {5:.2f}"
 
         title = s.format(self.batches[0][2],
                          first_sample_target,
@@ -132,11 +145,6 @@ class UI(tk.Toplevel):
 
         obj.set_title(title, loc='left')
 
-        obj.text(0.95, 0.01, 'Yellow lines rapresent 2 sd limits, blue lines rappresent selected targets',
-                 verticalalignment='bottom',
-                 horizontalalignment='right',
-                 transform=obj.transAxes,
-                 color='black',)
 
 
     def get_um(self, unit_id):
