@@ -5,7 +5,13 @@
 
 Add Youden chart.
 
-Youden charts are used to compares two levels of controls and can help to differentiate between systematic and random error
+Youden charts are used to compares two levels of controls and can help to differentiate between systematic and random error.
+
+To know the whole story go here:
+
+[Bio-Rad Blackboard - Youden Charts](https://www.youtube.com/watch?v=XUsMMjjL5eA)
+
+
 
 To show a Youden chart select first a test, after select at least two batches and on main menu select File/Youden, 
 
