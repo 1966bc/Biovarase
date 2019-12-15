@@ -842,14 +842,14 @@ class Biovarase(ttk.Frame):
                     data.append(series)
 
                 if len(data[0]) != len(data[1]):
-                    msg = "x and y data have diffeent size.\nIt's impossible to draw Youden plot."
+                    msg = "Selected batches data have diffen size.\nIt's impossible to draw Youden plot."
                     messagebox.showwarning(self.engine.title, msg, parent=self)
 
                 else:
                     frames.youden.UI(self, engine=self.engine).on_open(selected_test, batches, data)
 
             else:
-                msg = "Not enough data to plot a Youden plot.\nYou need to select at least two batches."
+                msg = "Not data to plot a Youden chart.\nYou need to select at least two batches."
                 messagebox.showwarning(self.engine.title, msg, parent=self)                
         else:
             msg = "Not enough data to plot.\nSelect a test."
