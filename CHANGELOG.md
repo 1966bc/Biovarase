@@ -1,6 +1,36 @@
 # Biovarase
 ## changelog
 
+**2021-03-18**
+Changed the way to pass the engine.py class to the whole app.
+
+Now we make
+
+```python
+
+class App(tk.Tk):
+    """Biovarase Main Application start here"""
+    def __init__(self):
+        super().__init__()
+
+        self.engine = Engine()
+        
+```
+
+and so we can call it so
+
+```python
+
+self.nametowidget(".").engine.get_frame(self, 8)
+
+last_id = self.nametowidget(".").engine.write(sql, args)
+        
+```
+
+and so on, this because self.nametowidget(".") returns the actual widget whose path name is name and "." is the root.
+
+
+
 **2019-12-13**
 
 Add Youden chart.
