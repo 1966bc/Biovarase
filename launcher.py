@@ -1,5 +1,6 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+""" This is the westgard launcher of Biovarase.
+    It provides to perform the file opening."""
 import os
 import subprocess
 import threading
@@ -11,14 +12,12 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-06-01"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 class Launcher:
-    def __init__(self, *args, **kwargs):
-        
-        self.args = args
-        self.kwargs = kwargs
+    """This class is used for data export.
+    """
 
     def __str__(self):
         return "class: %s" % (self.__class__.__name__, )
@@ -28,7 +27,7 @@ class Launcher:
 
         threading.Thread(target=self.open_file(path), daemon=True).start()    
         
-    def open_file(self,path):
+    def open_file(self, path):
 
         if os.path.exists(path):
             if os.name == 'posix':

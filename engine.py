@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """ This is the engine module of Biovarase. This class  inherit from other classes."""
 import sys
+import os
 import inspect
 import datetime
 from dbms import DBMS
@@ -19,21 +20,17 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-08-29"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.args = args
-        self.kwargs = kwargs
+    def __init__(self,):
+        super().__init__()
 
         self.no_selected = "Attention!\nNo record selected!"
         self.delete = "Delete data?"
         self.ask_to_save = "Save data?"
         self.abort = "Operation aborted!"
-
 
     def __str__(self):
         return "class: {0}\nMRO:{1}".format(self.__class__.__name__, [x.__name__ for x in Engine.__mro__])
@@ -47,6 +44,9 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
     def not_busy(self, caller):
         caller.config(cursor="")
 
+    def get_file(self, file):
+        """Return full path of the directory where program resides."""
+        return os.path.join(os.path.dirname(__file__), file)
 
     def on_log(self, container, function, exc_value, exc_type, module):
 
@@ -55,6 +55,10 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
         log_file = open('log.txt', 'a')
         log_file.write(log_text)
         log_file.close()
+
+    def get_log_file(self):
+        path = self.get_file("log.txt")
+        self.open_file(path)
 
     def on_debug(self, module, function, *args):
 
@@ -70,7 +74,8 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
     def get_elements(self):
 
         try:
-            f = open('elements', 'r')
+            path = self.get_file("elements")
+            f = open(path, "r")
             e = f.readline()
             f.close()
             return e
@@ -84,7 +89,7 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
     def set_elements(self, elements):
 
         try:
-            with open('elements', 'w') as f:
+            with open("elements", "w") as f:
                 f.write(str(elements))
 
 
@@ -99,7 +104,8 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
 
         try:
             d = {}
-            with open("dimensions", "r") as filestream:
+            path = self.get_file("dimensions")
+            with open(path, "r") as filestream:
                 for line in filestream:
                     currentline = line.split(",")
                     d[currentline[0]] = currentline[1]
@@ -114,7 +120,8 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
 
     def get_ddof(self):
         try:
-            f = open('ddof', 'r')
+            path = self.get_file("ddof")
+            f = open(path, "r")
             v = f.readline()
             f.close()
             return int(v)
@@ -128,7 +135,7 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
     def set_ddof(self, value):
 
         try:
-            with open('ddof', 'w') as f:
+            with open("ddof", "w") as f:
                 f.write(str(value))
 
         except:
@@ -141,7 +148,8 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
 
     def get_zscore(self):
         try:
-            f = open('zscore', 'r')
+            path = self.get_file("zscore")
+            f = open(path, "r")
             v = f.readline()
             f.close()
             return float(v)
@@ -154,7 +162,7 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
 
     def set_zscore(self, value):
         try:
-            with open('zscore', 'w') as f:
+            with open("zscore", "w") as f:
                 f.write(str(value))
         except FileNotFoundError:
             self.on_log(self,
@@ -165,7 +173,8 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
 
     def get_show_error_bar(self):
         try:
-            f = open('show_error_bar', 'r')
+            path = self.get_file("show_error_bar")
+            f = open(path, 'r')
             v = f.readline()
             f.close()
             return int(v)
@@ -180,7 +189,7 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
     def set_show_error_bar(self, value):
 
         try:
-            with open('show_error_bar', 'w') as f:
+            with open("show_error_bar", "w") as f:
                 f.write(str(value))
 
         except:
@@ -207,20 +216,26 @@ class Engine(DBMS, Tools, QC, Westgards, Exporter, Launcher,):
 
     def get_expiration_date(self, expiration_date):
         return (datetime.datetime.strptime(expiration_date, "%d-%m-%Y").date() - datetime.date.today()).days
-        
+
+    def get_license(self):
+        """get license"""
+        try:
+            path = self.get_file("LICENSE")
+            f = open(path, "r")
+            v = f.read()
+            f.close()
+            return v
+        except FileNotFoundError:
+            self.on_log(inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
+
 
 def main():
 
-    args = []
-
-    for i in sys.argv:
-        args.append(i)
-
-    kwargs = {"path":'biovarase.db'}
-
-    foo = Engine(*args, **kwargs)
+    foo = Engine()
     print(foo)
-    print(foo.con)
     input('end')
 
 if __name__ == "__main__":

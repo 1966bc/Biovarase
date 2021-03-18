@@ -7,6 +7,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import font
+from tkinter.scrolledtext import ScrolledText
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -19,10 +20,6 @@ __date__ = "2018-12-25"
 __status__ = "Production"
 
 class Tools:
-    def __init__(self, *args, **kwargs):
-
-        self.args = args
-        self.kwargs = kwargs
 
     def __str__(self):
         return "class: %s" % (self.__class__.__name__, )
@@ -67,16 +64,17 @@ class Tools:
     def get_label_frame(self, container, text=None, ):
         return ttk.LabelFrame(container, text=text,)
 
-    def get_button(self, container, text, row=None, col=None):
-
-        w = ttk.Button(container, text=text, underline=0)
+    def get_button(self, container, text, underline=0, row=None, col=None):
+    
+        w = ttk.Button(container, text=text, underline=underline)
 
         if row is not None:
-            w.grid(row=row, column=col, sticky=tk.W+tk.E, padx=5, pady=5)
+            w.grid(row=row, column=col, sticky=tk.N+tk.W+tk.E, padx=5, pady=5)
         else:
             w.pack(fill=tk.X, padx=5, pady=5)
 
         return w
+
 
     def get_label(self, container, text, textvariable=None, anchor=None, args=()):
 
@@ -139,12 +137,29 @@ class Tools:
 
         return w
 
+    def get_text_box(self, container, height=None, width=None, row=None, col=None):
+
+        w = ScrolledText(container,
+                         bg='white',
+                         relief=tk.GROOVE,
+                         height=height,
+                         width=width,
+                         font='TkFixedFont',)
+
+        if row is not None:
+            #print(row,col)
+            w.grid(row=row, column=1, sticky=tk.W)
+        else:
+            w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
+        return w    
+
     def get_save_cancel(self, caller, container):
 
-        caller.btnSave = self.get_button(container, "Save", 0, 2)
+        caller.btnSave = self.get_button(container, "Save",0, 0, 2)
         caller.btnSave.bind("<Button-1>", caller.on_save)
         caller.btnSave.bind("<Return>", caller.on_save)
-        caller.btCancel = self.get_button(container, "Close", 1, 2)
+        caller.btCancel = self.get_button(container, "Close",0, 1, 2)
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
 
         caller.bind("<Alt-s>", caller.on_save)
@@ -155,11 +170,11 @@ class Tools:
 
         w = self.get_frame(container, 5)
 
-        caller.btnExport = self.get_button(w, "Export", 0, 1,)
+        caller.btnExport = self.get_button(w, "Export",0, 0, 1,)
         caller.btnExport.bind("<Button-1>", caller.on_export)
         caller.btnExport.bind("<Return>", caller.on_export)
 
-        caller.btCancel = self.get_button(w, "Close", 1, 1)
+        caller.btCancel = self.get_button(w, "Close",0, 1, 1)
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
 
         caller.bind("<Alt-e>", caller.on_export)
@@ -170,14 +185,14 @@ class Tools:
 
     def get_save_cancel_delete(self, caller, container):
 
-        caller.btnSave = self.get_button(container, "Save", 0, 2)
+        caller.btnSave = self.get_button(container, "Save",0, 0, 2)
         caller.btnSave.bind("<Button-1>", caller.on_save)
         caller.btnSave.bind("<Return>", caller.on_save)
 
-        caller.btDelete = self.get_button(container, "Delete", 1, 2)
+        caller.btDelete = self.get_button(container, "Delete",0, 1, 2)
         caller.btDelete.bind("<Button-1>", caller.on_delete)
 
-        caller.btCancel = self.get_button(container, "Close", 2, 2)
+        caller.btCancel = self.get_button(container, "Close",0, 2, 2)
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
 
         caller.bind("<Alt-s>", caller.on_save)

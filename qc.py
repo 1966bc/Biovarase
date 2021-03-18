@@ -19,10 +19,6 @@ __status__ = "Production"
 
 
 class QC:
-    def __init__(self, *args, **kwargs):
-
-        self.args = args
-        self.kwargs = kwargs
 
     def __str__(self):
         return "class: %s" % (self.__class__.__name__, )

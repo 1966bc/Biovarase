@@ -18,22 +18,13 @@ __status__ = "Production"
 
 
 class DBMS:
-    def __init__(self, *args, **kwargs):
+    def __init__(self,):
 
-        self.args = args
-        self.kwargs = kwargs
-        self.set_connection(kwargs)
+        self.set_connection()
 
-    def __str__(self):
-        return "class: %s" % (self.__class__.__name__, )
+    def set_connection(self):
 
-    def set_connection(self, kwargs):
-
-        self.get_connection(kwargs["path"])
-
-    def get_connection(self, path):
-
-        self.con = lite.connect(path,
+        self.con = lite.connect("biovarase.db",
                                 detect_types=lite.PARSE_DECLTYPES|lite.PARSE_COLNAMES,
                                 isolation_level='IMMEDIATE')
         self.con.text_factory = lite.OptimizedUnicode
@@ -45,6 +36,7 @@ class DBMS:
             cur = self.con.cursor()
             cur.execute(sql, args)
             self.con.commit()
+            return cur.lastrowid
 
         except:
             self.con.rollback()
@@ -214,14 +206,7 @@ class DBMS:
 
 def main():
 
-    args = []
-
-    for i in sys.argv:
-        args.append(i)
-
-    kwargs = {"path":'biovarase.db'}
-
-    bar = DBMS(*args, **kwargs)
+    bar = DBMS()
     print(bar)
     sql = "SELECT name FROM sqlite_master WHERE type = 'view'"
     rs = bar.read(True, sql)

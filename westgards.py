@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """ This is the westgard module of Biovarase.
     It provides to perform the westgard's rules calculations."""
@@ -15,14 +14,6 @@ __status__ = "Production"
 
 
 class Westgards:
-    def __init__(self, *args, **kwargs):
-
-        self.args = args
-        self.kwargs = kwargs
-
-    def __str__(self):
-        return "class: {0}\nMRO: {1}".format(self.__class__.__name__, [x.__name__ for x in Westgards.__mro__],)
-
 
     def get_westgard_violation_rule(self, target, sd, series, selected_batch=None, selected_test=None):
         """This function recive target, sd and a value series
