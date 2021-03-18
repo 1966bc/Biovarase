@@ -28,7 +28,7 @@ last_id = self.nametowidget(".").engine.write(sql, args)
         
 ```
 
-and so on, this because self.nametowidget(".") returns the actual widget whose path name is name and "." is the root.
+and so on, this because self.nametowidget(".") returns the actual widget whose path name is "."  and "." is the root.
 
 
 
