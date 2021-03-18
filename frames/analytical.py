@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the analytical module of Biovarase.
 It shows analyticak goals rules"""
 import tkinter as tk
@@ -9,25 +10,22 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-10-18"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='analitical')
+    def __init__(self, parent):
+        super().__init__(name="analitical")
 
         self.parent = parent
-        self.engine = kwargs['engine']
-
-        self.attributes('-topmost', True)
+        self.attributes("-topmost", True)
         self.resizable(0, 0)
-
         self.init_ui()
-        self.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
 
     def init_ui(self):
 
-        w = self.engine.get_init_ui(self)
+        w = self.nametowidget(".").engine.get_init_ui(self)
 
         items = (("k CV:", None), ("0.25", "green"), ("0.50", "yellow"), ("0.75", "red"),)
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the batch module of Biovarase."""
 import tkinter as tk
 from tkinter import ttk
@@ -11,34 +12,32 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-10-18"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='batch')
+    def __init__(self, parent, index=None):
+        super().__init__(name="batch")
 
-        self.attributes('-topmost', True)
+        self.attributes("-topmost", True)
+        self.parent = parent
+        self.index = index
         self.transient(parent)
         self.resizable(0, 0)
-
-        self.parent = parent
-        self.engine = kwargs['engine']
-        self.index = kwargs['index']
 
         self.batch = tk.StringVar()
         self.target = tk.DoubleVar()
         self.sd = tk.DoubleVar()
         self.enable = tk.BooleanVar()
 
-        self.vcmd = self.engine.get_validate_float(self)
-        self.engine.center_me(self)
+        self.vcmd = self.nametowidget(".").engine.get_validate_float(self)
+        self.nametowidget(".").engine.center_me(self)
         self.init_ui()
 
 
     def init_ui(self):
 
-        w = self.engine.get_init_ui(self)
+        w = self.nametowidget(".").engine.get_init_ui(self)
 
         r = 0
         c = 1
@@ -77,7 +76,7 @@ class UI(tk.Toplevel):
         chk = ttk.Checkbutton(w, onvalue=1, offvalue=0, variable=self.enable)
         chk.grid(row=r, column=c, sticky=tk.W)
 
-        self.engine.get_save_cancel(self, w)
+        self.nametowidget(".").engine.get_save_cancel(self, w)
 
 
     def on_open(self, selected_test, selected_batch=None):
@@ -101,40 +100,43 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt=None):
 
-        if self.engine.on_fields_control(self) == False: return
+        if self.nametowidget(".").engine.on_fields_control(self) == False: return
         if self.expiration_date.get_date(self) == False: return
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+        if messagebox.askyesno(self.nametowidget(".").title(),
+                               self.nametowidget(".").engine.ask_to_save,
+                               parent=self) == True:
 
             args = self.get_values()
 
             if self.index is not None:
 
-                sql = self.engine.get_update_sql('batches', 'batch_id')
+                sql = self.nametowidget(".").engine.get_update_sql('batches', 'batch_id')
 
                 args = (*args, self.selected_batch[0])
 
             else:
 
-                sql = self.engine.get_insert_sql('batches', len(args))
+                sql = self.nametowidget(".").engine.get_insert_sql('batches', len(args))
 
-            self.engine.write(sql, args)
+            last_id = self.nametowidget(".").engine.write(sql, args)
             self.parent.set_batches()
 
 
             if self.index is not None:
-                if self.parent.winfo_name() == 'data':
-                    self.parent.lstBatches.focus(self.index)
+                if self.parent.winfo_name() == "data":
+                    self.parent.lstBatches.focus()
                     self.parent.lstBatches.selection_set(self.index)
+                    self.nametowidget(".").nametowidget("biovarase").set_batches()
 
                 else:
                     self.parent.lstBatches.see(self.index)
                     self.parent.lstBatches.selection_set(self.index)
                     self.parent.lstBatches.event_generate("<<ListboxSelect>>")
+            else:
+                self.parent.lstBatches.selection_set(last_id)
+                self.parent.lstBatches.see(last_id)
 
             self.on_cancel()
-
-        else:
-            messagebox.showinfo(self.engine.title, self.engine.abort, parent=self)
 
 
     def get_values(self,):

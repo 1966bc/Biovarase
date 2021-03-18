@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 """ This is the set set_zscore module of Biovarase."""
+import sys
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -10,28 +12,28 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-10-19"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='set_zscore')
+    def __init__(self, parent):
+        super().__init__(name="set_zscore")
 
+        self.parent = parent
         self.attributes('-topmost', True)
         self.transient(parent)
         self.resizable(0, 0)
-        self.parent = parent
-        self.engine = kwargs['engine']
+        
         self.z_score = tk.DoubleVar()
-        self.vcmd = self.engine.get_validate_float(self)
-        self.engine.center_me(self)
+        self.vcmd = self.nametowidget(".").engine.get_validate_float(self)
+        self.nametowidget(".").engine.center_me(self)
         self.init_ui()
 
 
     def init_ui(self):
 
-        f0 = self.engine.get_frame(self, 8)
+        f0 = self.nametowidget(".").engine.get_frame(self, 8)
 
         w = tk.LabelFrame(f0, text='Set Z Score', font='Helvetica 10 bold')
 
@@ -48,7 +50,7 @@ class UI(tk.Toplevel):
                ('Close', self.on_cancel)]
 
         for btn in bts:
-            self.engine.get_button(f0, btn[0]).bind("<Button-1>", btn[1])
+            self.nametowidget(".").engine.get_button(f0, btn[0]).bind("<Button-1>", btn[1])
 
         self.bind("<Alt-s>", self.on_save)
         self.bind("<Alt-c>", self.on_cancel)
@@ -57,19 +59,27 @@ class UI(tk.Toplevel):
 
     def on_open(self):
 
-        self.z_score.set(self.engine.get_zscore())
-        self.title("Set Z Score")
+        self.z_score.set(self.nametowidget(".").engine.get_zscore())
         self.txValue.focus()
-
+        self.title("Set Z Score")
+        
     def on_save(self, evt=None):
 
-        if self.engine.on_fields_control(self) == False: return
+        try:
 
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
-            #notice, same name callback but different class
-            self.engine.set_zscore(self.z_score.get())
-            self.parent.set_zscore()
-            self.on_cancel()
+            if self.z_score.get():
+
+                if messagebox.askyesno(self.nametowidget(".").title(),
+                                       self.nametowidget(".").engine.ask_to_save,
+                                       parent=self) == True:
+
+                    self.nametowidget(".").engine.set_zscore(self.z_score.get())
+                    self.parent.set_zscore()
+                    self.on_cancel()
+        except:
+            msg = "Attention\n{0}\nPerhaps the text field is empty?".format(sys.exc_info()[1], sys.exc_info()[0],)
+
+            messagebox.showwarning(self.master.title(), msg, parent=self)                
 
     def on_cancel(self, evt=None):
         self.destroy()

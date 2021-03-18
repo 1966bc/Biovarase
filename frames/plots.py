@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 """ This is the plots module of Biovarase."""
-
 import tkinter as tk
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -20,25 +20,23 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-08-25"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='plots')
+    def __init__(self, parent):
+        super().__init__(name="plots")
 
         self.parent = parent
-        self.engine = kwargs['engine']
         self.minsize(1200, 600)
         self.obj = None
-        self.engine.center_me(self)
         self.init_ui()
-
-
+        self.nametowidget(".").engine.center_me(self)
+        
     def init_ui(self):
 
 
-        f0 = self.engine.get_frame(self)
+        f0 = self.nametowidget(".").engine.get_frame(self)
 
         #create graph!
         #Figure: The top level container for all the plot elements.
@@ -81,7 +79,7 @@ class UI(tk.Toplevel):
                WHERE test_id =? AND enable =1\
                ORDER BY expiration DESC"
         args = (selected_test[0],)
-        rs = self.engine.read(True, sql, args)
+        rs = self.nametowidget(".").engine.read(True, sql, args)
 
         if rs:
 
@@ -102,14 +100,14 @@ class UI(tk.Toplevel):
 
         for batch in batches:
 
-            rs = self.engine.read(True, sql, ((batch[0], int(self.engine.get_elements()))))
+            rs = self.nametowidget(".").engine.read(True, sql, ((batch[0], int(self.nametowidget(".").engine.get_elements()))))
             if rs:
 
                 target = batch[4]
                 sd = batch[5]
-                series = self.engine.get_series(batch[0], int(self.engine.get_elements()))
-                mean = self.engine.get_mean(series)
-                cv = self.engine.get_cv(series)
+                series = self.nametowidget(".").engine.get_series(batch[0], int(self.nametowidget(".").engine.get_elements()))
+                mean = self.nametowidget(".").engine.get_mean(series)
+                cv = self.nametowidget(".").engine.get_cv(series)
                 x_labels = self.get_x_labels(rs)
 
 
@@ -120,7 +118,7 @@ class UI(tk.Toplevel):
                              series,
                              len(series),
                              mean,
-                             self.engine.get_sd(series),
+                             self.nametowidget(".").engine.get_sd(series),
                              cv,
                              x_labels[0],
                              x_labels[1],
@@ -213,7 +211,7 @@ class UI(tk.Toplevel):
     def get_um(self, unit_id):
 
         sql = "SELECT unit FROM units WHERE unit_id =?"
-        return self.engine.read(False, sql, (unit_id,))
+        return self.nametowidget(".").engine.read(False, sql, (unit_id,))
 
 
     def on_cancel(self, evt=None):

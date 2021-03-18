@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the rejections module of Biovarase."""
 import tkinter as tk
 from tkinter import messagebox
@@ -10,17 +11,15 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-25"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='rejections')
+    def __init__(self, parent):
+        super().__init__(name="rejections")
 
         self.parent = parent
-        self.engine = kwargs['engine']
-        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.attributes('-topmost', True)
         self.transient(parent)
         self.resizable(0, 0)
@@ -32,11 +31,11 @@ class UI(tk.Toplevel):
         self.obj = None
 
         self.init_ui()
-        self.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
 
     def init_ui(self):
 
-        f0 = self.engine.get_frame(self)
+        f0 = self.nametowidget(".").engine.get_frame(self)
 
         w = tk.LabelFrame(f0, text='Select data',)
 
@@ -62,15 +61,15 @@ class UI(tk.Toplevel):
 
         w.pack(side=tk.LEFT, fill=tk.Y, expand=0)
 
-        w = self.engine.get_frame(f0)
+        w = self.nametowidget(".").engine.get_frame(f0)
 
-        self.lstItems = self.engine.get_listbox(w, width=40)
+        self.lstItems = self.nametowidget(".").engine.get_listbox(w, width=40)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
 
         w.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand =1)
 
-        self.engine.get_add_edit_cancel(self,f0)
+        self.nametowidget(".").engine.get_add_edit_cancel(self,f0)
 
         f0.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
@@ -98,7 +97,7 @@ class UI(tk.Toplevel):
         self.dict_items = {}
         args = (self.selected_result[0],)
         sql = "SELECT * FROM lst_rejections WHERE result_id =?"
-        rs = self.engine.read(True, sql, args)
+        rs = self.nametowidget(".").engine.read(True, sql, args)
 
         if rs:
             for i in rs:
@@ -111,7 +110,7 @@ class UI(tk.Toplevel):
 
     def on_add(self, evt):
 
-        self.obj = frames.rejection.UI(self, engine=self.engine, index=None)
+        self.obj = frames.rejection.UI(self)
         self.obj.on_open(self.selected_test,self.selected_batch, self.selected_result)
 
     def on_edit(self, evt):
@@ -121,21 +120,21 @@ class UI(tk.Toplevel):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
-            self.obj = frames.rejection.UI(self, engine=self.engine, index=index)
+            self.obj = frames.rejection.UI(self, index)
             self.obj.on_open(self.selected_test,
                              self.selected_batch,
                              self.selected_result,
                              self.selected_item)
 
         else:
-            messagebox.showwarning(self.engine.title,self.engine.no_selected, parent = self)
+            messagebox.showwarning(self.master.title(),self.nametowidget(".").engine.no_selected, parent = self)
 
     def on_item_selected(self, evt):
 
          if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
             pk = self.dict_items.get(index)
-            self.selected_item = self.engine.get_selected('rejections','rejection_id', pk)
+            self.selected_item = self.nametowidget(".").engine.get_selected('rejections','rejection_id', pk)
 
 
     def on_cancel(self, evt=None):

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the youden module of Biovarase."""
 
 import tkinter as tk
@@ -19,32 +20,28 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-12-13"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='youden')
+    def __init__(self, parent):
+        super().__init__(name="youden")
 
         self.parent = parent
-        self.engine = kwargs['engine']
-        #self.minsize(1200, 600)
         self.obj = None
         self.batches = []
-        self.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
         self.init_ui()
 
 
     def init_ui(self):
 
 
-        f0 = self.engine.get_frame(self)
+        f0 = self.nametowidget(".").engine.get_frame(self)
 
         #create graph!
         #Figure: The top level container for all the plot elements.
-        #figsize:width, height in inches, figsize=(6.4, 4.8)
         self.fig = Figure()
-        #fig.suptitle(self.engine.title, fontsize=20,fontweight='bold')
         #self.fig.subplots_adjust(bottom=0.10, right=0.98, left=0.10, top=0.88,wspace=0.08)
         self.fig.subplots_adjust(hspace=0.65, left=0.125, right=0.9)
         self.canvas = FigureCanvasTkAgg(self.fig, f0)
@@ -150,7 +147,7 @@ class UI(tk.Toplevel):
     def get_um(self, unit_id):
 
         sql = "SELECT unit FROM units WHERE unit_id =?"
-        return self.engine.read(False, sql, (unit_id,))
+        return self.nametowidget(".").engine.read(False, sql, (unit_id,))
 
 
     def on_cancel(self, evt=None):

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the result module of Biovarase."""
 import sys
 import tkinter as tk
@@ -12,17 +13,16 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-10-18"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, index=None):
         super().__init__(name='result')
 
         self.parent = parent
-        self.engine = kwargs['engine']
-        self.index = kwargs['index']
+        self.index = index
         self.transient(parent)
         self.resizable(0, 0)
 
@@ -32,10 +32,10 @@ class UI(tk.Toplevel):
         self.recived_time = tk.StringVar()
         self.enable = tk.BooleanVar()
 
-        self.vcmd = self.engine.get_validate_float(self)
+        self.vcmd = self.nametowidget(".").engine.get_validate_float(self)
         self.set_style()
         self.init_ui()
-        self.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
 
 
     def set_style(self):
@@ -47,7 +47,7 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        w = self.engine.get_init_ui(self)
+        w = self.nametowidget(".").engine.get_init_ui(self)
 
         r = 0
         c = 1
@@ -82,9 +82,9 @@ class UI(tk.Toplevel):
         chk.grid(row=r, column=c, sticky=tk.W)
 
         if self.index is not None:
-            self.engine.get_save_cancel_delete(self, w)
+            self.nametowidget(".").engine.get_save_cancel_delete(self, w)
         else:
-            self.engine.get_save_cancel(self, w)
+            self.nametowidget(".").engine.get_save_cancel(self, w)
 
 
     def on_open(self, selected_test, selected_batch, selected_result=None):
@@ -109,51 +109,68 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt=None):
 
-        if self.engine.on_fields_control(self) == False: return
+        if self.nametowidget(".").engine.on_fields_control(self) == False: return
         if self.recived_date.get_date(self) == False: return
 
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+        if messagebox.askyesno(self.nametowidget(".").title(),
+                               self.nametowidget(".").engine.ask_to_save,
+                               parent=self) == True:
 
             args = self.get_values()
 
             if self.index is not None:
 
-                sql = self.engine.get_update_sql('results', 'result_id')
+                sql = self.nametowidget(".").engine.get_update_sql('results', 'result_id')
 
                 args = (*args, self.selected_result[0])
 
             else:
-                sql = self.engine.get_insert_sql('results', len(args))
+                sql = self.nametowidget(".").engine.get_insert_sql('results', len(args))
 
-            self.engine.write(sql, args)
+            last_id = self.nametowidget(".").engine.write(sql, args)
             self.parent.set_results()
 
             if self.index is not None:
-                if self.parent.winfo_name() == 'data':
-                    self.parent.lstResults.focus(self.index)
-                    self.parent.lstResults.see(self.index)
-                    self.parent.lstResults.selection_set(self.index)
-                else:
-                    self.parent.lstResults.see(self.index)
-                    self.parent.lstResults.selection_set(self.index)
+                self.parent.lstResults.focus()
+                self.parent.lstResults.see(self.index)
+                self.parent.lstResults.selection_set(self.index)
+            else:
+                self.parent.lstResults.see(last_id)
+                self.parent.lstResults.selection_set(last_id)
 
+            if self.parent.winfo_name() == "data":
+                self.nametowidget(".").nametowidget("biovarase").set_results()
+                
+                
             self.on_cancel()
 
 
     def on_delete(self, evt=None):
 
         if self.index is not None:
-            if messagebox.askyesno(self.engine.title, self.engine.delete, parent=self) == True:
+            if messagebox.askyesno(self.nametowidget(".").title(),
+                                   self.nametowidget(".").engine.delete,
+                                   parent=self) == True:
                 sql = "DELETE FROM results WHERE result_id =?"
                 args = (self.selected_result[0],)
-                self.engine.write(sql, args)
+                self.nametowidget(".").engine.write(sql, args)
                 sql = "DELETE FROM rejections WHERE result_id =?"
                 args = (self.selected_result[0],)
-                self.engine.write(sql, args)
+                self.nametowidget(".").engine.write(sql, args)
                 self.parent.set_results()
+
+                if self.parent.winfo_name() == "data":    
+                    self.nametowidget(".").nametowidget("biovarase").set_results()
+                
+                
+                    
+                    
+                    
                 self.on_cancel()
             else:
-                messagebox.showinfo(self.engine.title, self.engine.abort, parent=self)
+                messagebox.showinfo(self.master.title(),
+                                    self.nametowidget(".").engine.abort,
+                                    parent=self)
 
     def get_values(self,):
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the test module of Biovarase."""
 import tkinter as tk
 from tkinter import ttk
@@ -10,35 +11,32 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-10-20"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='test')
+    def __init__(self, parent, index=None):
+        super().__init__(name="test")
 
+        self.parent = parent
+        self.index = index
+        self.attributes("-topmost", True)
         self.transient(parent)
         self.resizable(0, 0)
         
-        self.parent = parent
-        self.engine = kwargs['engine']
-        self.table = kwargs['table']
-        self.field = kwargs['field']
-        self.index = kwargs['index']
-
         self.test = tk.StringVar()
         self.cvw = tk.DoubleVar()
         self.cvb = tk.DoubleVar()
         self.enable = tk.BooleanVar()
-        self.vcmd = self.engine.get_validate_float(self)
+        self.vcmd = self.nametowidget(".").engine.get_validate_float(self)
 
         self.init_ui()
-        self.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
 
     def init_ui(self):
 
-        w = self.engine.get_init_ui(self)
+        w = self.nametowidget(".").engine.get_init_ui(self)
 
         r = 0
         ttk.Label(w, text="Samples:").grid(row=r, sticky=tk.W)
@@ -80,7 +78,7 @@ class UI(tk.Toplevel):
         chk = ttk.Checkbutton(w, onvalue=1, offvalue=0, variable=self.enable)
         chk.grid(row=r, column=1, sticky=tk.W)
 
-        self.engine.get_save_cancel(self, w)
+        self.nametowidget(".").engine.get_save_cancel(self, w)
 
 
     def on_open(self, selected_item=None):
@@ -90,12 +88,13 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             self.selected_item = selected_item
-            msg = "Update {0}".format(self.winfo_name())
+            what = "Edit {0}"
             self.set_values()
         else:
-            msg = "Insert {0}".format(self.winfo_name())
+            what = "Add {0}"
             self.enable.set(1)
-
+            
+        msg = what.format(self.winfo_name().title())
         self.title(msg)
         self.txTest.focus()
 
@@ -106,7 +105,7 @@ class UI(tk.Toplevel):
         self.dict_samples = {}
 
         sql = "SELECT sample_id, description FROM samples ORDER BY description ASC"
-        rs = self.engine.read(True, sql, ())
+        rs = self.nametowidget(".").engine.read(True, sql, ())
 
         for i in rs:
             self.dict_samples[index] = i[0]
@@ -123,7 +122,7 @@ class UI(tk.Toplevel):
         self.dict_units = {}
 
         sql = "SELECT unit_id, unit FROM units ORDER BY unit ASC"
-        rs = self.engine.read(True, sql, ())
+        rs = self.nametowidget(".").engine.read(True, sql, ())
 
         for i in rs:
             self.dict_units[index] = i[0]
@@ -160,28 +159,35 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt=None):
 
-        if self.engine.on_fields_control(self) == False: return
+        if self.nametowidget(".").engine.on_fields_control(self) == False: return
 
-        if messagebox.askyesno(self.master.title(), self.engine.ask_to_save, parent=self) == True:
+        if messagebox.askyesno(self.nametowidget(".").title(),
+                               self.nametowidget(".").engine.ask_to_save,
+                               parent=self) == True:
 
             args = self.get_values()
 
             if self.index is not None:
 
-                sql = self.engine.get_update_sql(self.table, self.field)
+                sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.field)
 
                 args.append(self.selected_item[0])
 
             else:
 
-                sql = self.engine.get_insert_sql(self.table, len(args))
+                sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
-            self.engine.write(sql, args)
+            last_id = self.nametowidget(".").engine.write(sql, args)
             self.parent.on_open()
 
             if self.index is not None:
                 self.parent.lstItems.see(self.index)
                 self.parent.lstItems.selection_set(self.index)
+            else:
+                #force focus on listbox
+                idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
+                self.parent.lstItems.selection_set(idx)
+                self.parent.lstItems.see(idx)                 
 
             self.on_cancel()
 

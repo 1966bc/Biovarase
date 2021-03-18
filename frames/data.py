@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the data module of Biovarase."""
 import tkinter as tk
 from tkinter import ttk
@@ -12,27 +13,26 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-09-18"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='data')
+    def __init__(self, parent):
+        super().__init__(name="data")
 
-        self.attributes('-topmost', True)
-        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
-        self.minsize(800, 400)
         self.parent = parent
-        self.engine = kwargs['engine']
+        self.attributes("-topmost", True)
+        self.minsize(800, 400)
+    
         self.data = tk.StringVar()
         self.objs = []
         self.init_ui()
-        self.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
 
 
     def init_ui(self):
 
-        f0 = self.engine.get_frame(self, 8)
+        f0 = self.nametowidget(".").engine.get_frame(self, 8)
 
         f1 = tk.Frame(f0,)
 
@@ -49,7 +49,8 @@ class UI(tk.Toplevel):
                 ["#3", 'Target', 'center', True, 50, 50],
                 ["#4", 'SD', 'center', True, 50, 50],)
 
-        self.lstBatches = self.engine.get_tree(w, cols)
+        self.lstBatches = self.nametowidget(".").engine.get_tree(w, cols)
+        self.lstBatches.tag_configure('is_enable', background='#DFDFDF')
         self.lstBatches.bind("<<TreeviewSelect>>", self.on_selected_batch)
         self.lstBatches.bind("<Double-1>", self.on_batch_activated)
 
@@ -71,28 +72,26 @@ class UI(tk.Toplevel):
                 ["#1", 'Recived', 'w', True, 50, 50],
                 ["#2", 'Result', 'center', True, 50, 50],)
 
-        self.lstResults = self.engine.get_tree(f2, cols)
+        self.lstResults = self.nametowidget(".").engine.get_tree(f2, cols)
+        self.lstResults.tag_configure('is_enable', background=self.nametowidget(".").engine.get_rgb(211, 211, 211))
         self.lstResults.bind("<<TreeviewSelect>>", self.on_result_selected)
         self.lstResults.bind("<Double-1>", self.on_result_activated)
         w.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         f2.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
 
-        w = tk.LabelFrame(self, relief=tk.GROOVE, bd=1, padx=5, pady=5,)
-        self.btnBatch = self.engine.get_button(w, "Batch")
-        self.btnBatch.bind("<Button-1>", self.on_add_batch)
-        self.btnResult = self.engine.get_button(w, "Result")
-        self.btnResult.bind("<Button-1>", self.on_add_result)
-        self.btnReset = self.engine.get_button(w, "Database reset")
-        self.btnReset.bind("<Button-1>", self.on_reset_database)
-        self.btClose = self.engine.get_button(w, "Close")
-        self.btClose.bind("<Button-1>", self.on_cancel)
+
+        w = self.nametowidget(".").engine.get_frame(f0,4)
+
+        bts = [("Batch", 0, self.on_add_batch, "<Alt-b>"),
+               ("Result", 0, self.on_add_result, "<Alt-r>"),
+               ("Close", 0, self.on_cancel, "<Alt-c>")]
+
+        for btn in bts:
+            self.nametowidget(".").engine.get_button(w, btn[0], btn[1]).bind("<Button-1>", btn[2])
+            self.bind(btn[3], btn[2])
+         
         w.pack(fill=tk.BOTH, side=tk.RIGHT)
-
-        self.bind("<Alt-b>", self.on_add_batch)
-        self.bind("<Alt-r>", self.on_add_result)
-        self.bind("<Alt-d>", self.on_reset_database)
-        self.bind("<Alt-c>", self.on_cancel)
-
+        
         f0.pack(fill=tk.BOTH, expand=1, padx=5, pady=5)
 
     def on_open(self,):
@@ -106,7 +105,7 @@ class UI(tk.Toplevel):
 
         sql = "SELECT * FROM lst_tests"
 
-        rs = self.engine.read(True, sql, ())
+        rs = self.nametowidget(".").engine.read(True, sql, ())
         index = 0
         self.dict_tests = {}
         voices = []
@@ -118,11 +117,7 @@ class UI(tk.Toplevel):
 
         self.cbTests['values'] = voices
 
-
     def set_batches(self,):
-
-        self.lstBatches.tag_configure('is_enable', background='#DFDFDF')
-
 
         for i in self.lstBatches.get_children():
             self.lstBatches.delete(i)
@@ -143,34 +138,25 @@ class UI(tk.Toplevel):
                ORDER BY expiration DESC"
 
 
-        rs = self.engine.read(True, sql, (self.selected_test[0],))
+        rs = self.nametowidget(".").engine.read(True, sql, (self.selected_test[0],))
 
         if rs:
             for i in rs:
 
                 if i[5] != 1:
-
-                    self.lstBatches.insert('',
-                                           tk.END,
-                                           iid=i[0],
-                                           text=i[0],
-                                           values=(i[1], i[2], i[3], i[4]),
-                                           tags=('is_enable'))
+                    tag_config = ("is_enable",)
                 else:
+                    tag_config = ("")                     
 
-                    self.lstBatches.insert('',
-                                           tk.END,
-                                           iid=i[0],
-                                           text=i[0],
-                                           values=(i[1], i[2], i[3], i[4]))
 
+                self.lstBatches.insert('', tk.END, iid=i[0], text=i[0],
+                                       values=(i[1], i[2], i[3], i[4]),
+                                       tags = tag_config)
+                
     def set_results(self,):
 
         for i in self.lstResults.get_children():
             self.lstResults.delete(i)
-
-        self.lstResults.tag_configure('is_enable', background=self.engine.get_rgb(211, 211, 211))
-
 
         sql = "SELECT result_id,\
                       strftime('%d-%m-%Y', recived),\
@@ -180,7 +166,7 @@ class UI(tk.Toplevel):
                WHERE batch_id = ?\
                ORDER BY recived DESC"
 
-        rs = self.engine.read(True, sql, (self.selected_batch[0],))
+        rs = self.nametowidget(".").engine.read(True, sql, (self.selected_batch[0],))
         msg = "Batch: {0} Results: {1}".format(self.selected_batch[2], len(rs))
         self.data.set(msg)
 
@@ -188,46 +174,43 @@ class UI(tk.Toplevel):
             for i in rs:
 
                 if i[3] != 1:
-
-                    self.lstResults.insert('',
-                                           tk.END,
-                                           iid=i[0],
-                                           text=i[0],
-                                           values=(i[1], i[2]), tags=('is_enable',))
+                    tag_config = ("is_enable",)
                 else:
-                    self.lstResults.insert('',
-                                           tk.END,
-                                           iid=i[0],
-                                           text=i[0],
-                                           values=(i[1], i[2]))
+                    tag_config = ("")  
+
+
+                self.lstResults.insert("", tk.END, iid=i[0], text=i[0],
+                                       values=(i[1], i[2]),
+                                       tags=tag_config)
+             
 
     def on_selected_test(self, evt):
 
         if self.cbTests.current() != -1:
             index = self.cbTests.current()
             pk = self.dict_tests[index]
-            self.selected_test = self.engine.get_selected('lst_tests', 'test_id', pk)
+            self.selected_test = self.nametowidget(".").engine.get_selected('lst_tests', 'test_id', pk)
             self.set_batches()
 
     def on_selected_batch(self, evt):
 
         if self.lstBatches.focus():
             pk = int(self.lstBatches.item(self.lstBatches.focus())['text'])
-            self.selected_batch = self.engine.get_selected('batches', 'batch_id', pk)
+            self.selected_batch = self.nametowidget(".").engine.get_selected('batches', 'batch_id', pk)
             self.set_results()
 
     def on_result_selected(self, evt):
 
         if self.lstResults.focus():
             pk = int(self.lstResults.item(self.lstResults.focus())['text'])
-            self.selected_result = self.engine.get_selected('results', 'result_id', pk)
+            self.selected_result = self.nametowidget(".").engine.get_selected('results', 'result_id', pk)
 
 
     def on_batch_activated(self, evt):
 
         if self.lstBatches.focus():
             item_iid = self.lstBatches.selection()
-            obj = batch.UI(self, engine=self.engine, index=item_iid)
+            obj = batch.UI(self, item_iid)
             obj.on_open(self.selected_test, self.selected_batch)
             self.objs.append(obj)
 
@@ -236,14 +219,14 @@ class UI(tk.Toplevel):
 
         if self.lstResults.focus():
             item_iid = self.lstResults.selection()
-            obj = result.UI(self, engine=self.engine, index=item_iid)
+            obj = result.UI(self, item_iid)
             obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
             self.objs.append(obj)
 
     def on_add_batch(self, evt):
 
         if self.cbTests.current() != -1:
-            obj = batch.UI(self, engine=self.engine, index=None)
+            obj = batch.UI(self)
             obj.on_open(self.selected_test)
             self.objs.append(obj)
         else:
@@ -254,34 +237,13 @@ class UI(tk.Toplevel):
     def on_add_result(self, evt):
 
         if self.lstBatches.focus():
-            obj = result.UI(self, engine=self.engine, index=None)
+            obj = result.UI(self)
             obj.on_open(self.selected_test, self.selected_batch)
             self.objs.append(obj)
 
         else:
             msg = "Please select a batch."
             messagebox.showwarning(self.master.title(), msg, parent=self)
-
-    def on_reset_database(self, evt):
-
-        msg = "You are about to delete the entire database.\nAre you sure? "
-
-        if messagebox.askyesno(self.master.title(), msg, default='no', parent=self) == True:
-
-            self.engine.dump_db()
-
-            sql = ("DELETE FROM tests",
-                   "DELETE FROM batches",
-                   "DELETE FROM results",
-                   "DELETE FROM rejections",)
-
-            for statement in sql:
-                self.engine.write(statement, ())
-
-            self.parent.on_reset()
-            self.on_cancel()
-        else:
-            messagebox.showinfo(self.master.title(), self.engine.abort, parent=self)
 
     def on_cancel(self, evt=None):
         for obj in self.objs:

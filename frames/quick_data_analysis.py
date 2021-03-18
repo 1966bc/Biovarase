@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the quick_data_analysis module of Biovarase."""
 import tkinter as tk
 from calendarium import Calendarium
@@ -9,26 +10,25 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-8-30"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent):
         super().__init__(name='quick_data_analysis')
 
         self.attributes('-topmost', True)
         self.transient(parent)
         self.resizable(0, 0)
         self.parent = parent
-        self.engine = kwargs['engine']
-        self.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
         self.init_ui()
 
     def init_ui(self):
 
-        w = self.engine.get_init_ui(self)
+        w = self.nametowidget(".").engine.get_init_ui(self)
 
         r = 0
         c = 0
@@ -36,14 +36,14 @@ class UI(tk.Toplevel):
         self.analysis_date = Calendarium(self, "Set a date")
         self.analysis_date.get_calendarium(w, r, c)
 
-        self.engine.get_export_cancel(self, self)
+        self.nametowidget(".").engine.get_export_cancel(self, self)
 
 
     def on_open(self):
 
         sql = "SELECT date(recived) FROM results WHERE enable= 1 ORDER BY recived DESC LIMIT 1;"
 
-        rs = self.engine.read(False, sql,)
+        rs = self.nametowidget(".").engine.read(False, sql,)
 
         msg = "Quick Data Analysis last data {0}".format(rs[0])
 
@@ -59,7 +59,7 @@ class UI(tk.Toplevel):
         if self.analysis_date.get_date(self) == False: return
 
         args = (self.analysis_date.get_date(self),)
-        self.engine.get_quick_data_analysis(args)
+        self.nametowidget(".").engine.get_quick_data_analysis(args)
         self.on_cancel()
 
     def on_cancel(self, evt=None):

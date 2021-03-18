@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the tea module of Biovarase."""
 import tkinter as tk
 
@@ -17,30 +18,27 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-08-25"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='tea')
+    def __init__(self, parent):
+        super().__init__(name="tea")
 
         self.parent = parent
-        self.engine = kwargs['engine']
         self.minsize(1200, 600)
-        self.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
         self.init_ui()
 
 
     def init_ui(self):
 
-        f0 = self.engine.get_frame(self)
+        f0 = self.nametowidget(".").engine.get_frame(self)
 
         #create graph!
         #Figure: The top level container for all the plot elements.
-        #figsize:width, height in inches, figsize=(6.4, 4.8)
         self.fig = Figure()
-        #fig.suptitle(self.engine.title, fontsize=20,fontweight='bold')
         #self.fig.subplots_adjust(bottom=0.10, right=0.98, left=0.10, top=0.88,wspace=0.08)
         self.fig.subplots_adjust(hspace=0.65, left=0.125, right=0.9)
         self.canvas = FigureCanvasTkAgg(self.fig, f0)
@@ -81,7 +79,7 @@ class UI(tk.Toplevel):
                ORDER BY expiration DESC"
 
         args = (selected_test[0],)
-        rs = self.engine.read(True, sql, args)
+        rs = self.nametowidget(".").engine.read(True, sql, args)
 
         if rs:
 
@@ -99,21 +97,21 @@ class UI(tk.Toplevel):
 
         for batch in batches:
 
-            rs = self.engine.read(True, sql, ((batch[0], int(self.engine.get_elements()))))
+            rs = self.nametowidget(".").engine.read(True, sql, ((batch[0], int(self.nametowidget(".").engine.get_elements()))))
 
             if rs:
                 target = batch[4]
                 sd = batch[5]
-                series = self.engine.get_series(batch[0], int(self.engine.get_elements()))
-                mean = self.engine.get_mean(series)
-                cv = self.engine.get_cv(series)
-                ets = self.engine.get_te(target, mean, cv)
+                series = self.nametowidget(".").engine.get_series(batch[0], int(self.nametowidget(".").engine.get_elements()))
+                mean = self.nametowidget(".").engine.get_mean(series)
+                cv = self.nametowidget(".").engine.get_cv(series)
+                ets = self.nametowidget(".").engine.get_te(target, mean, cv)
                 x_labels = self.get_x_labels(rs)
 
                 #compute upper and lower limits
-                tea = self.engine.get_tea(self.cvw, self.cvb)
-                x = self.engine.percentage(tea, target)
-                y = self.engine.percentage(4, x)
+                tea = self.nametowidget(".").engine.get_tea(self.cvw, self.cvb)
+                x = self.nametowidget(".").engine.percentage(tea, target)
+                y = self.nametowidget(".").engine.percentage(4, x)
                 #print(x,y)
                 upper_limit = round(target + (x+y), 2)
                 lower_limit = round(target - (x+y), 2)
@@ -126,7 +124,7 @@ class UI(tk.Toplevel):
                              series,
                              len(series),
                              mean,
-                             self.engine.get_sd(series),
+                             self.nametowidget(".").engine.get_sd(series),
                              cv,
                              x_labels[0],
                              x_labels[1],
@@ -175,8 +173,6 @@ class UI(tk.Toplevel):
 
         #it's show time
         obj.set_xticks(range(0, len(series)+1))
-        #obj.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
-        #obj.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
         obj.set_xticklabels(x_labels, rotation=70, size=6)
         obj.plot(series, marker="8", label='data')
 
@@ -200,7 +196,7 @@ class UI(tk.Toplevel):
                          lower_limit,
                          tea,
                          ets,
-                         self.engine.get_zscore())
+                         self.nametowidget(".").engine.get_zscore())
 
         obj.set_title(title, loc='left')
 
@@ -216,7 +212,7 @@ class UI(tk.Toplevel):
     def get_um(self, unit_id):
 
         sql = "SELECT unit FROM units WHERE unit_id =?"
-        return self.engine.read(False, sql, (unit_id,))
+        return self.nametowidget(".").engine.read(False, sql, (unit_id,))
 
 
     def on_cancel(self, evt=None):

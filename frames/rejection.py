@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the action rejection of Biovarase."""
 import tkinter as tk
 from tkinter import ttk
@@ -11,26 +12,27 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-25"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='rejection')
+    def __init__(self, parent, index=None):
+        super().__init__(name="rejection")
 
+        self.attributes('-topmost', True)
         self.parent = parent
-        self.engine = kwargs['engine']
-        self.index = kwargs['index']
-        self.resizable(0, 0)
+        self.index = index
         self.transient(parent)
+        self.resizable(0, 0)
+
         self.description = tk.StringVar()
         self.enable = tk.BooleanVar()
         self.init_ui()
-        self.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
 
     def init_ui(self):
 
-        w = self.engine.get_init_ui(self)
+        w = self.nametowidget(".").engine.get_init_ui(self)
 
         r = 0
         c = 1
@@ -54,9 +56,9 @@ class UI(tk.Toplevel):
         chk.grid(row=r, column=c, sticky=tk.W)
 
         if self.index is not None:
-            self.engine.get_save_cancel_delete(self, w)
+            self.nametowidget(".").engine.get_save_cancel_delete(self, w)
         else:
-            self.engine.get_save_cancel(self, w)
+            self.nametowidget(".").engine.get_save_cancel(self, w)
 
     def on_open(self, selected_test, selected_batch, selected_result, selected_rejection=None):
 
@@ -68,10 +70,10 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             self.selected_rejection = selected_rejection
-            msg = "Update rejection"
+            msg = "Update {0}".format(self.winfo_name())
             self.set_values()
         else:
-            msg = "Add rejection"
+            msg = "Add {0}".format(self.winfo_name())
             self.enable.set(1)
             self.modified_date.set_today()
 
@@ -81,38 +83,45 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt=None):
 
-        if self.engine.on_fields_control(self) == False: return
+        if self.nametowidget(".").engine.on_fields_control(self) == False: return
         if self.modified_date.get_date(self) == False: return
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+        if messagebox.askyesno(self.nametowidget(".").title(),
+                               self.nametowidget(".").engine.ask_to_save,
+                               parent=self) == True:
 
             args = self.get_values()
 
             if self.index is not None:
 
-                sql = self.engine.get_update_sql('rejections', 'rejection_id')
+                sql = self.nametowidget(".").engine.get_update_sql('rejections', 'rejection_id')
 
                 args = (*args, self.selected_rejection[0])
 
             else:
-                sql = self.engine.get_insert_sql('rejections', len(args))
+                sql = self.nametowidget(".").engine.get_insert_sql('rejections', len(args))
 
-            self.engine.write(sql, args)
+            last_id = self.nametowidget(".").engine.write(sql, args)
             self.parent.on_open(self.selected_test, self.selected_batch, self.selected_result)
 
             if self.index is not None:
                 self.parent.lstItems.see(self.index)
                 self.parent.lstItems.selection_set(self.index)
+            else:
+                #force focus on listbox
+                idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
+                self.parent.lstItems.selection_set(idx)
+                self.parent.lstItems.see(idx)                  
 
             self.on_cancel()
 
     def on_delete(self, evt=None):
 
         if self.index is not None:
-            if messagebox.askyesno(self.engine.title, self.engine.delete, parent=self) == True:
+            if messagebox.askyesno(self.master.title(), self.nametowidget(".").engine.delete, parent=self) == True:
 
                 sql = "DELETE FROM rejections WHERE rejection_id =?"
                 args = (self.selected_rejection[0],)
-                self.engine.write(sql, args)
+                self.nametowidget(".").engine.write(sql, args)
                 self.parent.on_open(self.selected_test, self.selected_batch, self.selected_result)
 
                 if self.index is not None:
@@ -122,7 +131,7 @@ class UI(tk.Toplevel):
                 self.on_cancel()
 
             else:
-                messagebox.showinfo(self.engine.title, self.engine.abort, parent=self)
+                messagebox.showinfo(self.master.title(), self.engine.abort, parent=self)
 
     def set_actions(self):
 
@@ -131,7 +140,7 @@ class UI(tk.Toplevel):
         self.dict_actions = {}
 
         sql = "SELECT action_id, action FROM actions ORDER BY action ASC"
-        rs = self.engine.read(True, sql, ())
+        rs = self.nametowidget(".").engine.read(True, sql, ())
 
         for i in rs:
             self.dict_actions[index] = i[0]

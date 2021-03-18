@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the zscore module of Biovarase."""
 import tkinter as tk
 
@@ -8,24 +9,24 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-24"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, engine, index=None):
-        super().__init__(name='zscore')
+    def __init__(self, parent, index=None):
+        super().__init__(name="zscore")
 
-        self.attributes('-topmost', True)
+        self.parent = parent
+        self.attributes("-topmost", True)
         self.transient(parent)
         self.resizable(0, 0)
-        self.engine = engine
-        self.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
         self.init_ui()
 
 
     def init_ui(self):
 
-        w = self.engine.get_init_ui(self)
+        w = self.nametowidget(".").engine.get_init_ui(self)
 
         items = ("Z-Score", "2.33", "2.05", "0.75", "1.88", "1.75", "1.65")
 

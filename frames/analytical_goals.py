@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the analitical_goals module of Biovarase."""
 import tkinter as tk
 from tkinter import ttk
@@ -10,26 +11,26 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-10-18"
+__date__ = "2021-03-14"
 __status__ = "Production"
 
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent):
         super().__init__(name='analytical_goals')
 
-        self.resizable(0, 0)
         self.parent = parent
-        self.engine = kwargs['engine']
+        self.attributes('-topmost', True)
+        self.resizable(0, 0)
         self.elements = tk.IntVar()
-        self.vcmd = self.engine.get_validate_integer(self)
+        self.vcmd = self.nametowidget(".").engine.get_validate_integer(self)
         self.init_ui()
-        self.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
 
 
     def init_ui(self):
 
-        w = self.engine.get_frame(self, 8)
+        w = self.nametowidget(".").engine.get_frame(self, 8)
 
         f = tk.LabelFrame(w, text='Set elements to export', font='Helvetica 10 bold')
 
@@ -41,10 +42,10 @@ class UI(tk.Toplevel):
 
         f.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
 
-        bts = [('Export', self.on_save), ('Close', self.on_cancel)]
+        bts = [('Export', self.on_export), ('Close', self.on_cancel)]
 
         for btn in bts:
-            self.engine.get_button(w, btn[0]).bind("<Button-1>", btn[1])
+            self.nametowidget(".").engine.get_button(w, btn[0]).bind("<Button-1>", btn[1])
 
         w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
@@ -52,14 +53,12 @@ class UI(tk.Toplevel):
     def on_open(self):
 
         self.title("Analytical Goals")
-        self.elements.set(self.engine.get_elements())
+        self.elements.set(self.nametowidget(".").engine.get_elements())
         self.txElements.focus()
 
+    def on_export(self, evt=None):
 
-    def on_save(self, evt=None):
-
-
-        if self.engine.on_fields_control(self) == False: return
+        if self.nametowidget(".").engine.on_fields_control(self) == False: return
 
         sql = "SELECT batches.batch_id,\
                          samples.sample,\
@@ -82,14 +81,14 @@ class UI(tk.Toplevel):
                ORDER BY tests.test,samples.sample"
 
         limit = int(self.elements.get())
-        rs = self.engine.read(True, sql, ())
+        rs = self.nametowidget(".").engine.read(True, sql, ())
 
         if rs:
-            self.engine.get_analitical_goals(limit, rs)
+            self.nametowidget(".").engine.get_analitical_goals(limit, rs)
             self.on_cancel()
         else:
             msg = "No record data to compute analytical goals."
-            messagebox.showwarning(self.engine.title, msg, parent=self)
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
 
     def on_cancel(self, evt=None):
         self.destroy()
