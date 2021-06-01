@@ -913,7 +913,7 @@ class Biovarase(ttk.Frame):
             messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
 
     def on_dump(self):
-        self.nametowidget(".").engine.dump()
+        self.nametowidget(".").engine.dump_db()
         messagebox.showinfo(self.nametowidget(".").title(), "Dump executed.", parent=self)
 
     def on_vacuum(self):
