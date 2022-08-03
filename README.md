@@ -2,6 +2,7 @@
 [![Tkinter](https://img.shields.io/badge/Tkinter%20-green.svg)](https://docs.python.org/3/library/tk.html)
 [![Matplotlib](https://img.shields.io/badge/Matplotlib%20-red.svg)](https://matplotlib.org/)
 [![license](https://img.shields.io/badge/license-GPL%203-orange.svg)](./LICENSE)
+![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
 
 # Biovarase
 
