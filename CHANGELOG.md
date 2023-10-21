@@ -1,6 +1,19 @@
 # Biovarase
 ## changelog
 
+**2023-10-21**
+
+Hello, after a long time here is a new version of Biovarase.
+
+Among the new features we have , access to the program through a login mask, management of the results depending on the instrument on which the tests are performed the automatic audit trail for the batches and results table and the management of all this multi site...
+
+Now for starters, once you download the source code and launch the program to login you can use comu user "adm"
+
+To add a user from the meu bar under the "Admin" voice locate the "Users" item. When you add a user the default password is "pass".Also when you reset a password the password assigned will be "pass"
+
+An explanation of all the new features will follow soon...I hope ;)
+
+
 **2021-03-18**
 
 Changed the way to pass the engine.py class to the whole app.
