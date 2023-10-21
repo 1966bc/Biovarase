@@ -1,1 +1,1 @@
-#FILE: gui/__init__.py
+#Biovarase frames init file
