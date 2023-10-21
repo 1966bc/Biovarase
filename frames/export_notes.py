@@ -12,14 +12,14 @@ from tkinter import messagebox
 from calendarium import Calendarium
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, index=None):
-        super().__init__(name="quick_data_analysis")
+    def __init__(self, parent,):
+        super().__init__(name="export_notes")
 
         self.parent = parent
         self.attributes('-topmost', True)
         self.transient(parent)
         self.resizable(0, 0)
-        
+
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
@@ -38,8 +38,8 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
-        self.analysis_date = Calendarium(self, "Set a date:")
-        self.analysis_date.get_calendarium(frm_left, r, c)
+        self.start_date = Calendarium(self, "Export From:")
+        self.start_date.get_calendarium(frm_left, r, c)
 
         frm_buttons = ttk.Frame(self.frm_main, style="App.TFrame")
         frm_buttons.grid(row=0, column=1, sticky=tk.NS, **paddings)
@@ -57,16 +57,17 @@ class UI(tk.Toplevel):
 
     def on_open(self):
 
-        self.analysis_date.set_today()
-        self.title("Quick Data Analysis")
+        self.start_date.set_today()
+        self.title("Export Notes Data")
 
     def on_export(self, evt=None):
 
-        if self.analysis_date.get_date(self) == False: return
+        if self.start_date.get_date(self) == False: return
+        if messagebox.askyesno(self.nametowidget(".").title(), "Export data?", parent=self) == True:
 
-        args = (self.analysis_date.get_date(self),)
-        self.nametowidget(".").engine.quick_data_analysis(args)
-        self.on_cancel()
+            args = (self.start_date.get_date(self), self.nametowidget(".").engine.get_section_id())
+            self.nametowidget(".").engine.get_notes(args)
+            self.on_cancel()
 
     def on_cancel(self, evt=None):
         self.destroy()

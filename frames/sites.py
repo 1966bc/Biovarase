@@ -10,18 +10,18 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import frames.test as ui
+import frames.site as ui
 
 
 class UI(tk.Toplevel):
     def __init__(self, parent,):
-        super().__init__(name="tests")
+        super().__init__(name="sites")
 
         self.parent = parent
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.attributes("-topmost", True)
-        self.table = "tests"
-        self.primary_key = "test_id"
+        self.table = "sites"
+        self.primary_key = "site_id"
         self.obj = None
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
@@ -34,9 +34,9 @@ class UI(tk.Toplevel):
 
         self.lblTests = tk.LabelFrame(frm_left, text="Tests")
         
-        cols = (["#0", 'test_id', 'w', False, 0, 0],
-                ["#1", 'Test', 'w', True, 200, 200],
-                ["#2", 'Specialities', 'w', True, 100, 100],)
+        cols = (["#0", 'Site ID', 'w', False, 80, 80],
+                ["#1", 'Company', 'w', True, 200, 200],
+                ["#2", 'Site', 'w', True, 200, 200],)
 
         self.lstItems = self.nametowidget(".").engine.get_tree(frm_left, cols)
         self.lstItems.tag_configure('status', background=self.nametowidget(".").engine.get_rgb(211, 211, 211))
@@ -72,13 +72,14 @@ class UI(tk.Toplevel):
             self.lstItems.delete(i)
 
 
-        sql = "SELECT tests.test_id,\
-                      tests.test,\
-                      specialities.description,\
-                      tests.status\
-               FROM tests\
-               INNER JOIN specialities ON tests.speciality_id = specialities.speciality_id\
-               ORDER BY tests.test ASC;"
+        sql = "SELECT sites.site_id,\
+                      companies.supplier AS company,\
+                      suppliers.supplier AS site,\
+                      sites.status\
+               FROM sites\
+               INNER JOIN suppliers AS companies ON companies.supplier_id = sites.supplier_id\
+               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
+               ORDER BY company ASC;"
 
         rs = self.nametowidget(".").engine.read(True, sql, ())
 
@@ -95,7 +96,7 @@ class UI(tk.Toplevel):
                                      values=(i[1], i[2], ),
                                      tags=tag_config)
 
-        s = "{0} {1}".format("Tests", len(self.lstItems.get_children()))
+        s = "{0} {1}".format("Sites", len(self.lstItems.get_children()))
         self.lblTests["text"] = s
            
 
@@ -118,7 +119,7 @@ class UI(tk.Toplevel):
         if self.lstItems.focus():
             item_iid = self.lstItems.selection()
             self.obj = ui.UI(self, item_iid)
-            self.obj.on_open(self.selected_item,)
+            self.obj.on_open()
 
         else:
             messagebox.showwarning(self.nametowidget(".").title(),

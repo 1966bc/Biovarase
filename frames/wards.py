@@ -10,18 +10,18 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-import frames.unit as ui
+import frames.ward as ui
 
-SQL = "SELECT unit_id, unit, status FROM units ORDER BY unit;"
+SQL = "SELECT ward_id, ward, status FROM wards ORDER BY ward;"
 
 class UI(tk.Toplevel):
-    def __init__(self, parent,):
-        super().__init__(name="units")
+    def __init__(self, parent):
+        super().__init__(name="wards")
 
         self.parent = parent
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
-        self.table = "units"
-        self.field = "unit_id"
+        self.table = "wards"
+        self.field = "ward_id"
         self.obj = None
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
@@ -87,9 +87,6 @@ class UI(tk.Toplevel):
         self.obj = ui.UI(self,)
         self.obj.on_open()
         
-    def on_edit(self, evt):
-        self.on_item_activated()
-
     def on_item_selected(self, evt=None):
 
         if self.lstItems.curselection():

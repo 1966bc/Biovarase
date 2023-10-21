@@ -5,7 +5,6 @@
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   autumn MMXXIII
 #-----------------------------------------------------------------------------
-
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -13,7 +12,7 @@ from tkinter import messagebox
 
 class UI(tk.Toplevel):
     def __init__(self, parent, index=None):
-        super().__init__(name="action")
+        super().__init__(name="method")
 
         self.parent = parent
         self.index = index
@@ -21,6 +20,7 @@ class UI(tk.Toplevel):
         self.resizable(0, 0)
         self.item = tk.StringVar()
         self.status = tk.BooleanVar()
+        
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
@@ -39,14 +39,14 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
-        ttk.Label(frm_left, text="Unit:").grid(row=r, sticky=tk.W)
-        self.txtItem = ttk.Entry(frm_left, textvariable=self.item)
-        self.txtItem.grid(row=r, column=c, sticky=tk.EW, **paddings)
+        ttk.Label(frm_left, text="Method:").grid(row=r, sticky=tk.W)
+        self.txItem = ttk.Entry(frm_left, textvariable=self.item)
+        self.txItem.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
         ttk.Label(frm_left, text="Status:").grid(row=r, sticky=tk.W)
         chk = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.status,)
-        chk.grid(row=r, column=c, sticky=tk.EW, **paddings)
+        chk.grid(row=r, column=1, sticky=tk.W)
 
         frm_buttons = ttk.Frame(self.frm_main, style="App.TFrame")
         frm_buttons.grid(row=0, column=1, sticky=tk.NS, **paddings)
@@ -62,34 +62,34 @@ class UI(tk.Toplevel):
         self.bind("<Alt-c>", self.on_cancel)
         btn_cancel.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
-    def on_open(self):
+    def on_open(self, selected_item=None):
 
         if self.index is not None:
+            self.selected_item = selected_item
             msg = "Update {0}".format(self.winfo_name().title())
             self.set_values()
         else:
-            msg = "Add {0}".format(self.winfo_name().title())
+            msg = "Insert {0}".format(self.winfo_name().title())
             self.status.set(1)
 
         self.title(msg)
-        self.txtItem.focus()
+        self.txItem.focus()
 
     def set_values(self,):
 
-        self.item.set(self.parent.selected_item[1])
-        self.status.set(self.parent.selected_item[2])
+        self.item.set(self.selected_item[1])
+        self.status.set(self.selected_item[2])
 
     def get_values(self,):
 
-        return [self.item.get(), self.status.get(),]
+        return [self.item.get(),
+                self.status.get(),]
 
     def on_save(self, evt=None):
 
         if self.nametowidget(".").engine.on_fields_control(self.frm_main, self.nametowidget(".").title()) == False: return
 
-        if messagebox.askyesno(self.nametowidget(".").title(),
-                               self.nametowidget(".").engine.ask_to_save,
-                               parent=self) == True:
+        if messagebox.askyesno(self.nametowidget(".").title(), self.nametowidget(".").engine.ask_to_save, parent=self) == True:
 
             args = self.get_values()
 
@@ -97,7 +97,7 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
-                args.append(self.parent.selected_item[0])
+                args.append(self.selected_item[0])
 
             else:
 
@@ -110,7 +110,7 @@ class UI(tk.Toplevel):
                 self.parent.lstItems.see(self.index)
                 self.parent.lstItems.selection_set(self.index)
             else:
-                #force focus on parent listbox
+                #force focus on listbox
                 idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
                 self.parent.lstItems.selection_set(idx)
                 self.parent.lstItems.see(idx)

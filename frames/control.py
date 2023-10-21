@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 #-----------------------------------------------------------------------------
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   autumn MMXXIII
 #-----------------------------------------------------------------------------
-
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -13,19 +11,21 @@ from tkinter import messagebox
 
 class UI(tk.Toplevel):
     def __init__(self, parent, index=None):
-        super().__init__(name="action")
+        super().__init__(name="control")
 
         self.parent = parent
         self.index = index
         self.transient(parent)
         self.resizable(0, 0)
-        self.item = tk.StringVar()
+        self.description = tk.StringVar()
+        self.reference = tk.StringVar()
         self.status = tk.BooleanVar()
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
+
 
     def init_ui(self):
 
@@ -39,15 +39,25 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
-        ttk.Label(frm_left, text="Unit:").grid(row=r, sticky=tk.W)
-        self.txtItem = ttk.Entry(frm_left, textvariable=self.item)
-        self.txtItem.grid(row=r, column=c, sticky=tk.EW, **paddings)
+        ttk.Label(frm_left, text="Suppliers:").grid(row=r, sticky=tk.W)
+        self.cbSuppliers = ttk.Combobox(frm_left,)
+        self.cbSuppliers.grid(row=r, column=c, sticky=tk.EW, padx=5, pady=5)
+
+        r += 1
+        ttk.Label(frm_left, text="Description:").grid(row=r, sticky=tk.W)
+        self.txDescription = ttk.Entry(frm_left, textvariable=self.description)
+        self.txDescription.grid(row=r, column=c, sticky=tk.EW, padx=5, pady=5)
+
+        r += 1
+        ttk.Label(frm_left, text="Reference:").grid(row=r, sticky=tk.W)
+        ent_reference = ttk.Entry(frm_left, textvariable=self.reference)
+        ent_reference.grid(row=r, column=c, sticky=tk.EW, padx=5, pady=5)
 
         r += 1
         ttk.Label(frm_left, text="Status:").grid(row=r, sticky=tk.W)
-        chk = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.status,)
-        chk.grid(row=r, column=c, sticky=tk.EW, **paddings)
-
+        chk_status = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.status,)
+        chk_status.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        
         frm_buttons = ttk.Frame(self.frm_main, style="App.TFrame")
         frm_buttons.grid(row=0, column=1, sticky=tk.NS, **paddings)
         
@@ -62,26 +72,62 @@ class UI(tk.Toplevel):
         self.bind("<Alt-c>", self.on_cancel)
         btn_cancel.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
-    def on_open(self):
+    def on_open(self, ):
+
+        self.set_suppliers()
 
         if self.index is not None:
-            msg = "Update {0}".format(self.winfo_name().title())
+            msg = "Update {0}".format(self.winfo_name().capitalize())
             self.set_values()
         else:
-            msg = "Add {0}".format(self.winfo_name().title())
+            msg = "Insert {0}".format(self.winfo_name().capitalize())
             self.status.set(1)
 
         self.title(msg)
-        self.txtItem.focus()
+        self.cbSuppliers.focus()
 
-    def set_values(self,):
+    def set_suppliers(self):
 
-        self.item.set(self.parent.selected_item[1])
-        self.status.set(self.parent.selected_item[2])
+        index = 0
+        self.dict_suppliers = {}
+        values = []
+
+        sql = "SELECT supplier_id, supplier\
+               FROM suppliers\
+               WHERE status =1\
+               ORDER BY supplier;"
+        
+        rs = self.nametowidget(".").engine.read(True, sql, ())
+        
+        for i in rs:
+            self.dict_suppliers[index] = i[0]
+            index += 1
+            values.append(i[1])
+
+        self.cbSuppliers['values'] = values
+
 
     def get_values(self,):
 
-        return [self.item.get(), self.status.get(),]
+        return [self.dict_suppliers[self.cbSuppliers.current()],
+                self.description.get(),
+                self.reference.get(),
+                self.status.get()]
+
+    def set_values(self,):
+
+        try:
+            key = next(key
+                       for key, value
+                       in self.dict_suppliers.items()
+                       if value == self.parent.selected_item[1])
+            self.cbSuppliers.current(key)
+        except:
+            pass
+
+        self.description.set(self.parent.selected_item[2])
+        self.reference.set(self.parent.selected_item[3])
+        self.status.set(self.parent.selected_item[4])
 
     def on_save(self, evt=None):
 
@@ -110,10 +156,8 @@ class UI(tk.Toplevel):
                 self.parent.lstItems.see(self.index)
                 self.parent.lstItems.selection_set(self.index)
             else:
-                #force focus on parent listbox
-                idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
-                self.parent.lstItems.selection_set(idx)
-                self.parent.lstItems.see(idx)
+                self.parent.lstItems.see(last_id)                
+                self.parent.lstItems.selection_set(last_id)            
 
             self.on_cancel()
 

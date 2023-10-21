@@ -5,23 +5,21 @@
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   autumn MMXXIII
 #-----------------------------------------------------------------------------
-
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+import frames.method as ui
 
-import frames.unit as ui
-
-SQL = "SELECT unit_id, unit, status FROM units ORDER BY unit;"
+SQL = "SELECT * FROM methods ORDER BY method;"
 
 class UI(tk.Toplevel):
-    def __init__(self, parent,):
-        super().__init__(name="units")
+    def __init__(self, parent):
+        super().__init__(name="methods")
 
         self.parent = parent
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
-        self.table = "units"
-        self.field = "unit_id"
+        self.table = "methods"
+        self.primary_key = "method_id"
         self.obj = None
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
@@ -68,7 +66,7 @@ class UI(tk.Toplevel):
         self.lstItems.delete(0, tk.END)
         index = 0
         self.dict_items = {}
-        
+
         rs = self.nametowidget(".").engine.read(True, SQL, ())
 
         if rs:
@@ -86,9 +84,6 @@ class UI(tk.Toplevel):
 
         self.obj = ui.UI(self,)
         self.obj.on_open()
-        
-    def on_edit(self, evt):
-        self.on_item_activated()
 
     def on_item_selected(self, evt=None):
 
@@ -96,7 +91,7 @@ class UI(tk.Toplevel):
             index = self.lstItems.curselection()[0]
             pk = self.dict_items.get(index)
             self.selected_item = self.nametowidget(".").engine.get_selected(self.table,
-                                                                            self.field,
+                                                                            self.primary_key,
                                                                             pk)
 
     def on_item_activated(self, evt=None):
@@ -109,7 +104,7 @@ class UI(tk.Toplevel):
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
                                    self.nametowidget(".").engine.no_selected,
-                                   parent=self)            
+                                   parent=self)
 
     def on_cancel(self, evt=None):
         if self.obj is not None:

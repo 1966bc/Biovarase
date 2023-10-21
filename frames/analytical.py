@@ -1,38 +1,40 @@
-# -*- coding: utf-8 -*-
-""" This is the analytical module of Biovarase.
-It shows analyticak goals rules"""
+#-----------------------------------------------------------------------------
+# project:  biovarase
+# authors:  1966bc
+# mailto:   [giuseppecostanzi@gmail.com]
+# modify:   autumn 2019
+#-----------------------------------------------------------------------------
 import tkinter as tk
-
-__author__ = "1966bc aka giuseppe costanzi"
-__copyright__ = "Copyleft"
-__credits__ = ["hal9000",]
-__license__ = "GNU GPL Version 3, 29 June 2007"
-__version__ = "4.2"
-__maintainer__ = "1966bc"
-__email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2021-03-14"
-__status__ = "Production"
+from tkinter import ttk
 
 class UI(tk.Toplevel):
-    def __init__(self, parent):
+    def __init__(self, parent,):
         super().__init__(name="analitical")
 
         self.parent = parent
-        self.attributes("-topmost", True)
+        self.attributes('-topmost', True)
+        self.transient(parent) 
         self.resizable(0, 0)
-        self.init_ui()
         self.nametowidget(".").engine.center_me(self)
+        self.init_ui()
 
     def init_ui(self):
 
-        w = self.nametowidget(".").engine.get_init_ui(self)
+        paddings = {"padx": 5, "pady": 5}
+
+        self.frm_main = ttk.Frame(self, style="App.TFrame", padding=8)
+        self.frm_main.grid(row=0, column=0)
+
+        frm_left = ttk.Frame(self.frm_main, style="App.TFrame")
+        frm_left.grid(row=0, column=0, sticky=tk.NS, **paddings)
+
 
         items = (("k CV:", None), ("0.25", "green"), ("0.50", "yellow"), ("0.75", "red"),)
 
         r = 0
         c = 0
         for i in items:
-            tk.Label(w, bg=i[1], text=i[0]).grid(row=r, column=c, sticky=tk.W, padx=10, pady=10)
+            tk.Label(frm_left, bg=i[1], text=i[0]).grid(row=r, column=c, sticky=tk.W, padx=10, pady=10)
             r += 1
 
 
@@ -42,17 +44,18 @@ class UI(tk.Toplevel):
         r = 0
         c = 1
         for i in items:
-            tk.Label(w, bg=i[1], text=i[0]).grid(row=r, column=c, sticky=tk.W, padx=10, pady=10)
+            tk.Label(frm_left, bg=i[1], text=i[0]).grid(row=r, column=c, sticky=tk.W, padx=10, pady=10)
             r += 1
 
         items = (("Eta:", None),
                  ("ETa < 1.65 (0.25 CVi) + 0.125 (CVi2+ CVg2) ½ ", "green"),
-                 ("ETa < 1.65 (0.50 CVi) + 0.25 (CVi2 + CVg2) ½", "yellow"), ("ETa < 1.65 (0.75 CVi) + 0.375 (CVi2+ CVg2) ½", "red"),)
+                 ("ETa < 1.65 (0.50 CVi) + 0.25 (CVi2 + CVg2) ½", "yellow"), 
+                 ("ETa < 1.65 (0.75 CVi) + 0.375 (CVi2+ CVg2) ½", "red"),)
 
         r = 0
         c = 2
         for i in items:
-            tk.Label(w, bg=i[1], text=i[0]).grid(row=r, column=c, sticky=tk.W, padx=10, pady=10)
+            tk.Label(frm_left, bg=i[1], text=i[0]).grid(row=r, column=c, sticky=tk.W, padx=10, pady=10)
             r += 1
 
 

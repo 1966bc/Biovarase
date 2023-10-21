@@ -10,18 +10,19 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-import frames.unit as ui
+import frames.supplier as ui
 
-SQL = "SELECT unit_id, unit, status FROM units ORDER BY unit;"
+SQL = "SELECT * FROM suppliers ORDER BY supplier;"
 
 class UI(tk.Toplevel):
-    def __init__(self, parent,):
-        super().__init__(name="units")
+    def __init__(self, parent):
+        super().__init__(name="suppliers")
 
         self.parent = parent
+        self.attributes("-topmost", True)
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
-        self.table = "units"
-        self.field = "unit_id"
+        self.table = "suppliers"
+        self.primary_key = "supplier_id"
         self.obj = None
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
@@ -75,7 +76,7 @@ class UI(tk.Toplevel):
             self.lstItems.delete(0, tk.END)
 
             for i in rs:
-                s = "{:}".format(i[1])
+                s = "{0}".format(i[1])
                 self.lstItems.insert(tk.END, s)
                 if i[2] != 1:
                     self.lstItems.itemconfig(index, {"bg":"light gray"})
@@ -87,16 +88,13 @@ class UI(tk.Toplevel):
         self.obj = ui.UI(self,)
         self.obj.on_open()
         
-    def on_edit(self, evt):
-        self.on_item_activated()
-
     def on_item_selected(self, evt=None):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
             pk = self.dict_items.get(index)
             self.selected_item = self.nametowidget(".").engine.get_selected(self.table,
-                                                                            self.field,
+                                                                            self.primary_key,
                                                                             pk)
 
     def on_item_activated(self, evt=None):
@@ -104,7 +102,7 @@ class UI(tk.Toplevel):
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
             self.obj = ui.UI(self, index)
-            self.obj.on_open(self.selected_item,)
+            self.obj.on_open()
 
         else:
             messagebox.showwarning(self.nametowidget(".").title(),

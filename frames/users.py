@@ -5,24 +5,29 @@
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   autumn MMXXIII
 #-----------------------------------------------------------------------------
-
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-import frames.unit as ui
+import frames.user as ui
 
-SQL = "SELECT unit_id, unit, status FROM units ORDER BY unit;"
+SQL = "SELECT user_id, last_name, first_name, status\
+       FROM users\
+       ORDER BY last_name;"
 
 class UI(tk.Toplevel):
-    def __init__(self, parent,):
-        super().__init__(name="units")
+    def __init__(self, parent):
+        super().__init__(name="users")
 
         self.parent = parent
+        self.attributes("-topmost", True)
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
-        self.table = "units"
-        self.field = "unit_id"
+        
+        self.table = "users"
+        self.primary_key = "user_id"
+        self.items = tk.IntVar()
         self.obj = None
+
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
 
@@ -68,27 +73,27 @@ class UI(tk.Toplevel):
         self.lstItems.delete(0, tk.END)
         index = 0
         self.dict_items = {}
-        
+
         rs = self.nametowidget(".").engine.read(True, SQL, ())
 
         if rs:
             self.lstItems.delete(0, tk.END)
 
             for i in rs:
-                s = "{:}".format(i[1])
+                s = "{:}, {:}".format(i[1], i[2])
                 self.lstItems.insert(tk.END, s)
-                if i[2] != 1:
+                if i[3] != 1:
                     self.lstItems.itemconfig(index, {"bg":"light gray"})
                 self.dict_items[index] = i[0]
                 index += 1
 
+        msg = ("Users: {0}".format(self.lstItems.size()))
+        self.items.set(msg)
+
     def on_add(self, evt=None):
 
-        self.obj = ui.UI(self,)
+        self.obj = ui.UI(self)
         self.obj.on_open()
-        
-    def on_edit(self, evt):
-        self.on_item_activated()
 
     def on_item_selected(self, evt=None):
 
@@ -96,7 +101,7 @@ class UI(tk.Toplevel):
             index = self.lstItems.curselection()[0]
             pk = self.dict_items.get(index)
             self.selected_item = self.nametowidget(".").engine.get_selected(self.table,
-                                                                            self.field,
+                                                                            self.primary_key,
                                                                             pk)
 
     def on_item_activated(self, evt=None):
@@ -104,12 +109,12 @@ class UI(tk.Toplevel):
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
             self.obj = ui.UI(self, index)
-            self.obj.on_open(self.selected_item,)
+            self.obj.on_open()
 
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
                                    self.nametowidget(".").engine.no_selected,
-                                   parent=self)            
+                                   parent=self)
 
     def on_cancel(self, evt=None):
         if self.obj is not None:

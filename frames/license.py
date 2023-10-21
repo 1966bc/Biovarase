@@ -1,17 +1,12 @@
-# -*- coding: utf-8 -*-
-""" This is the license module of Biovarase."""
+#-----------------------------------------------------------------------------
+# project:  biovarase
+# authors:  1966bc
+# mailto:   [giuseppecostanzi@gmail.com]
+# modify:   autumn MMXXIII
+#-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
-
-__author__ = "1966bc aka giuseppe costanzi"
-__copyright__ = "Copyleft"
-__credits__ = ["hal9000",]
-__license__ = "GNU GPL Version 3, 29 June 2007"
-__version__ = "4.2"
-__maintainer__ = "1966bc"
-__email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2021-03-14"
-__status__ = "Production"
+from tkinter.scrolledtext import ScrolledText
 
 
 class UI(tk.Toplevel):
@@ -19,18 +14,22 @@ class UI(tk.Toplevel):
         super().__init__(name="license")
 
         self.parent = parent
-        #self.resizable(0, 0)
         self.init_ui()
-        self.master.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
 
     def init_ui(self):
 
-        w = ttk.Frame(self, padding=4)
+        frm_main = ttk.Frame(self, style="App.TFrame", relief=tk.GROOVE, padding=8)
+        
+        self.txLicense = ScrolledText(frm_left,
+                                      wrap = tk.WORD,
+                                      bg='light yellow',
+                                      relief=tk.GROOVE,
+                                      height=height,
+                                      width=width,
+                                      font='TkFixedFont',)
 
-        self.txLicense = self.nametowidget(".").engine.get_text_box(w,)
-
-        w.pack(fill=tk.BOTH, expand=1)
-
+        frm_main.pack(fill=tk.BOTH, padx=5, pady=5, expand=1)
 
     def on_open(self):
 
@@ -39,5 +38,5 @@ class UI(tk.Toplevel):
         if msg:
             self.txLicense.insert("1.0", msg)
 
-        self.title(self.master.title())
+        self.title(self.nametowidget(".").title())
 
