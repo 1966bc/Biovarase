@@ -45,7 +45,11 @@ To start with Biovarase execute biovarase.py, on linux after unpucking do someth
 
 > bc@hal9000:~/Biovarase-master$ chmod +x biovarase.py
 
-> bc@hal9000:~/Biovarase-master$ ./biovarase.py 
+> bc@hal9000:~/Biovarase-master$ ./biovarase.py
+>
+> To login you can use as user "adm" and password "adm"
+
+![alt tag](https://user-images.githubusercontent.com/5463566/277103748-2a82de97-34ac-459d-afb6-6f4fa4d4afc3.png)
 
 regards.
 
