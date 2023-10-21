@@ -1,7 +1,6 @@
 import unittest
 import numpy as np
 
-
 class UBT(unittest.TestCase):
 
     def setUp(self):
