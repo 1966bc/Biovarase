@@ -9,6 +9,8 @@ Among the new features we have , access to the program through a login mask, man
 
 Now for starters, once you download the source code and launch the program to login you can use comu user "adm"
 
+![alt tag](https://user-images.githubusercontent.com/5463566/277103748-2a82de97-34ac-459d-afb6-6f4fa4d4afc3.png)
+
 To add a user from the meu bar under the "Admin" voice locate the "Users" item. When you add a user the default password is "pass".Also when you reset a password the password assigned will be "pass"
 
 An explanation of all the new features will follow soon...I hope ;)
