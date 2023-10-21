@@ -44,12 +44,10 @@ __date__ = "2019-08-26"
 __status__ = "Beta"
 
 class Calendarium(tk.Frame):
-    def __init__(self, caller, name, *args, **kwargs):
+    def __init__(self, caller, name):
         super().__init__()
 
-        self.args = args
-        self.kwargs = kwargs
-
+        
         self.vcmd = (self.register(self.validate), '%d', '%P', '%S')
 
         self.caller = caller
@@ -141,12 +139,12 @@ class Calendarium(tk.Frame):
                                  t.second)
 
 
-    def validate(self, action, value_if_allowed, text,):
+    def validate(self, action, value, text,):
         # action=1 -> insert
         if action == '1':
             if text in '0123456789':
                 try:
-                    int(value_if_allowed)
+                    int(value)
                     return True
                 except ValueError:
                     return False

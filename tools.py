@@ -1,29 +1,106 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-""" This is the tools module of Biovarase.
-It helps to draw the windwos."""
-import datetime
+#-----------------------------------------------------------------------------
+# project:  biovarase
+# authors:  1966bc
+# mailto:   [giuseppecostanzi@gmail.com]
+# modify:   autumn MMXXIII
+#-----------------------------------------------------------------------------
+import os
 import tkinter as tk
-from tkinter import ttk
 from tkinter import messagebox
 from tkinter import font
-from tkinter.scrolledtext import ScrolledText
-
-__author__ = "1966bc aka giuseppe costanzi"
-__copyright__ = "Copyleft"
-__credits__ = ["hal9000",]
-__license__ = "GNU GPL Version 3, 29 June 2007"
-__version__ = "4.2"
-__maintainer__ = "1966bc"
-__email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-25"
-__status__ = "Production"
+from tkinter import ttk
 
 class Tools:
-
+    
     def __str__(self):
-        return "class: %s" % (self.__class__.__name__, )
+        return "class: {0}".format((self.__class__.__name__, ))
 
+    def set_style(self, style):
+
+        style.theme_use("clam")
+
+        style.configure(".", background=self.get_rgb(240, 240, 237), font=('TkFixedFont'))
+
+        style.configure('Data.TLabel', font=('Helvetica', 12, 'bold'))
+
+        style.configure("App.TFrame", background=self.get_rgb(240, 240, 237))
+
+        style.configure("App.TLabel",
+                             background=self.get_rgb(240, 240, 237),
+                             padding=2,
+                             anchor=tk.W,
+                             font="TkFixedFont")
+
+        style.configure("App.TLabelframe",
+                             background=self.get_rgb(240, 240, 237),
+                             relief=tk.GROOVE,
+                             padding=2,
+                             font="TkFixedFont")
+
+        style.configure("App.TButton",
+                             background=self.get_rgb(240, 240, 237),
+                             padding=8,
+                             border=1,
+                             relief=tk.RAISED,
+                             font="TkFixedFont")
+
+        style.configure("Buttons.TFrame",
+                             background=self.get_rgb(240, 240, 237),
+                             padding=8,
+                             relief=tk.GROOVE,)
+        
+        style.configure('App.TRadiobutton',
+                             background=self.get_rgb(240, 240, 237),
+                             padding=4,
+                             font="TkFixedFont")
+
+        style.configure('App.TCombobox',
+                             background=self.get_rgb(240, 240, 237),
+                             font="TkFixedFont")
+
+        style.configure('StatusBar.TLabel',
+                             background=self.get_rgb(240, 240, 237),
+                             padding=2,
+                             border=1,
+                             relief=tk.SUNKEN,
+                             font="TkFixedFont")
+
+        style.map('Treeview',
+                       foreground=self.fixed_map('foreground'),
+                       background=self.fixed_map('background'))
+
+        style.configure("Treeview.Heading",
+                             background=self.get_rgb(240, 240, 237),
+                              font=("TkFixedFont", "10", "italic"),)
+
+        style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})])
+
+        style.configure("Mandatory.TLabel",
+                             foreground=self.get_rgb(0, 0, 255),
+                             background=self.get_rgb(255, 255, 255))
+
+        style.configure('Target.TLabel',
+                    foreground=self.get_rgb(255, 69, 0),
+                    background=self.get_rgb(255, 255, 255))
+
+        ##1966BC Color Hex  (25,102,188)
+        style.configure('Average.TLabel',
+                    foreground=self.get_rgb(25, 102, 188),
+                    background=self.get_rgb(255, 255, 255))
+
+        style.configure('westgard_violation.TLabel',
+                        background=self.get_rgb(255, 106, 106),)
+
+        style.configure('westgard_ok.TLabel',
+                        background=self.get_rgb(152, 251, 152))
+
+        style.configure('Statusbar.TLabel',
+                        foreground='blue',)
+
+        style.configure('black_and_withe.TLabel',
+                    background=self.get_rgb(255, 255, 255),
+                    foreground=self.get_rgb(77, 77, 77),)
 
     def get_rgb(self, r, g, b):
         """translates an rgb tuple of int to a tkinter friendly color code"""
@@ -36,77 +113,6 @@ class Tools:
         y = (container.winfo_screenheight() - container.winfo_reqheight()) / 2
         container.geometry("+%d+%d" % (x, y))
 
-
-    def cols_configure(self, w):
-
-        w.columnconfigure(0, weight=0)
-        w.columnconfigure(1, weight=0)
-        w.columnconfigure(2, weight=1)
-        
-        w.rowconfigure(0, weight=0)
-        w.rowconfigure(1, weight=0)
-        w.rowconfigure(2, weight=1)
-
-    def get_init_ui(self, container):
-        """All insert,update modules have this same configuration on init_ui.
-           A Frame, a columnconfigure and a grid method.
-           So, why rewrite every time?"""
-        w = self.get_frame(container)
-        self.cols_configure(w)
-        w.grid(row=0, column=0, sticky=tk.N+tk.W+tk.S+tk.E, ipadx=4, ipady=4)
-
-        return w
-
-    def get_frame(self, container, padding=None):
-        return ttk.Frame(container, padding=padding)
-
-
-    def get_label_frame(self, container, text=None, ):
-        return ttk.LabelFrame(container, text=text,)
-
-    def get_button(self, container, text, underline=0, row=None, col=None):
-    
-        w = ttk.Button(container, text=text, underline=underline)
-
-        if row is not None:
-            w.grid(row=row, column=col, sticky=tk.N+tk.W+tk.E, padx=5, pady=5)
-        else:
-            w.pack(fill=tk.X, padx=5, pady=5)
-
-        return w
-
-
-    def get_label(self, container, text, textvariable=None, anchor=None, args=()):
-
-        w = ttk.Label(container,
-                      text=text,
-                      textvariable=textvariable,
-                      anchor=anchor)
-
-        if args:
-            w.grid(row=args[0], column=args[1], sticky=args[2])
-        else:
-            w.pack(fill=tk.X, padx=5, pady=5)
-
-        return w
-
-    def get_spin_box(self, container, text, frm, to, width, var=None, callback=None):
-
-        w = self.get_label_frame(container, text=text,)
-
-        tk.Spinbox(w,
-                   bg='white',
-                   from_=frm,
-                   to=to,
-                   justify=tk.CENTER,
-                   width=width,
-                   wrap=False,
-                   insertwidth=1,
-                   textvariable=var).pack(anchor=tk.CENTER)
-        return w
-
-
-
     def set_font(self, family, size, weight=None):
 
         if weight is not None:
@@ -116,31 +122,11 @@ class Tools:
 
         return font.Font(family=family, size=size, weight=weight)
 
-    def get_listbox(self, container, height=None, width=None):
-
-        sb = ttk.Scrollbar(container, orient=tk.VERTICAL)
-
-        w = tk.Listbox(container,
-                       relief=tk.GROOVE,
-                       selectmode=tk.EXTENDED,
-                       exportselection=0,
-                       height=height,
-                       width=width,
-                       background='white',
-                       font='TkFixedFont',
-                       yscrollcommand=sb.set,)
-
-        sb.config(command=w.yview)
-
-        w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-        sb.pack(fill=tk.Y, expand=1)
-
-        return w
-
     def get_text_box(self, container, height=None, width=None, row=None, col=None):
 
         w = ScrolledText(container,
-                         bg='white',
+                         wrap = tk.WORD,
+                         bg='light yellow',
                          relief=tk.GROOVE,
                          height=height,
                          width=width,
@@ -152,101 +138,52 @@ class Tools:
         else:
             w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
-        return w    
+        return w
 
-    def get_save_cancel(self, caller, container):
-
-        caller.btnSave = self.get_button(container, "Save",0, 0, 2)
-        caller.btnSave.bind("<Button-1>", caller.on_save)
-        caller.btnSave.bind("<Return>", caller.on_save)
-        caller.btCancel = self.get_button(container, "Close",0, 1, 2)
-        caller.btCancel.bind("<Button-1>", caller.on_cancel)
-
-        caller.bind("<Alt-s>", caller.on_save)
-        caller.bind("<Alt-c>", caller.on_cancel)
-
-
-    def get_export_cancel(self, caller, container):
-
-        w = self.get_frame(container, 5)
-
-        caller.btnExport = self.get_button(w, "Export",0, 0, 1,)
-        caller.btnExport.bind("<Button-1>", caller.on_export)
-        caller.btnExport.bind("<Return>", caller.on_export)
-
-        caller.btCancel = self.get_button(w, "Close",0, 1, 1)
-        caller.btCancel.bind("<Button-1>", caller.on_cancel)
-
-        caller.bind("<Alt-e>", caller.on_export)
-        caller.bind("<Alt-c>", caller.on_cancel)
-
-        w.grid(row=0, column=2, sticky=tk.N+tk.E, padx=5, pady=5)
-
-
-    def get_save_cancel_delete(self, caller, container):
-
-        caller.btnSave = self.get_button(container, "Save",0, 0, 2)
-        caller.btnSave.bind("<Button-1>", caller.on_save)
-        caller.btnSave.bind("<Return>", caller.on_save)
-
-        caller.btDelete = self.get_button(container, "Delete",0, 1, 2)
-        caller.btDelete.bind("<Button-1>", caller.on_delete)
-
-        caller.btCancel = self.get_button(container, "Close",0, 2, 2)
-        caller.btCancel.bind("<Button-1>", caller.on_cancel)
-
-        caller.bind("<Alt-s>", caller.on_save)
-        caller.bind("<Alt-d>", caller.on_delete)
-        caller.bind("<Alt-c>", caller.on_cancel)
-
-
-    def get_add_edit_cancel(self, caller, container):
-
-        caller.btnAdd = self.get_button(container, "Add")
-        caller.btnAdd.bind("<Return>", caller.on_add)
-        caller.btnAdd.bind("<Button-1>", caller.on_add)
-        caller.btnEdit = self.get_button(container, "Edit")
-        caller.btnEdit.bind("<Button-1>", caller.on_edit)
-        caller.btCancel = self.get_button(container, "Close")
-        caller.btCancel.bind("<Button-1>", caller.on_cancel)
-
-        caller.bind("<Alt-a>", caller.on_add)
-        caller.bind("<Alt-e>", caller.on_edit)
-        caller.bind("<Alt-c>", caller.on_cancel)
-
-
-    def on_fields_control(self, container):
+    def on_fields_control(self, toplevel, title=None):
 
         msg = "Please fill all fields."
 
-        for w in container.winfo_children():
+        if title is not None:
+            title = title
+        else:
+            title = self.title
+        #print(toplevel)
+        for w in toplevel.winfo_children():
+            #print(w)
             for field in w.winfo_children():
-                if type(field) in(ttk.Entry, ttk.Combobox):
-                    #print(type(field),)
-                    #for i in field.keys():
-                    #    print (i)
+                #print(field)
+                if type(field) in(ttk.Entry, tk.Entry, ttk.Combobox):
                     if not field.get():
-                        messagebox.showwarning(self.title, msg, parent=container)
+                        messagebox.showwarning(title, msg, parent=toplevel)
                         field.focus()
                         return 0
                     elif type(field) == ttk.Combobox:
-                          if field.get() not in field.cget('values'):
-                              msg = "You can choice only values in the list."
-                              messagebox.showwarning(self.title, msg, parent=container)
-                              field.focus()
-                              return 0
-
+                        if field.get() not in field.cget('values'):
+                            msg = "You can choice only a value of the list."
+                            messagebox.showwarning(title, msg, parent=toplevel)
+                            field.focus()
+                            return 0
+                        
     def get_tree(self, container, cols, size=None, show=None):
-
 
         #this is a patch because with tkinter version with Tk 8.6.9 the color assignment with tags dosen't work
         #https://bugs.python.org/issue36468
         style = ttk.Style()
+
         style.map('Treeview', foreground=self.fixed_map('foreground'), background=self.fixed_map('background'))
 
+        style.configure("Treeview.Heading", background="light yellow")
 
-        ttk.Style().configure("Treeview.Heading", background=self.get_rgb(240, 240, 237))
-        ttk.Style().configure("Treeview.Heading", font=('Helvetica', 10))
+        style.configure("Treeview.Heading", font=('TkHeadingFont', 10))
+
+        if size is not None:
+            style.configure("Treeview",
+                            highlightthickness=0,
+                            bd=0,
+                            font=('TkHeadingFont', size)) # Modify the font of the body
+        else:
+            pass
 
         headers = []
 
@@ -259,7 +196,6 @@ class Tools:
 
         else:
             w = ttk.Treeview(container,)
-
 
         w['columns'] = headers
         w.tag_configure('is_enable', background='light gray')
@@ -291,15 +227,23 @@ class Tools:
         return [elm for elm in style.map('Treeview', query_opt=option) if
                 elm[:2] != ('!disabled', '!selected')]
 
-
+    
     def get_validate_integer(self, caller):
-        return (caller.register(self.validate_integer), '%d', '%P', '%S')
+        return (caller.register(self.validate_integer),
+                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
     def get_validate_float(self, caller):
-        return (caller.register(self.validate_float), '%d', '%P', '%S')
+        return (caller.register(self.validate_float),
+                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+     
+    def limit_chars(self, c, v, *args):
+        #print(c,v,args)
+        if len(v.get()) > c:
+            v.set(v.get()[:-1])
 
-
-    def validate_integer(self, action, value_if_allowed, text,):
+    def validate_integer(self, action, index, value_if_allowed,
+                         prior_value, text, validation_type,
+                         trigger_type, widget_name):
         # action=1 -> insert
         if action == '1':
             if text in '0123456789':
@@ -313,10 +257,12 @@ class Tools:
         else:
             return True
 
-    def validate_float(self, action, value_if_allowed, text,):
+    def validate_float(self, action, index, value_if_allowed,
+                       prior_value, text, validation_type,
+                       trigger_type, widget_name):
         # action=1 -> insert
-        if action == '1':
-            if text in '0123456789.':
+        if action == "1":
+            if text in '0123456789.-+':
                 try:
                     float(value_if_allowed)
                     return True
@@ -326,6 +272,29 @@ class Tools:
                 return False
         else:
             return True
+
+    def get_listbox(self, container, height=None, width=None, color=None):
+
+        sb = ttk.Scrollbar(container, orient=tk.VERTICAL)
+
+        w = tk.Listbox(container,
+                       relief=tk.GROOVE,
+                       selectmode=tk.EXTENDED,
+                       exportselection=0,
+                       height=height,
+                       width=width,
+                       background=color,
+                       font='TkFixedFont',
+                       #bg="white",
+                       #fg="black",
+                       yscrollcommand=sb.set,)
+
+        sb.config(command=w.yview)
+
+        w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        sb.pack(fill=tk.Y, expand=1)
+
+        return w        
 
 def main():
 

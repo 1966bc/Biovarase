@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-""" This is the westgard launcher of Biovarase.
-    It provides to perform the file opening."""
+#!/usr/bin/env python3
 import os
 import subprocess
-import threading
+from threading import Thread
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -12,29 +10,32 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "4.2"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2021-03-14"
+__date__ = "2019-05-28"
 __status__ = "Production"
 
+
 class Launcher:
-    """This class is used for data export.
-    """
+    def __init__(self, *args, **kwargs):
+        
+        self.args = args
+        self.kwargs = kwargs
+
 
     def __str__(self):
-        return "class: %s" % (self.__class__.__name__, )
-
-    
+        return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Launcher.__mro__])        
+        
     def launch(self, path):
 
-        threading.Thread(target=self.open_file(path), daemon=True).start()    
+        Thread(target=self.open_file(path)).start()
         
-    def open_file(self, path):
+    def open_file(self,path):
 
         if os.path.exists(path):
             if os.name == 'posix':
                 subprocess.call(["xdg-open", path])
             else:
                 os.startfile(path)
-  
+
 def main():
 
     foo = Launcher()
