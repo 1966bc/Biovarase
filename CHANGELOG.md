@@ -7,7 +7,7 @@ Hello, after a long time here is a new version of Biovarase.
 
 Among the new features we have , access to the program through a login mask, management of the results depending on the instrument on which the tests are performed the automatic audit trail for the batches and results table and the management of all this multi site...
 
-Now for starters, once you download the source code and launch the program to login you can use comu user "adm"
+Now for starters, once you download the source code and launch the program to login you can use as user "adm"
 
 ![alt tag](https://user-images.githubusercontent.com/5463566/277103748-2a82de97-34ac-459d-afb6-6f4fa4d4afc3.png)
 
