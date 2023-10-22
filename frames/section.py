@@ -21,6 +21,7 @@ class UI(tk.Toplevel):
 
         self.section = tk.StringVar()
         self.status = tk.BooleanVar()
+        self.set_it = tk.BooleanVar()
         
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=2)
@@ -72,6 +73,15 @@ class UI(tk.Toplevel):
         btn = ttk.Button(frm_buttons, style="App.TButton", text="Cancel", underline=0, command=self.on_cancel)
         self.bind("<Alt-c>", self.on_cancel)
         btn.grid(row=r, column=c, sticky=tk.EW, **paddings)
+
+        r +=1 
+        ttk.Checkbutton(frm_buttons,
+                        text = "Set It",
+                        onvalue=1,
+                        offvalue=0,
+                        variable=self.set_it,).grid(row=r,
+                                                    column=c,
+                                                    sticky=tk.W)
 
 
     def on_open(self, selected_ward, selected_section=None):
@@ -182,14 +192,17 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
-            last_id = self.nametowidget(".").engine.write(sql, args)
+
+            last_id = self.nametowidget(".").engine.write(sql, args)      
 
             args = (self.selected_ward[0],)
 
             self.parent.set_sections(args)
-            
 
             if self.index is not None:
+
+                if self.set_it.get():
+                    self.nametowidget(".").engine.set_section_id(self.selected_section[0])
                 try:
                     self.parent.lstSections.focus(self.index)
                     self.parent.lstSections.selection_set(self.index)
@@ -197,12 +210,20 @@ class UI(tk.Toplevel):
                     pass
             else:
                 try:
+                    if self.set_it.get():
+                        self.nametowidget(".").engine.set_section_id(last_id)
                     self.parent.lstSections.focus(last_id)
                     self.parent.lstSections.selection_set(last_id)
                 except:
                     pass
-                
+
+            self.reset_main()
             self.on_cancel()
+
+    def reset_main(self,):
+
+        self.nametowidget(".main").on_open()
+        self.nametowidget(".main").on_reset()
 
     def on_cancel(self, evt=None):
         self.destroy()
