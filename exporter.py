@@ -353,7 +353,7 @@ class Exporter:
                                 #print("compute_cv {0}".format(compute_cv))
                                 compute_sd = self.get_sd(series)
                                 compute_avg = self.get_mean(series)
-                                print(compute_cv, compute_sd,compute_avg)
+                                #print(compute_cv, compute_sd,compute_avg)
                                 target = float(batch[6])
                                 sd = float(batch[7])
                                 bias = self.get_bias(compute_avg, target)
