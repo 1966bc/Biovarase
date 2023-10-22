@@ -31,9 +31,9 @@ class UI(tk.Toplevel):
 
     def on_open(self, selected_workstation, tests_method_assigned):
 
-        section_data = self.nametowidget(".").engine.get_section_data(selected_workstation[5])
+        self.rs_idd = self.nametowidget(".").engine.get_idd_by_section_id(selected_workstation[5])
 
-        self.site_id = section_data[1]
+        comp_id = self.rs_idd[1]
 
         self.selected_workstation = selected_workstation
         self.tests_method_assigned = tests_method_assigned
@@ -43,9 +43,9 @@ class UI(tk.Toplevel):
         sql = "SELECT sites.site_id, suppliers.supplier AS site\
                FROM sites\
                INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
-               WHERE sites.site_id =?;"
+               WHERE sites.comp_id =?;"
         
-        args = (self.site_id,)
+        args = (comp_id,)
         rs = self.nametowidget(".").engine.read(False, sql, args)
         msg = "{0} assign test method".format(rs[1])
         self.title(msg)
@@ -70,7 +70,7 @@ class UI(tk.Toplevel):
                    AND wards.site_id ={1}\
                    AND tests.status =1\
                    AND tests_methods.status=1\
-                   ORDER BY tests.test;".format(s ,self.site_id)
+                   ORDER BY tests.test;".format(s ,self.rs_idd[0])
 
         else:
 
@@ -87,7 +87,7 @@ class UI(tk.Toplevel):
                    AND tests_methods.status=1\
                    ORDER BY tests.test;"
 
-            args = (self.site_id,)
+            args = (self.rs_idd[0],)
 
         rs = self.nametowidget(".").engine.read(True, sql, args)
         index = 0

@@ -152,9 +152,7 @@ class Login(ttk.Frame):
         rs = self.nametowidget(".").engine.login(args)
         
         if rs:
-            self.nametowidget(".").engine.set_log_user(rs)
-            self.nametowidget(".").engine.get_section()
-            self.nametowidget(".").engine.get_section_data(self.nametowidget(".").engine.get_section_id())
+            self.nametowidget(".").engine.set_log_user(rs)            
             self.hide()
             
             if self.nametowidget(".").engine.log_user[7] == True:
@@ -234,6 +232,7 @@ class App(tk.Tk):
             except:
                 pass
             finally:
+                self.nametowidget(".").engine.batch_remembers = None
                 self.quit()
 
 def main():

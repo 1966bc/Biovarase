@@ -178,8 +178,7 @@ class UI(tk.Toplevel):
                       workstations.description,\
                       workstations.serial,\
                       workstations.device_id,\
-                      workstations.status,\
-                      sections.section_id\
+                      workstations.status\
                FROM workstations\
                INNER JOIN equipments ON workstations.equipment_id = equipments.equipment_id\
                INNER JOIN sections ON workstations.section_id = sections.section_id\
@@ -199,7 +198,7 @@ class UI(tk.Toplevel):
 
 
                 self.lstWorkstations.insert('', tk.END, iid=i[0], text=i[0],
-                                            values=(i[1], i[2], i[3], i[4], i[5], i[6]),
+                                            values=(i[1], i[2], i[3], i[4], i[5]),
                                             tags=tag_config)
                 
         

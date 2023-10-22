@@ -86,7 +86,7 @@ class Main(tk.Toplevel):
         self.expiration = tk.StringVar()
         self.te = tk.DoubleVar()
         self.ddof = tk.IntVar()
-        self.site = tk.StringVar()
+        self.status_bar_site_description = tk.StringVar()
 
         self.selected_workstation = None
 
@@ -381,7 +381,7 @@ class Main(tk.Toplevel):
                                 anchor=tk.W)
 
         ttk.Label(w, font=f,
-                  textvariable=self.site,
+                  textvariable=self.status_bar_site_description,
                   relief=tk.FLAT,
                   anchor=tk.W).pack(side=tk.RIGHT, fill=tk.X)
         ttk.Label(w, text="Site:").pack(side=tk.RIGHT, fill=tk.X)
@@ -420,14 +420,34 @@ class Main(tk.Toplevel):
 
     def on_open(self):
 
-        site_description = self.nametowidget(".").engine.get_site_description()
-        msg = "{0} {1}".format(site_description[2], site_description[4])
-        self.site.set(msg)
+        self.status_bar_site_description.set(self.get_status_bar_site_description())
         self.enable_notes.set(False)
         self.ddof.set(self.nametowidget(".").engine.get_ddof())
         self.elements.set(self.nametowidget(".").engine.get_elements())
         self.set_specialities()
         self.set_zscore()
+
+    def get_status_bar_site_description(self,):
+
+        sql = "SELECT sites.site_id,\
+                      companies.supplier AS company,\
+                      suppliers.supplier AS site,\
+                      wards.ward,\
+                      sections.section\
+               FROM sites\
+               INNER JOIN suppliers AS companies ON companies.supplier_id = sites.supplier_id\
+               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
+               INNER JOIN wards ON sites.site_id = wards.site_id\
+               INNER JOIN sections ON wards.ward_id = sections.ward_id\
+               WHERE sections.section_id =?;"
+
+        args = (self.nametowidget(".").engine.get_section_id(),)
+
+        rs = self.nametowidget(".").engine.read(False, sql, args)
+
+        s = "{0}-{1}-{2}".format(rs[2], rs[3], rs[4])
+
+        return s[0:80]
 
     def set_elements(self):
         self.elements.set(self.nametowidget(".").engine.get_elements())
@@ -608,9 +628,11 @@ class Main(tk.Toplevel):
                    INNER JOIN workstations_tests_methods ON tests_methods.test_method_id = workstations_tests_methods.test_method_id\
                    INNER JOIN workstations ON workstations_tests_methods.workstation_id = workstations.workstation_id\
                    WHERE workstations_tests_methods.test_method_id =?\
-                   AND workstations.status=1;"
+                   AND workstations.section_id =?\
+                   AND workstations.status=1\
+                   ORDER BY workstations.ranck ASC;"
 
-            args = (self.selected_test_method[0], )
+            args = (self.selected_test_method[0], self.nametowidget(".").engine.get_section_id())
 
             rs = self.nametowidget(".").engine.read(True, sql, args)
 

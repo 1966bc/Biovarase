@@ -22,14 +22,16 @@ class UI(tk.Toplevel):
         self.device_id = tk.StringVar()
         self.description = tk.StringVar()
         self.serial = tk.StringVar()
+        self.ranck = tk.IntVar()
         self.status = tk.BooleanVar()
+
+        self.vcmd_int = self.nametowidget(".").engine.get_validate_integer(self)
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
-
 
     def init_ui(self):
 
@@ -67,6 +69,17 @@ class UI(tk.Toplevel):
         self.cbSections = ttk.Combobox(frm_left,)
         self.cbSections.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
+        r += 1
+        ttk.Label(frm_left, text="Ranck:").grid(row=r, sticky=tk.W)
+        ent_ranck= ttk.Entry(frm_left,
+                               width=8,
+                               justify=tk.CENTER,
+                               validate="key",
+                               validatecommand=self.vcmd_int,
+                               textvariable=self.ranck)
+        ent_ranck.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+
+        
         r += 1
         ttk.Label(frm_left, text="Status:").grid(row=r, sticky=tk.W)
         chk_status = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.status,)
@@ -131,14 +144,14 @@ class UI(tk.Toplevel):
     
     def set_sections(self):
 
-        section_data = self.nametowidget(".").engine.get_section_data(self.selected_section[0])
+        rs_idd = self.nametowidget(".").engine.get_idd_by_section_id(self.selected_section[0])
 
         index = 0
         self.dict_sections = {}
         values = []
 
         sql = "SELECT section_id, section FROM sections WHERE ward_id =? AND status =1 ORDER BY section;"
-        args = (section_data[1],)
+        args = (rs_idd[2],)
         rs = self.nametowidget(".").engine.read(True, sql, args)
        
         for i in rs:
@@ -156,6 +169,7 @@ class UI(tk.Toplevel):
                 self.description.get(),
                 self.serial.get(),
                 self.dict_sections[self.cbSections.current()],
+                self.ranck.get(),
                 self.status.get()]
 
     def set_values(self,):
@@ -176,7 +190,9 @@ class UI(tk.Toplevel):
         except:
             pass
 
-        self.status.set(self.selected_workstation[6])
+        self.ranck.set(self.selected_workstation[6])
+
+        self.status.set(self.selected_workstation[7])
 
     def on_save(self, evt=None):
 

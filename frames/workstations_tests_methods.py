@@ -77,13 +77,15 @@ class UI(tk.Toplevel):
                INNER JOIN equipments ON workstations.equipment_id = equipments.equipment_id\
                INNER JOIN sections ON workstations.section_id = sections.section_id\
                INNER JOIN wards ON sections.ward_id = wards.ward_id\
-               WHERE sections.section_id=?\
+               WHERE wards.ward_id=?\
                AND workstations.status =1\
                ORDER BY workstations.description ASC;"
 
-        site_id = self.nametowidget(".").engine.get_section_id()
+        section_id = self.nametowidget(".").engine.get_section_id()
+        
+        rs_idd = self.nametowidget(".").engine.get_idd_by_section_id(section_id)
 
-        args = (site_id,)
+        args = (rs_idd[2],)
         
         rs = self.nametowidget(".").engine.read(True, sql, args)
 
@@ -162,7 +164,7 @@ class UI(tk.Toplevel):
             self.set_tests_methods(args)
 
             if self.nametowidget(".").engine.get_instance("load_tests_methods") == True:
-                self.obj.on_open(self.selected_workstation, self.tests_method_assigned)    
+                self.obj.on_open(self.selected_workstation, self.stests_method_assigned)    
             
     def on_cancel(self, evt=None):
         if self.obj is not None:

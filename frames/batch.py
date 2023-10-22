@@ -33,6 +33,7 @@ class UI(tk.Toplevel):
         self.to_compute = tk.IntVar()
         self.ranck = tk.IntVar()
         self.status = tk.BooleanVar()
+        self.set_remeber_batch_data = tk.BooleanVar()
         self.vcmd = self.nametowidget(".").engine.get_validate_float(self)
         self.vcmd_int = self.nametowidget(".").engine.get_validate_integer(self)
         self.lower.trace("w", lambda x, y, z, c=16, v=self.lower: self.on_compute_sd(c, v, x, y, z))
@@ -130,8 +131,6 @@ class UI(tk.Toplevel):
                                textvariable=self.ranck)
         ent_ranck.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
-
-
         r += 1
         ttk.Label(frm_left, text="Status:").grid(row=r, sticky=tk.W)
         ttk.Checkbutton(frm_left,
@@ -159,8 +158,17 @@ class UI(tk.Toplevel):
         self.bind("<Alt-c>", self.on_cancel)
         btn.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
+        r +=1 
+        ttk.Checkbutton(frm_buttons,
+                        text = "Remember data",
+                        onvalue=1,
+                        offvalue=0,
+                        variable=self.set_remeber_batch_data,).grid(row=r,
+                                                    column=c,
+                                                    sticky=tk.W)
+
         r += 1
-        frm_sd = ttk.LabelFrame(frm_buttons, style="App.TLabelframe", text="SD", )
+        frm_sd = ttk.LabelFrame(frm_buttons, style="App.TLabelframe", text="SD mode", )
         frm_sd.grid(row=r, column=c, rowspan=4, sticky=tk.NW)
 
         voices = ["Manual", "Computed",]
@@ -173,10 +181,13 @@ class UI(tk.Toplevel):
                             value=index,).grid(row=r, column=c, sticky=tk.EW, **paddings)
             r += 1
 
+       
+
     def on_open(self, selected_test_method, selected_workstation, selected_batch=None):
 
-        section_data = self.nametowidget(".").engine.get_section_data(selected_workstation[5])
-        self.site_id = section_data[1]
+        self.workstation_section_id = selected_workstation[5]
+
+        self.set_remeber_batch_data.set(self.nametowidget(".").engine.get_remeber_batch_data())
 
         self.set_controls()
         self.set_workstations()
@@ -188,20 +199,38 @@ class UI(tk.Toplevel):
         self.selected_test_method = selected_test_method
 
         if self.index is not None:
-
             self.selected_batch = selected_batch
             msg = "Update {0} {1}".format(self.winfo_name().capitalize(), self.selected_batch[4])
             self.set_values()
+            self.cbControls.focus()
         else:
             msg = "Insert {0} for {1}".format(self.winfo_name().capitalize(), self.selected_test[2])
-            self.expiration_date.set_today()
+
+            if self.set_remeber_batch_data.get()== True:
+                if self.nametowidget(".").engine.batch_remembers is not None:
+
+                    try:
+                        key = next(key for key, value in self.dict_controls.items() if value == self.nametowidget(".").engine.batch_remembers[0])
+                        self.cbControls.current(key)
+                    except:
+                        pass
+                    
+                    self.lot_number.set(self.nametowidget(".").engine.batch_remembers[3])
+                    self.description.set(self.nametowidget(".").engine.batch_remembers[7])
+                    self.expiration_date.year.set(int(self.nametowidget(".").engine.batch_remembers[4].year))
+                    self.expiration_date.month.set(int(self.nametowidget(".").engine.batch_remembers[4].month))
+                    self.expiration_date.day.set(int(self.nametowidget(".").engine.batch_remembers[4].day))
+                    self.txtTarget
+            else:
+                self.expiration_date.set_today()
+                self.cbControls.focus()
+
             self.status.set(1)
             self.to_compute.set(1)
             self.on_set_compute()
 
         self.title(msg)
-        self.cbControls.focus()
-
+        
     def set_controls(self):
 
         index = 0
@@ -229,17 +258,15 @@ class UI(tk.Toplevel):
         voices = []
 
         sql = "SELECT workstations.workstation_id,\
-                      workstations.description,\
-                      wards.site_id\
+                      workstations.description\
                FROM workstations\
                INNER JOIN equipments ON workstations.equipment_id = equipments.equipment_id\
                INNER JOIN sections ON workstations.section_id = sections.section_id\
-               INNER JOIN wards ON sections.ward_id = wards.ward_id\
-               WHERE wards.site_id =?\
+               WHERE sections.section_id =?\
                AND workstations.status =1\
                ORDER BY workstations.description"
 
-        args = (self.site_id,)
+        args = (self.workstation_section_id,)
 
         rs = self.nametowidget(".").engine.read(True, sql, args)
 
@@ -371,7 +398,23 @@ class UI(tk.Toplevel):
             self.update_batches_lists()
             self.set_index(last_id)
             self.parent.set_batches()
+            self.update_remeber_batch_data()
             self.on_cancel()
+
+    def update_remeber_batch_data(self):
+
+        if self.set_remeber_batch_data.get():
+            remember = 1
+        else:
+            remember = 0
+
+        self.nametowidget(".").engine.set_remeber_batch_data(remember)
+
+        if remember == 1:
+            self.nametowidget(".").engine.batch_remembers = self.get_values()
+        else:
+            self.nametowidget(".").engine.batch_remembers = None
+            
 
     def update_batches_lists(self):
 
@@ -407,6 +450,15 @@ class UI(tk.Toplevel):
         
                 
     def on_cancel(self, evt=None):
+
         self.nametowidget(".").engine.set_instance(self, 0)
+
+        if self.set_remeber_batch_data.get():
+            remember = 1
+        else:
+            remember = 0
+
+        self.nametowidget(".").engine.set_remeber_batch_data(remember)
+        
         self.destroy()
 
