@@ -236,8 +236,7 @@ class Exporter:
             
         obj.save(path)
         self.launch(path)
-
-            
+    
     def quick_data_analysis(self, selected_date):
 
         checked_tests = []
@@ -275,12 +274,13 @@ class Exporter:
                        INNER JOIN sections ON tests_methods.section_id = sections.section_id\
                        INNER JOIN wards ON sections.ward_id = wards.ward_id\
                        INNER JOIN sites ON wards.site_id = sites.site_id\
-                       WHERE sections.section_id =?\
+                       WHERE wards.ward_id =?\
                        AND tests.status=1\
                        AND tests_methods.status=1\
                        ORDER BY tests.test;"
         
-        args = (self.get_section_id(),)
+        rs_idd = self.get_idd_by_section_id(self.get_section_id())
+        args = (rs_idd[2],)
 
         rs_tests_methods = self.read(True, sql_tests, args)
         
@@ -293,10 +293,13 @@ class Exporter:
                            FROM batches\
                            INNER JOIN workstations ON batches.workstation_id = workstations.workstation_id\
                            INNER JOIN equipments ON workstations.equipment_id = equipments.equipment_id\
+                           INNER JOIN sections ON workstations.section_id = sections.section_id\
+                           INNER JOIN wards ON wards.ward_id = sections.ward_id\
                            WHERE batches.status =1\
-                           AND batches.test_method_id =?"
+                           AND batches.test_method_id =?\
+                           AND wards.ward_id =?;"
 
-            rs_batches = self.read(True, sql_batches, (test_method[0], ))
+            rs_batches = self.read(True, sql_batches, (test_method[0], rs_idd[2]))
 
             for batch in rs_batches:
 
@@ -328,6 +331,7 @@ class Exporter:
                                 FROM controls\
                                 INNER JOIN suppliers ON controls.supplier_id = suppliers.supplier_id\
                                 WHERE control_id =?"
+                
                 rs_controls = self.read(False, sql_controls, (batch[1],))
                 
 
@@ -335,8 +339,6 @@ class Exporter:
 
                     for result in rs_results:
 
-                        #def get_series(self, batch_id, workstation_id, limit = None, result_id = None):
-                       
                         series = self.get_series(batch[0], result[4], int(self.get_elements()), result[0])
 
                         if len(series) > 9:
@@ -537,7 +539,6 @@ class Exporter:
         obj.save(path)
         self.launch(path)
 
-
     def get_formula_drc(self,row):
         """compute critical difference"""
         #=ROUND((ROUND(SQRT(POWER(G30,2)+POWER(H30,2))*2.77,2))*F30/100,2)
@@ -598,8 +599,6 @@ class Exporter:
                                                                               row+1,)             
         return f,c
         
-        
-    
     def xls_bg_colour(self,colour):
 
         """ Colour index

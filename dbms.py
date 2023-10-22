@@ -5,7 +5,6 @@ import sqlite3 as lite
 import datetime
 
 
-
 class DBMS:
     def __init__(self,):
 
@@ -119,17 +118,14 @@ class DBMS:
         with open(s, 'w') as f:
             for line in self.con.iterdump():
                 f.write('%s\n' % line)
-                
+
 
     def get_last_row_id(self, cur):
         return cur.lastrowid
 
     def get_fields(self, table):
-        """return fields name of the args table ordered by field number
 
-        @param name: table,
-        @return: fields
-        @rtype: tuple
+        """Return fields name of the args table ordered by field number.
         """
 
         try:
@@ -156,28 +152,27 @@ class DBMS:
 
 
     def get_update_sql(self, table, pk):
-        """recive a table name and his pk to format an update sql statement
 
-        @param name: table, pk
-        @return: sql formatted stringstring
-        @rtype: string
+        """Recive a table name and his pk to format an update sql statement.
         """
-        """"""
+        try:
 
-        y = []
-        for i in map((lambda x: x + " =?"), self.get_fields(table)):
-            y.append(i)
+            y = []
+            for i in map((lambda x: x + " =?"), self.get_fields(table)):
+                y.append(i)
 
-        s = ",".join(y)
-        return "UPDATE {0} SET {1} WHERE {2}{3}".format(table, s, pk, "=?")
+            s = ",".join(y)
+
+            return "UPDATE {0} SET {1} WHERE {2}{3}".format(table, s, pk, "=?")
+
+        except:
+            self.on_log(inspect.stack()[0][3], sys.exc_info()[1],
+                        sys.exc_info()[0], sys.modules[__name__])
 
     def get_insert_sql(self, table, n):
-        """recive a table name and len of args, len(args),
-           to format an insert sql statement
 
-        @param name: table, n
-        @return: sql formatted string
-        @rtype: string
+        """Recive a table name and len of args, len(args),
+           to format an insert sql statement
         """
         try:
 
@@ -188,15 +183,12 @@ class DBMS:
                         sys.exc_info()[0], sys.modules[__name__])
 
     def get_selected(self, table, field, *args):
+
         """Recive table name, pk and return a row as a dictionary.
-        @param name: table, field, *args
-        @return: dictionary
-        @rtype: dictionary
         """
         d = {}
 
         sql = "SELECT * FROM {0} WHERE {1} = ?".format(table, field)
-
 
         for k, v in enumerate(self.read(False, sql, args)):
             d[k] = v
@@ -244,24 +236,6 @@ class DBMS:
 
         return series
 
-    def get_site_description(self,):
-
-        sql = "SELECT sites.site_id,\
-                      companies.supplier AS company,\
-                      suppliers.supplier AS site,\
-                      wards.ward,\
-                      sections.section,\
-                      sites.status\
-               FROM sites\
-               INNER JOIN suppliers AS companies ON companies.supplier_id = sites.supplier_id\
-               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
-               INNER JOIN wards ON sites.site_id = wards.site_id\
-               INNER JOIN sections ON wards.ward_id = sections.ward_id\
-               WHERE sections.section_id =?;"
-
-        args = (self.get_section_id(),)
-
-        return self.read(False, sql, args)
 
     def login(self, args):
 
@@ -273,29 +247,26 @@ class DBMS:
 
         return cur.fetchone()
 
-    def get_section(self):
 
-        section_id = self.get_section_id()
+    def get_idd_by_section_id(self, section_id):
+
+        sql = "SELECT sites.site_id,\
+                      sites.comp_id,\
+                      wards.ward_id,\
+                      sections.section_id\
+               FROM sites\
+               INNER JOIN suppliers AS companies ON companies.supplier_id = sites.supplier_id\
+               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
+               INNER JOIN wards ON sites.site_id = wards.ward_id\
+               INNER JOIN sections ON wards.ward_id = sections.ward_id\
+               WHERE sections.section_id =?;"
 
         args = (section_id,)
 
-        sql = " SELECT suppliers.supplier, wards.ward, sections.section\
-                FROM sites\
-                INNER JOIN suppliers ON sites.comp_id = suppliers.supplier_id\
-                INNER JOIN wards ON sites.site_id = wards.site_id\
-                INNER JOIN sections ON wards.ward_id = sections.ward_id\
-                WHERE sections.section_id=?;"
-
-        cur = self.con.cursor()
-
-        cur.execute(sql, args)
-
-        self.section = cur.fetchone()
-
-        cur.close()
-
+        return self.read(False, sql, args)
 
     def get_test_name(self, test_id):
+
         sql = "SELECT * FROM tests WHERE test_id =?;"
         args = (test_id,)
         rs = self.read(False, sql, args)
@@ -307,23 +278,6 @@ class DBMS:
         args = (control_id,)
         rs = self.read(False, sql, args)
         return rs[0]
-
-
-    def get_section_data(self, section_id):
-
-        sql = "SELECT suppliers.supplier_id,\
-                      sites.site_id,\
-                      wards.ward_id,\
-                      sections.section_id\
-               FROM sites\
-               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
-               INNER JOIN wards ON sites.site_id = wards.ward_id\
-               INNER JOIN sections ON wards.ward_id = sections.ward_id\
-               WHERE sections.section_id =?;"
-
-        args = (section_id,)
-
-        return self.read(False, sql, args)
 
     def get_um(self, unit_id):
 
@@ -340,7 +294,7 @@ def main():
 
     rs = bar.read(True, sql, ())
 
-    print (rs)
+    print(rs)
 
     print(bar)
     input('end')

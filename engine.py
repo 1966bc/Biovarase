@@ -38,6 +38,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
         self.ask_to_save = "Save data?"
         self.abort = "Operation aborted!"
         self.user_not_enable = "User not enabled for this function."
+        self.batch_remembers = None
         self.title = "Biovarase"
 
     def __str__(self):
@@ -161,19 +162,6 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
                         sys.exc_info()[0],
                         sys.modules[__name__])
 
-    def get_site_id(self):
-        try:
-            f = open('site_id', 'r')
-            v = f.readline()
-            f.close()
-            return int(v)
-        except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
-
     def get_section_id(self):
 
         try:
@@ -187,6 +175,46 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
+
+    def set_section_id(self, value):
+
+        try:
+            with open("section_id", "w") as f:
+                f.write(str(value))
+
+        except FileNotFoundError:
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
+            
+    def get_remeber_batch_data(self):
+
+        try:
+            path = self.get_file("remeber_batch_data")
+            f = open(path, 'r')
+            v = f.readline()
+            f.close()
+            return int(v)
+        except OSError:
+            self.on_log(inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
+
+    def set_remeber_batch_data(self, value):
+
+        try:
+            with open('remeber_batch_data', 'w') as f:
+                f.write(str(value))
+
+        except FileNotFoundError:
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])                
 
     def get_log_ip(self):
         return socket.gethostbyname(socket.getfqdn())
