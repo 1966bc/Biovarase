@@ -163,24 +163,26 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
-                args.append(self.selected_item[0])
+                args.append(self.parent.selected_item[0])
 
             else:
 
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
+
             last_id = self.nametowidget(".").engine.write(sql, args)
+            
             self.parent.on_open()
 
             if self.index is not None:
-                self.parent.lstItems.see(self.index)
-                self.parent.lstItems.selection_set(self.index)
+                which = self.parent.selected_item[0]
             else:
-                #force focus on listbox
-                idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
-                self.parent.lstItems.selection_set(idx)
-                self.parent.lstItems.see(idx)                
+                which = last_id
+                 
 
+            self.parent.lstItems.see(which)
+            self.parent.lstItems.selection_set(which)
+                
             self.on_cancel()
 
         else:
