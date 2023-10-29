@@ -20,7 +20,7 @@ class UI(tk.Toplevel):
  
         self.parent = parent
         self.index = index
-        self.transient(parent)
+        #self.transient(parent)
         self.attributes('-topmost', True)
         self.resizable(0, 0)
 
@@ -427,7 +427,7 @@ class UI(tk.Toplevel):
                 
             self.nametowidget(".main").set_batches()
         except:
-            nametowidget(".").on_log(inspect.stack()[0][3],
+            self.nametowidget(".").on_log(inspect.stack()[0][3],
                                      sys.exc_info()[1],
                                      sys.exc_info()[0], sys.modules[__name__])
             
