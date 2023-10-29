@@ -219,6 +219,6 @@ class UI(tk.Toplevel):
     def on_cancel(self, evt=None):
         if self.obj is not None:
             self.obj.destroy()
-        self.nametowidget(".").engine.set_instance(self, 1)
+        self.nametowidget(".").engine.set_instance(self, 0)
         self.destroy()
 
