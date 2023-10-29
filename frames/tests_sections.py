@@ -10,7 +10,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-import frames.load_tests_sections
+import frames.load_tests_sections as ui
 
 
 class UI(tk.Toplevel):
@@ -150,7 +150,7 @@ class UI(tk.Toplevel):
 
                 selected_section = self.nametowidget(".").engine.get_selected("sections", "section_id", pk)
 
-                self.obj = frames.load_tests_sections.UI(self)
+                self.obj = ui.UI(self)
                 self.obj.on_open(selected_section)
             
     def set_tests_methods(self, args):
@@ -221,4 +221,6 @@ class UI(tk.Toplevel):
                 self.obj.set_values()
 
     def on_cancel(self, evt=None):
+        if self.obj is not None:
+            self.obj.destroy()
         self.destroy()
