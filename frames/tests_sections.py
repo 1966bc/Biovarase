@@ -66,58 +66,41 @@ class UI(tk.Toplevel):
     def on_open(self,):
 
         self.title("Tests Sections")
-        self.on_reset()
-
-    def on_reset(self, evt=None):
+        self.set_values()
+    
+    def set_values(self):
 
         sql = "SELECT sites.site_id,suppliers.supplier AS site\
                FROM sites\
-               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id"
-
+               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
+               WHERE sites.status=1;"
 
         rs = self.nametowidget(".").engine.read(True, sql, ())
-
-        if rs:
-            self.set_values(rs)
-
-    def set_values(self, rs):
 
         #.insert(parent, index, iid=None, **kw)
         self.Sites.insert("", 0, 0, text="Sites")
 
-        for i in rs:
-            #print(i)
-            sites = self.Sites.insert("",
-                                      i[0],
-                                      text=i[1],
-                                      values=(i[0], "sites"))
-            rs_wards = self.load_wards(i[0])
+        if rs:
 
-            #print(rs_wards)
+            for i in rs:
+                
+                sites = self.Sites.insert("", i[0], text=i[1], values=(i[0], "sites"))
+                rs_wards = self.load_wards(i[0])
 
-            if rs_wards is not None:
+                if rs_wards is not None:
 
-                for ward in rs_wards:
-                    
-                    wards = self.Sites.insert(sites,
-                                              ward[0],
-                                              text=ward[1],
-                                              values=(ward[0], "wards"))
-
-                    rs_sections = self.load_sections(ward[0])
-
-                    if rs_sections is not None:
+                    for ward in rs_wards:
                         
-                        for section in rs_sections:
-                            
-                            sections = self.Sites.insert(wards,
-                                              section[0],
-                                              text=section[1],
-                                              values=(section[0], "sections"))
-                    
-                    
+                        wards = self.Sites.insert(sites, ward[0], text=ward[1], values=(ward[0], "wards"))
 
-                                                      
+                        rs_sections = self.load_sections(ward[0])
+
+                        if rs_sections is not None:
+                            
+                            for section in rs_sections:
+                                self.Sites.insert(wards, section[0], text=section[1],
+                                                  values=(section[0], "sections"))
+                    
     def load_wards(self, i):
 
         sql = "SELECT ward_id, ward\

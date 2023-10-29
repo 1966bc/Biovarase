@@ -33,7 +33,7 @@ class UI(tk.Toplevel):
 
         self.rs_idd = self.nametowidget(".").engine.get_idd_by_section_id(selected_workstation[5])
 
-        comp_id = self.rs_idd[1]
+        comp_id = self.rs_idd[2]
 
         self.selected_workstation = selected_workstation
         self.tests_method_assigned = tests_method_assigned

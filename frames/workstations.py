@@ -63,22 +63,29 @@ class UI(tk.Toplevel):
 
         msg = "{0} Management".format(self.winfo_name().capitalize())
         self.title(msg)
-
-        sql = "SELECT sites.site_id,suppliers.supplier AS site\
-               FROM sites\
-               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id"
-
-        rs = self.nametowidget(".").engine.read(True, sql, ())
-
-        if rs:
-            self.set_values(rs)
+        self.set_values()
             
     def on_reset(self):
 
         for i in self.lstWorkstations.get_children():
             self.lstWorkstations.delete(i)
 
-    def set_values(self, rs):
+    def set_values(self):
+
+        sql = "SELECT sites.site_id,suppliers.supplier\
+               FROM sites\
+               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
+               WHERE sites.supplier_id =?\
+               AND sites.status =1\
+               ORDER BY suppliers.supplier ASC;"
+
+        section_id = self.nametowidget(".").engine.get_section_id()
+        
+        rs_idd = self.nametowidget(".").engine.get_idd_by_section_id(section_id)
+
+        args = (rs_idd[1],)
+
+        rs = self.nametowidget(".").engine.read(True, sql, args)
 
         #.insert(parent, index, iid=None, **kw)
         self.Sites.insert("", 0, 0, text="Sites")

@@ -142,7 +142,7 @@ class Main(tk.Toplevel):
         for i in items:
             m_file.add_command(label=i[0], underline=0, command=i[1])
 
-        #keep this here
+
         m_file.add_cascade(label='Export', menu=s_menu, underline=0)
 
         items = (("Quick Data Analysis", self.on_quick_data_analysis),
@@ -174,42 +174,35 @@ class Main(tk.Toplevel):
 
         m_file.add_command(label="Exit", underline=0, command=self.on_close)
 
-        items = (("Tests", self.on_tests),
-                 ("Tests Methods", self.on_tests_methods),
-                 ("Tests Sections", self.on_tests_sections),
-                 ("Workstations Tests Methods", self.on_workstations_tests_methods),
-                 ("Specialities", self.on_specialities),
-                 ("Data", self.on_data),
-                 ("Samples", self.on_samples),
-                 ("Units", self.on_units),
-                 ("Methods", self.on_methods),
-                 ("Equipments", self.on_equipments),
-                 ("Workstations", self.on_workstations),
-                 ("Suppliers", self.on_suppliers),
-                 ("Controls", self.on_controls),
-                 ("Actions", self.on_actions),
-                 ("Set Elements", self.on_elements),
-                 ("Set Z Score", self.on_set_zscore),)
+        items = (("Tests", 0, self.on_tests),
+                 ("Tests Methods", 1, self.on_tests_methods),
+                 ("Tests Sections", 2,  self.on_tests_sections),
+                 ("Workstations Tests Methods", 0, self.on_workstations_tests_methods),
+                 ("Specialities", 0, self.on_specialities),
+                 ("Data", 0, self.on_data),
+                 ("Samples", 2, self.on_samples),
+                 ("Units", 0, self.on_units),
+                 ("Methods", 0, self.on_methods),
+                 ("Equipments", 0, self.on_equipments),
+                 ("Workstations", 1, self.on_workstations),
+                 ("Controls", 0, self.on_controls),
+                 ("Actions", 0, self.on_actions),
+                 ("Set Elements", 4, self.on_elements),
+                 ("Set Z Score", 4, self.on_set_zscore),)
 
         for i in sorted(items, key=operator.itemgetter(0)):
-            m_edit.add_command(label=i[0], underline=0, command=i[1])
+            m_edit.add_command(label=i[0], underline=i[1], command=i[2])
 
-        m_adm.add_command(label="Sites",
-                                underline=1,
-                                command=self.on_sites)
 
-        m_adm.add_command(label="Wards",
-                                underline=0,
-                                command=self.on_wards)
+        items = (("Suppliers", 1, self.on_suppliers),
+                 ("Sites", 1, self.on_sites),
+                 ("Wards", 1, self.on_wards),
+                 ("Sections", 1, self.on_sections),
+                 ("Users", 0, self.on_users), )
 
-        m_adm.add_command(label="Sections",
-                                underline=1,
-                                command=self.on_sections)
+        for i in items:
+            m_adm.add_command(label=i[0], underline=i[1], command=i[2])
 
-        m_adm.add_command(label="Users",
-                                underline=0,
-                                command=self.on_users)
-        
         items = (("Add batch", self.on_add_batch),
                  ("Update batch", self.on_update_batch))
 
@@ -1036,7 +1029,12 @@ class Main(tk.Toplevel):
         frames.workstations.UI(self).on_open()
 
     def on_suppliers(self,):
-        frames.suppliers.UI(self).on_open()
+
+        if self.nametowidget(".").engine.log_user[5] !=0:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+        else:
+            frames.suppliers.UI(self).on_open()
 
     def on_wards(self,):
 

@@ -179,9 +179,7 @@ class UI(tk.Toplevel):
                             variable=self.to_compute,
                             command=self.on_set_compute,
                             value=index,).grid(row=r, column=c, sticky=tk.EW, **paddings)
-            r += 1
-
-       
+            r += 1       
 
     def on_open(self, selected_test_method, selected_workstation, selected_batch=None):
 
@@ -207,6 +205,7 @@ class UI(tk.Toplevel):
             msg = "Insert {0} for {1}".format(self.winfo_name().capitalize(), self.selected_test[2])
 
             if self.set_remeber_batch_data.get()== True:
+                
                 if self.nametowidget(".").engine.batch_remembers is not None:
 
                     try:
@@ -221,6 +220,10 @@ class UI(tk.Toplevel):
                     self.expiration_date.month.set(int(self.nametowidget(".").engine.batch_remembers[4].month))
                     self.expiration_date.day.set(int(self.nametowidget(".").engine.batch_remembers[4].day))
                     self.txtTarget
+                else:
+                    self.expiration_date.set_today()
+                    self.cbControls.focus()
+                    
             else:
                 self.expiration_date.set_today()
                 self.cbControls.focus()

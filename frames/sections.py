@@ -18,11 +18,13 @@ class UI(tk.Toplevel):
 
         self.parent = parent
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
+        self.attributes("-topmost", True)
         self.table = "sections"
         self.primary_key = "section_id"
         self.obj = None
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.set_instance(self, 1)
 
     def init_ui(self):
 
@@ -38,7 +40,6 @@ class UI(tk.Toplevel):
         self.Sites.bind("<<TreeviewSelect>>", self.on_branch_selected)
         self.Sites.bind("<Double-1>", self.on_branch_activated)
         
-
         frm_right = ttk.Frame(frm_main, style="App.TFrame", relief=tk.GROOVE, padding=8)
         
         self.lblSections = tk.LabelFrame(frm_right, text="Sections")
@@ -61,42 +62,59 @@ class UI(tk.Toplevel):
 
         msg = "{0} Management".format(self.winfo_name().capitalize())
         self.title(msg)
+        self.set_values()
 
-        sql = "SELECT sites.site_id,suppliers.supplier AS site\
-               FROM sites\
-               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id"
+    def set_values(self):
 
-        rs = self.nametowidget(".").engine.read(True, sql, ())
-
-        if rs:
-            self.set_values(rs)
-            
-    def on_reset(self):
+        for i in self.Sites.get_children():
+            self.Sites.delete(i)
 
         for i in self.lstSections.get_children():
             self.lstSections.delete(i)
 
-    def set_values(self, rs):
+        sql = "SELECT DISTINCT(sites.supplier_id),suppliers.supplier\
+               FROM sites\
+               INNER JOIN suppliers ON suppliers.supplier_id = sites.supplier_id\
+               WHERE sites.status =1\
+               GROUP BY sites.supplier_id\
+               ORDER BY suppliers.supplier;"
+
+        rs = self.nametowidget(".").engine.read(True, sql, ())
 
         #.insert(parent, index, iid=None, **kw)
         self.Sites.insert("", 0, 0, text="Sites")
 
         for i in rs:
             #print(i)
-            sites = self.Sites.insert("",
-                                      i[0],
-                                      text=i[1],
-                                      values=(i[0], "sites"))
-            rs_wards = self.load_wards(i[0])
+            sites = self.Sites.insert("", i[0], text=i[1], values=(i[0], "sites"))
 
-            if rs_wards is not None:
+            rs_hospitals = self.load_hospitals(i[0])
 
-                for ward in rs_wards:
+            if rs_hospitals is not None:
+
+                for hospital in rs_hospitals:
+
+                    hospitals = self.Sites.insert(sites, hospital[0],
+                                                  text=hospital[1],
+                                                  values=(hospital[0], "hospitals"))
                     
-                    wards = self.Sites.insert(sites,
-                                              ward[0],
-                                              text=ward[1],
+                    rs_wards = self.load_wards(hospital[0])
+
+                    if rs_wards is not None:
+
+                        for ward in rs_wards:
+                            self.Sites.insert(hospitals, ward[0], text=ward[1],
                                               values=(ward[0], "wards"))
+
+    def load_hospitals(self, i):
+
+        sql = "SELECT sites.site_id,suppliers.supplier\
+               FROM sites\
+               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
+               WHERE sites.supplier_id =?\
+               AND sites.status =1;"
+
+        return self.nametowidget(".").engine.read(True, sql, (i,))                    
  
     def load_wards(self, i):
 
@@ -106,7 +124,6 @@ class UI(tk.Toplevel):
                AND status =1"
 
         return self.nametowidget(".").engine.read(True, sql, (i,))
-
 
     def on_branch_selected(self, evt=None):
 
@@ -125,10 +142,6 @@ class UI(tk.Toplevel):
 
                 self.set_sections(args)
 
-            else:
-                self.on_reset()
-
-           
     def on_branch_activated(self, evt=None):
 
         s = self.Sites.focus()
@@ -206,5 +219,6 @@ class UI(tk.Toplevel):
     def on_cancel(self, evt=None):
         if self.obj is not None:
             self.obj.destroy()
+        self.nametowidget(".").engine.set_instance(self, 1)
         self.destroy()
 

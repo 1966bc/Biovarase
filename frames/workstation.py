@@ -151,7 +151,7 @@ class UI(tk.Toplevel):
         values = []
 
         sql = "SELECT section_id, section FROM sections WHERE ward_id =? AND status =1 ORDER BY section;"
-        args = (rs_idd[2],)
+        args = (rs_idd[3],)
         rs = self.nametowidget(".").engine.read(True, sql, args)
        
         for i in rs:

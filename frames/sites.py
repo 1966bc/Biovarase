@@ -25,6 +25,7 @@ class UI(tk.Toplevel):
         self.obj = None
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.set_instance(self, 1)
 
     def init_ui(self):
 
@@ -129,4 +130,5 @@ class UI(tk.Toplevel):
     def on_cancel(self, evt=None):
         if self.obj is not None:
             self.obj.destroy()
+        self.nametowidget(".").engine.set_instance(self, 1)
         self.destroy()

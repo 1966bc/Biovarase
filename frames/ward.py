@@ -15,6 +15,9 @@ class UI(tk.Toplevel):
     def __init__(self, parent, index=None):
         super().__init__(name="ward")
 
+        if self.nametowidget(".").engine.get_instance("data"):
+                self.nametowidget(".data").on_cancel()     
+
         self.parent = parent
         self.index = index
         self.transient(parent)
@@ -41,7 +44,7 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
-        ttk.Label(frm_left, text="Site:").grid(row=r, sticky=tk.W)
+        ttk.Label(frm_left, text="Hospital:").grid(row=r, sticky=tk.W)
         self.cbSites = ttk.Combobox(frm_left,)
         self.cbSites.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
@@ -57,8 +60,8 @@ class UI(tk.Toplevel):
 
         r += 1
         ttk.Label(frm_left, text="Status:").grid(row=r, sticky=tk.W)
-        self.ckEnable = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.status,)
-        self.ckEnable.grid(row=r, column=c, sticky=tk.EW, **paddings)
+        chk = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.status,)
+        chk.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         frm_buttons = ttk.Frame(self.frm_main, style="App.TFrame")
         frm_buttons.grid(row=0, column=1, sticky=tk.NS, **paddings)
@@ -74,22 +77,35 @@ class UI(tk.Toplevel):
         self.bind("<Alt-c>", self.on_cancel)
         btn_cancel.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
-    def on_open(self, selected_item=None):
+    def on_open(self, selected_hospital):
 
+        self.selected_hospital = selected_hospital
         self.set_sites()
-        self.set_employees()
+        self.set_manager()
 
         if self.index is not None:
-            self.selected_item = selected_item
             msg = "Update {0}".format(self.winfo_name().title())
             self.set_values()
+            self.txtWard.focus()
         else:
             msg = "Insert {0}".format(self.winfo_name().title())
+
+            try:
+                key = next(key
+                           for key, value
+                           in self.dict_sites.items()
+                           if value == selected_hospital[0])
+                self.cbSites.current(key)
+
+                self.cbUsers.focus()
+                
+            except:
+                pass
+        
             self.status.set(1)
 
         self.title(msg)
-        self.txtWard.focus()
-
+        
     def set_sites(self):
 
         index = 0
@@ -110,7 +126,7 @@ class UI(tk.Toplevel):
 
         self.cbSites["values"] = voices
 
-    def set_employees(self):
+    def set_manager(self):
 
         index = 0
         self.dict_users = {}
@@ -136,7 +152,7 @@ class UI(tk.Toplevel):
             key = next(key
                        for key, value
                        in self.dict_sites.items()
-                       if value == self.selected_item[1])
+                       if value == self.parent.selected_ward[1])
             self.cbSites.current(key)
         except:
             pass
@@ -146,13 +162,13 @@ class UI(tk.Toplevel):
             key = next(key
                        for key, value
                        in self.dict_users.items()
-                       if value == self.selected_item[2])
+                       if value == self.parent.selected_ward[2])
             self.cbUsers.current(key)
         except:
             pass
         
-        self.ward.set(self.selected_item[3])
-        self.status.set(self.selected_item[4])
+        self.ward.set(self.parent.selected_ward[3])
+        self.status.set(self.parent.selected_ward[4])
 
     def get_values(self,):
 
@@ -173,26 +189,24 @@ class UI(tk.Toplevel):
 
             if self.index is not None:
 
-                sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.field)
+                sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
-                args.append(self.selected_item[0])
+                args.append(self.parent.selected_ward[0])
 
             else:
 
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
             last_id = self.nametowidget(".").engine.write(sql, args)
-            self.parent.on_open()
+            self.parent.set_wards((self.parent.selected_hospital[0],))
+
+            if self.nametowidget(".").engine.get_instance("sections"):
+                self.nametowidget(".sections").set_values()
 
             if self.index is not None:
-                self.parent.lstItems.see(self.index)
-                self.parent.lstItems.selection_set(self.index)
-            else:
-                #force focus on listbox
-                idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
-                self.parent.lstItems.selection_set(idx)
-                self.parent.lstItems.see(idx)                
-
+                self.parent.lstWards.see(self.index)
+                self.parent.lstWards.selection_set(self.index)
+                
             self.on_cancel()
 
         else:

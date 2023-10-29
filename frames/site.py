@@ -15,6 +15,9 @@ class UI(tk.Toplevel):
     def __init__(self, parent, index=None):
         super().__init__(name="site")
 
+        if self.nametowidget(".").engine.get_instance("data"):
+                self.nametowidget(".data").on_cancel()        
+
         self.parent = parent
         self.index = index
         self.transient(parent)
@@ -182,6 +185,9 @@ class UI(tk.Toplevel):
 
             self.parent.lstItems.see(which)
             self.parent.lstItems.selection_set(which)
+
+            if self.nametowidget(".").engine.get_instance("wards"):
+                self.nametowidget(".wards").set_values()
                 
             self.on_cancel()
 

@@ -112,15 +112,7 @@ class UI(tk.Toplevel):
         msg = ("Results: {0}".format(self.lstResults.size()))
         self.items.set(msg)   
         self.title("Batches and Results Management")
-
-        sql = "SELECT sites.site_id,suppliers.supplier AS site\
-               FROM sites\
-               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id"
-
-        rs = self.nametowidget(".").engine.read(True, sql, ())
-
-        if rs:
-            self.set_values(rs)
+        self.set_values()
 
     def on_reset(self):
 
@@ -135,7 +127,22 @@ class UI(tk.Toplevel):
 
         self.lstResults.delete(0, tk.END)
 
-    def set_values(self, rs):
+    def set_values(self):
+
+        sql = "SELECT sites.site_id,suppliers.supplier\
+               FROM sites\
+               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
+               WHERE sites.supplier_id =?\
+               AND sites.status =1\
+               ORDER BY suppliers.supplier ASC;"
+
+        section_id = self.nametowidget(".").engine.get_section_id()
+        
+        rs_idd = self.nametowidget(".").engine.get_idd_by_section_id(section_id)
+
+        args = (rs_idd[1],)
+
+        rs = self.nametowidget(".").engine.read(True, sql, args)
 
         #.insert(parent, index, iid=None, **kw)
         self.Sites.insert("", 0, 0, text="Sites")
@@ -163,19 +170,19 @@ class UI(tk.Toplevel):
 
     def load_wards(self, site_id):
 
-        sql = "SELECT ward_id, ward FROM wards WHERE site_id =? AND status =1;"
+        sql = "SELECT ward_id, ward FROM wards WHERE site_id =? AND status =1 ORDER BY ward;"
 
         return self.nametowidget(".").engine.read(True, sql, (site_id,))
 
     def load_sections(self, ward_id):
 
-        sql = "SELECT section_id, section FROM sections WHERE ward_id =? AND status =1;"
+        sql = "SELECT section_id, section FROM sections WHERE ward_id =? AND status =1 ORDER BY section;"
 
         return self.nametowidget(".").engine.read(True, sql, (ward_id,))
 
     def load_workstations(self, section_id):
 
-        sql = "SELECT workstation_id, description FROM workstations WHERE section_id =? AND status =1;"
+        sql = "SELECT workstation_id, description FROM workstations WHERE section_id =? AND status =1 ORDER BY description;"
 
         return self.nametowidget(".").engine.read(True, sql, (section_id,))
 
@@ -192,14 +199,9 @@ class UI(tk.Toplevel):
 
                 self.selected_workstation = self.nametowidget(".").engine.get_selected("workstations", "workstation_id", pk)
 
-                self.section_data = self.nametowidget(".").engine.get_section_data(self.selected_workstation[4])
-
                 args = (self.selected_workstation[0],)
 
                 self.set_tests_methods(args)
-
-            else:
-                self.on_reset()
 
     def on_branch_activated(self, evt=None):
 
