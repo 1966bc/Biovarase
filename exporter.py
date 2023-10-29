@@ -280,7 +280,8 @@ class Exporter:
                        ORDER BY tests.test;"
         
         rs_idd = self.get_idd_by_section_id(self.get_section_id())
-        args = (rs_idd[2],)
+        print(rs_idd)
+        args = (rs_idd[3],)
 
         rs_tests_methods = self.read(True, sql_tests, args)
         
@@ -299,7 +300,7 @@ class Exporter:
                            AND batches.test_method_id =?\
                            AND wards.ward_id =?;"
 
-            rs_batches = self.read(True, sql_batches, (test_method[0], rs_idd[2]))
+            rs_batches = self.read(True, sql_batches, (test_method[0], rs_idd[3]))
 
             for batch in rs_batches:
 

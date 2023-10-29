@@ -251,19 +251,20 @@ class DBMS:
     def get_idd_by_section_id(self, section_id):
 
         sql = "SELECT sites.site_id,\
+                      sites.supplier_id,\
                       sites.comp_id,\
                       wards.ward_id,\
                       sections.section_id\
                FROM sites\
-               INNER JOIN suppliers AS companies ON companies.supplier_id = sites.supplier_id\
-               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
-               INNER JOIN wards ON sites.site_id = wards.ward_id\
+               INNER JOIN wards ON sites.site_id = wards.site_id\
                INNER JOIN sections ON wards.ward_id = sections.ward_id\
                WHERE sections.section_id =?;"
 
         args = (section_id,)
 
-        return self.read(False, sql, args)
+        rs = self.read(False, sql, args)
+
+        return rs
 
     def get_test_name(self, test_id):
 
