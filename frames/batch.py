@@ -399,9 +399,9 @@ class UI(tk.Toplevel):
             last_id = self.nametowidget(".").engine.write(sql, args)
 
             self.update_batches_lists()
-            self.set_index(last_id)
             self.parent.set_batches()
             self.update_remeber_batch_data()
+            self.set_index(last_id)
             self.on_cancel()
 
     def update_remeber_batch_data(self):
@@ -443,6 +443,7 @@ class UI(tk.Toplevel):
             try:
                 self.parent.lstBatches.see(idx)
                 self.parent.lstBatches.selection_set(idx)
+                self.parent.set_results()
             except:
                 pass
             
