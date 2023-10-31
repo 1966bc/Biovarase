@@ -135,45 +135,104 @@ class UI(tk.Toplevel):
 
     def set_values(self):
 
-        sql = "SELECT sites.site_id,suppliers.supplier\
-               FROM sites\
-               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
-               WHERE sites.supplier_id =?\
-               AND sites.status =1\
-               ORDER BY suppliers.supplier ASC;"
+        if self.nametowidget(".").engine.log_user[5] ==0:
 
-        section_id = self.nametowidget(".").engine.get_section_id()
-        
-        rs_idd = self.nametowidget(".").engine.get_idd_by_section_id(section_id)
+            sql = "SELECT DISTINCT(sites.supplier_id),suppliers.supplier\
+                   FROM sites\
+                   INNER JOIN suppliers ON suppliers.supplier_id = sites.supplier_id\
+                   WHERE sites.status =1\
+                   GROUP BY sites.supplier_id\
+                   ORDER BY suppliers.supplier;"
+            args = ()
+        else:            
 
-        args = (rs_idd[1],)
+            sql = "SELECT sites.site_id,suppliers.supplier\
+                   FROM sites\
+                   INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
+                   WHERE sites.supplier_id =?\
+                   AND sites.status =1\
+                   ORDER BY suppliers.supplier ASC;"
+
+            section_id = self.nametowidget(".").engine.get_section_id()
+            
+            rs_idd = self.nametowidget(".").engine.get_idd_by_section_id(section_id)
+
+            args = (rs_idd[1],)
 
         rs = self.nametowidget(".").engine.read(True, sql, args)
 
         #.insert(parent, index, iid=None, **kw)
         self.Sites.insert("", 0, 0, text="Sites")
 
-        for i in rs:
-            sites = self.Sites.insert("", i[0], text=i[1], values=(i[0], "sites"))
-            rs_wards = self.load_wards(i[0])
 
-            if rs_wards is not None:
+        if self.nametowidget(".").engine.log_user[5] ==0:
+            for i in rs:
+                #print(i)
+                sites = self.Sites.insert("", i[0], text=i[1], values=(i[0], "sites"))
 
-                for ward in rs_wards:
-                    wards = self.Sites.insert(sites, ward[0], text=ward[1], values=(ward[0], "wards"))
-                    rs_sections = self.load_sections(ward[0])
+                rs_hospitals = self.load_hospitals(i[0])
 
-                    if rs_sections is not None:
+                if rs_hospitals is not None:
 
-                        for section in rs_sections:
-                            sections = self.Sites.insert(wards, section[0], text=section[1], values=(section[0], "sections"))
-                            rs_workstations = self.load_workstations(section[0])
+                    for hospital in rs_hospitals:
 
-                            if rs_workstations is not None:
+                        hospitals = self.Sites.insert(sites, hospital[0],
+                                                      text=hospital[1],
+                                                      values=(hospital[0], "hospitals"))
+                        
+                        rs_wards = self.load_wards(hospital[0])
 
-                                for workstation in rs_workstations:
-                                    self.Sites.insert(sections, workstation[0], text=workstation[1], values=(workstation[0], "workstations"))
+                        if rs_wards is not None:
 
+                            for ward in rs_wards:
+                                wards = self.Sites.insert(hospitals, ward[0], text=ward[1], values=(ward[0], "wards"))
+                                rs_sections = self.load_sections(ward[0])
+
+                                if rs_sections is not None:
+
+                                    for section in rs_sections:
+                                        sections = self.Sites.insert(wards, section[0], text=section[1], values=(section[0], "sections"))
+                                        rs_workstations = self.load_workstations(section[0])
+
+                                if rs_workstations is not None:
+                                    for workstation in rs_workstations:
+                                        self.Sites.insert(sections, workstation[0], text=workstation[1], values=(workstation[0], "workstations"))
+
+                                
+
+        else:
+
+            for i in rs:
+                sites = self.Sites.insert("", i[0], text=i[1], values=(i[0], "sites"))
+                rs_wards = self.load_wards(i[0])
+
+                if rs_wards is not None:
+
+                    for ward in rs_wards:
+                        wards = self.Sites.insert(sites, ward[0], text=ward[1], values=(ward[0], "wards"))
+                        rs_sections = self.load_sections(ward[0])
+
+                        if rs_sections is not None:
+
+                            for section in rs_sections:
+                                sections = self.Sites.insert(wards, section[0], text=section[1], values=(section[0], "sections"))
+                                rs_workstations = self.load_workstations(section[0])
+
+                                if rs_workstations is not None:
+
+                                    for workstation in rs_workstations:
+                                        self.Sites.insert(sections, workstation[0], text=workstation[1], values=(workstation[0], "workstations"))
+
+    def load_hospitals(self, i):
+
+        sql = "SELECT sites.site_id,suppliers.supplier\
+               FROM sites\
+               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
+               WHERE sites.supplier_id =?\
+               AND sites.status =1;"
+
+        return self.nametowidget(".").engine.read(True, sql, (i,))
+    
     def load_wards(self, site_id):
 
         sql = "SELECT ward_id, ward FROM wards WHERE site_id =? AND status =1 ORDER BY ward;"
