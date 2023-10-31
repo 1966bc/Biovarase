@@ -109,11 +109,13 @@ class UI(tk.Toplevel):
         self.bind("<Alt-s>", self.on_save)
         btn.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
-        if self.index is not None:
-            r += 1
-            btn = ttk.Button(frm_buttons, style="App.TButton", text="Delete", underline=0, command=self.on_delete)
-            self.bind("<Alt-c>", self.on_cancel)
-            btn.grid(row=r, column=c, sticky=tk.EW, **paddings)
+        if self.nametowidget(".").engine.log_user[5] <2:
+
+            if self.index is not None:
+                r += 1
+                btn = ttk.Button(frm_buttons, style="App.TButton", text="Delete", underline=0, command=self.on_delete)
+                self.bind("<Alt-c>", self.on_cancel)
+                btn.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
         btn = ttk.Button(frm_buttons, style="App.TButton", text="Cancel", underline=0, command=self.on_cancel)
