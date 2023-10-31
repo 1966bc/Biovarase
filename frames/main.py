@@ -996,19 +996,49 @@ class Main(tk.Toplevel):
             self.frq.set_xlabel("No unit assigned yet")
 
     def on_tests(self):
-        frames.tests.UI(self).on_open()
+
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+
+        else:
+            frames.tests.UI(self).on_open()
 
     def on_tests_methods(self):
-        frames.tests_methods.UI(self).on_open()
+
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+
+        else:
+            frames.tests_methods.UI(self).on_open()
 
     def on_workstations_tests_methods(self):
-        frames.workstations_tests_methods.UI(self).on_open()
+
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+
+        else:
+            frames.workstations_tests_methods.UI(self).on_open()
 
     def on_tests_sections(self):
-        frames.tests_sections.UI(self).on_open()
+
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+
+        else:
+            frames.tests_sections.UI(self).on_open()
 
     def on_specialities(self,):
-        frames.specialities.UI(self).on_open()
+
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+
+        else:
+            frames.specialities.UI(self).on_open()
 
     def on_samples(self,):
         frames.samples.UI(self).on_open()
@@ -1023,10 +1053,22 @@ class Main(tk.Toplevel):
         frames.controls.UI(self).on_open()
 
     def on_equipments(self):
-        frames.equipments.UI(self).on_open()
+
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+
+        else:
+            frames.equipments.UI(self).on_open()
 
     def on_workstations(self,):
-        frames.workstations.UI(self).on_open()
+
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+
+        else:
+            frames.workstations.UI(self).on_open()
 
     def on_suppliers(self,):
 

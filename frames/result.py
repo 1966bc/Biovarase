@@ -252,23 +252,29 @@ class UI(tk.Toplevel):
             
     def on_delete(self, evt=None):
 
-        if self.index is not None:
-            if messagebox.askyesno(self.nametowidget(".").title(),
-                                   self.nametowidget(".").engine.delete,
-                                   parent=self) == True:
-                
-                sql = "DELETE FROM results WHERE result_id =?;"
-                args = (self.selected_result[0],)
-                self.nametowidget(".").engine.write(sql, args)
-                
-                self.update_results_lists()
-                
-                self.on_cancel()
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
 
-            else:
-                messagebox.showinfo(self.nametowidget(".").title(), 
-                                    self.nametowidget(".").engine.abort, 
-                                    parent=self)
+        else:            
+
+            if self.index is not None:
+                if messagebox.askyesno(self.nametowidget(".").title(),
+                                       self.nametowidget(".").engine.delete,
+                                       parent=self) == True:
+                    
+                    sql = "DELETE FROM results WHERE result_id =?;"
+                    args = (self.selected_result[0],)
+                    self.nametowidget(".").engine.write(sql, args)
+                    
+                    self.update_results_lists()
+                    
+                    self.on_cancel()
+
+                else:
+                    messagebox.showinfo(self.nametowidget(".").title(), 
+                                        self.nametowidget(".").engine.abort, 
+                                        parent=self)
 
     def on_cancel(self, evt=None):
         self.nametowidget(".").engine.set_instance(self, 0)
