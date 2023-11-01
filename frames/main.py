@@ -1041,16 +1041,35 @@ class Main(tk.Toplevel):
             frames.specialities.UI(self).on_open()
 
     def on_samples(self,):
-        frames.samples.UI(self).on_open()
+
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+        else:
+            frames.samples.UI(self).on_open()
         
     def on_units(self,):
-        frames.units.UI(self).on_open()
+
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+        else:
+            frames.units.UI(self).on_open()
 
     def on_methods(self,):
-        frames.methods.UI(self).on_open()
+
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+        else:
+            frames.methods.UI(self).on_open()
 
     def on_controls(self,):
-        frames.controls.UI(self).on_open()
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+        else:
+            frames.controls.UI(self).on_open()
 
     def on_equipments(self):
 
@@ -1112,7 +1131,11 @@ class Main(tk.Toplevel):
         frames.set_zscore.UI(self).on_open()
 
     def on_data(self,):
-        frames.data.UI(self).on_open()
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+        else:
+            frames.data.UI(self).on_open()
 
     def on_actions(self,):
         frames.actions.UI(self).on_open()
