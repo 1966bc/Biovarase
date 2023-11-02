@@ -16,17 +16,7 @@ The purpose of Quality Control Assurance in a clinical laboratory is to allow th
 It uses even the famous Westgard's rules to monitor results dataset.
 All the data are managed by SQLite database and matplotlib.
 
-- To show levey jennings graph, in the main windows select a test and choose the relative batch.
-- To manage batches in the main window select a test and on menubar choice Batchs/Add batch or Update batch.
-- To manage results in the main window select first a batch and after a result or on menubar choice Results/Add result or Update result.
-- To manage rejections in the main window select a result after check Enable Rejections on statusbar, in the window that will open add or update rejection type.
-- To manage actions in the main window use Edit/Actions.
-- To manage units in the main window use Edit/Units.
-- To insert, update or delete a test use Edit/Tests.
-- To manage batchs and relative results use Edit/Data.
-- To set the number of elements to compute Edit/Set Elements.
-- To set the Z Score use Edit/Set Z Score.
-- To export some xls data choice an item from File/Export
+Look User Manual for begin with Biovarase.
 
 Biovarase requires 
 
