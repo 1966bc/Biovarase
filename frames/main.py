@@ -120,14 +120,10 @@ class Main(tk.Toplevel):
         m_edit = tk.Menu(m_main, tearoff=0, bd=1)
         m_adm = tk.Menu(m_main, tearoff=0, bd=1)
         s_sites = tk.Menu(m_edit)
-        m_batches = tk.Menu(m_main, tearoff=0, bd=1)
-        m_results = tk.Menu(m_main, tearoff=0, bd=1)
         m_about = tk.Menu(m_main, tearoff=0, bd=1)
 
         m_main.add_cascade(label="File", underline=0, menu=m_file)
         m_main.add_cascade(label="Edit", underline=0, menu=m_edit)
-        m_main.add_cascade(label="Batches", underline=0, menu=m_batches)
-        m_main.add_cascade(label="Results", underline=0, menu=m_results)
         m_main.add_cascade(label="Admin", underline=0, menu=m_adm)
         m_main.add_cascade(label="?", underline=0, menu=m_about)
 
@@ -203,18 +199,6 @@ class Main(tk.Toplevel):
         for i in items:
             m_adm.add_command(label=i[0], underline=i[1], command=i[2])
 
-        items = (("Add batch", self.on_add_batch),
-                 ("Update batch", self.on_update_batch))
-
-        for i in items:
-            m_batches.add_command(label=i[0], underline=0, command=i[1])
-
-        items = (("Add result", self.on_add_result),
-                 ("Update result", self.on_update_result))
-
-        for i in items:
-            m_results.add_command(label=i[0], underline=0, command=i[1])
-
         m_about.add_command(label="About", underline=0, command=self.on_about)
         m_about.add_command(label="License", underline=0, command=self.on_license)
         m_about.add_command(label="Python", underline=0, command=self.on_python_version)
@@ -255,7 +239,7 @@ class Main(tk.Toplevel):
         self.lstBatches = self.nametowidget(".").engine.get_listbox(w, height=5, color="white")
         self.lstBatches.selectmode = tk.MULTIPLE
         self.lstBatches.bind("<<ListboxSelect>>", self.on_selected_batch)
-        self.lstBatches.bind('<Double-Button-1>', self.on_update_batch)
+        self.lstBatches.bind('<Double-Button-1>', self.on_batch_double_button)
         w.pack(side=tk.TOP, fill=tk.BOTH, expand=0)
 
         frm_stats = ttk.Frame(frm_lists, style="App.TFrame")
@@ -1138,7 +1122,12 @@ class Main(tk.Toplevel):
             frames.data.UI(self).on_open()
 
     def on_actions(self,):
-        frames.actions.UI(self).on_open()
+        
+        if self.nametowidget(".").engine.log_user[5] ==2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+        else:
+            frames.actions.UI(self).on_open()
 
     def on_users(self,):
 
@@ -1297,26 +1286,10 @@ class Main(tk.Toplevel):
             msg = "Attention please.\nNo batch selected."
             messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
 
-    def on_add_batch(self):
-
-        if self.cbTests.current() != -1:
-
-            if self.lstWorkstations.curselection():
-
-                index = self.lstWorkstations.curselection()[0]
-                pk = self.dict_workstations[index]
-                selected_workstation = self.nametowidget(".").engine.get_selected("workstations", "workstation_id", pk)
-                frames.batch.UI(self).on_open(self.selected_test_method, selected_workstation)
-
-        else:
-            msg = "Attention please.\nBefore add a batch you must select a test."
-            messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
-
-    def on_update_batch(self, evt=None):
+    def on_batch_double_button(self, evt=None):
 
         if self.lstBatches.curselection():
-            index = self.lstBatches.curselection()[0]
-            frames.batch.UI(self, index).on_open(self.selected_test_method, self.selected_workstation, self.selected_batch)
+            self.on_add_result()
         else:
             msg = "Attention please.\nSelect a batch."
             messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
