@@ -170,8 +170,7 @@ class Main(tk.Toplevel):
 
         m_file.add_command(label="Exit", underline=0, command=self.on_close)
 
-        items = (("Tests", 0, self.on_tests),
-                 ("Tests Methods", 1, self.on_tests_methods),
+        items = (("Tests Methods", 1, self.on_tests_methods),
                  ("Tests Sections", 2,  self.on_tests_sections),
                  ("Workstations Tests Methods", 0, self.on_workstations_tests_methods),
                  ("Specialities", 0, self.on_specialities),
@@ -179,7 +178,6 @@ class Main(tk.Toplevel):
                  ("Samples", 2, self.on_samples),
                  ("Units", 0, self.on_units),
                  ("Methods", 0, self.on_methods),
-                 ("Equipments", 0, self.on_equipments),
                  ("Workstations", 1, self.on_workstations),
                  ("Controls", 0, self.on_controls),
                  ("Actions", 0, self.on_actions),
@@ -194,7 +192,9 @@ class Main(tk.Toplevel):
                  ("Sites", 1, self.on_sites),
                  ("Wards", 1, self.on_wards),
                  ("Sections", 1, self.on_sections),
-                 ("Users", 0, self.on_users), )
+                 ("Users", 0, self.on_users),
+                 ("Tests", 0, self.on_tests),
+                 ("Equipments", 0, self.on_equipments),)
 
         for i in items:
             m_adm.add_command(label=i[0], underline=i[1], command=i[2])
