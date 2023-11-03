@@ -16,7 +16,7 @@ The purpose of Quality Control Assurance in a clinical laboratory is to allow th
 It uses even the famous Westgard's rules to monitor results dataset.
 All the data are managed by SQLite database and matplotlib.
 
-Look User Manual for begin with Biovarase.
+Take a look at the manual for getting started with Biovarase.
 
 Biovarase requires 
 
