@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   hiems MMXXIII
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 import sys
 import inspect
@@ -70,7 +70,7 @@ class Main(tk.Toplevel):
 
         self.protocol("WM_DELETE_WINDOW", self.on_close)
         self.parent = parent
-        
+
         self.enable_notes = tk.BooleanVar()
         self.status_bar_text = tk.StringVar()
         self.average = tk.DoubleVar()
@@ -93,11 +93,11 @@ class Main(tk.Toplevel):
         self.init_ui()
         self.init_menu()
         self.init_status_bar()
-        
+
         self.center_ui()
 
         self.nametowidget(".").engine.set_instance(self, 1)
-        
+
     def center_ui(self):
 
         ws = self.parent.winfo_screenwidth()
@@ -109,7 +109,7 @@ class Main(tk.Toplevel):
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
         self.geometry('%dx%d+%d+%d' % (w, h, x, y))
-        
+
     def init_menu(self):
 
         m_main = tk.Menu(self, bd=1)
@@ -119,7 +119,6 @@ class Main(tk.Toplevel):
         s_databases = tk.Menu(m_file)
         m_edit = tk.Menu(m_main, tearoff=0, bd=1)
         m_adm = tk.Menu(m_main, tearoff=0, bd=1)
-        s_sites = tk.Menu(m_edit)
         m_about = tk.Menu(m_main, tearoff=0, bd=1)
 
         m_main.add_cascade(label="File", underline=0, menu=m_file)
@@ -137,7 +136,6 @@ class Main(tk.Toplevel):
 
         for i in items:
             m_file.add_command(label=i[0], underline=0, command=i[1])
-
 
         m_file.add_cascade(label='Export', menu=s_menu, underline=0)
 
@@ -160,7 +158,7 @@ class Main(tk.Toplevel):
         s_databases.add_command(label="Vacuum",
                                 underline=0,
                                 command=self.on_vacuum)
-        
+
         m_file.add_command(label="Change password",
                            underline=0,
                            command=self.on_change_password)
@@ -186,7 +184,6 @@ class Main(tk.Toplevel):
 
         for i in sorted(items, key=operator.itemgetter(0)):
             m_edit.add_command(label=i[0], underline=i[1], command=i[2])
-
 
         items = (("Suppliers", 1, self.on_suppliers),
                  ("Sites", 1, self.on_sites),
@@ -284,7 +281,6 @@ class Main(tk.Toplevel):
 
         w.pack(side=tk.LEFT, fill=tk.X, expand=0)
 
-
         w = tk.LabelFrame(frm_stats, text="Other data", font="Helvetica 10 bold")
 
         ttk.Label(w, text="Westgard").pack()
@@ -294,7 +290,6 @@ class Main(tk.Toplevel):
                                      anchor=tk.CENTER,
                                      textvariable=self.westgard)
         self.lblWestgard.pack(fill=tk.X, padx=2, pady=2)
-
 
         ttk.Label(w, text="Range").pack()
         ttk.Label(w, style="black_and_withe.TLabel",
@@ -389,7 +384,6 @@ class Main(tk.Toplevel):
                         offvalue=0,
                         variable=self.ddof,
                         command=self.on_ddof).pack(side=tk.RIGHT, fill=tk.X)
-
 
         self.status.pack(side=tk.LEFT, fill=tk.X, expand=1)
 
@@ -525,7 +519,6 @@ class Main(tk.Toplevel):
 
         args = (self.nametowidget(".").engine.get_section_id(),)
 
- 
         sql = "SELECT DISTINCT specialities.speciality_id,\
                                specialities.description\
                FROM sites\
@@ -537,7 +530,6 @@ class Main(tk.Toplevel):
                WHERE sections.section_id =?\
                AND specialities.status =1\
                ORDER BY specialities.description;"
-
 
         rs = self.nametowidget(".").engine.read(True, sql, args)
 
@@ -573,7 +565,6 @@ class Main(tk.Toplevel):
                    AND tests_methods.status=1\
                    ORDER BY tests.test;"
 
-
             args = (self.selected_speciality[0], self.nametowidget(".").engine.get_section_id())
 
             rs = self.nametowidget(".").engine.read(True, sql, args)
@@ -593,8 +584,6 @@ class Main(tk.Toplevel):
         self.selected_workstation = None
         index = 0
         self.dict_workstations = {}
-        voices = []
-
 
         if self.cbTests.current() != -1:
 
@@ -649,19 +638,16 @@ class Main(tk.Toplevel):
 
             args = (self.selected_test_method[0], self.selected_workstation[0])
 
-
             rs = self.nametowidget(".").engine.read(True, sql, args)
 
             if rs:
-
-                today = datetime.date.today()
 
                 for i in rs:
 
                     x = self.nametowidget(".").engine.get_expiration_date(i[2])
 
                     s = "{0:18} {1:10}".format(i[1], i[5])
-                    
+
                     self.lstBatches.insert(tk.END, (s))
 
                     if x <= 0:
@@ -710,7 +696,7 @@ class Main(tk.Toplevel):
                         int(self.elements.get()))
 
                 rs = self.nametowidget(".").engine.read(True, sql, args)
-                
+
                 if rs:
 
                     for i in rs:
@@ -766,7 +752,7 @@ class Main(tk.Toplevel):
         if self.cbSpecialities.current() != -1:
 
             if self.cbTests.current() != -1:
-                
+
                 index = self.cbTests.current()
                 pk = self.dict_tests[index]
 
@@ -776,32 +762,30 @@ class Main(tk.Toplevel):
                 self.reset_batch_data()
                 self.reset_cal_data()
                 self.reset_graph()
-                
-                self.set_workstations()
 
+                self.set_workstations()
 
     def on_selected_workstation(self, evt=None):
 
         if self.lstWorkstations.curselection():
-            
+
             index = self.lstWorkstations.curselection()[0]
             pk = self.dict_workstations[index]
-            
+
             self.selected_workstation = self.nametowidget(".").engine.get_selected("workstations", "workstation_id", pk)
-            
+
             self.reset_batch_data()
             self.reset_cal_data()
             self.reset_graph()
             self.set_batches()
 
-
     def on_selected_batch(self, evt=None):
 
         if self.lstBatches.curselection():
-            
+
             index = self.lstBatches.curselection()[0]
             pk = self.dict_batchs.get(index)
-            
+
             self.selected_batch = self.nametowidget(".").engine.get_selected("batches", "batch_id", pk)
             self.batch_index = index
 
@@ -811,15 +795,13 @@ class Main(tk.Toplevel):
     def on_selected_result(self, event):
 
         if self.lstResults.curselection():
-            
+
             index = self.lstResults.curselection()[0]
             pk = self.dict_results.get(index)
-            
-            self.selected_result = self.nametowidget(".").engine.get_selected("results", "result_id", pk)
-            
-    def set_results_row_color(self, index, result, is_enabled, target, sd):
 
-        #print(result, is_enabled, target, sd)
+            self.selected_result = self.nametowidget(".").engine.get_selected("results", "result_id", pk)
+
+    def set_results_row_color(self, index, result, is_enabled, target, sd):
 
         if is_enabled == 0:
             self.lstResults.itemconfig(index, {"bg":"light gray"})
@@ -829,15 +811,15 @@ class Main(tk.Toplevel):
                 #result > 3sd
                 if result >= round((target + (sd * 3)), 2):
                     d["bg"] = "red"
-                #if result is > 2sd and < +3sd
+                # if result is > 2sd and < +3sd
                 elif result >= round((target + (sd * 2)), 2) and result <= round((target + (sd * 3)), 2):
                     d["bg"] = "yellow"
 
             elif result <= target:
-                #result < 3sd
+                # result < 3sd
                 if result <= round((target - (sd * 3)), 2):
                     d["bg"] = "red"
-                #if result is > -2sd and < -3sd
+                # if result is > -2sd and < -3sd
                 elif result <= round((target - (sd * 2)), 2) and result >= round((target - (sd * 3)), 2):
                     d["bg"] = "yellow"
 
@@ -858,11 +840,9 @@ class Main(tk.Toplevel):
         computed_sd = self.nametowidget(".").engine.get_sd(series)
         self.set_calculated_data(mean, computed_sd, cv, bias, crange)
 
-
         self.set_westgard(series)
 
-        self.set_lj(len(rs),
-                        target,
+        self.set_lj(len(rs), target,
                         sd,
                         series,
                         len(series),
@@ -874,7 +854,6 @@ class Main(tk.Toplevel):
         self.set_histogram(series, target, mean,)
 
         self.canvas.draw()
-
 
     def get_x_labels(self, rs):
 
@@ -889,7 +868,6 @@ class Main(tk.Toplevel):
                 dates.append(i[2])
 
         return (x_labels, dates)
-
 
     def set_lj(self, count_rs, target, sd, series, count_series,
                compute_average, compute_cv, x_labels, dates):
@@ -911,8 +889,8 @@ class Main(tk.Toplevel):
             lines[5].append(target - (sd * 2))
             lines[6].append(target - (sd * 3))
 
-        #it's show time
-        #self.lj.set_xticks(range(0, len(series) + 1))
+        # it's show time
+        # self.lj.set_xticks(range(0, len(series) + 1))
         self.lj.set_xticks(range(0, len(series)))
         self.lj.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
         self.lj.yaxis.set_major_formatter(FormatStrFormatter("%.2f"))
@@ -921,7 +899,7 @@ class Main(tk.Toplevel):
 
         for x, y in enumerate(series):
             self.lj.text(x, y, str(y),)
-            
+
         self.lj.plot(lines[0], color="red", label="+3 sd", linestyle="--")
         self.lj.plot(lines[1], color="yellow", label="+2 sd", linestyle="--")
         self.lj.plot(lines[2], color="green", label="+1 sd", linestyle="--")
@@ -930,7 +908,7 @@ class Main(tk.Toplevel):
         self.lj.plot(lines[5], color="yellow", label="-2 sd", linestyle="--")
         self.lj.plot(lines[6], color="red", label="-3 sd", linestyle="--")
 
-        if um is  not None:
+        if um is not None:
             self.lj.set_ylabel(str(um[0]))
         else:
             self.lj.set_ylabel("No unit assigned yet")
@@ -949,7 +927,7 @@ class Main(tk.Toplevel):
         bottom_text = ("from %s to %s"%(dates[0], dates[-1]), count_series, count_rs)
 
         self.lj.text(0.95, 0.01,
-                     '%s computed %s on %s results'%bottom_text,
+                     '%s computed %s on %s results' % bottom_text,
                      verticalalignment="bottom",
                      horizontalalignment="right",
                      transform=self.lj.transAxes,
@@ -972,9 +950,8 @@ class Main(tk.Toplevel):
         self.frq.set_ylabel('Results Frequency')
         self.frq.yaxis.set_label_position("right")
 
-        
-        um = self.nametowidget(".").engine.get_um(self.selected_test_method[5]) 
-        if um is  not None:
+        um = self.nametowidget(".").engine.get_um(self.selected_test_method[5])
+        if um is not None:
             self.frq.set_xlabel(str(um[0]))
         else:
             self.frq.set_xlabel("No unit assigned yet")
@@ -1026,15 +1003,15 @@ class Main(tk.Toplevel):
 
     def on_samples(self,):
 
-        if self.nametowidget(".").engine.log_user[5] ==2:
+        if self.nametowidget(".").engine.log_user[5] == 2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
             frames.samples.UI(self).on_open()
-        
+
     def on_units(self,):
 
-        if self.nametowidget(".").engine.log_user[5] ==2:
+        if self.nametowidget(".").engine.log_user[5] == 2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1042,14 +1019,14 @@ class Main(tk.Toplevel):
 
     def on_methods(self,):
 
-        if self.nametowidget(".").engine.log_user[5] ==2:
+        if self.nametowidget(".").engine.log_user[5] == 2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
             frames.methods.UI(self).on_open()
 
     def on_controls(self,):
-        if self.nametowidget(".").engine.log_user[5] ==2:
+        if self.nametowidget(".").engine.log_user[5] == 2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1057,7 +1034,7 @@ class Main(tk.Toplevel):
 
     def on_equipments(self):
 
-        if self.nametowidget(".").engine.log_user[5] ==2:
+        if self.nametowidget(".").engine.log_user[5] == 2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
 
@@ -1066,7 +1043,7 @@ class Main(tk.Toplevel):
 
     def on_workstations(self,):
 
-        if self.nametowidget(".").engine.log_user[5] ==2:
+        if self.nametowidget(".").engine.log_user[5] == 2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
 
@@ -1075,7 +1052,7 @@ class Main(tk.Toplevel):
 
     def on_suppliers(self,):
 
-        if self.nametowidget(".").engine.log_user[5] !=0:
+        if self.nametowidget(".").engine.log_user[5] != 0:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1083,7 +1060,7 @@ class Main(tk.Toplevel):
 
     def on_wards(self,):
 
-        if self.nametowidget(".").engine.log_user[5] !=0:
+        if self.nametowidget(".").engine.log_user[5] != 0:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1091,15 +1068,15 @@ class Main(tk.Toplevel):
 
     def on_sites(self,):
 
-        if self.nametowidget(".").engine.log_user[5] !=0:
+        if self.nametowidget(".").engine.log_user[5] != 0:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
-            frames.sites.UI(self).on_open()        
+            frames.sites.UI(self).on_open()
 
     def on_sections(self,):
 
-        if self.nametowidget(".").engine.log_user[5] !=0:
+        if self.nametowidget(".").engine.log_user[5] != 0:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1109,21 +1086,21 @@ class Main(tk.Toplevel):
         frames.elements.UI(self).on_open()
 
     def on_analitical(self,):
-        frames.analytical.UI(self).on_open()        
+        frames.analytical.UI(self).on_open()
 
     def on_set_zscore(self,):
         frames.set_zscore.UI(self).on_open()
 
     def on_data(self,):
-        if self.nametowidget(".").engine.log_user[5] ==2:
+        if self.nametowidget(".").engine.log_user[5] == 2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
             frames.data.UI(self).on_open()
 
     def on_actions(self,):
-        
-        if self.nametowidget(".").engine.log_user[5] ==2:
+
+        if self.nametowidget(".").engine.log_user[5] == 2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1131,12 +1108,12 @@ class Main(tk.Toplevel):
 
     def on_users(self,):
 
-        if self.nametowidget(".").engine.log_user[5] !=0:
+        if self.nametowidget(".").engine.log_user[5] != 0:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
             frames.users.UI(self).on_open()
-                    
+
 
     def on_zscore(self,):
         frames.zscore.UI(self,)
@@ -1176,7 +1153,7 @@ class Main(tk.Toplevel):
                 if rs is not None:
                     if rs[0] !=0:
                         frames.tea.UI(self,).on_open(selected_test_method, self.selected_workstation, int(self.elements.get()))
-                    
+
                 else:
                     msg = "Selected test is not enable to show this plot type."
                     messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
@@ -1187,7 +1164,6 @@ class Main(tk.Toplevel):
             msg = "Not enough data to plot.\nSelect a test."
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
 
-            
     def on_youden(self,):
 
         if self.cbTests.current() != -1:
@@ -1206,13 +1182,10 @@ class Main(tk.Toplevel):
                 if len(items) == 2:
 
                     for index in items:
-                        pk = self.dict_batchs.get(index)
-                        #print(pk)
+                        pk = self.dict_batchs.get(index)                    
                         pks.append(pk)
 
-
                     for pk in pks:
-                        #print(pk)
                         batch = self.nametowidget(".").engine.get_selected("batches", "batch_id", pk)
 
                         batches.append(batch)
@@ -1262,7 +1235,7 @@ class Main(tk.Toplevel):
         frames.quick_data_analysis.UI(self).on_open()
 
     def on_analitycal_goals(self,):
-        frames.analitycal_goals.UI(self).on_open()        
+        frames.analitycal_goals.UI(self).on_open()
 
     def on_export_counts(self,):
         frames.counts.UI(self).on_open()
@@ -1301,7 +1274,7 @@ class Main(tk.Toplevel):
             msg = "Insert 30 random results for test {0} batch {1} {2}?".format(self.selected_test[2],
                                                                                 self.selected_batch[4],
                                                                                 self.selected_batch[8])
-            
+
             if messagebox.askyesno(self.nametowidget(".").title(),
                                    msg,
                                    parent=self) == True:
@@ -1321,22 +1294,22 @@ class Main(tk.Toplevel):
                 log_time = self.nametowidget(".").engine.get_log_time()
 
                 for i in range(0,31):
-                    
+
                     result = random.uniform(min_val,max_val)
 
                     log_time += datetime.timedelta(days=1)
-                    
+
                     args = (self.selected_batch[0], self.selected_workstation[0], round(result,2), log_time, log_time)
-                    
+
                     self.nametowidget(".").engine.write(sql, args)
-                    
+
                 self.set_results()
 
         else:
             msg = "Attention please.\nBefore add 30 random results you must select a batch."
             messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
 
-        
+
     def on_add_result(self,):
 
         if self.lstBatches.curselection():
@@ -1380,7 +1353,7 @@ class Main(tk.Toplevel):
         sql = "VACUUM;"
         self.nametowidget(".").engine.write(sql)
         messagebox.showinfo(self.nametowidget(".").title(), "Vacuum executed.", parent=self)
-        
+
     def on_license(self):
         frames.license.UI(self).on_open()
 
@@ -1402,8 +1375,7 @@ class Main(tk.Toplevel):
         frames.change_password.UI(self, ).on_open()
 
     def on_log(self,):
-        self.nametowidget(".").engine.get_log_file()        
-        
+        self.nametowidget(".").engine.get_log_file()
+
     def on_close(self):
         self.nametowidget(".").on_exit()
-
