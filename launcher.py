@@ -1,26 +1,12 @@
 #!/usr/bin/env python3
 import os
+import sys
+import inspect
 import subprocess
 from threading import Thread
 
-__author__ = "1966bc aka giuseppe costanzi"
-__copyright__ = "Copyleft"
-__credits__ = ["hal9000",]
-__license__ = "GNU GPL Version 3, 29 June 2007"
-__version__ = "4.2"
-__maintainer__ = "1966bc"
-__email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-05-28"
-__status__ = "Production"
-
 
 class Launcher:
-    def __init__(self, *args, **kwargs):
-        
-        self.args = args
-        self.kwargs = kwargs
-
-
     def __str__(self):
         return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Launcher.__mro__])        
         
@@ -30,11 +16,20 @@ class Launcher:
         
     def open_file(self,path):
 
-        if os.path.exists(path):
-            if os.name == 'posix':
-                subprocess.call(["xdg-open", path])
-            else:
-                os.startfile(path)
+        try:
+            #print(os.path.exists(path))
+            do_i_exist = os.path.exists(path)
+            
+            if do_i_exist:
+                if os.name == 'posix':
+                    subprocess.call(["xdg-open", path])
+                else:
+                    os.startfile(path)
+
+            return do_i_exist
+        
+        except:
+            self.on_log(inspect.stack()[0][3], sys.exc_info()[1], sys.exc_info()[0], sys.modules[__name__])
 
 def main():
 
