@@ -32,6 +32,7 @@ import frames.tests
 import frames.tests_methods
 import frames.workstations_tests_methods
 import frames.data
+import frames.audit
 import frames.units
 import frames.methods
 import frames.specialities
@@ -191,7 +192,9 @@ class Main(tk.Toplevel):
                  ("Sections", 1, self.on_sections),
                  ("Users", 0, self.on_users),
                  ("Tests", 0, self.on_tests),
-                 ("Equipments", 0, self.on_equipments),)
+                 ("Equipments", 0, self.on_equipments),
+                 ("Audit trail", 0, self.on_audit),)
+        
 
         for i in items:
             m_adm.add_command(label=i[0], underline=i[1], command=i[2])
@@ -1040,6 +1043,16 @@ class Main(tk.Toplevel):
 
         else:
             frames.equipments.UI(self).on_open()
+
+    def on_audit(self,):
+
+        if self.nametowidget(".").engine.log_user[5] != 0:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+
+        else:
+            frames.audit.UI(self).on_open()
+        
 
     def on_workstations(self,):
 
