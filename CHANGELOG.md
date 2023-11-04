@@ -1,6 +1,12 @@
 # Biovarase
 ## changelog
 
+**2023-11-04**
+
+Added the Biovarase user manual, you can find it in pdf format in the main directory, although it is only a draft.
+
+Since the added features are many it will take me some time to write them in the manual.
+
 **2023-10-21**
 
 Hello, after a long time here is a new version of Biovarase.
@@ -11,7 +17,9 @@ Now for starters, once you download the source code and launch the program to lo
 
 ![alt tag](https://user-images.githubusercontent.com/5463566/277103748-2a82de97-34ac-459d-afb6-6f4fa4d4afc3.png)
 
-To add a user from the meu bar under the "Admin" voice locate the "Users" item. When you add a user the default password is "pass".Also when you reset a password the password assigned will be "pass"
+To add a user from the meu bar under the "Admin" voice locate the "Users" item. When you add a user the default password is "pass".
+
+Also when you reset a password the password assigned will be "pass"
 
 An explanation of all the new features will follow soon...I hope ;)
 
