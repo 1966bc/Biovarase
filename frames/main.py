@@ -143,6 +143,7 @@ class Main(tk.Toplevel):
         items = (("Quick Data Analysis", self.on_quick_data_analysis),
                  ("Notes", self.on_export_notes),
                  ("Analytical Goals", self.on_analitycal_goals),
+                 ("Print Biological Values", self.on_bvv),
                  ("Counts", self.on_export_counts),
                  ("Controls List", self.on_export_controls),)
 
@@ -200,9 +201,11 @@ class Main(tk.Toplevel):
             m_adm.add_command(label=i[0], underline=i[1], command=i[2])
 
         m_about.add_command(label="About", underline=0, command=self.on_about)
+        m_about.add_command(label="User Manual", underline=0, command=self.on_user_manual)
         m_about.add_command(label="License", underline=0, command=self.on_license)
         m_about.add_command(label="Python", underline=0, command=self.on_python_version)
         m_about.add_command(label="Tkinter", underline=0, command=self.on_tkinter_version)
+        
 
         for i in (m_main, m_file, ):
             i.config(bg=self.nametowidget(".").engine.get_rgb(240, 240, 237),)
@@ -1357,6 +1360,33 @@ class Main(tk.Toplevel):
                                                  sys.exc_info()[1],
                                                  sys.exc_info()[0],
                                                  sys.modules[__name__])
+
+    def on_bvv(self,):
+
+        self.nametowidget(".").engine.busy(self)
+
+        path = self.nametowidget(".").engine.get_bvv()
+
+        ret = self.nametowidget(".").engine.open_file(path)
+
+        self.nametowidget(".").engine.not_busy(self)
+
+        if ret == False:
+            messagebox.showinfo(self.nametowidget(".").title(), "The file Biological Variation Values does not exist.", parent=self)
+
+    def on_user_manual(self,):
+
+        self.nametowidget(".").engine.busy(self)
+
+        path = self.nametowidget(".").engine.get_user_manual()
+
+        ret = self.nametowidget(".").engine.open_file(path)
+
+        self.nametowidget(".").engine.not_busy(self)
+
+        if ret == False:
+            messagebox.showinfo(self.nametowidget(".").title(), "The Biovarase User Manual does not exist.", parent=self)
+            
 
     def on_dump(self):
         self.nametowidget(".").engine.dump_db()
