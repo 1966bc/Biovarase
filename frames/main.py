@@ -138,7 +138,7 @@ class Main(tk.Toplevel):
         for i in items:
             m_file.add_command(label=i[0], underline=0, command=i[1])
 
-        m_file.add_cascade(label='Export', menu=s_menu, underline=0)
+        m_file.add_cascade(label='Exports', menu=s_menu, underline=0)
 
         items = (("Quick Data Analysis", self.on_quick_data_analysis),
                  ("Notes", self.on_export_notes),
