@@ -65,7 +65,7 @@ class UI(tk.Toplevel):
         if self.analysis_date.get_date(self) == False: return
 
         args = (self.analysis_date.get_date(self),)
-        self.nametowidget(".").engine.quick_data_analysis(args)
+        ret  = self.nametowidget(".").engine.quick_data_analysis(args)
         self.on_cancel()
 
     def on_cancel(self, evt=None):
