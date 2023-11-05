@@ -866,7 +866,7 @@ class Main(tk.Toplevel):
         x_labels = []
         dates = []
 
-        rs = tuple(i for i in rs if i[4] != 0)
+        rs = tuple(i for i in rs if i[3] != 0)
 
         if rs:
             for i in reversed(rs):
