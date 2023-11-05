@@ -13,7 +13,9 @@ class Launcher:
     def launch(self, path):
         # TO FIX Exception in thread Thread-n: n = 1,2,3,4,...
         #Thread(target=self.open_file(path)).start()
-        self.open_file(path)
+        thread = Thread(target=self.open_file(path), )
+        thread.start()
+        
         
     def open_file(self,path):
 
@@ -27,7 +29,7 @@ class Launcher:
                 else:
                     os.startfile(path)
 
-            return do_i_exist
+            #return do_i_exist
         
         except:
             self.on_log(inspect.stack()[0][3], sys.exc_info()[1], sys.exc_info()[0], sys.modules[__name__])

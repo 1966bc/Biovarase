@@ -104,7 +104,6 @@ class Exporter:
         obj.save(path)
         self.launch(path)
 
-
     def get_counts(self, selected_date):
 
         try:
