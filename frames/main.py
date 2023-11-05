@@ -57,7 +57,7 @@ import frames.youden
 import frames.tests_sections
 import frames.users
 import frames.samples
-import frames.analitycal_goals
+import frames.analytical_goals
 import frames.tea
 import frames.analytical
 import frames.change_password
@@ -1251,7 +1251,7 @@ class Main(tk.Toplevel):
         frames.quick_data_analysis.UI(self).on_open()
 
     def on_analitycal_goals(self,):
-        frames.analitycal_goals.UI(self).on_open()
+        frames.analytical_goals.UI(self).on_open()
 
     def on_export_counts(self,):
         frames.counts.UI(self).on_open()
