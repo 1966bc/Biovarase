@@ -280,7 +280,7 @@ class Exporter:
                        ORDER BY tests.test;"
         
         rs_idd = self.get_idd_by_section_id(self.get_section_id())
-        print(rs_idd)
+        
         args = (rs_idd[3],)
 
         rs_tests_methods = self.read(True, sql_tests, args)

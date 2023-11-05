@@ -11,8 +11,9 @@ class Launcher:
         return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Launcher.__mro__])        
         
     def launch(self, path):
-
-        Thread(target=self.open_file(path)).start()
+        # TO FIX Exception in thread Thread-n: n = 1,2,3,4,...
+        #Thread(target=self.open_file(path)).start()
+        self.open_file(path)
         
     def open_file(self,path):
 
