@@ -106,6 +106,14 @@ class Tools:
         """translates an rgb tuple of int to a tkinter friendly color code"""
         return "#%02x%02x%02x" % (r, g, b)
 
+
+    def set_me_center(self,caller):
+        """center window on the screen"""
+
+        x = caller.parent.winfo_rootx()
+        y = caller.parent.winfo_rooty()
+        caller.geometry("+%d+%d" % (x, y))    
+
     def center_me(self, container):
 
         """center window on the screen"""
