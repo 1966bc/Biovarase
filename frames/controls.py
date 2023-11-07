@@ -30,8 +30,9 @@ class UI(tk.Toplevel):
         self.items = tk.StringVar()
         self.obj = None
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
-        
+        self.nametowidget(".").engine.set_me_center(self)
+
+         
     def init_ui(self):
 
         frm_main = ttk.Frame(self, style="App.TFrame")

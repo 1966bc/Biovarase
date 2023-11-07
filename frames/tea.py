@@ -24,7 +24,7 @@ class UI(tk.Toplevel):
         
         self.parent = parent
         self.minsize(1200, 600)
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.set_me_center(self)
         self.init_ui()
 
     def init_ui(self):

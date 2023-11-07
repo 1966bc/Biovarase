@@ -26,11 +26,10 @@ class UI(tk.Toplevel):
 
         self.parent = parent
         self.batches = []
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.set_me_center(self)
         self.init_ui()
 
     def init_ui(self):
-
 
         w = ttk.Frame(self, style="App.TFrame", padding=8)
         self.fig = Figure()

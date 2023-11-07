@@ -24,15 +24,8 @@ class UI(tk.Toplevel):
         self.count_batchs = tk.StringVar()
         self.items = tk.StringVar()
         self.init_ui()
-        self.center_me()
+        self.nametowidget(".").engine.set_me_center(self)
         self.nametowidget(".").engine.set_instance(self, 1)
-
-    def center_me(self,):
-        """center window on the screen"""
-
-        x = self.parent.winfo_rootx()
-        y = self.parent.winfo_rooty()
-        self.geometry("+%d+%d" % (x, y))     
 
     def init_ui(self):
 
