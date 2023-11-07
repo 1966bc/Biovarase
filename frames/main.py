@@ -1373,7 +1373,9 @@ class Main(tk.Toplevel):
 
         self.nametowidget(".").engine.busy(self)
 
-        path = self.nametowidget(".").engine.get_bvv()
+        file = self.nametowidget(".").engine.get_bvv()
+
+        path = self.nametowidget(".").engine.get_file(os.path.join("documents", file))
 
         ret = self.nametowidget(".").engine.open_file(path)
 
@@ -1386,7 +1388,9 @@ class Main(tk.Toplevel):
 
         self.nametowidget(".").engine.busy(self)
 
-        path = self.nametowidget(".").engine.get_user_manual()
+        file = self.nametowidget(".").engine.get_user_manual()
+
+        path = self.nametowidget(".").engine.get_file(os.path.join("documents", file))
 
         ret = self.nametowidget(".").engine.open_file(path)
 
@@ -1408,7 +1412,7 @@ class Main(tk.Toplevel):
         self.nametowidget(".").engine.not_busy(self)
 
         if ret == False:
-            messagebox.showinfo(self.nametowidget(".").title(), "The Biovarase User Manual does not exist.", parent=self)
+            messagebox.showinfo(self.nametowidget(".").title(), "The QC Thecnical Manual does not exist.", parent=self)
             
             
 
