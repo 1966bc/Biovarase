@@ -5,7 +5,7 @@
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   hiems MMXXIII
 # -----------------------------------------------------------------------------
-
+import os
 import sys
 import inspect
 import datetime
@@ -116,7 +116,8 @@ class Main(tk.Toplevel):
         m_main = tk.Menu(self, bd=1)
 
         m_file = tk.Menu(m_main, tearoff=0, bd=1)
-        s_menu = tk.Menu(m_file)
+        s_exports = tk.Menu(m_file)
+        s_documents = tk.Menu(m_file)
         s_databases = tk.Menu(m_file)
         m_edit = tk.Menu(m_main, tearoff=0, bd=1)
         m_adm = tk.Menu(m_main, tearoff=0, bd=1)
@@ -138,17 +139,25 @@ class Main(tk.Toplevel):
         for i in items:
             m_file.add_command(label=i[0], underline=0, command=i[1])
 
-        m_file.add_cascade(label='Exports', menu=s_menu, underline=0)
+        m_file.add_cascade(label='Exports', menu=s_exports, underline=0)
 
         items = (("Quick Data Analysis", self.on_quick_data_analysis),
                  ("Notes", self.on_export_notes),
                  ("Analytical Goals", self.on_analitycal_goals),
-                 ("Print Biological Values", self.on_bvv),
                  ("Counts", self.on_export_counts),
                  ("Controls List", self.on_export_controls),)
 
         for i in items:
-            s_menu.add_command(label=i[0], underline=0, command=i[1])
+            s_exports.add_command(label=i[0], underline=0, command=i[1])
+
+        m_file.add_cascade(label='Documents', menu=s_documents, underline=0)            
+
+        items = (("User Manual", 0, self.on_user_manual),
+                 ("QC Technical Manual", 0, self.on_qc_thecnical_manual),
+                 ("Biological Values", 0, self.on_bvv),)
+        
+        for i in items:
+            s_documents.add_command(label=i[0], underline=i[1], command=i[2])
 
         m_file.add_separator()
 
@@ -201,7 +210,6 @@ class Main(tk.Toplevel):
             m_adm.add_command(label=i[0], underline=i[1], command=i[2])
 
         m_about.add_command(label="About", underline=0, command=self.on_about)
-        m_about.add_command(label="User Manual", underline=0, command=self.on_user_manual)
         m_about.add_command(label="License", underline=0, command=self.on_license)
         m_about.add_command(label="Python", underline=0, command=self.on_python_version)
         m_about.add_command(label="Tkinter", underline=0, command=self.on_tkinter_version)
@@ -1386,6 +1394,22 @@ class Main(tk.Toplevel):
 
         if ret == False:
             messagebox.showinfo(self.nametowidget(".").title(), "The Biovarase User Manual does not exist.", parent=self)
+
+    def on_qc_thecnical_manual(self,):
+
+        self.nametowidget(".").engine.busy(self)
+
+        file = self.nametowidget(".").engine.get_qc_thecnical_manual()
+
+        path = self.nametowidget(".").engine.get_file(os.path.join("documents", file))
+        
+        ret = self.nametowidget(".").engine.open_file(path)
+
+        self.nametowidget(".").engine.not_busy(self)
+
+        if ret == False:
+            messagebox.showinfo(self.nametowidget(".").title(), "The Biovarase User Manual does not exist.", parent=self)
+            
             
 
     def on_dump(self):
