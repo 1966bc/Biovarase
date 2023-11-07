@@ -358,7 +358,20 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
                         inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
-                        sys.modules[__name__])            
+                        sys.modules[__name__])
+            
+    def get_qc_thecnical_manual(self):
+        try:
+            f = open('qc_thecnical_manual', 'r')
+            v = f.readline()
+            f.close()
+            return v
+        except FileNotFoundError:
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])   
 
 
 def main():
