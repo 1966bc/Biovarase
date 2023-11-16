@@ -35,9 +35,9 @@ class UI(tk.Toplevel):
 
         self.lblTests = tk.LabelFrame(frm_left, text="Tests")
         
-        cols = (["#0", 'Site ID', 'w', False, 80, 80],
-                ["#1", 'Company', 'w', True, 200, 200],
-                ["#2", 'Site', 'w', True, 200, 200],)
+        cols = (["#0", 'Site ID', 'w', False, 0, 0],
+                ["#1", 'Company', 'w', True, 0, 200],
+                ["#2", 'Site', 'w', True, 0, 200],)
 
         self.lstItems = self.nametowidget(".").engine.get_tree(frm_left, cols)
         self.lstItems.tag_configure('status', background=self.nametowidget(".").engine.get_rgb(211, 211, 211))

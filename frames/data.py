@@ -187,9 +187,9 @@ class UI(tk.Toplevel):
                                         sections = self.Sites.insert(wards, section[0], text=section[1], values=(section[0], "sections"))
                                         rs_workstations = self.load_workstations(section[0])
 
-                                if rs_workstations is not None:
-                                    for workstation in rs_workstations:
-                                        self.Sites.insert(sections, workstation[0], text=workstation[1], values=(workstation[0], "workstations"))
+                                        if rs_workstations is not None:
+                                            for workstation in rs_workstations:
+                                                self.Sites.insert(sections, workstation[0], text=workstation[1], values=(workstation[0], "workstations"))
 
                                 
 

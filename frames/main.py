@@ -62,6 +62,7 @@ import frames.tea
 import frames.analytical
 import frames.change_password
 import frames.sites
+import frames.accuracy
 
 
 class Main(tk.Toplevel):
@@ -117,27 +118,27 @@ class Main(tk.Toplevel):
 
         m_file = tk.Menu(m_main, tearoff=0, bd=1)
         s_exports = tk.Menu(m_file)
-        s_documents = tk.Menu(m_file)
         s_databases = tk.Menu(m_file)
+        m_plots = tk.Menu(m_main, tearoff=0, bd=1)
         m_edit = tk.Menu(m_main, tearoff=0, bd=1)
+        m_documents = tk.Menu(m_main, tearoff=0, bd=1)
         m_adm = tk.Menu(m_main, tearoff=0, bd=1)
         m_about = tk.Menu(m_main, tearoff=0, bd=1)
 
         m_main.add_cascade(label="File", underline=0, menu=m_file)
+        m_main.add_cascade(label="Plots", underline=0, menu=m_plots)
         m_main.add_cascade(label="Edit", underline=0, menu=m_edit)
+        m_main.add_cascade(label="Documents", underline=0, menu=m_documents)
         m_main.add_cascade(label="Admin", underline=0, menu=m_adm)
         m_main.add_cascade(label="?", underline=0, menu=m_about)
 
-        items = (("Plots", self.on_plots),
-                 ("Youden", self.on_youden),
-                 ("Tea", self.on_tea),
-                 ("Reset", self.on_reset),
-                 ("Insert random results", self.on_insert_demo_result),
-                 ("Analytica", self.on_analitical),
-                 ("Z Score", self.on_zscore),)
+        items = (("Reset", 0, self.on_reset),
+                 ("Insert random results", 0, self.on_insert_demo_result),
+                 ("Analytica", 0, self.on_analitical),
+                 ("Z Score", 0, self.on_zscore),)
 
         for i in items:
-            m_file.add_command(label=i[0], underline=0, command=i[1])
+            m_file.add_command(label=i[0], underline=i[1], command=i[2])
 
         m_file.add_cascade(label='Exports', menu=s_exports, underline=0)
 
@@ -149,15 +150,6 @@ class Main(tk.Toplevel):
 
         for i in items:
             s_exports.add_command(label=i[0], underline=0, command=i[1])
-
-        m_file.add_cascade(label='Documents', menu=s_documents, underline=0)            
-
-        items = (("User Manual", 0, self.on_user_manual),
-                 ("QC Technical Manual", 0, self.on_qc_thecnical_manual),
-                 ("Biological Values", 0, self.on_bvv),)
-        
-        for i in items:
-            s_documents.add_command(label=i[0], underline=i[1], command=i[2])
 
         m_file.add_separator()
 
@@ -179,6 +171,14 @@ class Main(tk.Toplevel):
 
         m_file.add_command(label="Exit", underline=0, command=self.on_close)
 
+        items = (("Plots", 0, self.on_plots),
+                 ("Youden", 0, self.on_youden),
+                 ("Tea", 0, self.on_tea),
+                 ("Accuracy", 6, self.on_accuracy),)
+
+        for i in items:
+            m_plots.add_command(label=i[0], underline=i[1], command=i[2])
+
         items = (("Tests Methods", 1, self.on_tests_methods),
                  ("Tests Sections", 2,  self.on_tests_sections),
                  ("Workstations Tests Methods", 0, self.on_workstations_tests_methods),
@@ -195,6 +195,14 @@ class Main(tk.Toplevel):
 
         for i in sorted(items, key=operator.itemgetter(0)):
             m_edit.add_command(label=i[0], underline=i[1], command=i[2])
+
+
+        items = (("User Manual", 0, self.on_user_manual),
+                 ("QC Technical Manual", 0, self.on_qc_thecnical_manual),
+                 ("Biological Values", 0, self.on_bvv),)
+        
+        for i in items:
+            m_documents.add_command(label=i[0], underline=i[1], command=i[2])
 
         items = (("Suppliers", 1, self.on_suppliers),
                  ("Sites", 1, self.on_sites),
@@ -1121,6 +1129,15 @@ class Main(tk.Toplevel):
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
             frames.data.UI(self).on_open()
+
+    def on_accuracy(self,):
+        if self.nametowidget(".").engine.log_user[5] == 2:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+        else:
+            frames.accuracy.UI(self).on_open()
+        
+        
 
     def on_actions(self,):
 

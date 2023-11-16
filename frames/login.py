@@ -17,7 +17,7 @@ import frames.main as ui
 
 __author__ = "1966bc"
 __copyright__ = "Copyleft"
-__credits__ = ["hal9000", ]
+__credits__ = ["hal9000", "Richard Barasa"]
 __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "42"
 __maintainer__ = "1966bc"
