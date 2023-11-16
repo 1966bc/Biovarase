@@ -265,17 +265,17 @@ class Main(tk.Toplevel):
 
         w = tk.LabelFrame(frm_stats, text="Batch data", font="Helvetica 10 bold")
 
-        ttk.Label(w, text="Target").pack()
+        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="Target").pack(fill=tk.X)
         ttk.Label(w,
                   style="Target.TLabel",
                   anchor=tk.CENTER,
                   textvariable=self.target).pack(fill=tk.X, padx=2, pady=2)
-        ttk.Label(w, text="SD").pack()
+        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="SD").pack(fill=tk.X)
         ttk.Label(w,
                   style="black_and_withe.TLabel",
                   anchor=tk.CENTER,
                   textvariable=self.sd).pack(fill=tk.X, padx=2, pady=2)
-        ttk.Label(w, text="TE%").pack()
+        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="TE%").pack(fill=tk.X)
         ttk.Label(w,
                   style="black_and_withe.TLabel",
                   anchor=tk.CENTER,
@@ -285,17 +285,17 @@ class Main(tk.Toplevel):
 
         w = tk.LabelFrame(frm_stats, text="Cal data", font="Helvetica 10 bold")
 
-        ttk.Label(w, text="Average").pack()
+        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="Average").pack(fill=tk.X)
         ttk.Label(w,
                   style="Average.TLabel",
                   anchor=tk.CENTER,
                   textvariable=self.average).pack(fill=tk.X, padx=2, pady=2)
-        ttk.Label(w, text="sd").pack()
+        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="sd").pack(fill=tk.X)
         ttk.Label(w,
                   style="black_and_withe.TLabel",
                   anchor=tk.CENTER,
                   textvariable=self.calculated_sd).pack(fill=tk.X, padx=2, pady=2)
-        ttk.Label(w, text="CV%").pack()
+        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="CV%").pack(fill=tk.X)
         ttk.Label(w,
                   style="black_and_withe.TLabel",
                   anchor=tk.CENTER,
@@ -305,7 +305,7 @@ class Main(tk.Toplevel):
 
         w = tk.LabelFrame(frm_stats, text="Other data", font="Helvetica 10 bold")
 
-        ttk.Label(w, text="Westgard").pack()
+        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="Westgard").pack(fill=tk.X)
 
         self.lblWestgard = ttk.Label(w,
                                      style="black_and_withe.TLabel",
@@ -313,12 +313,12 @@ class Main(tk.Toplevel):
                                      textvariable=self.westgard)
         self.lblWestgard.pack(fill=tk.X, padx=2, pady=2)
 
-        ttk.Label(w, text="Range").pack()
+        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="Range").pack(fill=tk.X)
         ttk.Label(w, style="black_and_withe.TLabel",
                   anchor=tk.CENTER,
                   textvariable=self.range).pack(fill=tk.X, padx=2, pady=2)
 
-        ttk.Label(w, text="Bias%").pack()
+        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="Bias%").pack(fill=tk.X)
         ttk.Label(w,
                   style="black_and_withe.TLabel",
                   anchor=tk.CENTER,
