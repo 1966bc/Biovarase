@@ -334,6 +334,20 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
                         sys.exc_info()[0],
                         sys.modules[__name__])
 
+    def get_correlation_coefficient(self):
+
+        try:
+            file = open("correlation_coefficient", "r")
+            ret = file.readline()
+            file.close()
+            return float(ret)
+        except FileNotFoundError:
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
+
     def get_bvv(self):
         try:
             f = open('bvv', 'r')
