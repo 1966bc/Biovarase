@@ -9,8 +9,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import frames.load_tests_methods as load_tests_methods
-import frames.batch as batch
-import frames.result as result
+
 
 class UI(tk.Toplevel):
     def __init__(self, parent,):
@@ -154,7 +153,6 @@ class UI(tk.Toplevel):
         #.insert(parent, index, iid=None, **kw)
         self.Sites.insert("", 0, 0, text="Sites")
 
-
         if self.nametowidget(".").engine.log_user[5] ==0:
             
             for i in rs:
@@ -261,8 +259,6 @@ class UI(tk.Toplevel):
 
 
     def set_tests_methods(self, args):
-
-        #self.on_reset()
 
         for i in self.lstTestsMethods.get_children():
             self.lstTestsMethods.delete(i)

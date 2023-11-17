@@ -15,6 +15,7 @@ import scipy.stats
 
 import frames.methods_comp
 import frames.comparisions
+import frames.bland_altman
 import frames.methods_comp_result
 
 
@@ -79,7 +80,8 @@ class UI(tk.Toplevel):
         bts = [("Experiment",0, self.on_experiment, "<Alt-e>"),
                ("Result",0, self.on_result, "<Alt-r>"),
                ("Compute",1, self.on_compute, "<Alt-o>"),
-               ("Plot",1, self.on_plot, "<Alt-p>"),
+               ("Comparisions",0, self.on_comparisions, "<Alt-p>"),
+               ("Differences",0, self.on_differences, "<Alt-d>"),
                ("Close",0, self.on_cancel, "<Alt-c>")]
 
         for btn in bts:
@@ -303,12 +305,13 @@ class UI(tk.Toplevel):
                     self.nametowidget(".").engine.write(sql, args)
                     self.set_experiments()
                 
-                    
-        
-        
-    def on_plot(self, evt=None):
+    def on_comparisions(self, evt=None):
         if self.lstExperiments.focus():
             frames.comparisions.UI(self).on_open()
+
+    def on_differences(self, evt=None):
+        if self.lstExperiments.focus():
+            frames.bland_altman.UI(self).on_open()
             
     def on_cancel(self, evt=None):
         for obj in self.objs:

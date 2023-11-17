@@ -49,7 +49,7 @@ class UI(tk.Toplevel):
         
         s1 = self.parent.selected_experiment[9].strftime("%d-%m-%Y %H:%M:%S")
         
-        s = "{0} Comparision Experiment {1}".format(self.parent.test[0], s1)
+        s = "{0} Comparision Plotter {1}".format(self.parent.test[0], s1)
 
         self.title(s)
 
@@ -93,13 +93,12 @@ class UI(tk.Toplevel):
 
     def set_axs(self, x, y, lst_x, lst_y, line, text_slope, test_intercept, y_pred):
 
-        plt = self.fig.add_subplot(111, facecolor=('xkcd:light grey'),)
+        plt = self.fig.add_subplot(111)
 
         plt.grid(True)
         
         plt.scatter(x, y, color = 'lightsteelblue',marker='s')
         
-      
         plt.plot(x, y_pred, color = 'lightsteelblue',marker='s')
         
         t = "Comparative Method {0}".format(self.parent.y_comp_method[3])
