@@ -56,7 +56,7 @@ class UI(tk.Toplevel):
     def on_open(self):
 
         self.title("Analytical Goals")
-        self.elements.set(self.nametowidget(".").engine.get_elements())
+        self.elements.set(self.nametowidget(".").engine.get_observations())
         self.txElements.focus()
 
     def on_export(self, evt=None):

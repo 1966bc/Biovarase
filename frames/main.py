@@ -50,7 +50,7 @@ import frames.export_notes
 import frames.quick_data_analysis
 import frames.counts
 import frames.plots
-import frames.elements
+import frames.observations
 import frames.zscore
 import frames.set_zscore
 import frames.youden
@@ -81,7 +81,7 @@ class Main(tk.Toplevel):
         self.calculated_sd = tk.DoubleVar()
         self.cva = tk.DoubleVar()
         self.range = tk.DoubleVar()
-        self.elements = tk.IntVar()
+        self.observations = tk.IntVar()
         self.target = tk.DoubleVar()
         self.sd = tk.DoubleVar()
         self.zscore = tk.DoubleVar()
@@ -174,7 +174,7 @@ class Main(tk.Toplevel):
         items = (("Plots", 0, self.on_plots),
                  ("Youden", 0, self.on_youden),
                  ("Tea", 0, self.on_tea),
-                 ("Accuracy", 6, self.on_accuracy),)
+                 ("Accuracy", 0, self.on_accuracy),)
 
         for i in items:
             m_plots.add_command(label=i[0], underline=i[1], command=i[2])
@@ -190,12 +190,11 @@ class Main(tk.Toplevel):
                  ("Workstations", 1, self.on_workstations),
                  ("Controls", 0, self.on_controls),
                  ("Actions", 0, self.on_actions),
-                 ("Set Elements", 4, self.on_elements),
+                 ("Set Observations", 4, self.on_observations),
                  ("Set Z Score", 4, self.on_set_zscore),)
 
         for i in sorted(items, key=operator.itemgetter(0)):
             m_edit.add_command(label=i[0], underline=i[1], command=i[2])
-
 
         items = (("User Manual", 0, self.on_user_manual),
                  ("QC Technical Manual", 0, self.on_qc_thecnical_manual),
@@ -382,10 +381,10 @@ class Main(tk.Toplevel):
 
 
         ttk.Label(w, font=f,
-                  textvariable=self.elements,
+                  textvariable=self.observations,
                   relief=tk.FLAT,
                   anchor=tk.W).pack(side=tk.RIGHT, fill=tk.X)
-        ttk.Label(w, text="Elements").pack(side=tk.RIGHT, fill=tk.X)
+        ttk.Label(w, text="Observations").pack(side=tk.RIGHT, fill=tk.X)
 
 
         ttk.Label(w, font=f,
@@ -416,7 +415,7 @@ class Main(tk.Toplevel):
         self.status_bar_site_description.set(self.get_status_bar_site_description())
         self.enable_notes.set(False)
         self.ddof.set(self.nametowidget(".").engine.get_ddof())
-        self.elements.set(self.nametowidget(".").engine.get_elements())
+        self.observations.set(self.nametowidget(".").engine.get_observations())
         self.set_specialities()
         self.set_zscore()
 
@@ -443,7 +442,7 @@ class Main(tk.Toplevel):
         return s[0:80]
 
     def set_elements(self):
-        self.elements.set(self.nametowidget(".").engine.get_elements())
+        self.observations.set(self.nametowidget(".").engine.get_observations())
 
     def set_zscore(self):
         self.zscore.set(self.nametowidget(".").engine.get_zscore())
@@ -715,7 +714,7 @@ class Main(tk.Toplevel):
 
                 args = (self.selected_batch[0],
                         self.selected_workstation[0],
-                        int(self.elements.get()))
+                        int(self.observations.get()))
 
                 rs = self.nametowidget(".").engine.read(True, sql, args)
 
@@ -853,7 +852,7 @@ class Main(tk.Toplevel):
         sd = self.selected_batch[7]
         series = self.nametowidget(".").engine.get_series(self.selected_batch[0],
                                                           self.selected_workstation[0],
-                                                          int(self.nametowidget(".").engine.get_elements()))
+                                                          int(self.nametowidget(".").engine.get_observations()))
         mean = self.nametowidget(".").engine.get_mean(series)
         cv = self.nametowidget(".").engine.get_cv(series)
         bias = self.nametowidget(".").engine.get_bias(mean, target)
@@ -1114,8 +1113,8 @@ class Main(tk.Toplevel):
         else:
             frames.sections.UI(self).on_open()
 
-    def on_elements(self,):
-        frames.elements.UI(self).on_open()
+    def on_observations(self,):
+        frames.observations.UI(self).on_open()
 
     def on_analitical(self,):
         frames.analytical.UI(self).on_open()
@@ -1170,7 +1169,7 @@ class Main(tk.Toplevel):
                 selected_test_method = self.nametowidget(".").engine.get_selected("tests_methods", "test_method_id", pk)
                 frames.plots.UI(self,).on_open(selected_test_method,
                                                self.selected_workstation,
-                                               int(self.elements.get()))
+                                               int(self.observations.get()))
             else:
                 msg = "Not enough data to plot.\nSelect an instrument and a batch."
                 messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
@@ -1193,7 +1192,7 @@ class Main(tk.Toplevel):
                 rs = self.nametowidget(".").engine.read(False, sql, args)
                 if rs is not None:
                     if rs[0] !=0:
-                        frames.tea.UI(self,).on_open(selected_test_method, self.selected_workstation, int(self.elements.get()))
+                        frames.tea.UI(self,).on_open(selected_test_method, self.selected_workstation, int(self.observations.get()))
 
                 else:
                     msg = "Selected test is not enable to show this plot type."
@@ -1248,7 +1247,7 @@ class Main(tk.Toplevel):
                     for batch in batches:
                         series = self.nametowidget(".").engine.get_series(batch[0],
                                                         self.selected_workstation[0],
-                                                        int(self.nametowidget(".").engine.get_elements()))
+                                                        int(self.nametowidget(".").engine.get_observations()))
                         data.append(series)
 
                     if len(data[0]) != len(data[1]):

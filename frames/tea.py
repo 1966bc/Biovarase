@@ -117,7 +117,7 @@ class UI(tk.Toplevel):
                 sd = batch[7]
                 series = self.nametowidget(".").engine.get_series(batch[0],
                                                                   self.selected_workstation[0],
-                                                                  int(self.nametowidget(".").engine.get_elements()))
+                                                                  int(self.nametowidget(".").engine.get_observations()))
                 mean = self.nametowidget(".").engine.get_mean(series)
                 cv = self.nametowidget(".").engine.get_cv(series)
                 te = self.nametowidget(".").engine.get_te(target, mean, cv)
