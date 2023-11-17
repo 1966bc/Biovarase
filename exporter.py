@@ -339,7 +339,7 @@ class Exporter:
 
                     for result in rs_results:
 
-                        series = self.get_series(batch[0], result[4], int(self.get_elements()), result[0])
+                        series = self.get_series(batch[0], result[4], int(self.get_observations()), result[0])
 
                         if len(series) > 9:
                             rule = self.get_westgard_violation_rule(batch[6], batch[7], series, batch, test_method)

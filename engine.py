@@ -246,13 +246,13 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
     def get_time(self):
         return datetime.datetime.now().time()
 
-    def get_elements(self):
+    def get_observations(self):
         
         try:
-            file = open('elements', 'r')
-            ret = file.readline()
+            file = open('observations', 'r')
+            observations = file.readline()
             file.close()
-            return ret
+            return observations
         except FileNotFoundError:
             self.on_log(self,
                        inspect.stack()[0][3],
@@ -260,11 +260,11 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
                        sys.exc_info()[0],
                        sys.modules[__name__])
 
-    def set_elements(self, elements):
+    def set_observations(self, observations):
 
         try:
-            with open('elements', 'w') as f:
-                f.write(str(elements))
+            with open('observations', 'w') as f:
+                f.write(str(observations))
 
         except FileNotFoundError:
             self.on_log(self,
