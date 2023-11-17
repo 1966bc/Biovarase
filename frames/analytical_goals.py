@@ -26,7 +26,7 @@ class UI(tk.Toplevel):
 
         frm_left = ttk.Frame(frm_main, style="App.TFrame", relief=tk.GROOVE, padding=8)
 
-        ttk.Label(frm_left, text='Set elements', style="Data.TLabel").pack()
+        ttk.Label(frm_left, text='Set observations', style="Data.TLabel").pack()
 
         self.txElements = ttk.Entry(frm_left, width=8, justify=tk.CENTER,
                                     textvariable=self.elements,
