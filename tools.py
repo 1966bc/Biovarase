@@ -27,67 +27,77 @@ class Tools:
         style.configure("App.TFrame", background=self.get_rgb(240, 240, 237))
 
         style.configure("App.TLabel",
-                             background=self.get_rgb(240, 240, 237),
-                             padding=2,
-                             anchor=tk.W,
-                             font="TkFixedFont")
+                         background=self.get_rgb(240, 240, 237),
+                         padding=2,
+                         anchor=tk.W,
+                         font="TkFixedFont")
 
         style.configure("App.TLabelframe",
-                             background=self.get_rgb(240, 240, 237),
-                             relief=tk.GROOVE,
-                             padding=2,
-                             font="TkFixedFont")
+                         background=self.get_rgb(240, 240, 237),
+                         relief=tk.GROOVE,
+                         padding=2,
+                         font="TkFixedFont")
 
         style.configure("App.TButton",
-                             background=self.get_rgb(240, 240, 237),
-                             padding=8,
-                             border=1,
-                             relief=tk.RAISED,
-                             font="TkFixedFont")
+                         background=self.get_rgb(240, 240, 237),
+                         padding=8,
+                         border=1,
+                         relief=tk.RAISED,
+                         font="TkFixedFont")
 
         style.configure("Buttons.TFrame",
-                             background=self.get_rgb(240, 240, 237),
-                             padding=8,
-                             relief=tk.GROOVE,)
+                         background=self.get_rgb(240, 240, 237),
+                         padding=8,
+                         relief=tk.GROOVE,)
         
         style.configure('App.TRadiobutton',
-                             background=self.get_rgb(240, 240, 237),
-                             padding=4,
-                             font="TkFixedFont")
+                         background=self.get_rgb(240, 240, 237),
+                         padding=4,
+                         font="TkFixedFont")
 
         style.configure('App.TCombobox',
                              background=self.get_rgb(240, 240, 237),
                              font="TkFixedFont")
 
+        style.configure("StatusBar.TFrame",
+                        relief=tk.FLAT,
+                        padding=4,
+                        background=self.get_rgb(240, 240, 237))
+
+        style.configure('LoggedUser.TLabel',
+                        font=("TkDefaultFont", 10, 'bold'),
+                        relief=tk.FLAT,
+                        foreground='blue',)
+
         style.configure('StatusBar.TLabel',
-                             background=self.get_rgb(240, 240, 237),
-                             padding=2,
-                             border=1,
-                             relief=tk.SUNKEN,
-                             font="TkFixedFont")
+                         background=self.get_rgb(240, 240, 237),
+                         padding=2,
+                         border=1,
+                         relief=tk.SUNKEN,
+                         font="TkFixedFont")
 
         style.map('Treeview',
-                       foreground=self.fixed_map('foreground'),
-                       background=self.fixed_map('background'))
+                   foreground=self.fixed_map('foreground'),
+                   background=self.fixed_map('background'))
 
         style.configure("Treeview.Heading",
-                             background=self.get_rgb(240, 240, 237),
-                              font=("TkFixedFont", "10", "italic"),)
+                        background=self.get_rgb(240, 240, 237),
+                        font=("TkFixedFont", "10", "italic"),)
 
         style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})])
 
         style.configure("Mandatory.TLabel",
-                             foreground=self.get_rgb(0, 0, 255),
-                             background=self.get_rgb(255, 255, 255))
+                        foreground=self.get_rgb(0, 0, 255),
+                        background=self.get_rgb(255, 255, 255))
 
         style.configure('Target.TLabel',
-                    foreground=self.get_rgb(255, 69, 0),
-                    background=self.get_rgb(255, 255, 255))
+                        foreground=self.get_rgb(255, 69, 0),
+                        background=self.get_rgb(255, 255, 255))
 
         ##1966BC Color Hex  (25,102,188)
         style.configure('Average.TLabel',
-                    foreground=self.get_rgb(25, 102, 188),
-                    background=self.get_rgb(255, 255, 255))
+                        foreground=self.get_rgb(25, 102, 188),
+                        background=self.get_rgb(255, 255, 255))
 
         style.configure('westgard_violation.TLabel',
                         background=self.get_rgb(255, 106, 106),)
@@ -95,12 +105,9 @@ class Tools:
         style.configure('westgard_ok.TLabel',
                         background=self.get_rgb(152, 251, 152))
 
-        style.configure('Statusbar.TLabel',
-                        foreground='blue',)
-
         style.configure('black_and_withe.TLabel',
-                    background=self.get_rgb(255, 255, 255),
-                    foreground=self.get_rgb(77, 77, 77),)
+                        background=self.get_rgb(255, 255, 255),
+                        foreground=self.get_rgb(77, 77, 77),)
 
     def get_rgb(self, r, g, b):
         """translates an rgb tuple of int to a tkinter friendly color code"""
