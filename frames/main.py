@@ -89,18 +89,15 @@ class Main(tk.Toplevel):
         self.te = tk.DoubleVar()
         self.ddof = tk.IntVar()
         self.status_bar_site_description = tk.StringVar()
-
         self.selected_workstation = None
 
-        self.init_ui()
         self.init_menu()
+        self.init_ui()
         self.init_status_bar()
+        self.init_main()
 
-        self.center_ui()
-
-        self.nametowidget(".").engine.set_instance(self, 1)
-
-    def center_ui(self):
+    def init_main(self):
+        """Set high, width, x, y coords and minsize """
 
         ws = self.parent.winfo_screenwidth()
         hs = self.parent.winfo_screenheight()
@@ -111,6 +108,7 @@ class Main(tk.Toplevel):
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
         self.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        self.minsize(w,h)
 
     def init_menu(self):
 
@@ -364,42 +362,40 @@ class Main(tk.Toplevel):
 
         f = self.nametowidget(".").engine.set_font(family="TkDefaultFont", size=10, weight="bold")
 
-        w = ttk.Frame(self.frm_main,)
+        frm_status_bar = ttk.Frame(self.frm_main,  style="StatusBar.TFrame",)
 
-        self.status = ttk.Label(w,
-                                font=f,
+        self.status = ttk.Label(frm_status_bar,
+                                style="LoggedUser.TLabel",
                                 textvariable=self.status_bar_text,
-                                relief=tk.FLAT,
-                                style="Statusbar.TLabel",
                                 anchor=tk.W)
 
-        ttk.Label(w, font=f,
+        ttk.Label(frm_status_bar, font=f,
                   textvariable=self.status_bar_site_description,
                   relief=tk.FLAT,
                   anchor=tk.W).pack(side=tk.RIGHT, fill=tk.X)
-        ttk.Label(w, text="Site:").pack(side=tk.RIGHT, fill=tk.X)
+        ttk.Label(frm_status_bar, text="Site:").pack(side=tk.RIGHT, fill=tk.X)
 
 
-        ttk.Label(w, font=f,
+        ttk.Label(frm_status_bar, font=f,
                   textvariable=self.observations,
                   relief=tk.FLAT,
                   anchor=tk.W).pack(side=tk.RIGHT, fill=tk.X)
-        ttk.Label(w, text="Observations").pack(side=tk.RIGHT, fill=tk.X)
+        ttk.Label(frm_status_bar, text="Observations").pack(side=tk.RIGHT, fill=tk.X)
 
 
-        ttk.Label(w, font=f,
+        ttk.Label(frm_status_bar, font=f,
                   textvariable=self.zscore,
                   relief=tk.FLAT,
                   anchor=tk.W).pack(side=tk.RIGHT, fill=tk.X)
-        ttk.Label(w, text="Z Score").pack(side=tk.RIGHT, fill=tk.X)
+        ttk.Label(frm_status_bar, text="Z Score").pack(side=tk.RIGHT, fill=tk.X)
 
-        ttk.Checkbutton(w,
+        ttk.Checkbutton(frm_status_bar,
                         text="Notes",
                         onvalue=1,
                         offvalue=0,
                         variable=self.enable_notes,).pack(side=tk.RIGHT, fill=tk.X)
 
-        ttk.Checkbutton(w,
+        ttk.Checkbutton(frm_status_bar,
                         text='Delta Degree of Freedom',
                         onvalue=1,
                         offvalue=0,
@@ -408,7 +404,7 @@ class Main(tk.Toplevel):
 
         self.status.pack(side=tk.LEFT, fill=tk.X, expand=1)
 
-        w.pack(side=tk.BOTTOM, fill=tk.X)
+        frm_status_bar.pack(side=tk.BOTTOM, fill=tk.X)
 
     def on_open(self):
 
@@ -1430,8 +1426,6 @@ class Main(tk.Toplevel):
         if ret == False:
             messagebox.showinfo(self.nametowidget(".").title(), "The QC Thecnical Manual does not exist.", parent=self)
             
-            
-
     def on_dump(self):
         self.nametowidget(".").engine.dump_db()
         messagebox.showinfo(self.nametowidget(".").title(), "Dump executed.", parent=self)
