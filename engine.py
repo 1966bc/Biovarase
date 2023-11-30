@@ -217,7 +217,11 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
                         sys.modules[__name__])                
 
     def get_log_ip(self):
-        return socket.gethostbyname(socket.getfqdn())
+
+        try:
+            return socket.gethostbyname(socket.getfqdn())
+        except:
+            return "No IP detect."
 
     def get_log_time(self):
         return datetime.datetime.now()
