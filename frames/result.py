@@ -54,12 +54,6 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
-        ttk.Label(frm_left, text="Test:").grid(row=r, sticky=tk.W)
-        ttk.Label(frm_left,
-                  style="Data.TLabel",
-                  textvariable=self.test).grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
-
-        r += 1
         ttk.Label(frm_left, text="Batch:").grid(row=r, sticky=tk.W)
         ttk.Label(frm_left,
                   style="Data.TLabel",
@@ -136,11 +130,11 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             self.selected_result = selected_result
-            msg = "Update {0} ".format(self.winfo_name().capitalize())
+            msg = "Update {0} for {1}".format(self.winfo_name().capitalize(), self.test.get())
             self.set_values()
             self.txtResult.focus()
         else:
-            msg = "Add {0} ".format(self.winfo_name().capitalize())
+            msg = "Add {0} for {1}".format(self.winfo_name().capitalize(), self.test.get())
                                           
             self.status.set(1)
             self.result.set('')
@@ -149,13 +143,21 @@ class UI(tk.Toplevel):
             
         self.title(msg)
 
-    def on_selected_workstation(self, evt):
-
-        if self.cbWorkstations.current() != -1:
-
-            index = self.cbWorkstations.current()
-            pk = self.dict_workstations[index]
-            self.selected_workstation = self.nametowidget(".").engine.get_selected("workstations", "workstation_id", pk)
+    def set_values(self,):
+        
+        try:
+            self.recived_date.year.set(int(self.selected_result[5].year))
+            self.recived_date.month.set(int(self.selected_result[5].month))
+            self.recived_date.day.set(int(self.selected_result[5].day))
+            
+        except:
+             nametowidget(".").on_log(inspect.stack()[0][3],
+                                      sys.exc_info()[1],
+                                      sys.exc_info()[0],
+                                      sys.modules[__name__])
+    
+        self.result.set(round(self.selected_result[4],3))
+        self.status.set(self.selected_result[6])
         
     def get_values(self,):
        
@@ -180,29 +182,6 @@ class UI(tk.Toplevel):
                 self.nametowidget(".").engine.get_log_ip()]
         
         return args
-
-    def set_values(self,):
-        
-        try:
-            key = next(key for key, value in self.dict_workstations.items() 
-            if value == self.selected_result[3])
-            self.cbWorkstations.current(key)
-        except:
-            pass
-
-        try:
-            self.recived_date.year.set(int(self.selected_result[5].year))
-            self.recived_date.month.set(int(self.selected_result[5].month))
-            self.recived_date.day.set(int(self.selected_result[5].day))
-            
-        except:
-             nametowidget(".").on_log(inspect.stack()[0][3],
-                                      sys.exc_info()[1],
-                                      sys.exc_info()[0],
-                                      sys.modules[__name__])
-    
-        self.result.set(round(self.selected_result[4],3))
-        self.status.set(self.selected_result[6])
         
     def on_save(self, evt=None):
 
@@ -265,7 +244,7 @@ class UI(tk.Toplevel):
                                        self.nametowidget(".").engine.delete,
                                        parent=self) == True:
                     
-                    sql = "DELETE FROM results WHERE result_id =?;"
+                    sql = "UPDATE results SET is_delete =1 WHERE result_id =?"
                     args = (self.selected_result[0],)
                     self.nametowidget(".").engine.write(sql, args)
                     

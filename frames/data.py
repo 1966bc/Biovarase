@@ -88,7 +88,6 @@ class UI(tk.Toplevel):
 
         bts = (("Batch", 0, self.on_add_batch, "<Alt-b>"),
                ("Result", 0, self.on_add_result, "<Alt-r>"),
-               ("Delete", 0, self.on_delete, "<Alt-d>"),
                ("Cancel", 0, self.on_cancel, "<Alt-c>"))
 
         for btn in bts:
@@ -486,27 +485,6 @@ class UI(tk.Toplevel):
 
         else:
             msg = "Please select a batch."
-            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
-
-    def  on_delete(self, evt=None):
-
-        if self.lstResults.focus():
-            results_id = self.lstResults.selection()
-
-            if messagebox.askyesno(self.nametowidget(".").title(), self.nametowidget(".").engine.ask_to_delete, parent=self) == True:
-                sql = "UPDATE results SET is_delete =1 WHERE result_id =?"
-
-                for i in results_id:
-                    args = (i,)
-                    self.nametowidget(".").engine.write(sql, args)
-
-                self.update_main()
-                self.update_data(args)
-
-            else:
-                messagebox.showinfo(self.nametowidget(".").title(), self.nametowidget(".").engine.abort, parent=self)
-        else:
-            msg = "Please select results."
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
 
     def update_main(self):

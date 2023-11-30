@@ -133,8 +133,9 @@ class Main(tk.Toplevel):
         m_main.add_cascade(label="?", underline=0, menu=m_about)
 
         items = (("Reset", 0, self.on_reset),
+                 ("Data", 0, self.on_data),
                  ("Insert random results", 0, self.on_insert_demo_result),
-                 ("Analytica", 0, self.on_analitical),
+                 ("Analytica", 4, self.on_analitical),
                  ("Z Score", 0, self.on_zscore),)
 
         for i in items:
@@ -142,14 +143,14 @@ class Main(tk.Toplevel):
 
         m_file.add_cascade(label='Exports', menu=s_exports, underline=0)
 
-        items = (("Quick Data Analysis", self.on_quick_data_analysis),
-                 ("Notes", self.on_export_notes),
-                 ("Analytical Goals", self.on_analitycal_goals),
-                 ("Counts", self.on_export_counts),
-                 ("Controls List", self.on_export_controls),)
+        items = (("Quick Data Analysis", 0, self.on_quick_data_analysis),
+                 ("Notes", 0, self.on_export_notes),
+                 ("Analytical Goals", 0, self.on_analitycal_goals),
+                 ("Counts", 0, self.on_export_counts),
+                 ("Controls List", 9, self.on_export_controls),)
 
         for i in items:
-            s_exports.add_command(label=i[0], underline=0, command=i[1])
+            s_exports.add_command(label=i[0], underline=i[1], command=i[2])
 
         m_file.add_separator()
 
@@ -183,7 +184,6 @@ class Main(tk.Toplevel):
                  ("Tests Sections", 2,  self.on_tests_sections),
                  ("Workstations Tests Methods", 0, self.on_workstations_tests_methods),
                  ("Specialities", 0, self.on_specialities),
-                 ("Data", 0, self.on_data),
                  ("Samples", 2, self.on_samples),
                  ("Units", 0, self.on_units),
                  ("Methods", 0, self.on_methods),
