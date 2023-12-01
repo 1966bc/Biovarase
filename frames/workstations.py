@@ -22,7 +22,14 @@ class UI(tk.Toplevel):
         self.primary_key = "workstation_id"
         self.obj = None
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.center_me()
+
+    def center_me(self,):
+        """center window on the screen"""
+
+        x = self.parent.winfo_rootx()
+        y = self.parent.winfo_rooty()
+        self.geometry("+%d+%d" % (x, y))           
 
     def init_ui(self):
 
@@ -91,32 +98,20 @@ class UI(tk.Toplevel):
         self.Sites.insert("", 0, 0, text="Sites")
 
         for i in rs:
-            #print(i)
-            sites = self.Sites.insert("",
-                                      i[0],
-                                      text=i[1],
-                                      values=(i[0], "sites"))
+            
+            sites = self.Sites.insert("", i[0], text=i[1], values=(i[0], "sites"))
             rs_labs = self.load_labs(i[0])
 
             if rs_labs is not None:
 
                 for lab in rs_labs:
-                    
-                    labs = self.Sites.insert(sites,
-                                              lab[0],
-                                              text=lab[1],
-                                              values=(lab[0], "labs"))
-
+                    labs = self.Sites.insert(sites, lab[0], text=lab[1], values=(lab[0], "labs"))
                     rs_sections = self.load_sections(lab[0])
                     
                     if rs_sections is not None:
                         
                         for section in rs_sections:
-                            
-                            sections = self.Sites.insert(labs,
-                                              section[0],
-                                              text=section[1],
-                                              values=(section[0], "sections"))
+                            self.Sites.insert(labs, section[0], text=section[1], values=(section[0], "sections"))
 
     def load_labs(self, i):
 
