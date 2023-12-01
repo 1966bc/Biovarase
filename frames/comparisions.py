@@ -45,7 +45,7 @@ class UI(tk.Toplevel):
 
     def on_open(self):
 
-        self.data = self.parent.get_method_data(self.parent.selected_experiment[2])
+        self.data = self.parent.get_experiment_data(self.parent.selected_experiment[1])
         
         s1 = self.parent.selected_experiment[9].strftime("%d-%m-%Y %H:%M:%S")
         
@@ -101,12 +101,12 @@ class UI(tk.Toplevel):
         
         plt.plot(x, y_pred, color = 'lightsteelblue',marker='s')
         
-        t = "Comparative Method {0}".format(self.parent.y_comp_method[3])
+        t = "Comparative Method {0}".format(self.parent.y_comp_method[0])
         w = "Workstation {0}".format(self.parent.y_workstation_comp[0])
         m = "{0} {1}".format(t,w)
         plt.set_xlabel(m)
         
-        t = "Test Method {0}".format(self.parent.x_test_method[3])
+        t = "Test Method {0}".format(self.parent.x_test_method[0])
         w = "Workstation {0}".format(self.parent.x_workstation_test[0])
         m = "{0} {1}".format(t,w)                          
         plt.set_ylabel(m)

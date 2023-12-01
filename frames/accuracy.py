@@ -143,14 +143,16 @@ class UI(tk.Toplevel):
         if rs:
 
             for i in rs:
-                
+
                 sql = "SELECT test FROM tests WHERE test_id =?;"
                 self.test =  self.nametowidget(".").engine.read(False, sql , (i[1],))
-                self.y_comp_method = self.get_method_data(i[3])
+                self.y_comp_method = self.get_method_data(3, i[3])
                 self.y_workstation_comp = self.get_workstation_data(i[5])
-                self.x_test_method = self.get_method_data(i[2])
+                self.x_test_method = self.get_method_data(2, i[2])
                 self.x_workstation_test = self.get_workstation_data(i[4])
-                data = self.get_method_data(i[2])
+                data = self.get_experiment_data(i[1])
+
+                
                 
                 if data:
                     if i[7] == 1:
@@ -166,10 +168,10 @@ class UI(tk.Toplevel):
                                               values=(data[0],
                                                       data[1],
                                                       data[2],
-                                                      self.test,
-                                                      self.y_comp_method[3],
+                                                      self.test[0],
+                                                      self.y_comp_method[0],
                                                       self.y_workstation_comp[0],
-                                                      self.x_test_method[3],
+                                                      self.x_test_method[0],
                                                       self.x_workstation_test[0],
                                                       i[9].strftime("%d-%m-%Y %H:%M:%S")),
                                                tags=tag_config)
@@ -178,23 +180,36 @@ class UI(tk.Toplevel):
 
         self.experiments.set(s)
 
+    def get_experiment_data(self, test_id):
 
-    def get_method_data(self, test_method_id):
-
-        sql = "SELECT suppliers.supplier,\
-		      labs.lab,\
-		      sections.section,\
-		      IFNULL(samples.description,'NA') ||' '||IFNULL(methods.method,'NA')||' '||IFNULL(units.unit,'NA')\
-	       FROM sites\
-	       INNER JOIN suppliers ON sites.comp_id = suppliers.supplier_id\
+        sql = "SELECT suppliers.supplier, labs.lab, sections.section\
+               FROM sites\
+               INNER JOIN suppliers ON sites.comp_id = suppliers.supplier_id\
 	       INNER JOIN labs ON sites.site_id = labs.site_id\
 	       INNER JOIN sections ON labs.lab_id = sections.lab_id\
 	       INNER JOIN tests_methods ON tests_methods.section_id = sections.section_id\
-	       INNER JOIN methods_comp ON tests_methods.test_method_id = methods_comp.x_test_method_id\
+	       INNER JOIN tests ON tests.test_id = tests_methods.test_id\
+               WHERE tests.test_id =?;"
+
+        args = (test_id,)
+        
+        return self.nametowidget(".").engine.read(False, sql , args)
+
+
+    def get_method_data(self, which, test_method_id):
+
+        if which == 2:
+            field = "methods_comp.x_test_method_id"
+        elif which == 3:
+            field = "methods_comp.y_comp_method_id"
+
+        sql = "SELECT IFNULL(samples.description,'NA') ||' '||IFNULL(methods.method,'NA')||' '||IFNULL(units.unit,'NA')\
+               FROM tests_methods\
+	       INNER JOIN methods_comp ON tests_methods.test_method_id = {0}\
 	       INNER JOIN samples  ON tests_methods.sample_id = samples.sample_id\
 	       INNER JOIN methods  ON tests_methods.method_id = methods.method_id\
 	       INNER JOIN units ON tests_methods.unit_id = units.unit_id\
-               WHERE tests_methods.test_method_id =?;"
+               WHERE tests_methods.test_method_id =?;".format(field)
 
         args = (test_method_id,)
         

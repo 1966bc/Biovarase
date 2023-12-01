@@ -44,7 +44,7 @@ class UI(tk.Toplevel):
 
     def on_open(self):
 
-        self.data = self.parent.get_method_data(self.parent.selected_experiment[2])
+        self.data = self.parent.get_experiment_data(self.parent.selected_experiment[1])
         
         s1 = self.parent.selected_experiment[9].strftime("%d-%m-%Y %H:%M:%S")
         
@@ -117,8 +117,8 @@ class UI(tk.Toplevel):
             va = "center",
             )
 
-        avg = "Mean: {0}".format(sum(mean)/len(mean))
-        bias = "Bias: {0}".format(md)
+        avg = "Mean: {0}".format(round(sum(mean)/len(mean),2))
+        bias = "Bias: {0}".format(round(md,2))
         standard_deviation = "Standard Deviation: {0}".format(round(sd,4))
         t_value = "t-value {0}".format(round(self.get_t_student(diff),4))
 
