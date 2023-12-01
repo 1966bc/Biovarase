@@ -36,8 +36,8 @@ class DBMS:
                FROM tests\
                INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
                INNER JOIN sections ON tests_methods.section_id = sections.section_id\
-               INNER JOIN wards ON sections.ward_id = wards.ward_id\
-               INNER JOIN sites ON wards.site_id = sites.site_id\
+               INNER JOIN labs ON sections.lab_id = labs.lab_id\
+               INNER JOIN sites ON labs.site_id = sites.site_id\
                WHERE sections.section_id =?\
                AND tests_methods.is_mandatory =1\
                AND tests_methods.status =1;"
@@ -253,11 +253,11 @@ class DBMS:
         sql = "SELECT sites.site_id,\
                       sites.supplier_id,\
                       sites.comp_id,\
-                      wards.ward_id,\
+                      labs.lab_id,\
                       sections.section_id\
                FROM sites\
-               INNER JOIN wards ON sites.site_id = wards.site_id\
-               INNER JOIN sections ON wards.ward_id = sections.ward_id\
+               INNER JOIN labs ON sites.site_id = labs.site_id\
+               INNER JOIN sections ON labs.lab_id = sections.lab_id\
                WHERE sections.section_id =?;"
 
         args = (section_id,)

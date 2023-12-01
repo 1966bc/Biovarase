@@ -120,7 +120,7 @@ class Exporter:
                    INNER JOIN specialities ON tests.speciality_id = specialities.speciality_id\
                    INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
                    INNER JOIN sections ON tests_methods.section_id = sections.section_id\
-                   INNER JOIN wards ON sections.ward_id = wards.ward_id\
+                   INNER JOIN labs ON sections.lab_id = labs.lab_id\
                    INNER JOIN results ON batches.batch_id = results.batch_id\
                    WHERE tests.status=1\
                    AND tests_methods.status=1\
@@ -179,7 +179,7 @@ class Exporter:
                       equipments.description,\
                       workstations.description,\
                       workstations.serial,\
-                      wards.ward,\
+                      labs.ward,\
                       sections.section\
                FROM tests\
                INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
@@ -188,7 +188,7 @@ class Exporter:
                INNER JOIN workstations ON results.workstation_id = workstations.workstation_id\
                INNER JOIN equipments ON workstations.equipment_id = equipments.equipment_id\
                INNER JOIN sections ON workstations.section_id = sections.section_id\
-               INNER JOIN wards ON sections.ward_id = wards.ward_id\
+               INNER JOIN labs ON sections.lab_id = labs.lab_id\
                INNER JOIN notes ON results.result_id = notes.result_id\
                INNER JOIN actions ON notes.action_id = actions.action_id\
                WHERE DATE(results.recived) >=?\
@@ -271,9 +271,9 @@ class Exporter:
                        INNER JOIN specialities ON tests.speciality_id = specialities.speciality_id\
                        INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
                        INNER JOIN sections ON tests_methods.section_id = sections.section_id\
-                       INNER JOIN wards ON sections.ward_id = wards.ward_id\
-                       INNER JOIN sites ON wards.site_id = sites.site_id\
-                       WHERE wards.ward_id =?\
+                       INNER JOIN labs ON sections.lab_id = labs.lab_id\
+                       INNER JOIN sites ON labs.site_id = sites.site_id\
+                       WHERE labs.lab_id =?\
                        AND tests.status=1\
                        AND tests_methods.status=1\
                        ORDER BY tests.test;"
@@ -294,10 +294,10 @@ class Exporter:
                            INNER JOIN workstations ON batches.workstation_id = workstations.workstation_id\
                            INNER JOIN equipments ON workstations.equipment_id = equipments.equipment_id\
                            INNER JOIN sections ON workstations.section_id = sections.section_id\
-                           INNER JOIN wards ON wards.ward_id = sections.ward_id\
+                           INNER JOIN labs ON labs.lab_id = sections.lab_id\
                            WHERE batches.status =1\
                            AND batches.test_method_id =?\
-                           AND wards.ward_id =?;"
+                           AND labs.lab_id =?;"
 
             rs_batches = self.read(True, sql_batches, (test_method[0], rs_idd[3]))
 
