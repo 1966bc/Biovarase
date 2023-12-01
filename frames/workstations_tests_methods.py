@@ -86,24 +86,24 @@ class UI(tk.Toplevel):
                                       i[0],
                                       text=i[1],
                                       values=(i[0], "sites"))
-            rs_wards = self.load_wards(i[0])
+            rs_labs = self.load_labs(i[0])
 
-            if rs_wards is not None:
+            if rs_labs is not None:
 
-                for ward in rs_wards:
+                for lab in rs_labs:
                     
-                    wards = self.Sites.insert(sites,
-                                              ward[0],
-                                              text=ward[1],
-                                              values=(ward[0], "wards"))
+                    labs = self.Sites.insert(sites,
+                                              lab[0],
+                                              text=lab[1],
+                                              values=(lab[0], "labs"))
 
-                    rs_sections = self.load_sections(ward[0])
+                    rs_sections = self.load_sections(lab[0])
                     
                     if rs_sections is not None:
                         
                         for section in rs_sections:
                             
-                            sections = self.Sites.insert(wards,
+                            sections = self.Sites.insert(labs,
                                               section[0],
                                               text=section[1],
                                               values=(section[0], "sections"))
@@ -115,10 +115,10 @@ class UI(tk.Toplevel):
                                 for workstation in rs_workstations:
                                     self.Sites.insert(sections, workstation[0], text=workstation[1], values=(workstation[0], "workstations"))
 
-    def load_wards(self, i):
+    def load_labs(self, i):
 
-        sql = "SELECT ward_id, ward\
-               FROM wards\
+        sql = "SELECT lab_id, lab\
+               FROM labs\
                WHERE site_id =?\
                AND status =1"
 
@@ -128,7 +128,7 @@ class UI(tk.Toplevel):
 
         sql = "SELECT section_id, section\
                FROM sections\
-               WHERE ward_id =?\
+               WHERE lab_id =?\
                AND status =1"
 
         return self.nametowidget(".").engine.read(True, sql, (i,))

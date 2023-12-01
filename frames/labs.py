@@ -9,18 +9,18 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import frames.section as ui
+import frames.lab as ui
 
 
 class UI(tk.Toplevel):
     def __init__(self, parent,):
-        super().__init__(name="sections")
+        super().__init__(name="labs")
 
         self.parent = parent
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.attributes("-topmost", True)
-        self.table = "sections"
-        self.primary_key = "section_id"
+        self.table = "labs"
+        self.primary_key = "lab_id"
         self.obj = None
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
@@ -42,15 +42,15 @@ class UI(tk.Toplevel):
         
         frm_right = ttk.Frame(frm_main, style="App.TFrame", relief=tk.GROOVE, padding=8)
         
-        self.lblSections = tk.LabelFrame(frm_right, text="Sections")
+        self.lblSections = tk.LabelFrame(frm_right, text="labs")
         cols = (["#0", "id", "w", False, 0, 0],
-                ["#1", "Managers", 'w', True, 0, 200],
-                ["#2", "Fields", 'w', True, 0, 200],)
+                ["#1", "Manager", 'w', True, 200, 200],
+                ["#2", "Lab", 'w', True, 200, 200],)
 
-        self.lstSections = self.nametowidget(".").engine.get_tree(self.lblSections, cols)
-        self.lstSections.tag_configure('status', background=self.nametowidget(".").engine.get_rgb(211, 211, 211))
-        self.lstSections.bind("<<TreeviewSelect>>", self.on_section_selected)
-        self.lstSections.bind("<Double-1>", self.on_section_activated)
+        self.lstLabs = self.nametowidget(".").engine.get_tree(self.lblSections, cols)
+        self.lstLabs.tag_configure('status', background=self.nametowidget(".").engine.get_rgb(211, 211, 211))
+        self.lstLabs.bind("<<TreeviewSelect>>", self.on_ward_selected)
+        self.lstLabs.bind("<Double-1>", self.on_ward_activated)
 
         self.lblSections.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
@@ -60,7 +60,7 @@ class UI(tk.Toplevel):
         
     def on_open(self,):
 
-        msg = "Medical Fields Management"
+        msg = "{0} Management".format(self.winfo_name().capitalize())
         self.title(msg)
         self.set_values()
 
@@ -69,15 +69,14 @@ class UI(tk.Toplevel):
         for i in self.Sites.get_children():
             self.Sites.delete(i)
 
-        for i in self.lstSections.get_children():
-            self.lstSections.delete(i)
+        for i in self.lstLabs.get_children():
+            self.lstLabs.delete(i)
 
-        sql = "SELECT DISTINCT(sites.supplier_id),suppliers.supplier\
+        sql = "SELECT DISTINCT(sites.supplier_id),suppliers.supplier AS site\
                FROM sites\
                INNER JOIN suppliers ON suppliers.supplier_id = sites.supplier_id\
                WHERE sites.status =1\
-               GROUP BY sites.supplier_id\
-               ORDER BY suppliers.supplier;"
+               GROUP BY sites.supplier_id;"
 
         rs = self.nametowidget(".").engine.read(True, sql, ())
 
@@ -86,26 +85,17 @@ class UI(tk.Toplevel):
 
         for i in rs:
             #print(i)
-            sites = self.Sites.insert("", i[0], text=i[1], values=(i[0], "sites"))
-
+            sites = self.Sites.insert("",
+                                      i[0],
+                                      text=i[1],
+                                      values=(i[0], "sites"))
             rs_hospitals = self.load_hospitals(i[0])
 
             if rs_hospitals is not None:
 
                 for hospital in rs_hospitals:
-
-                    hospitals = self.Sites.insert(sites, hospital[0],
-                                                  text=hospital[1],
-                                                  values=(hospital[0], "hospitals"))
-                    
-                    rs_labs = self.load_labs(hospital[0])
-
-                    if rs_labs is not None:
-
-                        for lab in rs_labs:
-                            self.Sites.insert(hospitals, lab[0], text=lab[1],
-                                              values=(lab[0], "labs"))
-
+                    self.Sites.insert(sites, hospital[0], text=hospital[1], values=(hospital[0], "hospitals"))
+ 
     def load_hospitals(self, i):
 
         sql = "SELECT sites.site_id,suppliers.supplier\
@@ -113,15 +103,6 @@ class UI(tk.Toplevel):
                INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
                WHERE sites.supplier_id =?\
                AND sites.status =1;"
-
-        return self.nametowidget(".").engine.read(True, sql, (i,))                    
- 
-    def load_labs(self, i):
-
-        sql = "SELECT lab_id, lab\
-               FROM labs\
-               WHERE site_id =?\
-               AND status =1"
 
         return self.nametowidget(".").engine.read(True, sql, (i,))
 
@@ -132,16 +113,17 @@ class UI(tk.Toplevel):
 
         if d["values"]:
 
-            if d["values"][1] == "labs":
+            if d["values"][1] == "hospitals":
 
                 pk = d["values"][0]
 
-                self.selected_lab = self.nametowidget(".").engine.get_selected("labs", "lab_id", pk)
+                self.selected_hospital = self.nametowidget(".").engine.get_selected("sites", "site_id", pk)
 
-                args = (self.selected_lab[0],)
+                args = (self.selected_hospital[0],)
 
-                self.set_sections(args)
+                self.set_wards(args)
 
+           
     def on_branch_activated(self, evt=None):
 
         s = self.Sites.focus()
@@ -149,32 +131,29 @@ class UI(tk.Toplevel):
 
         if d["values"]:
 
-            if d["values"][1] == "labs":
+            if d["values"][1] == "hospitals":
 
                 pk = d["values"][0]
 
-                self.selected_lab = self.nametowidget(".").engine.get_selected("labs", "lab_id", pk)
+                self.selected_hospital = self.nametowidget(".").engine.get_selected("sites", "site_id", pk)
 
                 self.obj = ui.UI(self,)
 
-                self.obj.on_open(self.selected_lab)
+                self.obj.on_open(self.selected_hospital)
 
 
-    def set_sections(self, args):
+    def set_wards(self, args):
 
-        for i in self.lstSections.get_children():
-            self.lstSections.delete(i)
+        for i in self.lstLabs.get_children():
+            self.lstLabs.delete(i)
 
-        sql = "SELECT sections.section_id,\
+        sql = "SELECT labs.lab_id,\
                       users.last_name ||' '|| users.first_name,\
-                      sections.section,\
-                      sections.status,\
-                      labs.lab_id\
-               FROM sections\
-               INNER JOIN users ON sections.user_id = users.user_id\
-               INNER JOIN labs ON sections.lab_id = labs.lab_id\
-               WHERE labs.lab_id = ?\
-               AND labs.status =1"
+                      labs.lab,\
+                      labs.status\
+               FROM labs\
+               INNER JOIN users ON labs.user_id = users.user_id\
+               WHERE labs.site_id = ?;"
 
         rs = self.nametowidget(".").engine.read(True, sql, args)
     
@@ -188,28 +167,28 @@ class UI(tk.Toplevel):
                     tag_config = ("",)       
 
 
-                self.lstSections.insert('', tk.END, iid=i[0], text=i[0],
+                self.lstLabs.insert('', tk.END, iid=i[0], text=i[0],
                                             values=(i[1], i[2], i[3]),
                                             tags=tag_config)
                 
-        s = "{0} {1}".format("Medical Fields", len(self.lstSections.get_children()))                
+        s = "{0} {1}".format("Laboratories", len(self.lstLabs.get_children()))                
         self.lblSections["text"] = s       
         
-    def on_section_selected(self, evt=None):
+    def on_ward_selected(self, evt=None):
 
-        if self.lstSections.focus():
-            item_iid = self.lstSections.selection()
+        if self.lstLabs.focus():
+            item_iid = self.lstLabs.selection()
             pk = int(item_iid[0])
-            self.selected_section = self.nametowidget(".").engine.get_selected( self.table, self.primary_key,  pk)
+            self.selected_lab = self.nametowidget(".").engine.get_selected( self.table, self.primary_key,  pk)
 
-    def on_section_activated(self, evt=None):
+    def on_ward_activated(self, evt=None):
 
-        if self.lstSections.focus():
-            item_iid = self.lstSections.selection()
+        if self.lstLabs.focus():
+            item_iid = self.lstLabs.selection()
             pk = int(item_iid[0])
-            selected_section = self.nametowidget(".").engine.get_selected( self.table, self.primary_key, pk)
+            selected_lab = self.nametowidget(".").engine.get_selected( self.table, self.primary_key, pk)
             self.obj = ui.UI(self, item_iid)
-            self.obj.on_open(self.selected_lab, selected_section,)
+            self.obj.on_open(self.selected_hospital)
 
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
@@ -219,6 +198,6 @@ class UI(tk.Toplevel):
     def on_cancel(self, evt=None):
         if self.obj is not None:
             self.obj.destroy()
-        self.nametowidget(".").engine.set_instance(self, 0)
+        self.nametowidget(".").engine.set_instance(self, 0)            
         self.destroy()
 

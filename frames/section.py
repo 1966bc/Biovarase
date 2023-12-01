@@ -44,7 +44,7 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
-        ttk.Label(frm_left, text="Wards:").grid(row=r, sticky=tk.W)
+        ttk.Label(frm_left, text="Labs:").grid(row=r, sticky=tk.W)
         self.cbWards = ttk.Combobox(frm_left,)
         self.cbWards.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
@@ -54,7 +54,7 @@ class UI(tk.Toplevel):
         self.cbUsers.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
-        ttk.Label(frm_left, text="Section:").grid(row=r, sticky=tk.W)
+        ttk.Label(frm_left, text="Field:").grid(row=r, sticky=tk.W)
         self.txSection = ttk.Entry(frm_left, textvariable=self.section)
         self.txSection.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
@@ -87,19 +87,19 @@ class UI(tk.Toplevel):
                                                     sticky=tk.W)
 
 
-    def on_open(self, selected_ward, selected_section=None):
+    def on_open(self, selected_lab, selected_section=None):
 
-        self.selected_ward = selected_ward
+        self.selected_lab = selected_lab
         self.set_wards()
         self.set_employees()
-        self.set_ward(selected_ward)
+        self.set_ward(selected_lab)
 
         if self.index is not None:
             self.selected_section = selected_section
-            msg = "Update {0}".format(self.winfo_name())
+            msg = "Update Medical Field"
             self.set_values()
         else:
-            msg = "Insert {0}".format(self.winfo_name())
+            msg = "Insert Medical Field"
             self.status.set(1)
 
         self.title(msg)
@@ -108,26 +108,26 @@ class UI(tk.Toplevel):
     def set_wards(self):
 
         index = 0
-        self.dict_wards = {}
+        self.dict_labs = {}
         values = []
 
-        sql = "SELECT ward_id, ward\
-               FROM wards WHERE site_id =? AND status =1 ORDER BY ward ASC;"
-        args = (self.selected_ward[1],)
+        sql = "SELECT lab_id, lab\
+               FROM labs WHERE site_id =? AND status =1 ORDER BY lab ASC;"
+        args = (self.selected_lab[1],)
         rs = self.nametowidget(".").engine.read(True, sql, args)
 
         for i in rs:
-            self.dict_wards[index] = i[0]
+            self.dict_labs[index] = i[0]
             index += 1
             values.append(i[1])
 
         self.cbWards['values'] = values
 
-    def set_ward(self, selected_ward):
+    def set_ward(self, selected_lab):
         try:
             key = next(key for key, value
-                       in self.dict_wards.items()
-                       if value == selected_ward[0])
+                       in self.dict_labs.items()
+                       if value == selected_lab[0])
             self.cbWards.current(key)
         except:
             pass
@@ -151,7 +151,7 @@ class UI(tk.Toplevel):
 
     def get_values(self,):
 
-        return [self.dict_wards[self.cbWards.current()],
+        return [self.dict_labs[self.cbWards.current()],
                 self.dict_users[self.cbUsers.current()],
                 self.section.get(),
                 self.status.get()]
@@ -160,7 +160,7 @@ class UI(tk.Toplevel):
 
         try:
             key = next(key for key, value
-                       in self.dict_wards.items()
+                       in self.dict_labs.items()
                        if value == self.selected_section[1])
             self.cbWards.current(key)
         except:
@@ -198,7 +198,7 @@ class UI(tk.Toplevel):
 
             last_id = self.nametowidget(".").engine.write(sql, args)      
 
-            args = (self.selected_ward[0],)
+            args = (self.selected_lab[0],)
 
             self.parent.set_sections(args)
 

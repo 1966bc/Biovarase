@@ -60,14 +60,14 @@ class UI(tk.Toplevel):
 
             sql = "SELECT tests_methods.test_method_id,\
                         tests.test || ' ' || samples.sample,\
-                        wards.site_id\
+                        labs.site_id\
                    FROM tests\
                    INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
                    INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
                    INNER JOIN sections ON tests_methods.section_id = sections.section_id\
-                   INNER JOIN wards ON sections.ward_id = wards.ward_id\
+                   INNER JOIN labs ON sections.lab_id = labs.lab_id\
                    WHERE test_method_id NOT IN ({0})\
-                   AND wards.site_id ={1}\
+                   AND labs.site_id ={1}\
                    AND tests.status =1\
                    AND tests_methods.status=1\
                    ORDER BY tests.test;".format(s ,self.rs_idd[0])
@@ -76,13 +76,13 @@ class UI(tk.Toplevel):
 
             sql = "SELECT tests_methods.test_method_id,\
                         tests.test || ' ' || samples.sample,\
-                        wards.site_id\
+                        labs.site_id\
                    FROM tests\
                    INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
                    INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
                    INNER JOIN sections ON tests_methods.section_id = sections.section_id\
-                   INNER JOIN wards ON sections.ward_id = wards.ward_id\
-                   WHERE wards.site_id =?\
+                   INNER JOIN labs ON sections.lab_id = labs.lab_id\
+                   WHERE labs.site_id =?\
                    AND tests.status =1\
                    AND tests_methods.status=1\
                    ORDER BY tests.test;"

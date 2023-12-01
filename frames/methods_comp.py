@@ -169,20 +169,20 @@ class UI(tk.Toplevel):
                                                       text=hospital[1],
                                                       values=(hospital[0], "hospitals"))
                         
-                        rs_wards = self.load_wards(hospital[0])
+                        rs_labs = self.load_labs(hospital[0])
 
-                        if rs_wards is not None:
+                        if rs_labs is not None:
 
-                            for ward in rs_wards:
+                            for lab in rs_labs:
                                 
-                                wards = self.Sites.insert(hospitals, ward[0], text=ward[1], values=(ward[0], "wards"))
+                                labs = self.Sites.insert(hospitals, lab[0], text=lab[1], values=(lab[0], "labs"))
                                 
-                                rs_sections = self.load_sections(ward[0])
+                                rs_sections = self.load_sections(lab[0])
 
                                 if rs_sections is not None:
 
                                     for section in rs_sections:
-                                        sections = self.Sites.insert(wards, section[0], text=section[1], values=(section[0], "sections"))
+                                        sections = self.Sites.insert(labs, section[0], text=section[1], values=(section[0], "sections"))
                                         rs_workstations = self.load_workstations(section[0])
 
                                         if rs_workstations is not None:
@@ -193,18 +193,18 @@ class UI(tk.Toplevel):
 
             for i in rs:
                 sites = self.Sites.insert("", i[0], text=i[1], values=(i[0], "sites"))
-                rs_wards = self.load_wards(i[0])
+                rs_labs = self.load_labs(i[0])
 
-                if rs_wards is not None:
+                if rs_labs is not None:
 
-                    for ward in rs_wards:
-                        wards = self.Sites.insert(sites, ward[0], text=ward[1], values=(ward[0], "wards"))
-                        rs_sections = self.load_sections(ward[0])
+                    for lab in rs_labs:
+                        labs = self.Sites.insert(sites, lab[0], text=lab[1], values=(lab[0], "labs"))
+                        rs_sections = self.load_sections(lab[0])
 
                         if rs_sections is not None:
 
                             for section in rs_sections:
-                                sections = self.Sites.insert(wards, section[0], text=section[1], values=(section[0], "sections"))
+                                sections = self.Sites.insert(labs, section[0], text=section[1], values=(section[0], "sections"))
                                 rs_workstations = self.load_workstations(section[0])
 
                                 if rs_workstations is not None:
@@ -222,17 +222,17 @@ class UI(tk.Toplevel):
 
         return self.nametowidget(".").engine.read(True, sql, (i,))
     
-    def load_wards(self, site_id):
+    def load_labs(self, site_id):
 
-        sql = "SELECT ward_id, ward FROM wards WHERE site_id =? AND status =1 ORDER BY ward;"
+        sql = "SELECT lab_id, lab FROM labs WHERE site_id =? AND status =1 ORDER BY lab;"
 
         return self.nametowidget(".").engine.read(True, sql, (site_id,))
 
-    def load_sections(self, ward_id):
+    def load_sections(self, lab_id):
 
-        sql = "SELECT section_id, section FROM sections WHERE ward_id =? AND status =1 ORDER BY section;"
+        sql = "SELECT section_id, section FROM sections WHERE lab_id =? AND status =1 ORDER BY section;"
 
-        return self.nametowidget(".").engine.read(True, sql, (ward_id,))
+        return self.nametowidget(".").engine.read(True, sql, (lab_id,))
 
     def load_workstations(self, section_id):
 

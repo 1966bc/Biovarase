@@ -13,22 +13,25 @@ from tkinter import messagebox
 
 class UI(tk.Toplevel):
     def __init__(self, parent, index=None):
-        super().__init__(name="site")
+        super().__init__(name="lab")
 
         if self.nametowidget(".").engine.get_instance("data"):
-                self.nametowidget(".data").on_cancel()        
+                self.nametowidget(".data").on_cancel()     
 
         self.parent = parent
         self.index = index
         self.transient(parent)
         self.resizable(0, 0)
+        self.lab = tk.StringVar()
+        self.lab = tk.StringVar()
         self.status = tk.BooleanVar()
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        #self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.set_me_center(self)
         
     def init_ui(self):
 
@@ -42,15 +45,20 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
-        ttk.Label(frm_left, text="Companies:").grid(row=r, sticky=tk.W)
-        self.cbCompanies = ttk.Combobox(frm_left,)
-        self.cbCompanies.grid(row=r, column=c, sticky=tk.EW, **paddings)
-
-        r += 1
-        ttk.Label(frm_left, text="Sites:").grid(row=r, sticky=tk.W)
+        ttk.Label(frm_left, text="Hospital:").grid(row=r, sticky=tk.W)
         self.cbSites = ttk.Combobox(frm_left,)
         self.cbSites.grid(row=r, column=c, sticky=tk.EW, **paddings)
-        
+
+        r += 1
+        ttk.Label(frm_left, text="Manager:").grid(row=r, sticky=tk.W)
+        self.cbUsers = ttk.Combobox(frm_left,)
+        self.cbUsers.grid(row=r, column=c, sticky=tk.EW, **paddings)
+
+        r += 1
+        ttk.Label(frm_left, text="lab:").grid(row=r, sticky=tk.W)
+        self.txtLab = ttk.Entry(frm_left, textvariable=self.lab)
+        self.txtLab.grid(row=r, column=c, sticky=tk.EW, **paddings)
+
         r += 1
         ttk.Label(frm_left, text="Status:").grid(row=r, sticky=tk.W)
         chk = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.status,)
@@ -70,50 +78,46 @@ class UI(tk.Toplevel):
         self.bind("<Alt-c>", self.on_cancel)
         btn_cancel.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
-    def on_open(self, ):
+    def on_open(self, selected_hospital):
 
-        self.set_companies()
+        self.selected_hospital = selected_hospital
         self.set_sites()
-        
+        self.set_manager()
+
         if self.index is not None:
             msg = "Update {0}".format(self.winfo_name().title())
             self.set_values()
+            self.txtLab.focus()
         else:
             msg = "Insert {0}".format(self.winfo_name().title())
+
+            try:
+                key = next(key
+                           for key, value
+                           in self.dict_sites.items()
+                           if value == selected_hospital[0])
+                self.cbSites.current(key)
+
+                self.cbUsers.focus()
+                
+            except:
+                pass
+        
             self.status.set(1)
 
         self.title(msg)
-        self.cbCompanies.focus()
-
-    def set_companies(self):
-
-        index = 0
-        self.dict_companies = {}
-        voices = []
-
-        sql = "SELECT suppliers.supplier_id, suppliers.supplier\
-               FROM suppliers\
-               ORDER BY suppliers.supplier;"
-
-        rs = self.nametowidget(".").engine.read(True, sql)
-
-        for i in rs:
-            self.dict_companies[index] = i[0]
-            index += 1
-            voices.append(i[1])
-
-        self.cbCompanies["values"] = voices           
-
+        
     def set_sites(self):
 
         index = 0
         self.dict_sites = {}
         voices = []
 
-        sql = "SELECT suppliers.supplier_id, suppliers.supplier\
-               FROM suppliers\
+        sql = "SELECT sites.site_id, suppliers.supplier\
+               FROM sites\
+               INNER JOIN suppliers ON sites.comp_id = suppliers.supplier_id\
                ORDER BY suppliers.supplier;"
-
+    
         rs = self.nametowidget(".").engine.read(True, sql, ())
 
         for i in rs:
@@ -123,33 +127,55 @@ class UI(tk.Toplevel):
 
         self.cbSites["values"] = voices
 
-         
+    def set_manager(self):
+
+        index = 0
+        self.dict_users = {}
+        voices = []
+
+        sql = "SELECT user_id, last_name||' '||first_name\
+               FROM users\
+               WHERE status =1\
+               ORDER BY last_name;"
+
+        rs = self.nametowidget(".").engine.read(True, sql)
+
+        for i in rs:
+            self.dict_users[index] = i[0]
+            index += 1
+            voices.append(i[1])
+
+        self.cbUsers["values"] = voices        
+
     def set_values(self,):
 
         try:
             key = next(key
                        for key, value
-                       in self.dict_companies.items()
-                       if value == self.parent.selected_item[1])
-            self.cbCompanies.current(key)
-        except:
-            pass
-
-        try:
-            key = next(key
-                       for key, value
                        in self.dict_sites.items()
-                       if value == self.parent.selected_item[2])
+                       if value == self.parent.selected_lab[1])
             self.cbSites.current(key)
         except:
             pass
 
-        self.status.set(self.parent.selected_item[3])
+
+        try:
+            key = next(key
+                       for key, value
+                       in self.dict_users.items()
+                       if value == self.parent.selected_lab[2])
+            self.cbUsers.current(key)
+        except:
+            pass
+        
+        self.lab.set(self.parent.selected_lab[3])
+        self.status.set(self.parent.selected_lab[4])
 
     def get_values(self,):
 
-        return [self.dict_companies[self.cbCompanies.current()],
-                self.dict_sites[self.cbSites.current()],
+        return [self.dict_sites[self.cbSites.current()],
+                self.dict_users[self.cbUsers.current()],
+                self.lab.get(),
                 self.status.get()]
     
     def on_save(self, evt=None):
@@ -166,28 +192,21 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
-                args.append(self.parent.selected_item[0])
+                args.append(self.parent.selected_lab[0])
 
             else:
 
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
-
             last_id = self.nametowidget(".").engine.write(sql, args)
-            
-            self.parent.on_open()
+            self.parent.set_wards((self.parent.selected_hospital[0],))
+
+            if self.nametowidget(".").engine.get_instance("sections"):
+                self.nametowidget(".sections").set_values()
 
             if self.index is not None:
-                which = self.parent.selected_item[0]
-            else:
-                which = last_id
-                 
-
-            self.parent.lstItems.see(which)
-            self.parent.lstItems.selection_set(which)
-
-            if self.nametowidget(".").engine.get_instance("labs"):
-                self.nametowidget(".labs").set_values()
+                self.parent.lstLabs.see(self.index)
+                self.parent.lstLabs.selection_set(self.index)
                 
             self.on_cancel()
 

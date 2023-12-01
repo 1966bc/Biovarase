@@ -182,13 +182,13 @@ class UI(tk.Toplevel):
     def get_method_data(self, test_method_id):
 
         sql = "SELECT suppliers.supplier,\
-		      wards.ward,\
+		      labs.lab,\
 		      sections.section,\
 		      IFNULL(samples.description,'NA') ||' '||IFNULL(methods.method,'NA')||' '||IFNULL(units.unit,'NA')\
 	       FROM sites\
 	       INNER JOIN suppliers ON sites.comp_id = suppliers.supplier_id\
-	       INNER JOIN wards ON sites.site_id = wards.site_id\
-	       INNER JOIN sections ON wards.ward_id = sections.ward_id\
+	       INNER JOIN labs ON sites.site_id = labs.site_id\
+	       INNER JOIN sections ON labs.lab_id = sections.lab_id\
 	       INNER JOIN tests_methods ON tests_methods.section_id = sections.section_id\
 	       INNER JOIN methods_comp ON tests_methods.test_method_id = methods_comp.x_test_method_id\
 	       INNER JOIN samples  ON tests_methods.sample_id = samples.sample_id\

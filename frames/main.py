@@ -40,7 +40,7 @@ import frames.equipments
 import frames.workstations
 import frames.controls
 import frames.suppliers
-import frames.wards
+import frames.labs
 import frames.sections
 import frames.batch
 import frames.actions
@@ -179,7 +179,7 @@ class Main(tk.Toplevel):
             m_plots.add_command(label=i[0], underline=i[1], command=i[2])
 
         items = (("Tests Methods", 1, self.on_tests_methods),
-                 ("Tests Sections", 2,  self.on_tests_sections),
+                 ("Tests Labs", 2,  self.on_tests_sections),
                  ("Workstations Tests Methods", 0, self.on_workstations_tests_methods),
                  ("Specialities", 0, self.on_specialities),
                  ("Samples", 2, self.on_samples),
@@ -203,16 +203,18 @@ class Main(tk.Toplevel):
 
         items = (("Suppliers", 1, self.on_suppliers),
                  ("Sites", 1, self.on_sites),
-                 ("Wards", 1, self.on_wards),
-                 ("Sections", 1, self.on_sections),
+                 ("Labs", 1, self.on_labs),
+                 ("Medical Fields", 1, self.on_sections),
                  ("Users", 0, self.on_users),
                  ("Tests", 0, self.on_tests),
                  ("Equipments", 0, self.on_equipments),
                  ("Audit trail", 0, self.on_audit),)
-        
 
-        for i in items:
+        for i in sorted(items, key=operator.itemgetter(0)):
             m_adm.add_command(label=i[0], underline=i[1], command=i[2])
+
+        #for i in items:
+           #m_adm.add_command(label=i[0], underline=i[1], command=i[2])
 
         m_about.add_command(label="About", underline=0, command=self.on_about)
         m_about.add_command(label="License", underline=0, command=self.on_license)
@@ -420,13 +422,13 @@ class Main(tk.Toplevel):
         sql = "SELECT sites.site_id,\
                       companies.supplier AS company,\
                       suppliers.supplier AS site,\
-                      wards.ward,\
+                      labs.lab,\
                       sections.section\
                FROM sites\
                INNER JOIN suppliers AS companies ON companies.supplier_id = sites.supplier_id\
                INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
-               INNER JOIN wards ON sites.site_id = wards.site_id\
-               INNER JOIN sections ON wards.ward_id = sections.ward_id\
+               INNER JOIN labs ON sites.site_id = labs.site_id\
+               INNER JOIN sections ON labs.lab_id = sections.lab_id\
                WHERE sections.section_id =?;"
 
         args = (self.nametowidget(".").engine.get_section_id(),)
@@ -539,8 +541,8 @@ class Main(tk.Toplevel):
         sql = "SELECT DISTINCT specialities.speciality_id,\
                                specialities.description\
                FROM sites\
-               INNER JOIN wards ON sites.site_id = wards.site_id\
-               INNER JOIN sections ON wards.ward_id = sections.ward_id\
+               INNER JOIN labs ON sites.site_id = labs.site_id\
+               INNER JOIN sections ON labs.lab_id = sections.lab_id\
                INNER JOIN tests_methods ON sections.section_id = tests_methods.section_id\
                INNER JOIN tests ON tests_methods.test_id = tests.test_id\
                INNER JOIN specialities ON tests.speciality_id = specialities.speciality_id\
@@ -574,8 +576,8 @@ class Main(tk.Toplevel):
                    INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
                    INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
                    INNER JOIN sections ON tests_methods.section_id = sections.section_id\
-                   INNER JOIN wards ON sections.ward_id = wards.ward_id\
-                   INNER JOIN sites ON wards.site_id = sites.site_id\
+                   INNER JOIN labs ON sections.lab_id = labs.lab_id\
+                   INNER JOIN sites ON labs.site_id = sites.site_id\
                    WHERE tests.speciality_id =?\
                    AND sections.section_id =?\
                    AND tests.status=1\
@@ -1085,13 +1087,13 @@ class Main(tk.Toplevel):
         else:
             frames.suppliers.UI(self).on_open()
 
-    def on_wards(self,):
+    def on_labs(self,):
 
         if self.nametowidget(".").engine.log_user[5] != 0:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
-            frames.wards.UI(self).on_open()
+            frames.labs.UI(self).on_open()
 
     def on_sites(self,):
 

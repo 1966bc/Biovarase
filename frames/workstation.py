@@ -150,7 +150,7 @@ class UI(tk.Toplevel):
         self.dict_sections = {}
         values = []
 
-        sql = "SELECT section_id, section FROM sections WHERE ward_id =? AND status =1 ORDER BY section;"
+        sql = "SELECT section_id, section FROM sections WHERE lab_id =? AND status =1 ORDER BY section;"
         args = (rs_idd[3],)
         rs = self.nametowidget(".").engine.read(True, sql, args)
        

@@ -84,8 +84,8 @@ class UI(tk.Toplevel):
                INNER JOIN batches ON tests_methods.test_method_id = batches.test_method_id\
                INNER JOIN results ON batches.batch_id = results.batch_id\
                INNER JOIN sections ON tests_methods.section_id = sections.section_id\
-               INNER JOIN wards ON sections.ward_id = wards.ward_id\
-               INNER JOIN sites ON wards.site_id = sites.site_id\
+               INNER JOIN labs ON sections.lab_id = labs.lab_id\
+               INNER JOIN sites ON labs.site_id = sites.site_id\
                INNER JOIN workstations ON results.workstation_id = workstations.workstation_id\
                WHERE tests.status = 1\
                AND sections.section_id =?\
