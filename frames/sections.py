@@ -42,10 +42,10 @@ class UI(tk.Toplevel):
         
         frm_right = ttk.Frame(frm_main, style="App.TFrame", relief=tk.GROOVE, padding=8)
         
-        self.lblSections = tk.LabelFrame(frm_right, text="Sections")
+        self.lblSections = tk.LabelFrame(frm_right, text="Medical Fields")
         cols = (["#0", "id", "w", False, 0, 0],
-                ["#1", "Managers", 'w', True, 0, 200],
-                ["#2", "Fields", 'w', True, 0, 200],)
+                ["#1", "Manager", 'w', True, 0, 200],
+                ["#2", "Field", 'w', True, 0, 200],)
 
         self.lstSections = self.nametowidget(".").engine.get_tree(self.lblSections, cols)
         self.lstSections.tag_configure('status', background=self.nametowidget(".").engine.get_rgb(211, 211, 211))
@@ -82,29 +82,22 @@ class UI(tk.Toplevel):
         rs = self.nametowidget(".").engine.read(True, sql, ())
 
         #.insert(parent, index, iid=None, **kw)
-        self.Sites.insert("", 0, 0, text="Sites")
+        self.Sites.insert("", 0, 0, text="Laboratories")
 
         for i in rs:
-            #print(i)
             sites = self.Sites.insert("", i[0], text=i[1], values=(i[0], "sites"))
-
             rs_hospitals = self.load_hospitals(i[0])
 
             if rs_hospitals is not None:
 
                 for hospital in rs_hospitals:
-
-                    hospitals = self.Sites.insert(sites, hospital[0],
-                                                  text=hospital[1],
-                                                  values=(hospital[0], "hospitals"))
-                    
+                    hospitals = self.Sites.insert(sites, hospital[0], text=hospital[1], values=(hospital[0], "hospitals"))
                     rs_labs = self.load_labs(hospital[0])
 
                     if rs_labs is not None:
 
                         for lab in rs_labs:
-                            self.Sites.insert(hospitals, lab[0], text=lab[1],
-                                              values=(lab[0], "labs"))
+                            self.Sites.insert(hospitals, lab[0], text=lab[1], values=(lab[0], "labs"))
 
     def load_hospitals(self, i):
 

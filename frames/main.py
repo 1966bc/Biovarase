@@ -201,9 +201,9 @@ class Main(tk.Toplevel):
         for i in items:
             m_documents.add_command(label=i[0], underline=i[1], command=i[2])
 
-        items = (("Suppliers", 1, self.on_suppliers),
+        items = (("Suppliers", 2, self.on_suppliers),
                  ("Sites", 1, self.on_sites),
-                 ("Labs", 1, self.on_labs),
+                 ("Labs", 0, self.on_labs),
                  ("Medical Fields", 1, self.on_sections),
                  ("Users", 0, self.on_users),
                  ("Tests", 0, self.on_tests),
