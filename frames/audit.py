@@ -43,10 +43,10 @@ class UI(tk.Toplevel):
         frm_tests = ttk.Frame(frm_main,)
         w = tk.LabelFrame(frm_tests, text='Tests')
         cols = (["#0", 'test_method_id', 'w', False, 0, 0],
-                ["#1", 'Test', 'w', True, 100, 100],
-                ["#2", 'S', 'center', True, 50, 50],
-                ["#3", 'Method', 'center', True, 50, 50],
-                ["#4", 'Unit', 'center', True, 50, 50],)
+                ["#1", 'Test', 'w', True, 0, 100],
+                ["#2", 'S', 'center', True, 0, 50],
+                ["#3", 'Method', 'center', True, 0, 50],
+                ["#4", 'Unit', 'center', True, 0, 50],)
 
         self.lstTestsMethods = self.nametowidget(".").engine.get_tree(w, cols)
         self.lstTestsMethods.bind("<<TreeviewSelect>>", self.on_test_method_selected)
@@ -143,10 +143,10 @@ class UI(tk.Toplevel):
         #.insert(parent, index, iid=None, **kw)
         self.Sites.insert("", 0, 0, text="Sites")
 
-
         if self.nametowidget(".").engine.log_user[5] ==0:
+            
             for i in rs:
-                #print(i)
+            
                 sites = self.Sites.insert("", i[0], text=i[1], values=(i[0], "sites"))
 
                 rs_hospitals = self.load_hospitals(i[0])
@@ -154,11 +154,7 @@ class UI(tk.Toplevel):
                 if rs_hospitals is not None:
 
                     for hospital in rs_hospitals:
-
-                        hospitals = self.Sites.insert(sites, hospital[0],
-                                                      text=hospital[1],
-                                                      values=(hospital[0], "hospitals"))
-                        
+                        hospitals = self.Sites.insert(sites, hospital[0], text=hospital[1], values=(hospital[0], "hospitals"))
                         rs_labs = self.load_labs(hospital[0])
 
                         if rs_labs is not None:
@@ -174,29 +170,32 @@ class UI(tk.Toplevel):
                                         rs_workstations = self.load_workstations(section[0])
 
                                         if rs_workstations is not None:
+                                            
                                             for workstation in rs_workstations:
                                                 self.Sites.insert(sections, workstation[0], text=workstation[1], values=(workstation[0], "workstations"))
 
         else:
 
             for i in rs:
+
                 sites = self.Sites.insert("", i[0], text=i[1], values=(i[0], "sites"))
+
                 rs_labs = self.load_labs(i[0])
 
                 if rs_labs is not None:
-
+                    
                     for lab in rs_labs:
                         labs = self.Sites.insert(sites, lab[0], text=lab[1], values=(lab[0], "labs"))
                         rs_sections = self.load_sections(lab[0])
 
                         if rs_sections is not None:
-
+                            
                             for section in rs_sections:
                                 sections = self.Sites.insert(labs, section[0], text=section[1], values=(section[0], "sections"))
                                 rs_workstations = self.load_workstations(section[0])
 
                                 if rs_workstations is not None:
-
+                                    
                                     for workstation in rs_workstations:
                                         self.Sites.insert(sections, workstation[0], text=workstation[1], values=(workstation[0], "workstations"))
 
