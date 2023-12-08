@@ -20,8 +20,8 @@ class UI(tk.Toplevel):
         self.parent = parent
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.obj = None
+        self.nametowidget(".").engine.set_me_center(self)
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
 
     def init_ui(self):
 

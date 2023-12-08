@@ -115,7 +115,7 @@ class Main(tk.Toplevel):
         m_main = tk.Menu(self, bd=1)
 
         m_file = tk.Menu(m_main, tearoff=0, bd=1)
-        s_exports = tk.Menu(m_file)
+        m_exports = tk.Menu(m_file)
         s_databases = tk.Menu(m_file)
         m_plots = tk.Menu(m_main, tearoff=0, bd=1)
         m_edit = tk.Menu(m_main, tearoff=0, bd=1)
@@ -126,29 +126,19 @@ class Main(tk.Toplevel):
         m_main.add_cascade(label="File", underline=0, menu=m_file)
         m_main.add_cascade(label="Plots", underline=0, menu=m_plots)
         m_main.add_cascade(label="Edit", underline=0, menu=m_edit)
+        m_main.add_cascade(label='Exports', underline=1, menu=m_exports)
         m_main.add_cascade(label="Documents", underline=0, menu=m_documents)
         m_main.add_cascade(label="Admin", underline=0, menu=m_adm)
         m_main.add_cascade(label="?", underline=0, menu=m_about)
 
-        items = (("Reset", 0, self.on_reset),
-                 ("Data", 0, self.on_data),
+        items = (("Data", 0, self.on_data),
+                 ("Reset", 0, self.on_reset),
                  ("Insert random results", 0, self.on_insert_demo_result),
                  ("Analytica", 4, self.on_analitical),
                  ("Z Score", 0, self.on_zscore),)
 
         for i in items:
             m_file.add_command(label=i[0], underline=i[1], command=i[2])
-
-        m_file.add_cascade(label='Exports', menu=s_exports, underline=0)
-
-        items = (("Quick Data Analysis", 0, self.on_quick_data_analysis),
-                 ("Notes", 0, self.on_export_notes),
-                 ("Analytical Goals", 0, self.on_analitycal_goals),
-                 ("Counts", 0, self.on_export_counts),
-                 ("Controls List", 9, self.on_export_controls),)
-
-        for i in items:
-            s_exports.add_command(label=i[0], underline=i[1], command=i[2])
 
         m_file.add_separator()
 
@@ -194,6 +184,15 @@ class Main(tk.Toplevel):
         for i in sorted(items, key=operator.itemgetter(0)):
             m_edit.add_command(label=i[0], underline=i[1], command=i[2])
 
+        items = (("Quick Data Analysis", 0, self.on_quick_data_analysis),
+                 ("Notes", 0, self.on_export_notes),
+                 ("Analytical Goals", 0, self.on_analitycal_goals),
+                 ("Counts", 0, self.on_export_counts),
+                 ("Controls List", 9, self.on_export_controls),)
+
+        for i in items:
+            m_exports.add_command(label=i[0], underline=i[1], command=i[2])
+
         items = (("User Manual", 0, self.on_user_manual),
                  ("QC Technical Manual", 0, self.on_qc_thecnical_manual),
                  ("Biological Values", 0, self.on_bvv),)
@@ -204,7 +203,7 @@ class Main(tk.Toplevel):
         items = (("Suppliers", 2, self.on_suppliers),
                  ("Sites", 1, self.on_sites),
                  ("Labs", 0, self.on_labs),
-                 ("Medical Fields", 1, self.on_sections),
+                 ("Sections", 1, self.on_sections),
                  ("Users", 0, self.on_users),
                  ("Tests", 0, self.on_tests),
                  ("Equipments", 0, self.on_equipments),
@@ -213,16 +212,15 @@ class Main(tk.Toplevel):
         for i in sorted(items, key=operator.itemgetter(0)):
             m_adm.add_command(label=i[0], underline=i[1], command=i[2])
 
-        #for i in items:
-           #m_adm.add_command(label=i[0], underline=i[1], command=i[2])
+        items = (("About", 2, self.on_about),
+                 ("License", 1, self.on_license),
+                 ("Python", 0, self.on_python_version),
+                 ("Tkinter", 1, self.on_tkinter_version),)
 
-        m_about.add_command(label="About", underline=0, command=self.on_about)
-        m_about.add_command(label="License", underline=0, command=self.on_license)
-        m_about.add_command(label="Python", underline=0, command=self.on_python_version)
-        m_about.add_command(label="Tkinter", underline=0, command=self.on_tkinter_version)
-        
-
-        for i in (m_main, m_file, ):
+        for i in items:
+           m_about.add_command(label=i[0], underline=i[1], command=i[2])
+    
+        for i in (m_main, m_file, m_plots, m_edit, m_exports, m_documents, m_adm, m_about):
             i.config(bg=self.nametowidget(".").engine.get_rgb(240, 240, 237),)
             i.config(fg="black")
 

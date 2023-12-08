@@ -37,7 +37,7 @@ class UI(tk.Toplevel):
         self.obj = None
         self.items = tk.StringVar()
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.set_me_center(self)
         self.nametowidget(".").engine.set_instance(self, 1)
             
     def init_ui(self):

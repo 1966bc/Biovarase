@@ -44,8 +44,9 @@ class UI(tk.Toplevel):
         
         self.lblSections = tk.LabelFrame(frm_right, text="Medical Fields")
         cols = (["#0", "id", "w", False, 0, 0],
-                ["#1", "Manager", 'w', True, 0, 200],
-                ["#2", "Field", 'w', True, 0, 200],)
+                ["#1", "Lab", 'w', True, 0, 200],
+                ["#2", "Section", 'w', True, 0, 200],
+                ["#3", "Manager", 'w', True, 0, 100],)
 
         self.lstSections = self.nametowidget(".").engine.get_tree(self.lblSections, cols)
         self.lstSections.tag_configure('status', background=self.nametowidget(".").engine.get_rgb(211, 211, 211))
@@ -60,7 +61,7 @@ class UI(tk.Toplevel):
         
     def on_open(self,):
 
-        msg = "Medical Fields Management"
+        msg = "Sections"
         self.title(msg)
         self.set_values()
 
@@ -89,13 +90,11 @@ class UI(tk.Toplevel):
             rs_hospitals = self.load_hospitals(i[0])
 
             if rs_hospitals is not None:
-
                 for hospital in rs_hospitals:
                     hospitals = self.Sites.insert(sites, hospital[0], text=hospital[1], values=(hospital[0], "hospitals"))
                     rs_labs = self.load_labs(hospital[0])
 
                     if rs_labs is not None:
-
                         for lab in rs_labs:
                             self.Sites.insert(hospitals, lab[0], text=lab[1], values=(lab[0], "labs"))
 
@@ -159,8 +158,9 @@ class UI(tk.Toplevel):
             self.lstSections.delete(i)
 
         sql = "SELECT sections.section_id,\
-                      users.last_name ||' '|| users.first_name,\
+                      labs.lab,\
                       sections.section,\
+                      users.last_name ||' '|| users.first_name,\
                       sections.status,\
                       labs.lab_id\
                FROM sections\
@@ -175,14 +175,14 @@ class UI(tk.Toplevel):
             
             for i in rs:
 
-                if i[3] != 1:
+                if i[4] != 1:
                     tag_config = ("status",)
                 else:
                     tag_config = ("",)       
 
 
                 self.lstSections.insert('', tk.END, iid=i[0], text=i[0],
-                                            values=(i[1], i[2], i[3]),
+                                            values=(i[1], i[2], i[3], i[4]),
                                             tags=tag_config)
                 
         s = "{0} {1}".format("Medical Fields", len(self.lstSections.get_children()))                

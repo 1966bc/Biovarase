@@ -24,7 +24,7 @@ class UI(tk.Toplevel):
         self.table = "tests"
         self.primary_key = "test_id"
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.set_me_center(self)
         
     def init_ui(self):
         

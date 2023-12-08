@@ -28,6 +28,8 @@ class UI(tk.Toplevel):
         super().__init__(name="bland_altman")
 
         self.parent = parent
+        self.transient(parent)
+        self.attributes('-topmost', True)
         self.nametowidget(".").engine.set_me_center(self)
         self.init_ui()
 
