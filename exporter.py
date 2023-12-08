@@ -179,7 +179,7 @@ class Exporter:
                       equipments.description,\
                       workstations.description,\
                       workstations.serial,\
-                      labs.ward,\
+                      labs.lab,\
                       sections.section\
                FROM tests\
                INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
