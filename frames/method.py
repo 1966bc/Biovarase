@@ -62,11 +62,11 @@ class UI(tk.Toplevel):
         self.bind("<Alt-c>", self.on_cancel)
         btn_cancel.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
-    def on_open(self, selected_item=None):
+    def on_open(self, ):
 
         if self.index is not None:
-            self.selected_item = selected_item
             msg = "Update {0}".format(self.winfo_name().title())
+            self.selected_item = self.parent.selected_item
             self.set_values()
         else:
             msg = "Insert {0}".format(self.winfo_name().title())
@@ -104,16 +104,19 @@ class UI(tk.Toplevel):
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
             last_id = self.nametowidget(".").engine.write(sql, args)
-            self.parent.on_open()
+            
+            # reloads the parent dictionary used to poplate listbox... 
+            self.parent.set_values()
 
+            # and searches for the key using the primary key of the record
             if self.index is not None:
-                self.parent.lstItems.see(self.index)
-                self.parent.lstItems.selection_set(self.index)
+                lst_index = [k for k,v in self.parent.dict_items.items() if v == self.selected_item[0]]
             else:
-                #force focus on listbox
-                idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
-                self.parent.lstItems.selection_set(idx)
-                self.parent.lstItems.see(idx)
+                lst_index = [k for k,v in self.parent.dict_items.items() if v == last_id]
+
+            # point the right item on listbox
+            self.parent.lstItems.see(lst_index[0])
+            self.parent.lstItems.selection_set(lst_index[0])
 
             self.on_cancel()
 

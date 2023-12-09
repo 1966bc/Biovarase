@@ -223,12 +223,13 @@ class UI(tk.Toplevel):
     def set_index(self, last_id):
 
         if self.index is not None:
-            idx = self.index
+            lst_index = [k for k,v in self.parent.dict_results.items() if v == self.selected_result[0]]
+            
         else:
-            idx = list(self.parent.dict_results.keys())[list(self.parent.dict_results.values()).index(last_id)]
-
-        self.parent.lstResults.selection_set(idx)
-        self.parent.lstResults.see(idx)            
+            lst_index = [k for k,v in self.parent.dict_results.items() if v == last_id]
+            
+        self.parent.lstResults.selection_set(lst_index[0])
+        self.parent.lstResults.see(lst_index[0])            
              
             
     def on_delete(self, evt=None):

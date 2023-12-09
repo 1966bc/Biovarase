@@ -149,7 +149,7 @@ class Login(ttk.Frame):
 
         args = self.get_values()
 
-        rs = self.nametowidget(".").engine.login(args)
+        rs = self.nametowidget(".").engine.check_login(args)
         
         if rs:
             self.nametowidget(".").engine.set_log_user(rs)            

@@ -71,10 +71,10 @@ class UI(tk.Toplevel):
         btn_cancel.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
 
-    def on_open(self, selected_item=None):
+    def on_open(self):
 
         if self.index is not None:
-            self.selected_item = selected_item
+            self.selected_item = self.parent.selected_item
             msg = "Update {0}".format(self.winfo_name().capitalize())
             self.set_values()
         else:
@@ -97,10 +97,10 @@ class UI(tk.Toplevel):
                 self.status.get(),]
 
     def on_save(self, evt=None):
-
-        if self.nametowidget(".").engine.on_primary_keys_control(self.frm_main, self.nametowidget(".").title()) == False: return
-
+        
         if messagebox.askyesno(self.nametowidget(".").title(), self.nametowidget(".").engine.ask_to_save, parent=self) == True:
+
+            if self.check_symbol() == 0: return
 
             args = self.get_values()
 
@@ -115,18 +115,43 @@ class UI(tk.Toplevel):
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
             last_id = self.nametowidget(".").engine.write(sql, args)
+             # reloads the parent dictionary used to poplate listbox... 
             self.parent.set_values()
 
+            # and searches for the key using the primary key of the record
             if self.index is not None:
-                self.parent.lstItems.see(self.index)
-                self.parent.lstItems.selection_set(self.index)
+                lst_index = [k for k,v in self.parent.dict_items.items() if v == self.selected_item[0]]
             else:
-                #force focus on listbox
-                idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
-                self.parent.lstItems.selection_set(idx)
-                self.parent.lstItems.see(idx)                  
+                lst_index = [k for k,v in self.parent.dict_items.items() if v == last_id]
+
+            # point the right item on listbox
+            self.parent.lstItems.see(lst_index[0])
+            self.parent.lstItems.selection_set(lst_index[0])                 
 
             self.on_cancel()
+
+    def check_symbol(self):
+
+        sql = "SELECT sample_id, sample FROM samples WHERE sample =?;"
+
+        rs = self.nametowidget(".").engine.read(False, sql, (self.symbol.get(),))
+
+        if rs:
+
+            if self.index is not None:
+                if rs[0] != self.selected_item[0]:
+                    msg = "Symbol {0} has already been assigned!".format(self.symbol.get(),)
+                    messagebox.showwarning(self.nametowidget(".").title(),
+                                           msg,
+                                           parent=self)
+                    return 0
+            else:
+                msg = "Symbol {0} has already been assigned!".format(self.symbol.get(),)
+                messagebox.showwarning(self.nametowidget(".").title(),
+                                       msg,
+                                       parent=self)
+                return 0
+
 
     def on_cancel(self, evt=None):
         self.destroy()

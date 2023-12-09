@@ -26,7 +26,7 @@ class UI(tk.Toplevel):
         self.columnconfigure(2, weight=1)
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
-
+        
     def init_ui(self):
 
         paddings = {"padx": 5, "pady": 5}
@@ -65,8 +65,11 @@ class UI(tk.Toplevel):
     def on_open(self):
 
         if self.index is not None:
+            
             msg = "Update {0}".format(self.winfo_name().title())
+            self.selected_item = self.parent.selected_item
             self.set_values()
+            
         else:
             msg = "Add {0}".format(self.winfo_name().title())
             self.status.set(1)
@@ -76,8 +79,8 @@ class UI(tk.Toplevel):
 
     def set_values(self,):
 
-        self.item.set(self.parent.selected_item[1])
-        self.status.set(self.parent.selected_item[2])
+        self.item.set(self.selected_item[1])
+        self.status.set(self.selected_item[2])
 
     def get_values(self,):
 
@@ -97,23 +100,26 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
-                args.append(self.parent.selected_item[0])
+                args.append(self.selected_item[0])
 
             else:
 
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
             last_id = self.nametowidget(".").engine.write(sql, args)
-            self.parent.on_open()
 
+            # reloads the parent dictionary used to poplate listbox... 
+            self.parent.set_values()
+
+            # and searches for the key using the primary key of the record
             if self.index is not None:
-                self.parent.lstItems.see(self.index)
-                self.parent.lstItems.selection_set(self.index)
+                lst_index = [k for k,v in self.parent.dict_items.items() if v == self.selected_item[0]]
             else:
-                #force focus on parent listbox
-                idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
-                self.parent.lstItems.selection_set(idx)
-                self.parent.lstItems.see(idx)
+                lst_index = [k for k,v in self.parent.dict_items.items() if v == last_id]
+
+            # point the right item on listbox
+            self.parent.lstItems.see(lst_index[0])
+            self.parent.lstItems.selection_set(lst_index[0])
 
             self.on_cancel()
 

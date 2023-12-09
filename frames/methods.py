@@ -99,7 +99,7 @@ class UI(tk.Toplevel):
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
             self.obj = ui.UI(self, index)
-            self.obj.on_open(self.selected_item,)
+            self.obj.on_open()
 
         else:
             messagebox.showwarning(self.nametowidget(".").title(),

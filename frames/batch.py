@@ -421,11 +421,12 @@ class UI(tk.Toplevel):
 
     def update_batches_lists(self):
 
+        self.nametowidget(".main").set_batches()
+
         try:
             if self.parent.winfo_name() == "data":
                 self.nametowidget(".").nametowidget("data").set_batches()
                 
-            self.nametowidget(".main").set_batches()
         except:
             self.nametowidget(".").on_log(inspect.stack()[0][3],
                                      sys.exc_info()[1],
@@ -433,26 +434,31 @@ class UI(tk.Toplevel):
             
     def set_index(self, last_id):
 
-        if self.index is not None:
-            idx = self.index
-        else:
-            idx = last_id
-        
+        try:
+            if self.index is not None:
+                lst_index = [k for k,v in self.nametowidget(".main").dict_batchs.items() if v == self.selected_batch[0]]
+            else:
+                lst_index = [k for k,v in sself.nametowidget(".main").dict_batchs.items() if v == last_id]
+
+            self.parent.lstBatches.selection_set(lst_index[0])
+            self.parent.lstBatches.see(lst_index[0])
+            self.parent.lstBatches.event_generate("<<ListboxSelect>>")
+        except:
+            pass
+
         if self.parent.winfo_name() == "data":
-            self.parent.lstBatches.focus()
+            if self.index is not None:
+                idx = self.index
+            else:
+                idx = last_id
             try:
+                self.parent.lstBatches.focus()
                 self.parent.lstBatches.see(idx)
                 self.parent.lstBatches.selection_set(idx)
                 self.parent.set_results()
             except:
                 pass
             
-        else:
-            self.parent.lstBatches.selection_set(idx)
-            self.parent.lstBatches.see(idx)
-            self.parent.lstBatches.event_generate("<<ListboxSelect>>")
-        
-                
     def on_cancel(self, evt=None):
 
         self.nametowidget(".").engine.set_instance(self, 0)
