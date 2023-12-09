@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
-#-----------------------------------------------------------------------------
-import os
+# modify:   hiems MMXXIII
+# -----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import font
 from tkinter import ttk
 
 class Tools:
-    
+
     def __str__(self):
         return "class: {0}".format((self.__class__.__name__, ))
 
@@ -22,63 +21,58 @@ class Tools:
 
         style.configure(".", background=self.get_rgb(240, 240, 237), font=('TkFixedFont'))
 
-        style.configure('Data.TLabel', font=('Helvetica', 12, 'bold'))
+        style.configure("Data.TLabel", font=('Helvetica', 12, 'bold'))
 
         style.configure("App.TFrame", background=self.get_rgb(240, 240, 237))
 
         style.configure("App.TLabel",
-                         background=self.get_rgb(240, 240, 237),
-                         padding=2,
-                         anchor=tk.W,
-                         font="TkFixedFont")
+                        background=self.get_rgb(240, 240, 237),
+                        padding=2,
+                        anchor=tk.W,
+                        font="TkFixedFont")
 
         style.configure("App.TLabelframe",
-                         background=self.get_rgb(240, 240, 237),
-                         relief=tk.GROOVE,
-                         padding=2,
-                         font="TkFixedFont")
+                        background=self.get_rgb(240, 240, 237),
+                        relief=tk.GROOVE,
+                        padding=2,
+                        font="TkFixedFont")
 
         style.configure("App.TButton",
-                         background=self.get_rgb(240, 240, 237),
-                         padding=8,
-                         border=1,
-                         relief=tk.RAISED,
-                         font="TkFixedFont")
+                        background=self.get_rgb(240, 240, 237),
+                        padding=8,
+                        border=1,
+                        relief=tk.RAISED,
+                        font="TkFixedFont")
 
-        style.configure("Buttons.TFrame",
-                         background=self.get_rgb(240, 240, 237),
-                         padding=8,
-                         relief=tk.GROOVE,)
-        
-        style.configure('App.TRadiobutton',
-                         background=self.get_rgb(240, 240, 237),
-                         padding=4,
-                         font="TkFixedFont")
+        style.configure("App.TRadiobutton",
+                        background=self.get_rgb(240, 240, 237),
+                        padding=4,
+                        font="TkFixedFont")
 
-        style.configure('App.TCombobox',
-                             background=self.get_rgb(240, 240, 237),
-                             font="TkFixedFont")
+        style.configure("App.TCombobox",
+                        background=self.get_rgb(240, 240, 237),
+                        font="TkFixedFont")
 
         style.configure("StatusBar.TFrame",
                         relief=tk.FLAT,
                         padding=4,
                         background=self.get_rgb(240, 240, 237))
 
-        style.configure('LoggedUser.TLabel',
+        style.configure("StatusBar.TLabel",
+                        background=self.get_rgb(240, 240, 237),
+                        padding=2,
+                        border=1,
+                        relief=tk.SUNKEN,
+                        font="TkFixedFont")
+
+        style.configure("LoggedUser.TLabel",
                         font=("TkDefaultFont", 10, 'bold'),
                         relief=tk.FLAT,
                         foreground='blue',)
 
-        style.configure('StatusBar.TLabel',
-                         background=self.get_rgb(240, 240, 237),
-                         padding=2,
-                         border=1,
-                         relief=tk.SUNKEN,
-                         font="TkFixedFont")
-
-        style.map('Treeview',
-                   foreground=self.fixed_map('foreground'),
-                   background=self.fixed_map('background'))
+        style.map("Treeview",
+                  foreground=self.fixed_map('foreground'),
+                  background=self.fixed_map('background'))
 
         style.configure("Treeview.Heading",
                         background=self.get_rgb(240, 240, 237),
@@ -90,22 +84,22 @@ class Tools:
                         foreground=self.get_rgb(0, 0, 255),
                         background=self.get_rgb(255, 255, 255))
 
-        style.configure('Target.TLabel',
+        style.configure("Target.TLabel",
                         foreground=self.get_rgb(255, 69, 0),
                         background=self.get_rgb(255, 255, 255))
 
         ##1966BC Color Hex  (25,102,188)
-        style.configure('Average.TLabel',
+        style.configure("Average.TLabel",
                         foreground=self.get_rgb(25, 102, 188),
                         background=self.get_rgb(255, 255, 255))
 
-        style.configure('westgard_violation.TLabel',
+        style.configure("westgard_violation.TLabel",
                         background=self.get_rgb(255, 106, 106),)
 
-        style.configure('westgard_ok.TLabel',
+        style.configure("westgard_ok.TLabel",
                         background=self.get_rgb(152, 251, 152))
 
-        style.configure('black_and_withe.TLabel',
+        style.configure("black_and_withe.TLabel",
                         background=self.get_rgb(255, 255, 255),
                         foreground=self.get_rgb(77, 77, 77),)
 
@@ -114,12 +108,12 @@ class Tools:
         return "#%02x%02x%02x" % (r, g, b)
 
 
-    def set_me_center(self,caller):
+    def set_me_center(self, caller):
         """center window on the screen"""
 
         x = caller.parent.winfo_rootx()
         y = caller.parent.winfo_rooty()
-        caller.geometry("+%d+%d" % (x, y))    
+        caller.geometry("+%d+%d" % (x, y))
 
     def center_me(self, container):
 
@@ -136,24 +130,6 @@ class Tools:
             weight = tk.NORMAL
 
         return font.Font(family=family, size=size, weight=weight)
-
-    def get_text_box(self, container, height=None, width=None, row=None, col=None):
-
-        w = ScrolledText(container,
-                         wrap = tk.WORD,
-                         bg='light yellow',
-                         relief=tk.GROOVE,
-                         height=height,
-                         width=width,
-                         font='TkFixedFont',)
-
-        if row is not None:
-            #print(row,col)
-            w.grid(row=row, column=1, sticky=tk.W)
-        else:
-            w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-
-        return w
 
     def on_fields_control(self, toplevel, title=None):
 
@@ -179,10 +155,10 @@ class Tools:
                             messagebox.showwarning(title, msg, parent=toplevel)
                             field.focus()
                             return 0
-                        
+
     def get_tree(self, container, cols, size=None, show=None):
 
-        #this is a patch because with tkinter version with Tk 8.6.9 the color assignment with tags dosen't work
+        #this is a patch because with tkinter version with Tk 8.6.9 the color assignment with tags dosen"t work
         #https://bugs.python.org/issue36468
         style = ttk.Style()
 
@@ -242,7 +218,7 @@ class Tools:
         return [elm for elm in style.map('Treeview', query_opt=option) if
                 elm[:2] != ('!disabled', '!selected')]
 
-    
+
     def get_validate_integer(self, caller):
         return (caller.register(self.validate_integer),
                 '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
@@ -250,7 +226,7 @@ class Tools:
     def get_validate_float(self, caller):
         return (caller.register(self.validate_float),
                 '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
-     
+
     def limit_chars(self, c, v, *args):
         #print(c,v,args)
         if len(v.get()) > c:
@@ -309,7 +285,7 @@ class Tools:
         w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
         sb.pack(fill=tk.Y, expand=1)
 
-        return w        
+        return w
 
 def main():
 

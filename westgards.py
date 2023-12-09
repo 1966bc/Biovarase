@@ -1,33 +1,30 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# project:  biovarase
+# authors:  1966bc
+# mailto:   [giuseppecostanzi@gmail.com]
+# modify:   hiems MMXXIII
+# -----------------------------------------------------------------------------
 """ This is the westgard module of Biovarase."""
-import sys
-import inspect
 
 class Westgards:
-        
+
     def __str__(self):
         return "class: {0}\nMRO: {1}".format(self.__class__.__name__,
                                              [x.__name__ for x in Westgards.__mro__],)
 
 
     def get_westgard_violation_rule(self, target, sd,
-                                    series,selected_batch=None,
+                                    series, selected_batch=None,
                                     selected_test=None):
         """This function recive target, sd and series's values
-           to compute westgard violtetion rule.
+           to compute westgard violation rule.
 
             @param name: target and sd of the selected batch, series are
                          a list of reversed results of the relative batch
             @return: westgard rule
             @rtype: string
             """
-
-        #print(target, sd)
-        #print (len(series))
-        #print (type(series))
-        #for i in series:
-        #    print(i)
 
         self.target = target
         self.sd = sd
@@ -58,7 +55,7 @@ class Westgards:
                 else:
                     return "Accept"
 
-    def get_standard_deviations(self,target, sd):
+    def get_standard_deviations(self, target, sd):
 
         self.sd1 = target + sd
         self.sd2 = target + (2*sd)
@@ -67,7 +64,6 @@ class Westgards:
         self.sd_2 = target - (2*sd)
         self.sd_3 = target - (3*sd)
         self.sd4 = 4*sd
-
 
     def get_rule_12S(self,):
         """Control data start here.
@@ -84,9 +80,6 @@ class Westgards:
 
         return self.series[-1] > self.sd2  or self.series[-1] < self.sd_2
 
-
-
-
     def get_rule_13S(self):
         """1:3s
            Check if the control limits are set as the mean plus 3s and the mean minus 3s.
@@ -97,9 +90,6 @@ class Westgards:
 
         return self.series[-1] > self.sd3  or self.series[-1] < self.sd_3
 
-
-
-
     def get_rule_22S(self):
         """2:2s:
            check if 2 consecutive control measurements exceed
@@ -107,15 +97,8 @@ class Westgards:
 
         last_two_values = self.series[-2:]
 
-        #print(self.selected_test)
-        #print(self.selected_batch)
-        #print(last_two_values)
-        #print(len(self.series))
-        #print(self.series)
-
         x = (all(i >= self.sd2 for i in last_two_values))
         y = (all(i <= self.sd_2 for i in last_two_values))
-
 
         if x or y:
             return True
@@ -127,7 +110,6 @@ class Westgards:
            Check if 1 control measurement in a group exceeds the mean plus 2s and another
            exceeds the mean minus 2s.
            This rule should only be interpreted within-run, not between-run. """
-
 
         last_two_values = self.series[-2:]
 
@@ -145,7 +127,6 @@ class Westgards:
            Check if 4 consecutive control measurements
            exceed the same mean plus 1s or the same mean minus 1s control limit. """
 
-        #print ("Westgard rule 4:1s tested")
         last_four_values = self.series[-4:]
 
         x = (all(i > self.sd1 for i in last_four_values))
@@ -159,13 +140,12 @@ class Westgards:
     def get_rule_10X(self):
         """10:x
            Check when 10 consecutive control measurements fall on one side of the mean."""
-        #print ("Westgard rule 10:x tested")
 
         last_ten_values = self.series[-10:]
 
         x = (all(i > self.target for i in last_ten_values))
         y = (all(i < self.target for i in last_ten_values))
-        
+
         if x or y:
             return True
         else:
@@ -174,16 +154,15 @@ class Westgards:
 
 def main():
 
-    
     foo = Westgards()
     print(foo)
 
     #(target, sd, series)
     target = 100
     sd = 10
-    series = (100,100,100,100,100,100,100,100,100,100,121)
+    series = (100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 121)
     rule = foo.get_westgard_violation_rule(target, sd, series)
-    series = (100,100,110,110,110,110,111,111,111,111,111)
+    series = (100, 100, 110, 110, 110, 110, 111, 111, 111, 111, 111)
     rule = foo.get_westgard_violation_rule(target, sd, series)
     print(rule)
 
@@ -191,5 +170,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 

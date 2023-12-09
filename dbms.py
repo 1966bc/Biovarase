@@ -1,4 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# project:  biovarase
+# authors:  1966bc
+# mailto:   [giuseppecostanzi@gmail.com]
+# modify:   hiems MMXXIII
+# -----------------------------------------------------------------------------
 import sys
 import inspect
 import sqlite3 as lite
@@ -24,41 +31,6 @@ class DBMS:
 
             self.con.text_factory = lite.OptimizedUnicode
 
-        except:
-            self.on_log(inspect.stack()[0][3], sys.exc_info()[1],
-                        sys.exc_info()[0], sys.modules[__name__])
-
-    def get_mandatory(self):
-
-        mandatory_tests = []
-
-        sql = "SELECT tests.test\
-               FROM tests\
-               INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
-               INNER JOIN sections ON tests_methods.section_id = sections.section_id\
-               INNER JOIN labs ON sections.lab_id = labs.lab_id\
-               INNER JOIN sites ON labs.site_id = sites.site_id\
-               WHERE sections.section_id =?\
-               AND tests_methods.is_mandatory =1\
-               AND tests_methods.status =1;"
-
-        args = (self.get_section_id(),)
-
-        rs = self.read(True, sql, args)
-
-        if rs:
-            for i in rs:
-                mandatory_tests.append(i[0])
-
-        return mandatory_tests
-
-    def get_records(self):
-
-        try:
-            file = open('records', 'r')
-            ret = file.readline()
-            file.close()
-            return ret
         except:
             self.on_log(inspect.stack()[0][3], sys.exc_info()[1],
                         sys.exc_info()[0], sys.modules[__name__])
@@ -105,20 +77,10 @@ class DBMS:
             return rs
 
         except:
-            #print(sql, args)
             self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
-
-    def dump_db(self,):
-
-        dt = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        s = dt + ".sql"
-        with open(s, 'w') as f:
-            for line in self.con.iterdump():
-                f.write('%s\n' % line)
-
 
     def get_last_row_id(self, cur):
         return cur.lastrowid
@@ -195,6 +157,48 @@ class DBMS:
 
         return d
 
+    def check_login(self, args):
+
+        sql = "SELECT * FROM users WHERE nickname =? AND pswrd =?;"
+
+        cur = self.con.cursor()
+
+        cur.execute(sql, args)
+
+        return cur.fetchone()
+
+    def get_mandatory(self):
+
+        mandatory_tests = []
+
+        sql = "SELECT tests.test\
+               FROM tests\
+               INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
+               INNER JOIN sections ON tests_methods.section_id = sections.section_id\
+               INNER JOIN labs ON sections.lab_id = labs.lab_id\
+               INNER JOIN sites ON labs.site_id = sites.site_id\
+               WHERE sections.section_id =?\
+               AND tests_methods.is_mandatory =1\
+               AND tests_methods.status =1;"
+
+        args = (self.get_section_id(),)
+
+        rs = self.read(True, sql, args)
+
+        if rs:
+            for i in rs:
+                mandatory_tests.append(i[0])
+
+        return mandatory_tests
+
+    def dump_db(self,):
+
+        dt = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        s = dt + ".sql"
+        with open(s, 'w') as f:
+            for line in self.con.iterdump():
+                f.write('%s\n' % line)
+
     def get_series(self, batch_id, workstation_id, limit=None, result_id=None):
 
         series = []
@@ -235,18 +239,6 @@ class DBMS:
             series.append(i[0])
 
         return series
-
-
-    def login(self, args):
-
-        sql = "SELECT * FROM users WHERE nickname =? AND pswrd =?;"
-
-        cur = self.con.cursor()
-
-        cur.execute(sql, args)
-
-        return cur.fetchone()
-
 
     def get_idd_by_section_id(self, section_id):
 

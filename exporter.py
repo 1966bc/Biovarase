@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
-#-----------------------------------------------------------------------------
+# modify:   hiems MMXXIII
+# -----------------------------------------------------------------------------
 """ This is the exporter module of Biovarase."""
 import tempfile
 import xlwt
@@ -13,12 +13,12 @@ import inspect
 import datetime
 
 class Exporter:
-     
+
     def __str__(self):
-        return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Exporter.__mro__])
+        return "class: {0}\nMRO: {1}".format(self.__class__.__name__,  [x.__name__ for x in Exporter.__mro__])
 
     def get_controls(self,):
-        
+
         today = datetime.datetime.now()
 
         sql = "SELECT samples.sample,\
@@ -44,7 +44,7 @@ class Exporter:
                ORDER BY tests.test ASC;"
 
         rs = self.read(True, sql, ())
-            
+
 
         path = tempfile.mktemp (".xls")
         obj = xlwt.Workbook()
@@ -63,9 +63,9 @@ class Exporter:
         cols =("Sample", "Test", "Code", "Batch",
                "Expiration", "Description", "Target",
                "Control", "Reference", "Supplier")
-        
+
         for c,t in enumerate(cols):
-            ws.write(row,c, t,self.xls_style_font(True, False, 'Arial'))            
+            ws.write(row,c, t,self.xls_style_font(True, False, 'Arial'))
 
         row +=1
 
@@ -83,7 +83,7 @@ class Exporter:
                 #lot_number
                 ws.write(row, 3, i[3])
                 #compute expiration date
-                
+
                 formatted_expiration = datetime.datetime.strptime(i[8], "%Y-%m-%d")
                 diff_date = formatted_expiration - today
                 x = diff_date.days
@@ -131,9 +131,9 @@ class Exporter:
                    ORDER BY tests.test;"
 
             args = (self.get_section_id(), selected_date[0])
-        
+
             rs = self.read(True, sql, args)
-            
+
             path = tempfile.mktemp (".xls")
             obj = xlwt.Workbook()
             ws = obj.add_sheet('Biovarase', cell_overwrite_ok=True)
@@ -162,8 +162,8 @@ class Exporter:
             self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0])
-            
-        
+
+
 
     def get_notes(self, args):
 
@@ -230,18 +230,16 @@ class Exporter:
                 ws.write(row, 11, i[11])
                 ws.write(row, 12, i[12])
                 ws.write(row, 13, i[13])
-                
+
                 row +=1
-            
+
         obj.save(path)
         self.launch(path)
-    
+
     def quick_data_analysis(self, selected_date):
 
         checked_tests = []
         mandatory_tests = self.get_mandatory()
-        today = datetime.date.today()
-
         path = tempfile.mktemp (".xls")
         obj = xlwt.Workbook(style_compression=2)
         ws = obj.add_sheet('Biovarase', cell_overwrite_ok=True)
@@ -259,7 +257,7 @@ class Exporter:
 
         for c,t in enumerate(cols):
             ws.write(row, c, t, self.xls_style_font(True, False, 'Arial'))
-        
+
         row +=1
 
         sql_tests = "SELECT tests_methods.test_method_id,\
@@ -277,13 +275,13 @@ class Exporter:
                        AND tests.status=1\
                        AND tests_methods.status=1\
                        ORDER BY tests.test;"
-        
+
         rs_idd = self.get_idd_by_section_id(self.get_section_id())
-        
+
         args = (rs_idd[3],)
 
         rs_tests_methods = self.read(True, sql_tests, args)
-        
+
         for test_method in rs_tests_methods:
 
             sql_batches = "SELECT batches.*,\
@@ -326,14 +324,14 @@ class Exporter:
 
                 rs_results = self.read(True, sql_results, args)
 
-                
+
                 sql_controls = "SELECT controls.description, suppliers.supplier\
                                 FROM controls\
                                 INNER JOIN suppliers ON controls.supplier_id = suppliers.supplier_id\
                                 WHERE control_id =?"
-                
+
                 rs_controls = self.read(False, sql_controls, (batch[1],))
-                
+
 
                 if rs_results is not None:
 
@@ -350,7 +348,7 @@ class Exporter:
 
                         try:
                             if result:
-                                
+
                                 compute_cv = self.get_cv(series)
                                 #print("compute_cv {0}".format(compute_cv))
                                 compute_sd = self.get_sd(series)
@@ -363,16 +361,16 @@ class Exporter:
                                 res = float(result[1])
                                 date = result[2].strftime("%d-%m-%Y %H:%M:%S")
                                 workstation = result[3]
-                                
+
                                 if res > target:
                                     #result > 3sd
                                     if res > (target + (sd*3)):
-                                        result_color = "red"   
+                                        result_color = "red"
                                     #if result is > 2sd and < +3sd
                                     #elif (target + (sd*2) <= result <= target + (sd*3)):
                                     elif res > (target + (sd*2)) and res < (target + (sd*3)):
                                         result_color =  "yellow"
-                                        
+
                                 elif res < target:
                                     if res < (target - (sd*3)):
                                         result_color = "red"
@@ -380,7 +378,7 @@ class Exporter:
                                     #elif (target - (sd*2) <= result <= target - (sd*3)):
                                     elif res < (target - (sd*2)) and res > (target - (sd*3)):
                                         result_color = "yellow"
-                                                            
+
                                 #s = '{0}-{1}'.format(test[2],test[13])
                                 ws.write(row,0,test_method[1])
                                 ws.write(row,1,test_method[2])
@@ -390,16 +388,16 @@ class Exporter:
                                 formatted_expiration = datetime.datetime.strptime(batch[5], "%Y-%m-%d")
                                 diff_date = formatted_expiration-result[5]
                                 x = diff_date.days
-                                
+
                                 if x <= 0:
                                     ws.write(row,3,expiration_date, self.xls_bg_colour('red'))
                                 elif x <= 15:
                                     ws.write(row,3,expiration_date, self.xls_bg_colour('yellow'))
                                 else:
                                     ws.write(row,3,expiration_date)
-                                     
+
                                 ws.write(row,4,instrument)
-                                
+
                                 ws.write(row,5,target)
                                 ws.write(row,7,compute_avg)
                                 ws.write(row,8,bias)
@@ -412,8 +410,8 @@ class Exporter:
                                 checked_tests.append(test_method[1])
                                 ws.write(row,16,rs_controls[0])
                                 ws.write(row,17,rs_controls[1])
-                            
-                        
+
+
                                 if rule not in('Accept','No data'):
                                     ws.write(row, 12, rule, self.xls_bg_colour('blue'))
                                 else:
@@ -429,8 +427,8 @@ class Exporter:
                         except:
                              self.on_log(inspect.stack()[0][3], sys.exc_info()[1],
                                          sys.exc_info()[0], sys.modules[__name__])
-                
-                   
+
+
         for test in checked_tests:
             if test in mandatory_tests:
                      mandatory_tests.remove(test)
@@ -439,7 +437,7 @@ class Exporter:
         for x in mandatory_tests:
             ws.write(row, 18, x, self.xls_bg_colour('red'))
             row +=1
-                          
+
         obj.save(path)
         self.launch(path)
 
@@ -453,7 +451,7 @@ class Exporter:
         ws.col(0).width = 50 * 20
         for f in range(4,19):
             ws.col(f).width = 80 * 25
-     
+
         row = 0
         #indexing is zero based, row then column
         cols =('T','analyte','batch','expiration','target','avg',
@@ -463,20 +461,20 @@ class Exporter:
             ws.write(row,c, t, self.xls_style_font(True, False, 'Arial'))
 
         row +=1
-        
+
         for i in rs:
 
             series = self.get_series(i[0], i[12], limit)
-  
+
             if len(series) > 5:
-               
+
                 cva = self.get_cv(series)
                 sd = self.get_sd(series)
                 avg = self.get_mean(series)
                 cvw = i[6]
                 cvb = i[7]
                 target = float(i[5])
-               
+
                 ws.write(row, 0, i[1])
                 ws.write(row, 1, i[2], self.xls_style_font(True, False, 'Times New Roman'))
                 ws.write(row, 2, str(i[3]))
@@ -488,12 +486,12 @@ class Exporter:
 
                 try:
 
-                    #if cva is > cvw*0.50 
+                    #if cva is > cvw*0.50
                     if cva > self.get_imp(cvw):
                         ws.write(row, 6, float(cva), self.xls_bg_colour("blue"))
                     else:
                         ws.write(row, 6, float(cva))
-                        
+
                     ws.write(row, 7, float(cvw))
                     ws.write(row, 8, float(cvb))
                     ws.write(row, 9, xlwt.Formula(self.get_formula_imp(row)),)
@@ -517,14 +515,14 @@ class Exporter:
                     x = self.get_tea_tes_comparision(avg, target, cvw, cvb, sd, cva)
                     ws.write(row,15,x[0],self.xls_bg_colour(x[1]))
 
-                  
+
                     #compute critical difference
                     x = self.get_formula_drc(row)
                     ws.write(row, 16, xlwt.Formula(x))
-                    
+
                     #records
                     ws.write(row, 17, len(series),)
-                    
+
                     sql = "SELECT description FROM workstations WHERE workstation_id =?;"
                     workstation = self.read(False, sql, (i[12],))
                     #workstations
@@ -534,7 +532,7 @@ class Exporter:
                     print(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0])
-                
+
 
         obj.save(path)
         self.launch(path)
@@ -544,7 +542,6 @@ class Exporter:
         #=ROUND((ROUND(SQRT(POWER(G30,2)+POWER(H30,2))*2.77,2))*F30/100,2)
         #return "ROUND((ROUND(SQRT(POWER(G%s;2)+POWER(H%s;2))*2.77;2))*F%s/100,2)"%(row+1,row+1,row+1,)
         return "(ROUND(SQRT(POWER(G%s;2)+POWER(H%s;2))*2.77;2))"%(row+1,row+1,)
-
 
     def get_formula_imp(self, row):
         return "ROUND((H%s * 0.5);2)"%(row+1,)
@@ -563,7 +560,7 @@ class Exporter:
         try:
 
             k = round((cva/cvw),2)
-            
+
             if 0.25 <= k <= 0.50:
                 c ="green"
             elif 0.50 <= k <= 0.75:
@@ -572,7 +569,7 @@ class Exporter:
                 c = "red"
             else:
                 c = "green"
-          
+
             f = "ROUND(G%s/H%s;2)"%(row+1,row+1)
             return f,c
 
@@ -582,9 +579,9 @@ class Exporter:
     def get_formula_k_bias(self, avg, target, cvw, cva, row):
 
         """return bias k 0.125,0.25,0.375"""
-        
+
         k = round(self.get_bias(avg, target)/self.get_cvt(cva,cvw),2)
-     
+
         if 0.125 <= k <= 0.25:
             c ="green"
         elif 0.25 <= k <= 0.375:
@@ -593,12 +590,12 @@ class Exporter:
             c = "red"
         else:
             c = "green"
-       
+
         f = "ROUND((((F%s-E%s)/E%s)*100)/SQRT(POWER(H%s;2)+POWER(I%s;2));2)"%(row+1,row+1,
                                                                               row+1,row+1,
-                                                                              row+1,)             
+                                                                              row+1,)
         return f,c
-        
+
     def xls_bg_colour(self,colour):
 
         """ Colour index
@@ -632,13 +629,13 @@ class Exporter:
         # Set the style's font to this new one you set up
         style.font = font
         return style
-    
-  
+
+
 def main():
-    
+
     foo = Exporter()
     print(foo)
     input('end')
-       
+
 if __name__ == "__main__":
     main()

@@ -25,7 +25,7 @@ if self.start_date.get_date(self)==False:return
 Notice that in the spinbox widget we allowed only integers.
 Calendarium use datetime.date to set/get date.
 
-   
+
 """
 import sys
 import datetime
@@ -48,7 +48,7 @@ class Calendarium(tk.Frame):
     def __init__(self, caller, name):
         super().__init__()
 
-        
+
         self.vcmd = (self.register(self.validate), '%d', '%P', '%S')
 
         self.caller = caller
@@ -69,7 +69,6 @@ class Calendarium(tk.Frame):
                           borderwidth=1,
                           padx=2, pady=2,
                           relief=tk.GROOVE,)
-
 
         day_label = tk.LabelFrame(w, text="Day", bg=self.get_rgb(),)
 
@@ -96,7 +95,7 @@ class Calendarium(tk.Frame):
                        textvariable=self.year,
                        relief=tk.GROOVE,)
 
-        for p, i in enumerate((day_label , d, month_label, m, year_label, y)):
+        for p, i in enumerate((day_label, d, month_label, m, year_label, y)):
             if  row is not None:
                 i.grid(row=0, column=p, padx=5, pady=5, sticky=tk.W)
             else:
@@ -141,7 +140,7 @@ class Calendarium(tk.Frame):
 
 
     def get_rgb(self):
-        """translates an rgb tuple of int to a tkinter friendly color code"""
+        """translates an rgb tuple of int to a tkinter color code"""
         return "#%02x%02x%02x" % (240, 240, 237)
 
     def validate(self, action, value, text,):
