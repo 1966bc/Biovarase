@@ -5,7 +5,7 @@
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   autumn MMXXIII
 #-----------------------------------------------------------------------------
-
+import sys, inspect
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -30,7 +30,7 @@ class UI(tk.Toplevel):
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
         self.init_ui()
-        #self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.set_instance(self, 1)
         self.nametowidget(".").engine.set_me_center(self)
         
     def init_ui(self):
@@ -83,9 +83,11 @@ class UI(tk.Toplevel):
         self.selected_hospital = selected_hospital
         self.set_sites()
         self.set_manager()
+        self.selected_tree_item_iid = self.parent.tree_item_iid
 
         if self.index is not None:
             msg = "Update {0}".format(self.winfo_name().title())
+            self.selected_lab = self.parent.selected_lab
             self.set_values()
             self.txtLab.focus()
         else:
@@ -153,7 +155,7 @@ class UI(tk.Toplevel):
             key = next(key
                        for key, value
                        in self.dict_sites.items()
-                       if value == self.parent.selected_lab[1])
+                       if value == self.selected_lab[1])
             self.cbSites.current(key)
         except:
             pass
@@ -163,13 +165,13 @@ class UI(tk.Toplevel):
             key = next(key
                        for key, value
                        in self.dict_users.items()
-                       if value == self.parent.selected_lab[2])
+                       if value == self.selected_lab[2])
             self.cbUsers.current(key)
         except:
             pass
         
-        self.lab.set(self.parent.selected_lab[3])
-        self.status.set(self.parent.selected_lab[4])
+        self.lab.set(self.selected_lab[3])
+        self.status.set(self.selected_lab[4])
 
     def get_values(self,):
 
@@ -192,22 +194,20 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
-                args.append(self.parent.selected_lab[0])
+                args.append(self.selected_lab[0])
 
             else:
 
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
             last_id = self.nametowidget(".").engine.write(sql, args)
-            self.parent.set_wards((self.parent.selected_hospital[0],))
 
+            self.parent.set_labs((self.selected_hospital[0],))
+            
             if self.nametowidget(".").engine.get_instance("sections"):
                 self.nametowidget(".sections").set_values()
 
-            if self.index is not None:
-                self.parent.lstLabs.see(self.index)
-                self.parent.lstLabs.selection_set(self.index)
-                
+            self.set_branch()
             self.on_cancel()
 
         else:
@@ -215,5 +215,11 @@ class UI(tk.Toplevel):
                                 self.nametowidget(".").engine.abort,
                                 parent=self)
 
+    def set_branch(self):
+        self.parent.Sites.focus(self.selected_tree_item_iid)
+        self.parent.Sites.see(self.selected_tree_item_iid)
+        self.parent.Sites.selection_set(self.selected_tree_item_iid)
+        
     def on_cancel(self, evt=None):
+        self.nametowidget(".").engine.set_instance(self, 0)     
         self.destroy()

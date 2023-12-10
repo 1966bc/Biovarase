@@ -5,7 +5,7 @@
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   autumn MMXXIII
 #-----------------------------------------------------------------------------
-
+import sys, inspect
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -49,8 +49,8 @@ class UI(tk.Toplevel):
 
         self.lstLabs = self.nametowidget(".").engine.get_tree(self.lblSections, cols)
         self.lstLabs.tag_configure('status', background=self.nametowidget(".").engine.get_rgb(211, 211, 211))
-        self.lstLabs.bind("<<TreeviewSelect>>", self.on_ward_selected)
-        self.lstLabs.bind("<Double-1>", self.on_ward_activated)
+        self.lstLabs.bind("<<TreeviewSelect>>", self.on_lab_selected)
+        self.lstLabs.bind("<Double-1>", self.on_lab_activated)
 
         self.lblSections.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
@@ -119,11 +119,11 @@ class UI(tk.Toplevel):
 
                 self.selected_hospital = self.nametowidget(".").engine.get_selected("sites", "site_id", pk)
 
+                self.tree_item_iid = self.Sites.selection()
                 args = (self.selected_hospital[0],)
-
-                self.set_wards(args)
-
-           
+                self.set_labs(args)
+               
+            
     def on_branch_activated(self, evt=None):
 
         s = self.Sites.focus()
@@ -142,7 +142,7 @@ class UI(tk.Toplevel):
                 self.obj.on_open(self.selected_hospital)
 
 
-    def set_wards(self, args):
+    def set_labs(self, args):
 
         for i in self.lstLabs.get_children():
             self.lstLabs.delete(i)
@@ -172,16 +172,16 @@ class UI(tk.Toplevel):
                                             tags=tag_config)
                 
         s = "{0} {1}".format("Laboratories", len(self.lstLabs.get_children()))                
-        self.lblSections["text"] = s       
-        
-    def on_ward_selected(self, evt=None):
+        self.lblSections["text"] = s
+                
+    def on_lab_selected(self, evt=None):
 
         if self.lstLabs.focus():
             item_iid = self.lstLabs.selection()
             pk = int(item_iid[0])
             self.selected_lab = self.nametowidget(".").engine.get_selected( self.table, self.primary_key,  pk)
 
-    def on_ward_activated(self, evt=None):
+    def on_lab_activated(self, evt=None):
 
         if self.lstLabs.focus():
             item_iid = self.lstLabs.selection()

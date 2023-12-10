@@ -118,7 +118,7 @@ class UI(tk.Toplevel):
         if self.lstItems.focus():
             item_iid = self.lstItems.selection()
             self.obj = ui.UI(self, item_iid)
-            self.obj.on_open(self.selected_item,)
+            self.obj.on_open()
 
         else:
             messagebox.showwarning(self.nametowidget(".").title(),

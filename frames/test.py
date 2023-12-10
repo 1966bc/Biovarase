@@ -68,12 +68,12 @@ class UI(tk.Toplevel):
         btn_cancel.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
 
-    def on_open(self, selected_item=None):
+    def on_open(self):
 
         self.set_specialities()
 
         if self.index is not None:
-            self.selected_item = selected_item
+            self.selected_item = self.parent.selected_item
             msg = "Update {0}".format(self.winfo_name().capitalize())
             self.set_values()
         else:
@@ -145,20 +145,21 @@ class UI(tk.Toplevel):
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
             last_id = self.nametowidget(".").engine.write(sql, args)
-            
             self.parent.set_values()
             self.update_tests_methods(last_id)
-
-            self.parent.lstItems.focus()
-            
-            if self.index is not None:
-                idx = self.index
-            else:
-                idx = last_id
-                
-            self.parent.lstItems.see(idx)
-            self.parent.lstItems.selection_set(idx)
+            self.select_item(last_id)
             self.on_cancel()
+
+    def select_item(self, last_id=None):
+
+        if self.index is not None:
+            point_to = self.index
+        else:
+            point_to = last_id
+            
+        self.parent.lstItems.focus()        
+        self.parent.lstItems.see(point_to)
+        self.parent.lstItems.selection_set(point_to)
             
     def update_tests_methods(self, last_id):
 
@@ -166,15 +167,16 @@ class UI(tk.Toplevel):
 
             self.nametowidget(".tests_methods").set_tests()
 
-            if last_id != 0:
-                which = last_id
-            else:
+            if self.index is not None:
                 which = self.selected_item[0]
-            #print(which)
-            idx = list(self.nametowidget(".tests_methods").dict_tests.keys())[list(self.nametowidget(".tests_methods").dict_tests.values()).index(which)]
-            #print(idx)
-            self.nametowidget(".tests_methods").lstTests.see(idx) 
-            self.nametowidget(".tests_methods").lstTests.selection_set(idx)
+            else:
+                which = last_id
+
+            point_to = list(self.nametowidget(".tests_methods").dict_tests.keys())[list(self.nametowidget(".tests_methods").dict_tests.values()).index(which)]
+
+            self.nametowidget(".tests_methods").lstTests.focus()        
+            self.nametowidget(".tests_methods").lstTests.see(point_to) 
+            self.nametowidget(".tests_methods").lstTests.selection_set(point_to)
             self.nametowidget(".tests_methods").lstTests.event_generate("<<ListboxSelect>>")
             
     def on_cancel(self, evt=None):
