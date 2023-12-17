@@ -94,21 +94,27 @@ class Main(tk.Toplevel):
         self.init_menu()
         self.init_ui()
         self.init_status_bar()
-        self.init_main()
+        #self.init_main()
 
     def init_main(self):
         """Set high, width, x, y coords and minsize """
 
         ws = self.parent.winfo_screenwidth()
         hs = self.parent.winfo_screenheight()
+        #print(ws,hs)
         # calculate position x, y
         d = self.nametowidget(".").engine.get_dimensions()
         w = int(d['w'])
         h = int(d['h'])
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
-        self.geometry('%dx%d+%d+%d' % (w, h, x, y))
-        self.minsize(w,h)
+        #set only position
+        self.geometry('+%d+%d'%(x,y))
+        wm = int((ws*0.8))
+        hm = int((hs*0.8))
+        #print(wm, hm)
+        
+        self.minsize(wm, hm)
 
     def init_menu(self):
 
@@ -335,7 +341,7 @@ class Main(tk.Toplevel):
         gs = gridspec.GridSpec(1, 2, width_ratios=[3, 1])
         fig = Figure()
         #fig.suptitle(self.engine.title, fontsize=16)
-        fig.subplots_adjust(bottom=0.10, right=0.96, left=0.08, top=0.95, wspace=0.10)
+        fig.subplots_adjust(bottom=0.12, right=0.96, left=0.08, top=0.88, wspace=0.10)
         self.lj = fig.add_subplot(gs[0], facecolor=("xkcd:light grey"))
         self.frq = fig.add_subplot(gs[1], facecolor=("xkcd:light grey"))
         self.canvas = FigureCanvasTkAgg(fig, frm_graphs)
@@ -939,7 +945,7 @@ class Main(tk.Toplevel):
                          self.selected_workstation[4],
                          control_name, self.selected_batch[4])
 
-        self.lj.set_title(title, weight="bold", loc="center")
+        self.lj.set_title(title, loc="center")
 
         bottom_text = ("from %s to %s"%(dates[0], dates[-1]), count_series, count_rs)
 
