@@ -28,8 +28,8 @@ class DBMS:
             self.con = lite.connect("biovarase.db",
                                     detect_types=lite.PARSE_DECLTYPES|lite.PARSE_COLNAMES,
                                     isolation_level='IMMEDIATE')
-
-            self.con.text_factory = lite.OptimizedUnicode
+            #deprecated
+            #self.con.text_factory = lite.OptimizedUnicode
 
         except:
             self.on_log(inspect.stack()[0][3], sys.exc_info()[1],
