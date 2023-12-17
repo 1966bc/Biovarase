@@ -21,13 +21,12 @@ class UI(tk.Toplevel):
 
         frm_main = ttk.Frame(self, style="App.TFrame", relief=tk.GROOVE, padding=8)
         
-        self.txLicense = ScrolledText(frm_left,
+        self.txLicense = ScrolledText(frm_main,
                                       wrap = tk.WORD,
                                       bg='light yellow',
                                       relief=tk.GROOVE,
-                                      height=height,
-                                      width=width,
                                       font='TkFixedFont',)
+        self.txLicense.pack(fill=tk.BOTH, expand=1)
 
         frm_main.pack(fill=tk.BOTH, padx=5, pady=5, expand=1)
 
