@@ -94,27 +94,27 @@ class Main(tk.Toplevel):
         self.init_menu()
         self.init_ui()
         self.init_status_bar()
-        #self.init_main()
+        self.init_main()
 
     def init_main(self):
         """Set high, width, x, y coords and minsize """
 
-        ws = self.parent.winfo_screenwidth()
-        hs = self.parent.winfo_screenheight()
-        #print(ws,hs)
+        screen_width = self.nametowidget(".").winfo_screenwidth()
+        screen_height = self.nametowidget(".").winfo_screenheight()
+        
         # calculate position x, y
         d = self.nametowidget(".").engine.get_dimensions()
-        w = int(d['w'])
-        h = int(d['h'])
-        x = (ws/2) - (w/2)
-        y = (hs/2) - (h/2)
+        window_width = int(d['w'])
+        window_height = int(d['h'])
+        
+        x = (screen_width/2) - (window_width/2)
+        y = (screen_height/2) - (window_height/2)
         #set only position
         self.geometry('+%d+%d'%(x,y))
-        wm = int((ws*0.8))
-        hm = int((hs*0.8))
-        #print(wm, hm)
+        size_width = int((screen_width*0.8))
+        size_height = int((screen_height*0.8))
         
-        self.minsize(wm, hm)
+        self.minsize(size_width, size_height)
 
     def init_menu(self):
 
@@ -341,7 +341,7 @@ class Main(tk.Toplevel):
         gs = gridspec.GridSpec(1, 2, width_ratios=[3, 1])
         fig = Figure()
         #fig.suptitle(self.engine.title, fontsize=16)
-        fig.subplots_adjust(bottom=0.12, right=0.96, left=0.08, top=0.88, wspace=0.10)
+        fig.subplots_adjust(bottom=0.12, right=0.96, left=0.08, top=0.90, wspace=0.10)
         self.lj = fig.add_subplot(gs[0], facecolor=("xkcd:light grey"))
         self.frq = fig.add_subplot(gs[1], facecolor=("xkcd:light grey"))
         self.canvas = FigureCanvasTkAgg(fig, frm_graphs)
