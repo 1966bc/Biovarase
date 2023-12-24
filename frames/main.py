@@ -98,23 +98,21 @@ class Main(tk.Toplevel):
 
     def init_main(self):
         """Set high, width, x, y coords and minsize """
+        #get screen width and height
+        screen_width  = self.nametowidget(".").winfo_screenwidth()
+        screen_height  = self.nametowidget(".").winfo_screenheight()
 
-        screen_width = self.nametowidget(".").winfo_screenwidth()
-        screen_height = self.nametowidget(".").winfo_screenheight()
-        
-        # calculate position x, y
+        #get dimension from dimension file
         d = self.nametowidget(".").engine.get_dimensions()
         window_width = int(d['w'])
         window_height = int(d['h'])
         
-        x = (screen_width/2) - (window_width/2)
-        y = (screen_height/2) - (window_height/2)
-        #set only position
-        self.geometry('+%d+%d'%(x,y))
-        size_width = int((screen_width*0.8))
-        size_height = int((screen_height*0.8))
+        # calculate position x, y
+        position_right = int(screen_width /2 - window_width/2)
+        position_top = int(screen_height /2 - window_height/2)
+        #we only position the window because otherwise it doesn't resize well on laptop
+        self.geometry('+%d+%d'%(position_right, position_top))
         
-        self.minsize(size_width, size_height)
 
     def init_menu(self):
 
