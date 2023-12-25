@@ -139,7 +139,7 @@ class UI(tk.Toplevel):
             self.recived_date.day.set(int(self.parent.selected_result[4].day))
             
         except:
-            nametowidget(".").on_log(inspect.stack()[0][3],
+            self.nametowidget(".").on_log(inspect.stack()[0][3],
                                       sys.exc_info()[1],
                                       sys.exc_info()[0],
                                       sys.modules[__name__])
@@ -182,7 +182,7 @@ class UI(tk.Toplevel):
                                        parent=self) == True:
                     
                     sql = "DELETE FROM methods_comp_results WHERE result_id =?;"
-                    args = (self.selected_result[0],)
+                    args = (self.parent.selected_result[0],)
                     self.nametowidget(".").engine.write(sql, args)
                     
                     self.parent.set_results()

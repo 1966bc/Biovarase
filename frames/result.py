@@ -151,10 +151,10 @@ class UI(tk.Toplevel):
             self.recived_date.day.set(int(self.selected_result[5].day))
             
         except:
-             nametowidget(".").on_log(inspect.stack()[0][3],
-                                      sys.exc_info()[1],
-                                      sys.exc_info()[0],
-                                      sys.modules[__name__])
+             self.nametowidget(".").on_log(inspect.stack()[0][3],
+                                           sys.exc_info()[1],
+                                           sys.exc_info()[0],
+                                           sys.modules[__name__])
     
         self.result.set(round(self.selected_result[4],3))
         self.status.set(self.selected_result[6])
@@ -216,7 +216,7 @@ class UI(tk.Toplevel):
                 
             self.nametowidget(".main").set_results()
         except:
-            nametowidget(".").on_log(inspect.stack()[0][3],
+            self.nametowidget(".").on_log(inspect.stack()[0][3],
                                      sys.exc_info()[1],
                                      sys.exc_info()[0], sys.modules[__name__])
 

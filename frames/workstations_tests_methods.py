@@ -210,17 +210,7 @@ class UI(tk.Toplevel):
                 self.tests_method_assigned.append(i[0])
                 self.lstTestsMethods.insert("", tk.END, iid=i[0], text=i[0],
                                         values=(i[1], i[2], i[3], i[4], i[5],),)
-                
-   
-    def on_workstation_activated(self, evt):
-
-        if self.lstVorkstations.focus():
-            item_iid = self.lstVorkstations.selection()
-            pk = int(item_iid[0])
-            selected_item = self.nametowidget(".").engine.get_selected("workstations", "workstation_id", pk)
-            self.obj = ui.UI(self)
-            self.obj.on_open(self.selected_workstation, self.tests_method_assigned)
-            
+                         
     def on_test_method_activated(self, evt):
 
         if self.lstTestsMethods.focus():
