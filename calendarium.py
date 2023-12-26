@@ -30,7 +30,7 @@ import sys
 import datetime
 from datetime import date
 import tkinter as tk
-from tkinter import font
+from tkinter import ttk
 from tkinter import messagebox
 
 
@@ -62,88 +62,92 @@ class Calendarium(tk.Frame):
         code (int): Exception error code.
 
     """
-    def __init__(self, caller, name=None, *args, **kwargs):
+    def __init__(self, caller, description=None,):
         super().__init__()
 
-        self.args = args
-        self.kwargs = kwargs
-
-        
+        self.set_style()
         self.vcmd = (self.register(self.validate), "%d", "%P", "%S")
-
         self.caller = caller
-        self.name = name
+        self.description = description
 
         self.day = tk.IntVar()
         self.month = tk.IntVar()
         self.year = tk.IntVar()
 
-
     def __str__(self):
         return "class: %s" % (self.__class__.__name__, )
+
+
+    def set_style(self):
+
+        self.style = ttk.Style()
+
+        self.style.theme_use("default")
+
+        self.style.configure(".",
+                             background=self.get_rgb(240, 240, 237),
+                             font=('TkFixedFont'))
+
+        self.style.configure('Calendarium.TLabelframe',
+                             relief=tk.GROOVE,
+                             padding=2,
+                             font=("Helvetica", "10", "bold"),)
+
+        self.style.configure("Calendarium.TSpinbox",
+                             background=self.get_rgb(240, 240, 237),
+                             arrowcolor="blue",
+                             foreground="blue",
+                             font="TkFixedFont")
+
 
     def get_rgb(self, r, g, b):
         """translates an rgb tuple of int to a tkinter friendly color code"""
         return "#%02x%02x%02x" % (r, g, b)
-
-    def set_font(self, family, size, weight=None):
-
-        if weight is not None:
-            weight = weight
-        else:
-            weight = tk.NORMAL
-
-
+        
     def get_calendarium(self, container, row=None, col=None):
 
-        w = tk.LabelFrame(container,
-                          text=self.name,
-                          borderwidth=1,
-                          bg=self.get_rgb(240, 240, 237),
-                          fg = "black",
-                          padx=4,
-                          pady=4,
-                          font=self.set_font("Helvetica", 10, "bold"),
-                          relief=tk.SUNKEN,)
 
-        day_label = tk.LabelFrame(w,
-                                  text="Day",
-                                  bg=self.get_rgb(240, 240, 237),
-                                  fg = "black")
-        self.sp_d = tk.Spinbox(day_label,
-                               bg="white",
-                               fg="blue",
-                               width=2,
-                               from_=1, to=31,
-                               validate="key",
-                               validatecommand=self.vcmd,
-                               textvariable=self.day,
-                               relief=tk.GROOVE,)
-
-        month_label = tk.LabelFrame(w,
-                                    text="Month",
-                                    bg=self.get_rgb(240, 240, 237),
-                                    fg = "black")
-        self.sp_m = tk.Spinbox(month_label, bg="white", fg="blue", width=2,
-                               from_=1, to=12,
-                               validate="key",
-                               validatecommand=self.vcmd,
-                               textvariable=self.month,
-                               relief=tk.GROOVE,)
-
-        year_label = tk.LabelFrame(w,
-                                   text="Year",
-                                   bg=self.get_rgb(240, 240, 237),
-                                   fg = "black")
-        self.sp_y = tk.Spinbox(year_label,
-                               bg="white",
-                               fg="blue",
-                               width=4,
-                               validate="key",
-                               validatecommand=self.vcmd,
-                               from_=1900, to=3000,
-                               textvariable=self.year,
-                               relief=tk.GROOVE,)
+        w = ttk.LabelFrame(container,
+                           style="Calendarium.TLabelframe",
+                           text=self.description,
+                           borderwidth=1,
+                           relief=tk.SUNKEN,)
+        # days
+        day_label = ttk.LabelFrame(w,
+                                   style="Calendarium.TLabelframe",
+                                   text="Day",)
+        
+        self.sp_d = ttk.Spinbox(day_label,
+                                style="Calendarium.TSpinbox",
+                                width=2,
+                                from_=1, to=31,
+                                validate="key",
+                                validatecommand=self.vcmd,
+                                textvariable=self.day,)
+        # month
+        month_label = ttk.LabelFrame(w,
+                                    style="Calendarium.TLabelframe",
+                                    text="Month",)
+        
+        self.sp_m = ttk.Spinbox(month_label,
+                                style="Calendarium.TSpinbox",
+                                width=2,
+                                from_=1, to=12,
+                                validate="key",
+                                validatecommand=self.vcmd,
+                                textvariable=self.month,)
+        # year
+        year_label = ttk.LabelFrame(w,
+                                   style="Calendarium.TLabelframe",
+                                   text="Year",)
+        
+        self.sp_y = ttk.Spinbox(year_label,
+                                style="Calendarium.TSpinbox",
+                                width=4,
+                                validate="key",
+                                validatecommand=self.vcmd,
+                                from_=1900, to=3000,
+                                textvariable=self.year,)
 
         for p, i in enumerate((day_label, self.sp_d, month_label,
                                self.sp_m, year_label, self.sp_y)):
@@ -173,7 +177,7 @@ class Calendarium(tk.Frame):
             return datetime.date(self.year.get(), self.month.get(), self.day.get())
         except ValueError:
             msg = "Date format error:\n{0}".format(sys.exc_info()[1])
-            messagebox.showerror(caller.title(), msg, parent=caller)
+            messagebox.showerror(caller.nametowidget(".").title(), msg, parent=caller)
             return False
 
     def get_timestamp(self,):
@@ -186,6 +190,7 @@ class Calendarium(tk.Frame):
                                  t.hour,
                                  t.minute,
                                  t.second)
+
 
     def validate(self, action, value, text,):
         # action=1 -> insert
