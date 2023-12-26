@@ -425,13 +425,12 @@ class Exporter:
                                     row +=1
 
                         except:
-                             self.on_log(inspect.stack()[0][3], sys.exc_info()[1],
-                                         sys.exc_info()[0], sys.modules[__name__])
+                            self.on_log(inspect.stack()[0][3], sys.exc_info()[1], sys.exc_info()[0], sys.modules[__name__])
 
 
         for test in checked_tests:
             if test in mandatory_tests:
-                     mandatory_tests.remove(test)
+                mandatory_tests.remove(test)
 
         row = 1
         for x in mandatory_tests:
