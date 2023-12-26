@@ -3,14 +3,13 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
 
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import numpy as np 
-import matplotlib.pyplot as plt 
 import scipy.stats
 
 import frames.methods_comp
@@ -122,9 +121,9 @@ class UI(tk.Toplevel):
 
         if self.lstExperiments.focus():
 
-             obj = frames.methods_comp_result.UI(self)
-             obj.on_open()
-             self.objs.append(obj)
+            obj = frames.methods_comp_result.UI(self)
+            obj.on_open()
+            self.objs.append(obj)
               
     def set_experiments(self):
 
@@ -300,15 +299,7 @@ class UI(tk.Toplevel):
                     
                 y = np.array(lst_y)
                 x = np.array(lst_x)
-                n = np.size(x)
-                x_mean = np.mean(x)
-                y_mean = np.mean(y)
-
-                Sxy = np.sum(x*y)- n*x_mean*y_mean 
-                Sxx = np.sum(x*x)-n*x_mean*x_mean 
-                  
-                slope = Sxy/Sxx 
-                intercept = y_mean-slope*x_mean
+                
                 slope, intercept, r, p, stderr = scipy.stats.linregress(x, y)
 
                 msg = "The correlation coefficient is: {0}.\nAccept it?".format(round(r,4))

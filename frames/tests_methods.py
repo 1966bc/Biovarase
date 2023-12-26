@@ -3,12 +3,11 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
 
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
 import frames.test_method as ui
 import frames.goal as goal
 
@@ -151,7 +150,6 @@ class UI(tk.Toplevel):
     def on_test_activated(self, evt):
 
         if self.lstTests.curselection():
-            index = self.lstTests.curselection()[0]
             self.obj = ui.UI(self)
             self.obj.on_open(self.selected_test)
             

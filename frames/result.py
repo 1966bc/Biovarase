@@ -3,17 +3,14 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
-import os
 import sys
 import inspect
-from datetime import datetime
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from calendarium import Calendarium
-
 
 
 class UI(tk.Toplevel):
@@ -32,6 +29,7 @@ class UI(tk.Toplevel):
         self.workstation = tk.StringVar()
         self.result = tk.DoubleVar()
         self.status = tk.BooleanVar()
+        self.recived_date = Calendarium(self, "")
 
         self.vcmd = self.nametowidget(".").engine.get_validate_float(self)
         self.columnconfigure(0, weight=1)
@@ -86,7 +84,6 @@ class UI(tk.Toplevel):
         r += 1
         ttk.Label(frm_left, text="Recived:").grid(row=r, sticky=tk.N+tk.W)
 
-        self.recived_date = Calendarium(self, "")
         self.recived_date.get_calendarium(frm_left, r, c)
 
         r += 1
@@ -151,10 +148,10 @@ class UI(tk.Toplevel):
             self.recived_date.day.set(int(self.selected_result[5].day))
             
         except:
-             self.nametowidget(".").on_log(inspect.stack()[0][3],
-                                           sys.exc_info()[1],
-                                           sys.exc_info()[0],
-                                           sys.modules[__name__])
+            self.nametowidget(".").on_log(inspect.stack()[0][3],
+                                          sys.exc_info()[1],
+                                          sys.exc_info()[0],
+                                          sys.modules[__name__])
     
         self.result.set(round(self.selected_result[4],3))
         self.status.set(self.selected_result[6])

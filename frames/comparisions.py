@@ -10,7 +10,6 @@
 import tkinter as tk
 from tkinter import ttk
 import numpy as np 
-import matplotlib.pyplot as plt 
 import scipy.stats
 
 
@@ -80,11 +79,6 @@ class UI(tk.Toplevel):
             x_mean = np.mean(x)
             y_mean = np.mean(y)
 
-            Sxy = np.sum(x*y)- n*x_mean*y_mean 
-            Sxx = np.sum(x*x)-n*x_mean*x_mean 
-              
-            slope = Sxy/Sxx 
-            intercept = y_mean-slope*x_mean
             slope, intercept, r, p, stderr = scipy.stats.linregress(x, y)
             line = f'Regression line: y={intercept:.2f}+{slope:.2f}x, r={r:.4f}'
             text_slope = ("Slope: {0}".format(round(slope,4)))
@@ -95,23 +89,23 @@ class UI(tk.Toplevel):
 
     def set_axs(self, x, y, lst_x, lst_y, line, text_slope, test_intercept, y_pred):
 
-        plt = self.fig.add_subplot(111)
+        graph = self.fig.add_subplot(111)
 
-        plt.grid(True)
+        graph.grid(True)
         
-        plt.scatter(x, y, color = 'lightsteelblue',marker='s')
+        graph.scatter(x, y, color = 'lightsteelblue',marker='s')
         
-        plt.plot(x, y_pred, color = 'lightsteelblue',marker='s')
+        graph.plot(x, y_pred, color = 'lightsteelblue',marker='s')
         
         t = "Comparative Method {0}".format(self.parent.y_comp_method[0])
         w = "Workstation {0}".format(self.parent.y_workstation_comp[0])
         m = "{0} {1}".format(t,w)
-        plt.set_xlabel(m)
+        graph.set_xlabel(m)
         
         t = "Test Method {0}".format(self.parent.x_test_method[0])
         w = "Workstation {0}".format(self.parent.x_workstation_test[0])
         m = "{0} {1}".format(t,w)                          
-        plt.set_ylabel(m)
+        graph.set_ylabel(m)
 
 
         s = "{0}\n{1}\n{2}"
@@ -120,7 +114,7 @@ class UI(tk.Toplevel):
                          text_slope,
                          test_intercept,)
 
-        plt.set_title(title, loc='left')
+        graph.set_title(title, loc='left')
 
         
    

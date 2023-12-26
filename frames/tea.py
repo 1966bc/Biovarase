@@ -3,10 +3,12 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
+
+from matplotlib.figure import Figure
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -14,8 +16,6 @@ try:
     from matplotlib.backends.backend_tkagg import  NavigationToolbar2Tk as nav_tool
 except:
     from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg as nav_tool
-
-from matplotlib.figure import Figure
 
 
 class UI(tk.Toplevel):
@@ -87,11 +87,8 @@ class UI(tk.Toplevel):
 
     def set_values(self, batches):
 
-        #nrows, ncols, and index
-
         count = len(batches)*100+11
-        #print(count)
-
+        
         sql = "SELECT result_id,\
                       ROUND(result,2),\
                       strftime('%d-%m-%Y', recived),\
@@ -103,7 +100,6 @@ class UI(tk.Toplevel):
                AND is_delete=0\
                ORDER BY recived DESC\
                LIMIT ?;"
-
 
         for batch in batches:
 
@@ -125,13 +121,9 @@ class UI(tk.Toplevel):
 
                 #compute upper and lower limits
                 tea = self.nametowidget(".").engine.get_tea(self.cvw, self.cvb)
-                x = self.nametowidget(".").engine.percentage(tea, target)
-                y = self.nametowidget(".").engine.percentage(4, x)
-                #print(x,y)
                 upper_limit = round(batch[9], 2)
                 lower_limit = round(batch[10], 2)
-
-
+ 
                 self.set_axs(count,
                              len(rs),
                              target,

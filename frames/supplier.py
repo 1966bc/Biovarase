@@ -3,7 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
 
 import tkinter as tk
@@ -16,7 +16,7 @@ class UI(tk.Toplevel):
         super().__init__(name="supplier")
 
         if self.nametowidget(".").engine.get_instance("data"):
-                self.nametowidget(".data").on_cancel()     
+            self.nametowidget(".data").on_cancel()     
 
         self.parent = parent
         self.index = index

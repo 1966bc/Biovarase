@@ -3,12 +3,11 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
 
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
 import frames.load_tests_methods as ui
 
 
@@ -174,7 +173,6 @@ class UI(tk.Toplevel):
             if d["values"][1] == "workstations":
 
                 pk = d["values"][0]
-                selected_item = self.nametowidget(".").engine.get_selected("workstations", "workstation_id", pk)
                 self.obj = ui.UI(self)
                 self.obj.on_open(self.selected_workstation, self.tests_method_assigned)
 

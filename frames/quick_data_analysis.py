@@ -3,12 +3,11 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
 
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
 from calendarium import Calendarium
 
 class UI(tk.Toplevel):
@@ -65,7 +64,7 @@ class UI(tk.Toplevel):
         if self.analysis_date.get_date(self) == False: return
 
         args = (self.analysis_date.get_date(self),)
-        ret  = self.nametowidget(".").engine.quick_data_analysis(args)
+        self.nametowidget(".").engine.quick_data_analysis(args)
         self.on_cancel()
 
     def on_cancel(self, evt=None):

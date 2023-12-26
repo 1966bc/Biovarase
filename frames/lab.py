@@ -3,9 +3,8 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
-import sys, inspect
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -16,7 +15,7 @@ class UI(tk.Toplevel):
         super().__init__(name="lab")
 
         if self.nametowidget(".").engine.get_instance("data"):
-                self.nametowidget(".data").on_cancel()     
+            self.nametowidget(".data").on_cancel()     
 
         self.parent = parent
         self.index = index
@@ -200,7 +199,7 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
-            last_id = self.nametowidget(".").engine.write(sql, args)
+            self.nametowidget(".").engine.write(sql, args)
 
             self.parent.set_labs((self.selected_hospital[0],))
             

@@ -3,12 +3,11 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import frames.load_tests_methods as load_tests_methods
 
 
 class UI(tk.Toplevel):
@@ -359,20 +358,18 @@ class UI(tk.Toplevel):
                 
     def get_test_data(self, args):
 
-         sql = "SELECT tests.test,\
-                       IFNULL(samples.sample,'NA') AS samples,\
-                       IFNULL(methods.method,'NA') AS methods,\
-                       IFNULL(units.unit,'NA') AS units\
-                FROM tests\
-                INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
-                INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
-                INNER JOIN methods ON tests_methods.method_id = methods.method_id\
-                INNER JOIN units ON tests_methods.unit_id = units.unit_id\
-                WHERE tests_methods.test_method_id =?;"
+        sql = "SELECT tests.test,\
+                      IFNULL(samples.sample,'NA') AS samples,\
+                      IFNULL(methods.method,'NA') AS methods,\
+                      IFNULL(units.unit,'NA') AS units\
+               FROM tests\
+               INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
+               INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
+               INNER JOIN methods ON tests_methods.method_id = methods.method_id\
+               INNER JOIN units ON tests_methods.unit_id = units.unit_id\
+               WHERE tests_methods.test_method_id =?;"
 
-         #print(args)
-
-         return self.nametowidget(".").engine.read(False, sql, args)
+        return self.nametowidget(".").engine.read(False, sql, args)
          
 
     def on_cancel(self, evt=None):

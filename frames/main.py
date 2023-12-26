@@ -222,7 +222,7 @@ class Main(tk.Toplevel):
                  ("Tkinter", 1, self.on_tkinter_version),)
 
         for i in items:
-           m_about.add_command(label=i[0], underline=i[1], command=i[2])
+            m_about.add_command(label=i[0], underline=i[1], command=i[2])
     
         for i in (m_main, m_file, m_plots, m_edit, m_exports, m_documents, m_adm, m_about):
             i.config(bg=self.nametowidget(".").engine.get_rgb(240, 240, 237),)
@@ -421,10 +421,7 @@ class Main(tk.Toplevel):
 
     def get_status_bar_site_description(self,):
 
-        sql = "SELECT sites.site_id,\
-                      companies.supplier AS company,\
-                      suppliers.supplier AS site,\
-                      labs.lab,\
+        sql = "SELECT labs.lab,\
                       sections.section\
                FROM sites\
                INNER JOIN suppliers AS companies ON companies.supplier_id = sites.supplier_id\
@@ -437,9 +434,9 @@ class Main(tk.Toplevel):
 
         rs = self.nametowidget(".").engine.read(False, sql, args)
 
-        s = "{0}-{1}-{2}".format(rs[2], rs[3], rs[4])
+        s = "{0} {1}".format(rs[0], rs[1])
 
-        return s[0:80]
+        return s[0:60]
 
     def set_elements(self):
         self.observations.set(self.nametowidget(".").engine.get_observations())
@@ -1229,18 +1226,6 @@ class Main(tk.Toplevel):
                         batch = self.nametowidget(".").engine.get_selected("batches", "batch_id", pk)
 
                         batches.append(batch)
-
-                    sql = "SELECT result_id,\
-                                  ROUND(result,2),\
-                                  strftime('%d-%m-%Y', recived),\
-                                  status,\
-                                  recived\
-                           FROM results\
-                           WHERE batch_id = ?\
-                           AND workstation_id =?\
-                           AND is_delete=0\
-                           ORDER BY recived DESC\
-                           LIMIT ?"
 
                     data = []
 

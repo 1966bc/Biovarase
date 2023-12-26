@@ -3,9 +3,8 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
-import os
 import sys
 import inspect
 import tkinter as tk
@@ -219,7 +218,6 @@ class UI(tk.Toplevel):
                     self.expiration_date.year.set(int(self.nametowidget(".").engine.batch_remembers[4].year))
                     self.expiration_date.month.set(int(self.nametowidget(".").engine.batch_remembers[4].month))
                     self.expiration_date.day.set(int(self.nametowidget(".").engine.batch_remembers[4].day))
-                    self.txtTarget
                 else:
                     self.expiration_date.set_today()
                     self.cbControls.focus()

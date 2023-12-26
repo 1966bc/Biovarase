@@ -15,7 +15,7 @@ class UI(tk.Toplevel):
         super().__init__(name="section")
 
         if self.nametowidget(".").engine.get_instance("data"):
-                self.nametowidget(".data").on_cancel()     
+            self.nametowidget(".data").on_cancel()     
         
         self.parent = parent
         self.index = index

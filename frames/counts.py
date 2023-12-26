@@ -61,7 +61,7 @@ class UI(tk.Toplevel):
         if messagebox.askyesno(self.nametowidget(".").title(), "Export data?", parent=self) == True:
 
             args = (self.export_date.get_date(self),)
-            ret = self.nametowidget(".").engine.get_counts(args)
+            self.nametowidget(".").engine.get_counts(args)
             self.on_cancel()
 
     def on_cancel(self, evt=None):

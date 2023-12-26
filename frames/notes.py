@@ -3,7 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -152,10 +152,10 @@ class UI(tk.Toplevel):
 
     def on_item_selected(self, evt=None):
 
-         if self.lstNotes.curselection():
-             index = self.lstNotes.curselection()[0]
-             pk = self.dict_items.get(index)
-             self.selected_note = self.nametowidget(".").engine.get_selected(self.table, self.primary_key, pk)
+        if self.lstNotes.curselection():
+            index = self.lstNotes.curselection()[0]
+            pk = self.dict_items.get(index)
+            self.selected_note = self.nametowidget(".").engine.get_selected(self.table, self.primary_key, pk)
 
     def on_cancel(self, evt=None):
         """force closing of the child.

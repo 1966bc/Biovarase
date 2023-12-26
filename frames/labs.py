@@ -3,9 +3,8 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
-import sys, inspect
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -185,8 +184,6 @@ class UI(tk.Toplevel):
 
         if self.lstLabs.focus():
             item_iid = self.lstLabs.selection()
-            pk = int(item_iid[0])
-            selected_lab = self.nametowidget(".").engine.get_selected( self.table, self.primary_key, pk)
             self.obj = ui.UI(self, item_iid)
             self.obj.on_open(self.selected_hospital)
 

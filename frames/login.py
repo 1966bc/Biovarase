@@ -136,7 +136,7 @@ class Login(ttk.Frame):
         """Retrive variables and encript password."""
         nick = self.nick.get()
         password = self.password.get()
-        password.strip
+        password.strip()
         encripted = hashlib.md5(password.encode()).hexdigest()
 
         return (nick, encripted)

@@ -10,8 +10,6 @@
 import tkinter as tk
 from tkinter import ttk
 import numpy as np 
-import matplotlib.pyplot as plt 
-import scipy.stats
 
 from matplotlib.figure import Figure
 
@@ -90,30 +88,30 @@ class UI(tk.Toplevel):
         
     def set_axs(self, diff, md, sd, mean, set_line_low, set_high_low):
 
-        plt = self.fig.add_subplot(111, )
+        graph = self.fig.add_subplot(111, )
 
-        plt.scatter(mean, diff, color = 'lightsteelblue',marker='s')
-        plt.axhline(md,           color='black', linestyle='-')
-        plt.axhline(md + 1.96*sd, color='gray', linestyle='--')
-        plt.axhline(md - 1.96*sd, color='gray', linestyle='--') 
+        graph.scatter(mean, diff, color = 'lightsteelblue',marker='s')
+        graph.axhline(md,           color='black', linestyle='-')
+        graph.axhline(md + 1.96*sd, color='gray', linestyle='--')
+        graph.axhline(md - 1.96*sd, color='gray', linestyle='--') 
 
-        plt.set_xlabel("Means")
-        plt.set_ylabel("Difference")
-        plt.set_ylim(md - 3.5*sd, md + 3.5*sd)
+        graph.set_xlabel("Means")
+        graph.set_ylabel("Difference")
+        graph.set_ylim(md - 3.5*sd, md + 3.5*sd)
 
         x_graph_pointer = np.min(mean) + (np.max(mean)-np.min(mean))*1.14
 
-        plt.text(x_graph_pointer, md - 1.96*sd, 
+        graph.text(x_graph_pointer, md - 1.96*sd, 
             r'-1.96SD:' + "\n" + "%.2f" % set_line_low, 
             ha = "center",
             va = "center",
             )
-        plt.text(x_graph_pointer, md + 1.96*sd, 
+        graph.text(x_graph_pointer, md + 1.96*sd, 
             r'+1.96SD:' + "\n" + "%.2f" % set_high_low, 
             ha = "center",
             va = "center",
             )
-        plt.text(x_graph_pointer, md, 
+        graph.text(x_graph_pointer, md, 
             r'Mean:' + "\n" + "%.2f" % md, 
             ha = "center",
             va = "center",
@@ -131,7 +129,7 @@ class UI(tk.Toplevel):
                          standard_deviation,
                          t_value)
 
-        plt.set_title(title, loc='left')
+        graph.set_title(title, loc='left')
          
     def on_cancel(self, evt=None):
         self.destroy()

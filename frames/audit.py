@@ -3,11 +3,10 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
 
 class UI(tk.Toplevel):
     def __init__(self, parent,):

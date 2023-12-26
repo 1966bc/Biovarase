@@ -3,12 +3,11 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
 
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
 
 import frames.load_tests_sections as ui
 

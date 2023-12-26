@@ -3,7 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -194,7 +194,7 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_insert_sql("goals", len(args))
             
-            last_id = self.nametowidget(".").engine.write(sql, args)
+            self.nametowidget(".").engine.write(sql, args)
  
             self.on_cancel()
 

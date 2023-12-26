@@ -3,9 +3,8 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   hiems MMXXIII
 #-----------------------------------------------------------------------------
-import os
 import sys
 import inspect
 import tkinter as tk
@@ -161,7 +160,7 @@ class UI(tk.Toplevel):
             else:
                 sql = self.nametowidget(".").engine.get_insert_sql("methods_comp_results", len(args))
 
-            last_id = self.nametowidget(".").engine.write(sql, args)
+            self.nametowidget(".").engine.write(sql, args)
 
             self.parent.set_results()
 
