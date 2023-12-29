@@ -436,7 +436,7 @@ class UI(tk.Toplevel):
             if self.index is not None:
                 lst_index = [k for k,v in self.nametowidget(".main").dict_batchs.items() if v == self.selected_batch[0]]
             else:
-                lst_index = [k for k,v in sself.nametowidget(".main").dict_batchs.items() if v == last_id]
+                lst_index = [k for k,v in self.nametowidget(".main").dict_batchs.items() if v == last_id]
 
             self.parent.lstBatches.selection_set(lst_index[0])
             self.parent.lstBatches.see(lst_index[0])
