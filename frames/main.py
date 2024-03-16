@@ -934,7 +934,7 @@ class Main(tk.Toplevel):
 
         s = "{0} on {1} {2} \n {3} lot {4}"
 
-        title = s.format(self.selected_test[2],
+        title = s.format(self.selected_test[1],
                          self.selected_workstation[3],
                          self.selected_workstation[4],
                          control_name, self.selected_batch[4])
