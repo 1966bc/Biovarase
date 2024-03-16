@@ -61,7 +61,7 @@ class UI(tk.Toplevel):
         
     def on_open(self,):
 
-        msg = "Sections"
+        msg = "Medical Fields Management"
         self.title(msg)
         self.set_values()
 

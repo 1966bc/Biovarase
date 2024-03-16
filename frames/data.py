@@ -284,7 +284,7 @@ class UI(tk.Toplevel):
         self.on_reset()
 
         sql = "SELECT tests_methods.test_method_id,\
-                      tests.test,\
+                      tests.description,\
                       IFNULL(samples.sample,'NA') AS samples,\
                       IFNULL(methods.method,'NA') AS methods,\
                       IFNULL(units.unit,'NA') AS units,\
@@ -300,7 +300,7 @@ class UI(tk.Toplevel):
                 WHERE workstations_tests_methods.workstation_id =?\
                 AND tests.status =1\
                 AND tests_methods.status =1\
-                ORDER BY tests.test;"
+                ORDER BY tests.description;"
 
         rs = self.nametowidget(".").engine.read(True, sql, args)
 

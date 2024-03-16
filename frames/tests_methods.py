@@ -24,7 +24,7 @@ SQL = "SELECT tests_methods.test_method_id,\
        INNER JOIN units ON tests_methods.unit_id = units.unit_id\
        WHERE tests.test_id =?\
        AND tests.status=1\
-       ORDER BY tests.test;"
+       ORDER BY tests.description;"
 
 class UI(tk.Toplevel):
     def __init__(self, parent):
@@ -105,13 +105,13 @@ class UI(tk.Toplevel):
         index = 0
         self.dict_tests = {}
 
-        sql = "SELECT * FROM tests WHERE status =1 ORDER BY test ASC;"
+        sql = "SELECT * FROM tests WHERE status =1 ORDER BY description ASC;"
         
         rs = self.nametowidget(".").engine.read(True, sql, ())
 
         if rs:
             for i in rs:
-                s = "{0}".format(i[2])
+                s = "{0}".format(i[1])
                 self.lstTests.insert(tk.END, s)
                 self.dict_tests[index] = i[0]
                 index += 1

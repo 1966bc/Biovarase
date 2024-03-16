@@ -50,6 +50,11 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
+        ttk.Label(frm_left, text="Specialities:").grid(row=r, sticky=tk.W)
+        self.cbSpecialities = ttk.Combobox(frm_left,)
+        self.cbSpecialities.grid(row=r, column=c, sticky=tk.EW, **paddings)
+
+        r +=1
         ttk.Label(frm_left, text="Code:").grid(row=r, sticky=tk.W)
         self.txCode = ttk.Entry(frm_left, textvariable=self.code)
         self.txCode.grid(row=r, column=c, sticky=tk.EW, **paddings)
@@ -96,22 +101,45 @@ class UI(tk.Toplevel):
     def on_open(self, selected_test, selected_item=None):
 
         self.selected_test = selected_test
+        self.set_specialities()
         self.set_samples()
         self.set_units()
         self.set_methods()
         
-        
         if self.index is not None:
             self.selected_item = selected_item
-            msg = "Update method for {0} ".format(selected_test[2])
+            msg = "Update method for {0} ".format(selected_test[1])
             self.set_values()
         else:
-            msg = "Insert method for {0} ".format(selected_test[2])
+            msg = "Insert method for {0} ".format(selected_test[1])
             self.is_mandatory.set(0)
             self.status.set(1)
 
         self.title(msg)
         self.txCode.focus()
+
+    def set_specialities(self):
+
+        index = 0
+        self.dict_specialities = {}
+        voices = []
+
+        sql = "SELECT speciality_id, description\
+               FROM specialities\
+               WHERE status =1\
+               ORDER BY description"
+
+        rs = self.nametowidget(".").engine.read(True, sql)
+
+        x = (0, "Not Assigned")
+        rs = (*rs, x)
+
+        for i in rs:
+            self.dict_specialities[index] = i[0]
+            index += 1
+            voices.append(i[1])
+
+        self.cbSpecialities["values"] = voices
          
     def set_samples(self):
 
@@ -183,18 +211,24 @@ class UI(tk.Toplevel):
         self.cbMethods["values"] = voices
 
 
-    
-        
     def set_values(self,):
-
-        self.code.set(self.selected_item[2])
-        
 
         try:
             key = next(key
                        for key, value
+                       in self.dict_specialities.items()
+                       if value == self.selected_item[2])
+            self.cbSpecialities.current(key)
+        except:
+            pass
+        
+        self.code.set(self.selected_item[3])
+        
+        try:
+            key = next(key
+                       for key, value
                        in self.dict_samples.items()
-                       if value == self.selected_item[3])
+                       if value == self.selected_item[4])
             self.cbSamples.current(key)
         except:
             pass
@@ -203,7 +237,7 @@ class UI(tk.Toplevel):
             key = next(key
                        for key, value
                        in self.dict_methods.items()
-                       if value == self.selected_item[4])
+                       if value == self.selected_item[5])
             self.cbMethods.current(key)
         except:
             pass
@@ -212,14 +246,14 @@ class UI(tk.Toplevel):
             key = next(key
                        for key, value
                        in self.dict_units.items()
-                       if value == self.selected_item[5])
+                       if value == self.selected_item[6])
             self.cbUnits.current(key)
         except:
             pass
 
        
-        self.is_mandatory.set(self.selected_item[7])
-        self.status.set(self.selected_item[8])
+        self.is_mandatory.set(self.selected_item[8])
+        self.status.set(self.selected_item[9])
 
 
     def get_values(self,):
@@ -232,6 +266,7 @@ class UI(tk.Toplevel):
             section_id = 0
             
         return [self.selected_test[0],
+                self.dict_specialities[self.cbSpecialities.current()],
                 self.code.get(),
                 self.dict_samples[self.cbSamples.current()],
                 self.dict_methods[self.cbMethods.current()],
@@ -262,16 +297,8 @@ class UI(tk.Toplevel):
             last_id = self.nametowidget(".").engine.write(sql, args)
  
             self.parent.set_test_methods()
-
-            if self.index is not None:
-                self.parent.lstTestsMethods.selection_set(self.index)
-                self.parent.lstTestsMethods.see(self.index)
-                self.parent.lstTestsMethods.focus(self.index)
-                
-            else:
-                self.parent.lstTestsMethods.selection_set(last_id)
-                self.parent.lstTestsMethods.see(last_id)
-                self.parent.lstTestsMethods.focus(last_id)
+            
+            self.parent.lstTests.selection_set(self.selected_test[0])
 
 
             self.on_cancel()

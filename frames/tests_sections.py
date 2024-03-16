@@ -159,7 +159,7 @@ class UI(tk.Toplevel):
 
         sql = "SELECT tests_methods.test_method_id,\
                       tests_methods.code,\
-                      tests.test,\
+                      tests.description,\
                       methods.method,\
                       tests_methods.status\
                FROM tests\
@@ -168,7 +168,7 @@ class UI(tk.Toplevel):
                WHERE tests_methods.section_id =?\
                AND tests.status=1\
                AND tests_methods.status=1\
-               ORDER BY tests.test;"
+               ORDER BY tests.description;"
     
         rs = self.nametowidget(".").engine.read(True, sql, args)
     

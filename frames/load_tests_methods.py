@@ -59,7 +59,7 @@ class UI(tk.Toplevel):
             s = (",".join(["?"]*len(args)))
 
             sql = "SELECT tests_methods.test_method_id,\
-                        tests.test || ' ' || samples.sample,\
+                        tests.description || ' ' || samples.sample,\
                         labs.site_id\
                    FROM tests\
                    INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
@@ -70,12 +70,12 @@ class UI(tk.Toplevel):
                    AND labs.site_id ={1}\
                    AND tests.status =1\
                    AND tests_methods.status=1\
-                   ORDER BY tests.test;".format(s ,self.rs_idd[0])
+                   ORDER BY tests.description;".format(s ,self.rs_idd[0])
 
         else:
 
             sql = "SELECT tests_methods.test_method_id,\
-                        tests.test || ' ' || samples.sample,\
+                        tests.description || ' ' || samples.sample,\
                         labs.site_id\
                    FROM tests\
                    INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
@@ -85,7 +85,7 @@ class UI(tk.Toplevel):
                    WHERE labs.site_id =?\
                    AND tests.status =1\
                    AND tests_methods.status=1\
-                   ORDER BY tests.test;"
+                   ORDER BY tests.description;"
 
             args = (self.rs_idd[0],)
 

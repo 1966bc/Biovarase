@@ -66,7 +66,7 @@ class UI(tk.Toplevel):
 
         sql = "SELECT batches.batch_id,\
                       samples.sample,\
-                      tests.test,\
+                      tests.description,\
                       batches.lot_number,\
                       batches.expiration,\
                       batches.target,\
@@ -95,7 +95,7 @@ class UI(tk.Toplevel):
                AND results.is_delete=0\
                AND results.status=1\
                GROUP BY batches.batch_id,results.workstation_id\
-               ORDER BY tests.test"
+               ORDER BY tests.description"
         
         limit = int(self.elements.get())
         rs = self.nametowidget(".").engine.read(True, sql, (self.nametowidget(".").engine.get_section_id(),))

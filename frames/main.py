@@ -207,7 +207,7 @@ class Main(tk.Toplevel):
         items = (("Suppliers", 2, self.on_suppliers),
                  ("Sites", 1, self.on_sites),
                  ("Labs", 0, self.on_labs),
-                 ("Sections", 1, self.on_sections),
+                 ("Medical Fields", 1, self.on_sections),
                  ("Users", 0, self.on_users),
                  ("Tests", 0, self.on_tests),
                  ("Equipments", 0, self.on_equipments),
@@ -543,8 +543,7 @@ class Main(tk.Toplevel):
                INNER JOIN labs ON sites.site_id = labs.site_id\
                INNER JOIN sections ON labs.lab_id = sections.lab_id\
                INNER JOIN tests_methods ON sections.section_id = tests_methods.section_id\
-               INNER JOIN tests ON tests_methods.test_id = tests.test_id\
-               INNER JOIN specialities ON tests.speciality_id = specialities.speciality_id\
+               INNER JOIN specialities ON tests_methods.speciality_id = specialities.speciality_id\
                WHERE sections.section_id =?\
                AND specialities.status =1\
                ORDER BY specialities.description;"
@@ -570,18 +569,18 @@ class Main(tk.Toplevel):
             voices = []
 
             sql = "SELECT tests_methods.test_method_id,\
-                          tests.test||' '||samples.sample\
+                          tests.description||' '||samples.sample\
                    FROM tests\
                    INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
                    INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
                    INNER JOIN sections ON tests_methods.section_id = sections.section_id\
                    INNER JOIN labs ON sections.lab_id = labs.lab_id\
                    INNER JOIN sites ON labs.site_id = sites.site_id\
-                   WHERE tests.speciality_id =?\
+                   WHERE tests_methods.speciality_id =?\
                    AND sections.section_id =?\
                    AND tests.status=1\
                    AND tests_methods.status=1\
-                   ORDER BY tests.test;"
+                   ORDER BY tests.description;"
 
             args = (self.selected_speciality[0], self.nametowidget(".").engine.get_section_id())
 

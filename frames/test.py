@@ -18,7 +18,7 @@ class UI(tk.Toplevel):
         self.index = index
         self.transient(parent)
         self.resizable(0, 0)
-        self.test = tk.StringVar()
+        self.description = tk.StringVar()
         self.status = tk.BooleanVar()
 
         self.columnconfigure(0, weight=1)
@@ -39,14 +39,10 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
-        ttk.Label(frm_left, text="Specialities:").grid(row=r, sticky=tk.W)
-        self.cbSpecialities = ttk.Combobox(frm_left,)
-        self.cbSpecialities.grid(row=r, column=c, sticky=tk.EW, **paddings)
         
-        r += 1
-        ttk.Label(frm_left, text="Test:").grid(row=r, sticky=tk.W)
-        self.txTest = ttk.Entry(frm_left, textvariable=self.test)
-        self.txTest.grid(row=r, column=c, sticky=tk.EW, **paddings)
+        ttk.Label(frm_left, text="Description:").grid(row=r, sticky=tk.W)
+        self.txDescription = ttk.Entry(frm_left, textvariable=self.description)
+        self.txDescription.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
         ttk.Label(frm_left, text="Status:").grid(row=r, sticky=tk.W)
@@ -70,8 +66,6 @@ class UI(tk.Toplevel):
 
     def on_open(self):
 
-        self.set_specialities()
-
         if self.index is not None:
             self.selected_item = self.parent.selected_item
             msg = "Update {0}".format(self.winfo_name().capitalize())
@@ -81,50 +75,17 @@ class UI(tk.Toplevel):
             self.status.set(1)
 
         self.title(msg)
-        self.cbSpecialities.focus()
+        self.txDescription.focus()
 
-    def set_specialities(self):
-
-        index = 0
-        self.dict_specialities = {}
-        voices = []
-
-        sql = "SELECT speciality_id, description\
-               FROM specialities\
-               WHERE status =1\
-               ORDER BY description"
-
-        rs = self.nametowidget(".").engine.read(True, sql)
-
-        x = (0, "Not Assigned")
-        rs = (*rs, x)
-
-        for i in rs:
-            self.dict_specialities[index] = i[0]
-            index += 1
-            voices.append(i[1])
-
-        self.cbSpecialities["values"] = voices
-        
     def get_values(self,):
 
-        return [self.dict_specialities[self.cbSpecialities.current()],
-                self.test.get(),
+        return [self.description.get(),
                 self.status.get(),]
 
     def set_values(self,):
 
-        try:
-            key = next(key
-                       for key, value
-                       in self.dict_specialities.items()
-                       if value == self.selected_item[1])
-            self.cbSpecialities.current(key)
-        except:
-            pass
-
-        self.test.set(self.selected_item[2])
-        self.status.set(self.selected_item[3])
+        self.description.set(self.selected_item[1])
+        self.status.set(self.selected_item[2])
 
     def on_save(self, evt=None):
 
@@ -152,15 +113,16 @@ class UI(tk.Toplevel):
 
     def select_item(self, last_id=None):
 
+        #searches for the key using the primary key of the record
         if self.index is not None:
-            point_to = self.index
+            lst_index = [k for k,v in self.parent.dict_items.items() if v == self.selected_item[0]]
         else:
-            point_to = last_id
-            
-        self.parent.lstItems.focus()        
-        self.parent.lstItems.see(point_to)
-        self.parent.lstItems.selection_set(point_to)
-            
+            lst_index = [k for k,v in self.parent.dict_items.items() if v == last_id]
+
+        # point the right item on listbox
+        self.parent.lstItems.see(lst_index[0])
+        self.parent.lstItems.selection_set(lst_index[0])
+
     def update_tests_methods(self, last_id):
 
         if self.nametowidget(".").engine.get_instance("tests_methods") == True:

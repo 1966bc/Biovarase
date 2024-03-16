@@ -185,7 +185,7 @@ class UI(tk.Toplevel):
             self.lstTestsMethods.delete(i)
             
         sql = "SELECT tests_methods.test_method_id,\
-                      tests.test,\
+                      tests.description,\
                       tests_methods.code,\
                       IFNULL(samples.sample,'NA') AS samples,\
                       IFNULL(methods.method,'NA') AS methods,\
@@ -199,7 +199,7 @@ class UI(tk.Toplevel):
                INNER JOIN workstations_tests_methods ON tests_methods.test_method_id = workstations_tests_methods.test_method_id\
                INNER JOIN workstations ON workstations_tests_methods.workstation_id = workstations.workstation_id\
                WHERE workstations_tests_methods.workstation_id =?\
-               ORDER BY tests.test ASC;"
+               ORDER BY tests.description ASC;"
 
         rs = self.nametowidget(".").engine.read(True, sql, args)
 

@@ -263,7 +263,7 @@ class UI(tk.Toplevel):
             self.lstTestsMethods.delete(i)
 
         sql = "SELECT tests_methods.test_method_id,\
-                      tests.test,\
+                      tests.description,\
                       IFNULL(samples.sample,'NA') AS samples,\
                       IFNULL(methods.method,'NA') AS methods,\
                       IFNULL(units.unit,'NA') AS units\
@@ -277,7 +277,7 @@ class UI(tk.Toplevel):
                 WHERE workstations_tests_methods.workstation_id =?\
                 AND tests.status =1\
                 AND tests_methods.status =1\
-                ORDER BY tests.test;"
+                ORDER BY tests.description;"
 
         rs = self.nametowidget(".").engine.read(True, sql, args)
 
@@ -358,7 +358,7 @@ class UI(tk.Toplevel):
                 
     def get_test_data(self, args):
 
-        sql = "SELECT tests.test,\
+        sql = "SELECT tests.description,\
                       IFNULL(samples.sample,'NA') AS samples,\
                       IFNULL(methods.method,'NA') AS methods,\
                       IFNULL(units.unit,'NA') AS units\

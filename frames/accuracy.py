@@ -143,7 +143,7 @@ class UI(tk.Toplevel):
 
             for i in rs:
 
-                sql = "SELECT test FROM tests WHERE test_id =?;"
+                sql = "SELECT description FROM tests WHERE test_id =?;"
                 self.test =  self.nametowidget(".").engine.read(False, sql , (i[1],))
                 self.y_comp_method = self.get_method_data(3, i[3])
                 self.y_workstation_comp = self.get_workstation_data(i[5])
