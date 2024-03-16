@@ -22,7 +22,7 @@ class Exporter:
         today = datetime.datetime.now()
 
         sql = "SELECT samples.sample,\
-                      tests.test,\
+                      tests.description,\
                       tests_methods.code,\
                       batches.lot_number,\
                       strftime('%d-%m-%Y', expiration),\
@@ -41,7 +41,7 @@ class Exporter:
                WHERE tests.status =1\
                AND tests_methods.status =1\
                AND batches.status =1\
-               ORDER BY tests.test ASC;"
+               ORDER BY tests.description ASC;"
 
         rs = self.read(True, sql, ())
 
@@ -110,7 +110,7 @@ class Exporter:
 
             sql = "SELECT tests_methods.test_method_id,\
                           tests_methods.code,\
-                          tests.test,\
+                          tests.description,\
                           samples.sample,\
                           specialities.description,\
                           COUNT(results.batch_id)\
@@ -128,7 +128,7 @@ class Exporter:
                    AND DATE(results.recived) >=?\
                    AND results.is_delete=0\
                    GROUP BY tests_methods.test_method_id\
-                   ORDER BY tests.test;"
+                   ORDER BY tests.description;"
 
             args = (self.get_section_id(), selected_date[0])
 
@@ -167,7 +167,7 @@ class Exporter:
 
     def get_notes(self, args):
 
-        sql = "SELECT tests.test,\
+        sql = "SELECT tests.description,\
                       batches.lot_number,\
                       batches.target,\
                       batches.sd,\
@@ -262,7 +262,7 @@ class Exporter:
 
         sql_tests = "SELECT tests_methods.test_method_id,\
                             samples.sample,\
-                            tests.test,\
+                            tests.description,\
                             specialities.description\
                        FROM tests\
                        INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
@@ -274,7 +274,7 @@ class Exporter:
                        WHERE labs.lab_id =?\
                        AND tests.status=1\
                        AND tests_methods.status=1\
-                       ORDER BY tests.test;"
+                       ORDER BY tests.description;"
 
         rs_idd = self.get_idd_by_section_id(self.get_section_id())
 

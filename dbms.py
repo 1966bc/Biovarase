@@ -171,7 +171,7 @@ class DBMS:
 
         mandatory_tests = []
 
-        sql = "SELECT tests.test\
+        sql = "SELECT tests.description\
                FROM tests\
                INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
                INNER JOIN sections ON tests_methods.section_id = sections.section_id\
@@ -263,7 +263,7 @@ class DBMS:
         sql = "SELECT * FROM tests WHERE test_id =?;"
         args = (test_id,)
         rs = self.read(False, sql, args)
-        return rs[2]
+        return rs[1]
 
     def get_control_name(self, control_id):
 
