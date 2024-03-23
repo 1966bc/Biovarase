@@ -79,6 +79,8 @@ class UI(tk.Toplevel):
                                    validate="key",
                                    validatecommand=self.vcmd,
                                    textvariable=self.result)
+        self.txtResult.bind("<Return>", self.on_save)
+        self.txtResult.bind("<KP_Enter>", self.on_save)
         self.txtResult.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
@@ -116,7 +118,6 @@ class UI(tk.Toplevel):
     def on_open(self, selected_test_method, selected_batch, selected_workstation, selected_result=None):
 
         self.selected_test_method = selected_test_method
-        self.selected_workstation = selected_workstation
         self.selected_batch = selected_batch
         self.selected_workstation = selected_workstation
         self.test.set(self.nametowidget(".").engine.get_test_name(selected_test_method[1]))

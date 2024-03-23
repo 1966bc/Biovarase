@@ -201,7 +201,7 @@ class UI(tk.Toplevel):
             self.set_values()
             self.cbControls.focus()
         else:
-            msg = "Insert {0} for {1}".format(self.winfo_name().capitalize(), self.selected_test[2])
+            msg = "Insert {0} for {1}".format(self.winfo_name().capitalize(), self.selected_test[1])
 
             if self.set_remeber_batch_data.get()== True:
                 
