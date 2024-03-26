@@ -25,6 +25,15 @@ class UI(tk.Toplevel):
 
         self.lot_number = tk.StringVar()
         self.description = tk.StringVar()
+
+        self.lot_number.trace("w", lambda x, y, z,
+                        c=self.nametowidget(".").engine.get_lot_length(),
+                        v=self.lot_number: self.nametowidget(".").engine.limit_chars(c, v, x, y, z))
+        
+        self.description.trace("w", lambda x, y, z,
+                        c=self.nametowidget(".").engine.get_batch_length(),
+                        v=self.description: self.nametowidget(".").engine.limit_chars(c, v, x, y, z))
+        
         self.target = tk.DoubleVar()
         self.sd = tk.DoubleVar()
         self.lower = tk.DoubleVar()
@@ -197,7 +206,7 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             self.selected_batch = selected_batch
-            msg = "Update {0} {1}".format(self.winfo_name().capitalize(), self.selected_batch[4])
+            msg = "Update {0} {1} for {2}".format(self.winfo_name().capitalize(), self.selected_batch[4], self.selected_test[1])
             self.set_values()
             self.cbControls.focus()
         else:

@@ -3,7 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXXIII
+# modify:   autumn MMXXIII
 #-----------------------------------------------------------------------------
 import sys
 import inspect
@@ -13,15 +13,19 @@ from tkinter import messagebox
 from calendarium import Calendarium
 
 
+
 class UI(tk.Toplevel):
     def __init__(self, parent, index=None):
         super().__init__(name="result")
+
+        
 
         self.parent = parent
         self.index = index
         self.transient(parent)
         self.attributes('-topmost', True)
         self.resizable(0, 0)
+        
 
         self.test = tk.StringVar()
         self.batch = tk.StringVar()
@@ -29,12 +33,14 @@ class UI(tk.Toplevel):
         self.workstation = tk.StringVar()
         self.result = tk.DoubleVar()
         self.status = tk.BooleanVar()
-        self.recived_date = Calendarium(self, "")
+
+        
 
         self.vcmd = self.nametowidget(".").engine.get_validate_float(self)
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
+        
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
         self.nametowidget(".").engine.set_instance(self, 1)
@@ -47,11 +53,19 @@ class UI(tk.Toplevel):
         self.frm_main = ttk.Frame(self, style="App.TFrame", padding=8)
         self.frm_main.grid(row=0, column=0)
 
+        
+
         frm_left = ttk.Frame(self.frm_main, style="App.TFrame")
         frm_left.grid(row=0, column=0, sticky=tk.NS, **paddings)
 
         r = 0
         c = 1
+        ttk.Label(frm_left, text="Test:").grid(row=r, sticky=tk.W)
+        ttk.Label(frm_left,
+                  style="Data.TLabel",
+                  textvariable=self.test).grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+
+        r += 1
         ttk.Label(frm_left, text="Batch:").grid(row=r, sticky=tk.W)
         ttk.Label(frm_left,
                   style="Data.TLabel",
@@ -86,12 +100,15 @@ class UI(tk.Toplevel):
         r += 1
         ttk.Label(frm_left, text="Recived:").grid(row=r, sticky=tk.N+tk.W)
 
-        self.recived_date.get_calendarium(frm_left, r, c)
+        self.recived = Calendarium(self, "")
+        self.recived.get_calendarium(frm_left, r, c)
 
         r += 1
         ttk.Label(frm_left, text="Status:").grid(row=r, sticky=tk.W)
         self.ckStatus = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.status,)
         self.ckStatus.grid(row=r, column=c, sticky=tk.W)
+
+        
 
         frm_buttons = ttk.Frame(self.frm_main, style="App.TFrame")
         frm_buttons.grid(row=0, column=1, sticky=tk.NS, **paddings)
@@ -107,7 +124,7 @@ class UI(tk.Toplevel):
             if self.index is not None:
                 r += 1
                 btn = ttk.Button(frm_buttons, style="App.TButton", text="Delete", underline=0, command=self.on_delete)
-                self.bind("<Alt-c>", self.on_cancel)
+                self.bind("<Alt-d>", self.on_delete)
                 btn.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
@@ -128,15 +145,15 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             self.selected_result = selected_result
-            msg = "Update {0} for {1}".format(self.winfo_name().capitalize(), self.test.get())
+            msg = "Update {0} ".format(self.winfo_name().capitalize())
             self.set_values()
             self.txtResult.focus()
         else:
-            msg = "Add {0} for {1}".format(self.winfo_name().capitalize(), self.test.get())
+            msg = "Add {0} ".format(self.winfo_name().capitalize())
                                           
             self.status.set(1)
             self.result.set('')
-            self.recived_date.set_today()
+            self.recived.set_today()
             self.txtResult.focus()
             
         self.title(msg)
@@ -144,19 +161,22 @@ class UI(tk.Toplevel):
     def set_values(self,):
         
         try:
-            self.recived_date.year.set(int(self.selected_result[5].year))
-            self.recived_date.month.set(int(self.selected_result[5].month))
-            self.recived_date.day.set(int(self.selected_result[5].day))
+            self.recived.year.set(int(self.selected_result[5].year))
+            self.recived.month.set(int(self.selected_result[5].month))
+            self.recived.day.set(int(self.selected_result[5].day))
+
             
         except:
             self.nametowidget(".").on_log(inspect.stack()[0][3],
                                           sys.exc_info()[1],
                                           sys.exc_info()[0],
                                           sys.modules[__name__])
-    
+            
+            
         self.result.set(round(self.selected_result[4],3))
         self.status.set(self.selected_result[6])
-        
+
+   
     def get_values(self,):
        
         if self.index is not None:
@@ -172,7 +192,7 @@ class UI(tk.Toplevel):
                 run_number,
                 self.selected_workstation[0],
                 round(self.result.get(),3),
-                self.recived_date.get_timestamp(),
+                self.recived.get_timestamp(),
                 self.status.get(),
                 is_delete,
                 self.nametowidget(".").engine.get_log_time(),
@@ -184,7 +204,7 @@ class UI(tk.Toplevel):
     def on_save(self, evt=None):
 
         if self.nametowidget(".").engine.on_fields_control(self.frm_main, self.nametowidget(".").title()) == False: return
-        if self.recived_date.get_date(self) == False: return
+        if self.recived.get_date(self) == False: return
         if messagebox.askyesno(self.nametowidget(".").title(),
                                self.nametowidget(".").engine.ask_to_save,
                                parent=self) == True:
@@ -221,40 +241,33 @@ class UI(tk.Toplevel):
     def set_index(self, last_id):
 
         if self.index is not None:
-            lst_index = [k for k,v in self.parent.dict_results.items() if v == self.selected_result[0]]
-            
+            idx = self.index
         else:
-            lst_index = [k for k,v in self.parent.dict_results.items() if v == last_id]
-            
-        self.parent.lstResults.selection_set(lst_index[0])
-        self.parent.lstResults.see(lst_index[0])            
+            idx = list(self.parent.dict_results.keys())[list(self.parent.dict_results.values()).index(last_id)]
+
+        self.parent.lstResults.selection_set(idx)
+        self.parent.lstResults.see(idx)            
              
             
     def on_delete(self, evt=None):
 
-        if self.nametowidget(".").engine.log_user[5] ==2:
-            msg = self.nametowidget(".").engine.user_not_enable
-            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+        if self.index is not None:
+            if messagebox.askyesno(self.nametowidget(".").title(),
+                                   self.nametowidget(".").engine.delete,
+                                   parent=self) == True:
+                
+                sql = "DELETE FROM results WHERE result_id =?;"
+                args = (self.selected_result[0],)
+                self.nametowidget(".").engine.write(sql, args)
+                
+                self.update_results_lists()
+                
+                self.on_cancel()
 
-        else:            
-
-            if self.index is not None:
-                if messagebox.askyesno(self.nametowidget(".").title(),
-                                       self.nametowidget(".").engine.delete,
-                                       parent=self) == True:
-                    
-                    sql = "UPDATE results SET is_delete =1 WHERE result_id =?"
-                    args = (self.selected_result[0],)
-                    self.nametowidget(".").engine.write(sql, args)
-                    
-                    self.update_results_lists()
-                    
-                    self.on_cancel()
-
-                else:
-                    messagebox.showinfo(self.nametowidget(".").title(), 
-                                        self.nametowidget(".").engine.abort, 
-                                        parent=self)
+            else:
+                messagebox.showinfo(self.nametowidget(".").title(), 
+                                    self.nametowidget(".").engine.abort, 
+                                    parent=self)
 
     def on_cancel(self, evt=None):
         self.nametowidget(".").engine.set_instance(self, 0)

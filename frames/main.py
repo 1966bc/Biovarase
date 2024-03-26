@@ -8,9 +8,7 @@
 import os
 import sys
 import inspect
-import datetime
 import operator
-import random
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
@@ -32,7 +30,6 @@ import frames.tests
 import frames.tests_methods
 import frames.workstations_tests_methods
 import frames.data
-import frames.audit
 import frames.units
 import frames.methods
 import frames.specialities
@@ -57,11 +54,12 @@ import frames.youden
 import frames.tests_sections
 import frames.users
 import frames.samples
-import frames.analytical_goals
+import frames.analitycal_goals
 import frames.tea
 import frames.analytical
 import frames.change_password
 import frames.sites
+import frames.audit
 import frames.accuracy
 
 
@@ -72,7 +70,6 @@ class Main(tk.Toplevel):
 
         self.protocol("WM_DELETE_WINDOW", self.on_close)
         self.parent = parent
-
         self.enable_notes = tk.BooleanVar()
         self.status_bar_text = tk.StringVar()
         self.average = tk.DoubleVar()
@@ -90,14 +87,15 @@ class Main(tk.Toplevel):
         self.ddof = tk.IntVar()
         self.status_bar_site_description = tk.StringVar()
         self.selected_workstation = None
-
-        self.init_menu()
         self.init_ui()
+        self.init_menu()
         self.init_status_bar()
-        self.init_main()
+        self.center_ui()
+        self.nametowidget(".").engine.set_instance(self, 1)
 
-    def init_main(self):
-        """Set high, width, x, y coords and minsize """
+    def center_ui(self):
+
+        """Set high, width, x, y coords"""
         #get screen width and height
         screen_width  = self.nametowidget(".").winfo_screenwidth()
         screen_height  = self.nametowidget(".").winfo_screenheight()
@@ -112,7 +110,6 @@ class Main(tk.Toplevel):
         position_top = int(screen_height /2 - window_height/2)
         #we only position the window because otherwise it doesn't resize well on laptop
         self.geometry('+%d+%d'%(position_right, position_top))
-        
 
     def init_menu(self):
 
@@ -120,7 +117,6 @@ class Main(tk.Toplevel):
 
         m_file = tk.Menu(m_main, tearoff=0, bd=1)
         m_exports = tk.Menu(m_file)
-        s_databases = tk.Menu(m_file)
         m_plots = tk.Menu(m_main, tearoff=0, bd=1)
         m_edit = tk.Menu(m_main, tearoff=0, bd=1)
         m_documents = tk.Menu(m_main, tearoff=0, bd=1)
@@ -137,23 +133,14 @@ class Main(tk.Toplevel):
 
         items = (("Data", 0, self.on_data),
                  ("Reset", 0, self.on_reset),
-                 ("Insert random results", 0, self.on_insert_demo_result),
-                 ("Analytica", 4, self.on_analitical),
+                 ("Analytica", 0, self.on_analitical),
                  ("Z Score", 0, self.on_zscore),)
 
         for i in items:
             m_file.add_command(label=i[0], underline=i[1], command=i[2])
 
+        
         m_file.add_separator()
-
-        m_file.add_cascade(label="Database", menu=s_databases, underline=0)
-        s_databases.add_command(label="Dump",
-                                underline=0,
-                                command=self.on_dump)
-
-        s_databases.add_command(label="Vacuum",
-                                underline=0,
-                                command=self.on_vacuum)
 
         m_file.add_command(label="Change password",
                            underline=0,
@@ -172,14 +159,14 @@ class Main(tk.Toplevel):
         for i in items:
             m_plots.add_command(label=i[0], underline=i[1], command=i[2])
 
-        items = (("Tests Methods", 1, self.on_tests_methods),
-                 ("Tests Labs", 2,  self.on_tests_sections),
+        items = (("Tests Methods", 9, self.on_tests_methods),
+                 ("Tests Sections", 12, self.on_tests_sections),
                  ("Workstations Tests Methods", 0, self.on_workstations_tests_methods),
-                 ("Specialities", 0, self.on_specialities),
-                 ("Samples", 2, self.on_samples),
+                 ("Specialities", 1, self.on_specialities),
+                 ("Samples", 0, self.on_samples),
                  ("Units", 0, self.on_units),
                  ("Methods", 0, self.on_methods),
-                 ("Workstations", 1, self.on_workstations),
+                 ("Workstations", 0, self.on_workstations),
                  ("Controls", 0, self.on_controls),
                  ("Actions", 0, self.on_actions),
                  ("Set Observations", 4, self.on_observations),
@@ -187,6 +174,7 @@ class Main(tk.Toplevel):
 
         for i in sorted(items, key=operator.itemgetter(0)):
             m_edit.add_command(label=i[0], underline=i[1], command=i[2])
+
 
         items = (("Quick Data Analysis", 0, self.on_quick_data_analysis),
                  ("Notes", 0, self.on_export_notes),
@@ -199,32 +187,30 @@ class Main(tk.Toplevel):
 
         items = (("User Manual", 0, self.on_user_manual),
                  ("QC Technical Manual", 0, self.on_qc_thecnical_manual),
+                 ("Guidelines", 0, self.on_get_guidelines),
                  ("Biological Values", 0, self.on_bvv),)
-        
+
         for i in items:
             m_documents.add_command(label=i[0], underline=i[1], command=i[2])
 
-        items = (("Suppliers", 2, self.on_suppliers),
+        items = (("Suppliers", 1, self.on_suppliers),
                  ("Sites", 1, self.on_sites),
-                 ("Labs", 0, self.on_labs),
-                 ("Medical Fields", 1, self.on_sections),
+                 ("Labs", 1, self.on_labs),
+                 ("Sections", 1, self.on_sections),
                  ("Users", 0, self.on_users),
                  ("Tests", 0, self.on_tests),
                  ("Equipments", 0, self.on_equipments),
                  ("Audit trail", 0, self.on_audit),)
 
-        for i in sorted(items, key=operator.itemgetter(0)):
+        for i in items:
             m_adm.add_command(label=i[0], underline=i[1], command=i[2])
 
-        items = (("About", 2, self.on_about),
-                 ("License", 1, self.on_license),
-                 ("Python", 0, self.on_python_version),
-                 ("Tkinter", 1, self.on_tkinter_version),)
+        m_about.add_command(label="About", underline=0, command=self.on_about)
+        m_about.add_command(label="License", underline=0, command=self.on_license)
+        m_about.add_command(label="Python", underline=0, command=self.on_python_version)
+        m_about.add_command(label="Tkinter", underline=0, command=self.on_tkinter_version)
 
-        for i in items:
-            m_about.add_command(label=i[0], underline=i[1], command=i[2])
-    
-        for i in (m_main, m_file, m_plots, m_edit, m_exports, m_documents, m_adm, m_about):
+        for i in (m_main, m_file, ):
             i.config(bg=self.nametowidget(".").engine.get_rgb(240, 240, 237),)
             i.config(fg="black")
 
@@ -266,17 +252,17 @@ class Main(tk.Toplevel):
 
         w = tk.LabelFrame(frm_stats, text="Batch data", font="Helvetica 10 bold")
 
-        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="Target").pack(fill=tk.X)
+        ttk.Label(w, text="Target").pack()
         ttk.Label(w,
                   style="Target.TLabel",
                   anchor=tk.CENTER,
                   textvariable=self.target).pack(fill=tk.X, padx=2, pady=2)
-        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="SD").pack(fill=tk.X)
+        ttk.Label(w, text="SD").pack()
         ttk.Label(w,
                   style="black_and_withe.TLabel",
                   anchor=tk.CENTER,
                   textvariable=self.sd).pack(fill=tk.X, padx=2, pady=2)
-        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="TE%").pack(fill=tk.X)
+        ttk.Label(w, text="TE%").pack()
         ttk.Label(w,
                   style="black_and_withe.TLabel",
                   anchor=tk.CENTER,
@@ -286,17 +272,17 @@ class Main(tk.Toplevel):
 
         w = tk.LabelFrame(frm_stats, text="Cal data", font="Helvetica 10 bold")
 
-        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="Average").pack(fill=tk.X)
+        ttk.Label(w, text="Average").pack()
         ttk.Label(w,
                   style="Average.TLabel",
                   anchor=tk.CENTER,
                   textvariable=self.average).pack(fill=tk.X, padx=2, pady=2)
-        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="sd").pack(fill=tk.X)
+        ttk.Label(w, text="sd").pack()
         ttk.Label(w,
                   style="black_and_withe.TLabel",
                   anchor=tk.CENTER,
                   textvariable=self.calculated_sd).pack(fill=tk.X, padx=2, pady=2)
-        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="CV%").pack(fill=tk.X)
+        ttk.Label(w, text="CV%").pack()
         ttk.Label(w,
                   style="black_and_withe.TLabel",
                   anchor=tk.CENTER,
@@ -306,7 +292,7 @@ class Main(tk.Toplevel):
 
         w = tk.LabelFrame(frm_stats, text="Other data", font="Helvetica 10 bold")
 
-        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="Westgard").pack(fill=tk.X)
+        ttk.Label(w, text="Westgard").pack()
 
         self.lblWestgard = ttk.Label(w,
                                      style="black_and_withe.TLabel",
@@ -314,12 +300,12 @@ class Main(tk.Toplevel):
                                      textvariable=self.westgard)
         self.lblWestgard.pack(fill=tk.X, padx=2, pady=2)
 
-        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="Range").pack(fill=tk.X)
+        ttk.Label(w, text="Range").pack()
         ttk.Label(w, style="black_and_withe.TLabel",
                   anchor=tk.CENTER,
                   textvariable=self.range).pack(fill=tk.X, padx=2, pady=2)
 
-        ttk.Label(w, anchor=tk.CENTER, style="App.TLabel", text="Bias%").pack(fill=tk.X)
+        ttk.Label(w, text="Bias%").pack()
         ttk.Label(w,
                   style="black_and_withe.TLabel",
                   anchor=tk.CENTER,
@@ -339,7 +325,7 @@ class Main(tk.Toplevel):
         gs = gridspec.GridSpec(1, 2, width_ratios=[3, 1])
         fig = Figure()
         #fig.suptitle(self.engine.title, fontsize=16)
-        fig.subplots_adjust(bottom=0.12, right=0.96, left=0.08, top=0.90, wspace=0.10)
+        fig.subplots_adjust(bottom=0.10, right=0.96, left=0.08, top=0.90, wspace=0.10)
         self.lj = fig.add_subplot(gs[0], facecolor=("xkcd:light grey"))
         self.frq = fig.add_subplot(gs[1], facecolor=("xkcd:light grey"))
         self.canvas = FigureCanvasTkAgg(fig, frm_graphs)
@@ -406,9 +392,11 @@ class Main(tk.Toplevel):
                         variable=self.ddof,
                         command=self.on_ddof).pack(side=tk.RIGHT, fill=tk.X)
 
+
         self.status.pack(side=tk.LEFT, fill=tk.X, expand=1)
 
         frm_status_bar.pack(side=tk.BOTTOM, fill=tk.X)
+
 
     def on_open(self):
 
@@ -421,7 +409,10 @@ class Main(tk.Toplevel):
 
     def get_status_bar_site_description(self,):
 
-        sql = "SELECT labs.lab,\
+        sql = "SELECT sites.site_id,\
+                      companies.supplier AS company,\
+                      suppliers.supplier AS site,\
+                      labs.lab,\
                       sections.section\
                FROM sites\
                INNER JOIN suppliers AS companies ON companies.supplier_id = sites.supplier_id\
@@ -434,11 +425,11 @@ class Main(tk.Toplevel):
 
         rs = self.nametowidget(".").engine.read(False, sql, args)
 
-        s = "{0} {1}".format(rs[0], rs[1])
+        s = "{0}-{1}-{2}".format(rs[2], rs[3], rs[4])
 
-        return s[0:60]
+        return s[0:80]
 
-    def set_elements(self):
+    def set_observations(self):
         self.observations.set(self.nametowidget(".").engine.get_observations())
 
     def set_zscore(self):
@@ -453,7 +444,7 @@ class Main(tk.Toplevel):
         self.set_tests()
         self.set_workstations()
 
-        self.set_elements()
+        self.set_observations()
         self.reset_batch_data()
         self.reset_cal_data()
         self.reset_graph()
@@ -537,6 +528,7 @@ class Main(tk.Toplevel):
 
         args = (self.nametowidget(".").engine.get_section_id(),)
 
+
         sql = "SELECT DISTINCT specialities.speciality_id,\
                                specialities.description\
                FROM sites\
@@ -545,6 +537,7 @@ class Main(tk.Toplevel):
                INNER JOIN tests_methods ON sections.section_id = tests_methods.section_id\
                INNER JOIN specialities ON tests_methods.speciality_id = specialities.speciality_id\
                WHERE sections.section_id =?\
+               AND tests_methods.status =1\
                AND specialities.status =1\
                ORDER BY specialities.description;"
 
@@ -601,7 +594,7 @@ class Main(tk.Toplevel):
         self.selected_workstation = None
         index = 0
         self.dict_workstations = {}
-
+        
         if self.cbTests.current() != -1:
 
             sql = "SELECT workstations.workstation_id,\
@@ -655,6 +648,7 @@ class Main(tk.Toplevel):
 
             args = (self.selected_test_method[0], self.selected_workstation[0])
 
+
             rs = self.nametowidget(".").engine.read(True, sql, args)
 
             if rs:
@@ -663,9 +657,10 @@ class Main(tk.Toplevel):
 
                     x = self.nametowidget(".").engine.get_expiration_date(i[2])
 
-                    s = "{0:18} {1:10}".format(i[1], i[5])
+                    s = "{0:6} {1:6} {2}".format(i[1], i[5], i[2])
+                    
 
-                    self.lstBatches.insert(tk.END, (s))
+                    self.lstBatches.insert(tk.END, (s[0:28]))
 
                     if x <= 0:
                         self.lstBatches.itemconfig(index, {"bg":"red"})
@@ -782,6 +777,7 @@ class Main(tk.Toplevel):
 
                 self.set_workstations()
 
+
     def on_selected_workstation(self, evt=None):
 
         if self.lstWorkstations.curselection():
@@ -795,6 +791,7 @@ class Main(tk.Toplevel):
             self.reset_cal_data()
             self.reset_graph()
             self.set_batches()
+
 
     def on_selected_batch(self, evt=None):
 
@@ -820,6 +817,8 @@ class Main(tk.Toplevel):
 
     def set_results_row_color(self, index, result, is_enabled, target, sd):
 
+        #print(result, is_enabled, target, sd)
+
         if is_enabled == 0:
             self.lstResults.itemconfig(index, {"bg":"light gray"})
         else:
@@ -828,15 +827,15 @@ class Main(tk.Toplevel):
                 #result > 3sd
                 if result >= round((target + (sd * 3)), 2):
                     d["bg"] = "red"
-                # if result is > 2sd and < +3sd
+                #if result is > 2sd and < +3sd
                 elif result >= round((target + (sd * 2)), 2) and result <= round((target + (sd * 3)), 2):
                     d["bg"] = "yellow"
 
             elif result <= target:
-                # result < 3sd
+                #result < 3sd
                 if result <= round((target - (sd * 3)), 2):
                     d["bg"] = "red"
-                # if result is > -2sd and < -3sd
+                #if result is > -2sd and < -3sd
                 elif result <= round((target - (sd * 2)), 2) and result >= round((target - (sd * 3)), 2):
                     d["bg"] = "yellow"
 
@@ -857,9 +856,11 @@ class Main(tk.Toplevel):
         computed_sd = self.nametowidget(".").engine.get_sd(series)
         self.set_calculated_data(mean, computed_sd, cv, bias, crange)
 
+
         self.set_westgard(series)
 
-        self.set_lj(len(rs), target,
+        self.set_lj(len(rs),
+                        target,
                         sd,
                         series,
                         len(series),
@@ -871,6 +872,7 @@ class Main(tk.Toplevel):
         self.set_histogram(series, target, mean,)
 
         self.canvas.draw()
+
 
     def get_x_labels(self, rs):
 
@@ -885,6 +887,7 @@ class Main(tk.Toplevel):
                 dates.append(i[2])
 
         return (x_labels, dates)
+
 
     def set_lj(self, count_rs, target, sd, series, count_series,
                compute_average, compute_cv, x_labels, dates):
@@ -906,8 +909,8 @@ class Main(tk.Toplevel):
             lines[5].append(target - (sd * 2))
             lines[6].append(target - (sd * 3))
 
-        # it's show time
-        # self.lj.set_xticks(range(0, len(series) + 1))
+        #it's show time
+        #self.lj.set_xticks(range(0, len(series) + 1))
         self.lj.set_xticks(range(0, len(series)))
         self.lj.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
         self.lj.yaxis.set_major_formatter(FormatStrFormatter("%.2f"))
@@ -925,7 +928,7 @@ class Main(tk.Toplevel):
         self.lj.plot(lines[5], color="yellow", label="-2 sd", linestyle="--")
         self.lj.plot(lines[6], color="red", label="-3 sd", linestyle="--")
 
-        if um is not None:
+        if um is  not None:
             self.lj.set_ylabel(str(um[0]))
         else:
             self.lj.set_ylabel("No unit assigned yet")
@@ -944,7 +947,7 @@ class Main(tk.Toplevel):
         bottom_text = ("from %s to %s"%(dates[0], dates[-1]), count_series, count_rs)
 
         self.lj.text(0.95, 0.01,
-                     '%s computed %s on %s results' % bottom_text,
+                     '%s computed %s on %s results'%bottom_text,
                      verticalalignment="bottom",
                      horizontalalignment="right",
                      transform=self.lj.transAxes,
@@ -968,7 +971,7 @@ class Main(tk.Toplevel):
         self.frq.yaxis.set_label_position("right")
 
         um = self.nametowidget(".").engine.get_um(self.selected_test_method[5])
-        if um is not None:
+        if um is  not None:
             self.frq.set_xlabel(str(um[0]))
         else:
             self.frq.set_xlabel("No unit assigned yet")
@@ -978,7 +981,6 @@ class Main(tk.Toplevel):
         if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
-
         else:
             frames.tests.UI(self).on_open()
 
@@ -987,7 +989,6 @@ class Main(tk.Toplevel):
         if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
-
         else:
             frames.tests_methods.UI(self).on_open()
 
@@ -996,7 +997,6 @@ class Main(tk.Toplevel):
         if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
-
         else:
             frames.workstations_tests_methods.UI(self).on_open()
 
@@ -1005,7 +1005,6 @@ class Main(tk.Toplevel):
         if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
-
         else:
             frames.tests_sections.UI(self).on_open()
 
@@ -1020,7 +1019,7 @@ class Main(tk.Toplevel):
 
     def on_samples(self,):
 
-        if self.nametowidget(".").engine.log_user[5] == 2:
+        if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1028,7 +1027,7 @@ class Main(tk.Toplevel):
 
     def on_units(self,):
 
-        if self.nametowidget(".").engine.log_user[5] == 2:
+        if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1036,14 +1035,14 @@ class Main(tk.Toplevel):
 
     def on_methods(self,):
 
-        if self.nametowidget(".").engine.log_user[5] == 2:
+        if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
             frames.methods.UI(self).on_open()
 
     def on_controls(self,):
-        if self.nametowidget(".").engine.log_user[5] == 2:
+        if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1051,26 +1050,16 @@ class Main(tk.Toplevel):
 
     def on_equipments(self):
 
-        if self.nametowidget(".").engine.log_user[5] == 2:
+        if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
 
         else:
             frames.equipments.UI(self).on_open()
 
-    def on_audit(self,):
-
-        if self.nametowidget(".").engine.log_user[5] != 0:
-            msg = self.nametowidget(".").engine.user_not_enable
-            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
-
-        else:
-            frames.audit.UI(self).on_open()
-        
-
     def on_workstations(self,):
 
-        if self.nametowidget(".").engine.log_user[5] == 2:
+        if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
 
@@ -1079,7 +1068,7 @@ class Main(tk.Toplevel):
 
     def on_suppliers(self,):
 
-        if self.nametowidget(".").engine.log_user[5] != 0:
+        if self.nametowidget(".").engine.log_user[5] !=0:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1087,7 +1076,7 @@ class Main(tk.Toplevel):
 
     def on_labs(self,):
 
-        if self.nametowidget(".").engine.log_user[5] != 0:
+        if self.nametowidget(".").engine.log_user[5] !=0:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1095,7 +1084,7 @@ class Main(tk.Toplevel):
 
     def on_sites(self,):
 
-        if self.nametowidget(".").engine.log_user[5] != 0:
+        if self.nametowidget(".").engine.log_user[5] !=0:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1103,7 +1092,7 @@ class Main(tk.Toplevel):
 
     def on_sections(self,):
 
-        if self.nametowidget(".").engine.log_user[5] != 0:
+        if self.nametowidget(".").engine.log_user[5] !=0:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1119,7 +1108,7 @@ class Main(tk.Toplevel):
         frames.set_zscore.UI(self).on_open()
 
     def on_data(self,):
-        if self.nametowidget(".").engine.log_user[5] == 2:
+        if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1131,12 +1120,10 @@ class Main(tk.Toplevel):
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
             frames.accuracy.UI(self).on_open()
-        
-        
 
     def on_actions(self,):
 
-        if self.nametowidget(".").engine.log_user[5] == 2:
+        if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
@@ -1144,12 +1131,11 @@ class Main(tk.Toplevel):
 
     def on_users(self,):
 
-        if self.nametowidget(".").engine.log_user[5] != 0:
+        if self.nametowidget(".").engine.log_user[5] !=0:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
             frames.users.UI(self).on_open()
-
 
     def on_zscore(self,):
         frames.zscore.UI(self,)
@@ -1200,6 +1186,7 @@ class Main(tk.Toplevel):
             msg = "Not enough data to plot.\nSelect a test."
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
 
+
     def on_youden(self,):
 
         if self.cbTests.current() != -1:
@@ -1218,10 +1205,13 @@ class Main(tk.Toplevel):
                 if len(items) == 2:
 
                     for index in items:
-                        pk = self.dict_batchs.get(index)                    
+                        pk = self.dict_batchs.get(index)
+                        #print(pk)
                         pks.append(pk)
 
+
                     for pk in pks:
+                        #print(pk)
                         batch = self.nametowidget(".").engine.get_selected("batches", "batch_id", pk)
 
                         batches.append(batch)
@@ -1259,7 +1249,7 @@ class Main(tk.Toplevel):
         frames.quick_data_analysis.UI(self).on_open()
 
     def on_analitycal_goals(self,):
-        frames.analytical_goals.UI(self).on_open()
+        frames.analitycal_goals.UI(self).on_open()
 
     def on_export_counts(self,):
         frames.counts.UI(self).on_open()
@@ -1283,6 +1273,7 @@ class Main(tk.Toplevel):
             msg = "Attention please.\nNo batch selected."
             messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
 
+
     def on_batch_double_button(self, evt=None):
 
         if self.lstBatches.curselection():
@@ -1290,49 +1281,6 @@ class Main(tk.Toplevel):
         else:
             msg = "Attention please.\nSelect a batch."
             messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
-
-    def on_insert_demo_result(self, evt=None):
-
-        if self.lstBatches.curselection():
-
-            msg = "Insert 30 random results for test {0} batch {1} {2}?".format(self.selected_test[2],
-                                                                                self.selected_batch[4],
-                                                                                self.selected_batch[8])
-
-            if messagebox.askyesno(self.nametowidget(".").title(),
-                                   msg,
-                                   parent=self) == True:
-
-                sql = "DELETE FROM results WHERE batch_id =? AND workstation_id =?;"
-
-                args = (self.selected_batch[0], self.selected_workstation[0])
-
-                self.nametowidget(".").engine.write(sql, args)
-
-                min_val = round((self.selected_batch[6]- self.selected_batch[7]),2)
-
-                max_val = round((self.selected_batch[6]+ self.selected_batch[7]),2)
-
-                sql = "INSERT INTO results(batch_id, workstation_id, result, recived, log_time) VALUES(?,?,?,?,?)"
-
-                log_time = self.nametowidget(".").engine.get_log_time()
-
-                for i in range(0,31):
-
-                    result = random.uniform(min_val,max_val)
-
-                    log_time += datetime.timedelta(days=1)
-
-                    args = (self.selected_batch[0], self.selected_workstation[0], round(result,2), log_time, log_time)
-
-                    self.nametowidget(".").engine.write(sql, args)
-
-                self.set_results()
-
-        else:
-            msg = "Attention please.\nBefore add 30 random results you must select a batch."
-            messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
-
 
     def on_add_result(self,):
 
@@ -1406,22 +1354,37 @@ class Main(tk.Toplevel):
         file = self.nametowidget(".").engine.get_qc_thecnical_manual()
 
         path = self.nametowidget(".").engine.get_file(os.path.join("documents", file))
-        
+
         ret = self.nametowidget(".").engine.open_file(path)
 
         self.nametowidget(".").engine.not_busy(self)
 
         if ret == False:
-            messagebox.showinfo(self.nametowidget(".").title(), "The QC Thecnical Manual does not exist.", parent=self)
-            
-    def on_dump(self):
-        self.nametowidget(".").engine.dump_db()
-        messagebox.showinfo(self.nametowidget(".").title(), "Dump executed.", parent=self)
+            messagebox.showinfo(self.nametowidget(".").title(), "The Biovarase User Manual does not exist.", parent=self)
 
-    def on_vacuum(self):
-        sql = "VACUUM;"
-        self.nametowidget(".").engine.write(sql)
-        messagebox.showinfo(self.nametowidget(".").title(), "Vacuum executed.", parent=self)
+    def on_get_guidelines(self,):
+
+        self.nametowidget(".").engine.busy(self)
+
+        file = self.nametowidget(".").engine.get_guidelines()
+
+        path = self.nametowidget(".").engine.get_file(os.path.join("documents", file))
+
+        ret = self.nametowidget(".").engine.open_file(path)
+
+        self.nametowidget(".").engine.not_busy(self)
+
+        if ret == False:
+            messagebox.showinfo(self.nametowidget(".").title(), "The Biovarase User Manual does not exist.", parent=self)
+
+    def on_audit(self,):
+
+        if self.nametowidget(".").engine.log_user[5] != 0:
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+
+        else:
+            frames.audit.UI(self).on_open()
 
     def on_license(self):
         frames.license.UI(self).on_open()
@@ -1433,7 +1396,6 @@ class Main(tk.Toplevel):
     def on_tkinter_version(self):
         s = "Tkinter patchlevel\n{0}".format(self.nametowidget(".").tk.call("info", "patchlevel"))
         messagebox.showinfo(self.nametowidget(".").title(), s, parent=self)
-
 
     def on_about(self,):
         messagebox.showinfo(self.nametowidget(".").title(),
