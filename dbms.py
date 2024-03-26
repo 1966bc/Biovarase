@@ -157,7 +157,7 @@ class DBMS:
 
         return d
 
-    def check_login(self, args):
+    def login(self, args):
 
         sql = "SELECT * FROM users WHERE nickname =? AND pswrd =?;"
 

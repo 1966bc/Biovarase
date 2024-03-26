@@ -338,6 +338,34 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
                         sys.exc_info()[0],
                         sys.modules[__name__])
 
+    def get_batch_length(self):
+
+        try:
+            file = open("batch_length", "r")
+            ret = file.readline()
+            file.close()
+            return int(ret)
+        except FileNotFoundError:
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
+
+    def get_lot_length(self):
+
+        try:
+            file = open("lot_length", "r")
+            ret = file.readline()
+            file.close()
+            return int(ret)
+        except FileNotFoundError:
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])   
+
     def get_correlation_coefficient(self):
 
         try:
