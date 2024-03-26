@@ -117,7 +117,7 @@ class Exporter:
                    FROM tests\
                    INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
                    INNER JOIN batches ON tests_methods.test_method_id = batches.test_method_id\
-                   INNER JOIN specialities ON tests.speciality_id = specialities.speciality_id\
+                   INNER JOIN specialities ON tests_methods.speciality_id = specialities.speciality_id\
                    INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
                    INNER JOIN sections ON tests_methods.section_id = sections.section_id\
                    INNER JOIN labs ON sections.lab_id = labs.lab_id\
