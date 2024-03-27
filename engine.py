@@ -119,8 +119,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
             f.close()
             return int(v)
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
@@ -132,8 +131,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
                 f.write(str(value))
 
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])            
@@ -145,8 +143,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
             f.close()
             return float(v)
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
@@ -156,8 +153,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
             with open('zscore', 'w') as f:
                 f.write(str(value))
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
@@ -183,8 +179,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
                 f.write(str(value))
 
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
@@ -210,8 +205,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
                 f.write(str(value))
 
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])                
@@ -258,11 +252,10 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
             file.close()
             return observations
         except FileNotFoundError:
-            self.on_log(self,
-                       inspect.stack()[0][3],
-                       sys.exc_info()[1],
-                       sys.exc_info()[0],
-                       sys.modules[__name__])
+            self.on_log(inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
     def set_observations(self, observations):
 
@@ -271,8 +264,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
                 f.write(str(observations))
 
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
@@ -318,8 +310,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
                     d[currentline[0]] = currentline[1]
             return d
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
@@ -332,8 +323,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
             file.close()
             return int(ret)
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
@@ -341,13 +331,12 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
     def get_batch_length(self):
 
         try:
-            file = open("batch_length", "r")
+            file = open("batch_lenght", "r")
             ret = file.readline()
             file.close()
             return int(ret)
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
@@ -360,8 +349,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
             file.close()
             return int(ret)
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])   
@@ -374,8 +362,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
             file.close()
             return float(ret)
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
@@ -387,8 +374,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
             f.close()
             return v
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
@@ -400,8 +386,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
             f.close()
             return v
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
@@ -413,8 +398,7 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
             f.close()
             return v
         except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])   
