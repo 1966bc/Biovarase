@@ -65,7 +65,6 @@ class UI(tk.Toplevel):
     def on_open(self):
 
         if self.index is not None:
-            
             msg = "Update {0}".format(self.winfo_name().title())
             self.selected_item = self.parent.selected_item
             self.set_values()
@@ -110,17 +109,7 @@ class UI(tk.Toplevel):
 
             # reloads the parent dictionary used to poplate listbox... 
             self.parent.set_values()
-
-            # and searches for the key using the primary key of the record
-            if self.index is not None:
-                lst_index = [k for k,v in self.parent.dict_items.items() if v == self.selected_item[0]]
-            else:
-                lst_index = [k for k,v in self.parent.dict_items.items() if v == last_id]
-
-            # point the right item on listbox
-            self.parent.lstItems.see(lst_index[0])
-            self.parent.lstItems.selection_set(lst_index[0])
-
+            self.select_item(last_id)
             self.on_cancel()
 
         else:
@@ -128,5 +117,19 @@ class UI(tk.Toplevel):
                                 self.nametowidget(".").engine.abort,
                                 parent=self)
 
+    def select_item(self, last_id=None):
+
+        #searches for the key using the primary key of the record
+        if self.index is not None:
+            lst_index = [k for k,v in self.parent.dict_items.items() if v == self.selected_item[0]]
+        else:
+            lst_index = [k for k,v in self.parent.dict_items.items() if v == last_id]
+
+        # point the right item on listbox
+        self.parent.lstItems.see(lst_index[0])
+        self.parent.lstItems.selection_set(lst_index[0])
+        self.parent.on_item_selected()
+
+   
     def on_cancel(self, evt=None):
         self.destroy()

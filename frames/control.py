@@ -78,6 +78,7 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             msg = "Update {0}".format(self.winfo_name().capitalize())
+            self.selected_item = self.parent.selected_item
             self.set_values()
         else:
             msg = "Insert {0}".format(self.winfo_name().capitalize())
@@ -120,14 +121,14 @@ class UI(tk.Toplevel):
             key = next(key
                        for key, value
                        in self.dict_suppliers.items()
-                       if value == self.parent.selected_item[1])
+                       if value == self.selected_item[1])
             self.cbSuppliers.current(key)
         except:
             pass
 
-        self.description.set(self.parent.selected_item[2])
-        self.reference.set(self.parent.selected_item[3])
-        self.status.set(self.parent.selected_item[4])
+        self.description.set(self.selected_item[2])
+        self.reference.set(self.selected_item[3])
+        self.status.set(self.selected_item[4])
 
     def on_save(self, evt=None):
 
@@ -143,28 +144,33 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
-                args.append(self.parent.selected_item[0])
+                args.append(self.selected_item[0])
 
             else:
 
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
             last_id = self.nametowidget(".").engine.write(sql, args)
-            self.parent.on_open()
-
-            if self.index is not None:
-                self.parent.lstItems.see(self.index)
-                self.parent.lstItems.selection_set(self.index)
-            else:
-                self.parent.lstItems.see(last_id)                
-                self.parent.lstItems.selection_set(last_id)            
-
+            
+            self.parent.set_values()
+            self.select_item(last_id)
             self.on_cancel()
 
         else:
             messagebox.showinfo(self.nametowidget(".").title(),
                                 self.nametowidget(".").engine.abort,
                                 parent=self)
+
+    def select_item(self, last_id=None):
+
+        if self.index is not None:
+            self.parent.lstItems.see(self.index)
+            self.parent.lstItems.focus(self.index) 
+            self.parent.lstItems.selection_set(self.index)
+        else:
+            self.parent.lstItems.see(last_id)
+            self.parent.lstItems.focus(last_id) 
+            self.parent.lstItems.selection_set(last_id)
 
     def on_cancel(self, evt=None):
         self.destroy()

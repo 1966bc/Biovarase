@@ -3,7 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   ver MMXXIII
 #-----------------------------------------------------------------------------
 
 import tkinter as tk

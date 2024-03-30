@@ -50,12 +50,12 @@ class UI(tk.Toplevel):
 
         w = tk.LabelFrame(frm_right, text='Workstations')
         cols = (["#0", 'id', 'w', False, 0, 0],
-                ["#1", 'Equipments', 'w', True, 200, 200],
-                ["#2", 'Workstations', 'w', True, 200, 200],
-                ["#3", 'Serial', 'w', True, 100, 100],
-                ["#4", 'Device ID', 'w', True, 200, 200],)
+                ["#1", 'Equipments', 'w', True, 0, 200],
+                ["#2", 'Workstations', 'w', True, 0, 200],
+                ["#3", 'Serial', 'w', True, 0, 80],
+                ["#4", 'Device ID', 'w', True, 0, 80],)
 
-        self.lstWorkstations = self.nametowidget(".").engine.get_tree(frm_right, cols)
+        self.lstWorkstations = self.nametowidget(".").engine.get_tree(w, cols)
         self.lstWorkstations.tag_configure('status', background=self.nametowidget(".").engine.get_rgb(211, 211, 211))
         self.lstWorkstations.bind("<<TreeviewSelect>>", self.on_workstation_selected)
         self.lstWorkstations.bind("<Double-1>", self.on_workstation_activated)

@@ -18,6 +18,7 @@ class UI(tk.Toplevel):
         self.index = index
         self.transient(parent)
         self.resizable(0, 0)
+        
         self.description = tk.StringVar()
         self.status = tk.BooleanVar()
 
@@ -67,11 +68,11 @@ class UI(tk.Toplevel):
     def on_open(self):
 
         if self.index is not None:
-            self.selected_item = self.parent.selected_item
             msg = "Update {0}".format(self.winfo_name().capitalize())
+            self.selected_item = self.parent.selected_item
             self.set_values()
         else:
-            msg = "Insert {0}".format(self.winfo_name().capitalize())
+            msg = "Insert {0}".format(self.winfo_name().title())
             self.status.set(1)
 
         self.title(msg)
@@ -122,6 +123,7 @@ class UI(tk.Toplevel):
         # point the right item on listbox
         self.parent.lstItems.see(lst_index[0])
         self.parent.lstItems.selection_set(lst_index[0])
+        self.parent.on_item_selected()
 
     def update_tests_methods(self, last_id):
 

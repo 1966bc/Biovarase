@@ -19,7 +19,7 @@ class UI(tk.Toplevel):
         self.parent = parent
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.table = "specialities"
-        self.field = "speciality_id"
+        self.primary_key = "speciality_id"
         self.obj = None
         self.items = tk.StringVar()
         self.init_ui()
@@ -93,7 +93,7 @@ class UI(tk.Toplevel):
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
             self.obj = ui.UI(self, index)
-            self.obj.on_open(self.selected_item,)
+            self.obj.on_open()
 
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
@@ -106,7 +106,7 @@ class UI(tk.Toplevel):
             index = self.lstItems.curselection()[0]
             pk = self.dict_items.get(index)
             self.selected_item = self.nametowidget(".").engine.get_selected(self.table,
-                                                          self.field,
+                                                          self.primary_key,
                                                           pk)
 
     def on_cancel(self, evt=None):

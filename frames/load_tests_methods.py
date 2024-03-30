@@ -23,11 +23,15 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        f0 = ttk.Frame(self, style="App.TFrame", padding=8)
-        self.lstItems = self.nametowidget(".").engine.get_listbox(f0, color="light yellow")
+        w = ttk.Frame(self, style="App.TFrame", padding=8)
+        sb = ttk.Scrollbar(w, orient=tk.VERTICAL)
+        self.lstItems = tk.Listbox(w, yscrollcommand=sb.set,)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
-        f0.pack(fill=tk.BOTH, padx=5, pady=5, expand=1)
+        sb.config(command=self.lstItems.yview)
+        self.lstItems.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        sb.pack(fill=tk.Y, expand=1)
+        w.pack(fill=tk.BOTH, padx=5, pady=5, expand=1)
 
     def on_open(self, selected_workstation, tests_method_assigned):
 

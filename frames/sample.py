@@ -115,20 +115,23 @@ class UI(tk.Toplevel):
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
             last_id = self.nametowidget(".").engine.write(sql, args)
-             # reloads the parent dictionary used to poplate listbox... 
+            # reloads the parent dictionary used to poplate listbox... 
             self.parent.set_values()
-
-            # and searches for the key using the primary key of the record
-            if self.index is not None:
-                lst_index = [k for k,v in self.parent.dict_items.items() if v == self.selected_item[0]]
-            else:
-                lst_index = [k for k,v in self.parent.dict_items.items() if v == last_id]
-
-            # point the right item on listbox
-            self.parent.lstItems.see(lst_index[0])
-            self.parent.lstItems.selection_set(lst_index[0])                 
-
+            self.select_item(last_id)
             self.on_cancel()
+
+    def select_item(self, last_id=None):
+
+        #searches for the key using the primary key of the record
+        if self.index is not None:
+            lst_index = [k for k,v in self.parent.dict_items.items() if v == self.selected_item[0]]
+        else:
+            lst_index = [k for k,v in self.parent.dict_items.items() if v == last_id]
+
+        # point the right item on listbox
+        self.parent.lstItems.see(lst_index[0])
+        self.parent.lstItems.selection_set(lst_index[0])
+        self.parent.on_item_selected()
 
     def check_symbol(self):
 

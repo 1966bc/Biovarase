@@ -463,6 +463,7 @@ class UI(tk.Toplevel):
                 self.parent.lstBatches.see(idx)
                 self.parent.lstBatches.selection_set(idx)
                 self.parent.set_results()
+                self.parent.lstBatches.event_generate("<<ListboxSelect>>")
             except:
                 pass
             

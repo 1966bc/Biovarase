@@ -109,10 +109,10 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             self.selected_workstation = selected_workstation
-            msg = "Update {0}".format(self.winfo_name())
+            msg = "Update {0}".format(self.winfo_name().title())
             self.set_values()
         else:
-            msg = "Insert {0}".format(self.winfo_name())
+            msg = "Insert {0}".format(self.winfo_name().title())
             self.status.set(1)
 
         self.title(msg)
@@ -219,20 +219,20 @@ class UI(tk.Toplevel):
             self.parent.set_workstations(args)
             
 
-            if self.index is not None:
-                try:
+            try:
+                if self.index is not None:
+                    self.parent.lstWorkstations.see(self.index)
                     self.parent.lstWorkstations.focus(self.index)
                     self.parent.lstWorkstations.selection_set(self.index)
-                except:
-                    pass
-            else:
-                try:
+                
+                
+                else:
                     self.parent.lstWorkstations.focus(last_id)
                     self.parent.lstWorkstations.selection_set(last_id)
-                except:
-                    pass
-                
 
+            except:
+                pass
+                
             self.on_cancel()
 
     def on_cancel(self, evt=None):

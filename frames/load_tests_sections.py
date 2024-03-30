@@ -47,7 +47,7 @@ class UI(tk.Toplevel):
 
         sql = "SELECT tests_methods.test_method_id,\
                       tests_methods.code,\
-                      tests.test,\
+                      tests.description,\
                       methods.method\
                FROM tests\
                INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
@@ -55,7 +55,7 @@ class UI(tk.Toplevel):
                WHERE tests.status=1\
                AND tests_methods.status=1\
                AND tests_methods.section_id !=? OR tests_methods.section_id =0\
-               ORDER BY tests.test;"
+               ORDER BY tests.description;"
 
         args = (self.selected_section[0],)
         rs = self.nametowidget(".").engine.read(True, sql, args)

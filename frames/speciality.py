@@ -63,14 +63,14 @@ class UI(tk.Toplevel):
         btn_cancel.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
 
-    def on_open(self, selected_item=None):
+    def on_open(self):
 
         if self.index is not None:
-            self.selected_item = selected_item
-            msg = "Update {0}".format(self.winfo_name().capitalize())
+            msg = "Update {0}".format(self.winfo_name().title())
+            self.selected_item = self.parent.selected_item
             self.set_values()
         else:
-            msg = "Insert {0}".format(self.winfo_name().capitalize())
+            msg = "Insert {0}".format(self.winfo_name().title())
             self.status.set(1)
 
         self.title(msg)
@@ -90,13 +90,15 @@ class UI(tk.Toplevel):
 
         if self.nametowidget(".").engine.on_fields_control(self.frm_main, self.nametowidget(".").title()) == False: return
 
-        if messagebox.askyesno(self.nametowidget(".").title(), self.nametowidget(".").engine.ask_to_save, parent=self) == True:
+        if messagebox.askyesno(self.nametowidget(".").title(),
+                               self.nametowidget(".").engine.ask_to_save,
+                               parent=self) == True:
 
             args = self.get_values()
 
             if self.index is not None:
 
-                sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.field)
+                sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
                 args.append(self.selected_item[0])
 
@@ -105,18 +107,25 @@ class UI(tk.Toplevel):
                 sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
             last_id = self.nametowidget(".").engine.write(sql, args)
+
+            # reloads the parent dictionary used to poplate listbox... 
             self.parent.set_values()
-
-            if self.index is not None:
-                self.parent.lstItems.see(self.index)
-                self.parent.lstItems.selection_set(self.index)
-            else:
-                #force focus on listbox
-                idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
-                self.parent.lstItems.selection_set(idx)
-                self.parent.lstItems.see(idx)                  
-
+            self.select_item(last_id)
             self.on_cancel()
+
+    def select_item(self, last_id=None):
+
+        #searches for the key using the primary key of the record
+        if self.index is not None:
+            lst_index = [k for k,v in self.parent.dict_items.items() if v == self.selected_item[0]]
+        else:
+            lst_index = [k for k,v in self.parent.dict_items.items() if v == last_id]
+
+        # point the right item on listbox
+        self.parent.lstItems.see(lst_index[0])
+        self.parent.lstItems.selection_set(lst_index[0])
+        self.parent.on_item_selected()
+          
 
     def on_cancel(self, evt=None):
         self.destroy()

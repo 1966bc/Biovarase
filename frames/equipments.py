@@ -97,7 +97,7 @@ class UI(tk.Toplevel):
                                    self.nametowidget(".").engine.no_selected,
                                    parent=self)
 
-    def on_item_selected(self, evt):
+    def on_item_selected(self, evt=None):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]

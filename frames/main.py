@@ -8,7 +8,9 @@
 import os
 import sys
 import inspect
+import datetime
 import operator
+import random
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
@@ -116,6 +118,7 @@ class Main(tk.Toplevel):
         m_main = tk.Menu(self, bd=1)
 
         m_file = tk.Menu(m_main, tearoff=0, bd=1)
+        s_databases = tk.Menu(m_file)
         m_exports = tk.Menu(m_file)
         m_plots = tk.Menu(m_main, tearoff=0, bd=1)
         m_edit = tk.Menu(m_main, tearoff=0, bd=1)
@@ -133,6 +136,7 @@ class Main(tk.Toplevel):
 
         items = (("Data", 0, self.on_data),
                  ("Reset", 0, self.on_reset),
+                 ("Insert random results", 0, self.on_insert_demo_result),
                  ("Analytica", 0, self.on_analitical),
                  ("Z Score", 0, self.on_zscore),)
 
@@ -142,9 +146,19 @@ class Main(tk.Toplevel):
         
         m_file.add_separator()
 
+        m_file.add_cascade(label="Database", menu=s_databases, underline=0)
+        s_databases.add_command(label="Dump",
+                                underline=0,
+                                command=self.on_dump)
+
+        s_databases.add_command(label="Vacuum",
+                                underline=0,
+                                command=self.on_vacuum)
+
         m_file.add_command(label="Change password",
                            underline=0,
                            command=self.on_change_password)
+        
         m_file.add_command(label="Log",
                            underline=0,
                            command=self.on_log)
@@ -187,11 +201,11 @@ class Main(tk.Toplevel):
 
         items = (("User Manual", 0, self.on_user_manual),
                  ("QC Technical Manual", 0, self.on_qc_thecnical_manual),
-                 ("Guidelines", 0, self.on_get_guidelines),
                  ("Biological Values", 0, self.on_bvv),)
 
         for i in items:
             m_documents.add_command(label=i[0], underline=i[1], command=i[2])
+            
 
         items = (("Suppliers", 1, self.on_suppliers),
                  ("Sites", 1, self.on_sites),
@@ -202,7 +216,7 @@ class Main(tk.Toplevel):
                  ("Equipments", 0, self.on_equipments),
                  ("Audit trail", 0, self.on_audit),)
 
-        for i in items:
+        for i in sorted(items, key=operator.itemgetter(0)):
             m_adm.add_command(label=i[0], underline=i[1], command=i[2])
 
         m_about.add_command(label="About", underline=0, command=self.on_about)
@@ -210,7 +224,7 @@ class Main(tk.Toplevel):
         m_about.add_command(label="Python", underline=0, command=self.on_python_version)
         m_about.add_command(label="Tkinter", underline=0, command=self.on_tkinter_version)
 
-        for i in (m_main, m_file, ):
+        for i in (m_main, m_file, s_databases):
             i.config(bg=self.nametowidget(".").engine.get_rgb(240, 240, 237),)
             i.config(fg="black")
 
@@ -616,7 +630,7 @@ class Main(tk.Toplevel):
 
                 for i in rs:
                     s = "{0:15}{1:18.8}".format(i[1], i[2],)
-                    self.lstWorkstations.insert(tk.END, (s))
+                    self.lstWorkstations.insert(tk.END, (s[0:23]))
                     self.dict_workstations[index] = i[0]
                     index += 1
 
@@ -660,7 +674,7 @@ class Main(tk.Toplevel):
                     s = "{0:6} {1:6} {2}".format(i[1], i[5], i[2])
                     
 
-                    self.lstBatches.insert(tk.END, (s[0:28]))
+                    self.lstBatches.insert(tk.END, (s[0:25]))
 
                     if x <= 0:
                         self.lstBatches.itemconfig(index, {"bg":"red"})
@@ -777,7 +791,6 @@ class Main(tk.Toplevel):
 
                 self.set_workstations()
 
-
     def on_selected_workstation(self, evt=None):
 
         if self.lstWorkstations.curselection():
@@ -791,7 +804,6 @@ class Main(tk.Toplevel):
             self.reset_cal_data()
             self.reset_graph()
             self.set_batches()
-
 
     def on_selected_batch(self, evt=None):
 
@@ -1273,6 +1285,59 @@ class Main(tk.Toplevel):
             msg = "Attention please.\nNo batch selected."
             messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
 
+    def on_insert_demo_result(self, evt=None):
+
+        if self.nametowidget(".").engine.log_user[5] != 0:
+
+            msg = self.nametowidget(".").engine.user_not_enable
+            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
+
+        else:
+
+            if self.lstBatches.curselection():
+
+                msg = "Insert 30 random results for test {0} batch {1} {2}?".format(self.selected_test[1],
+                                                                                    self.selected_batch[4],
+                                                                                    self.selected_batch[8])
+
+                if messagebox.askyesno(self.nametowidget(".").title(),
+                                       msg,
+                                       parent=self) == True:
+
+                    sql = "DELETE FROM results WHERE batch_id =? AND workstation_id =?;"
+
+                    args = (self.selected_batch[0], self.selected_workstation[0])
+
+                    self.nametowidget(".").engine.write(sql, args)
+
+                    min_val = round((self.selected_batch[6]- self.selected_batch[7]),2)
+
+                    max_val = round((self.selected_batch[6]+ self.selected_batch[7]),2)
+
+                    sql = "INSERT INTO results(batch_id, workstation_id, result, recived, log_time, log_id) VALUES(?,?,?,?,?,?)"
+
+                    log_time = self.nametowidget(".").engine.get_log_time()
+
+                    for i in range(0,31):
+
+                        result = random.uniform(min_val,max_val)
+
+                        log_time += datetime.timedelta(days=1)
+
+                        args = (self.selected_batch[0],
+                                self.selected_workstation[0],
+                                round(result,2),
+                                log_time,
+                                log_time,
+                                self.nametowidget(".").engine.log_user[0])
+
+                        self.nametowidget(".").engine.write(sql, args)
+
+                    self.set_results()
+
+            else:
+                msg = "Attention please.\nBefore add 30 random results you must select a batch."
+                messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
 
     def on_batch_double_button(self, evt=None):
 
@@ -1360,22 +1425,7 @@ class Main(tk.Toplevel):
         self.nametowidget(".").engine.not_busy(self)
 
         if ret == False:
-            messagebox.showinfo(self.nametowidget(".").title(), "The Biovarase User Manual does not exist.", parent=self)
-
-    def on_get_guidelines(self,):
-
-        self.nametowidget(".").engine.busy(self)
-
-        file = self.nametowidget(".").engine.get_guidelines()
-
-        path = self.nametowidget(".").engine.get_file(os.path.join("documents", file))
-
-        ret = self.nametowidget(".").engine.open_file(path)
-
-        self.nametowidget(".").engine.not_busy(self)
-
-        if ret == False:
-            messagebox.showinfo(self.nametowidget(".").title(), "The Biovarase User Manual does not exist.", parent=self)
+            messagebox.showinfo(self.nametowidget(".").title(), "The Technical Manual does not exist.", parent=self)
 
     def on_audit(self,):
 
@@ -1407,6 +1457,16 @@ class Main(tk.Toplevel):
 
     def on_log(self,):
         self.nametowidget(".").engine.get_log_file()
+
+    def on_dump(self):
+        self.nametowidget(".").engine.dump_db()
+        messagebox.showinfo(self.nametowidget(".").title(), "Dump executed.", parent=self)
+
+    def on_vacuum(self):
+        sql = "VACUUM;"
+        self.nametowidget(".").engine.write(sql)
+        messagebox.showinfo(self.nametowidget(".").title(), "Vacuum executed.", parent=self)
+
 
     def on_close(self):
         self.nametowidget(".").on_exit()

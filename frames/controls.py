@@ -111,7 +111,6 @@ class UI(tk.Toplevel):
             pk = int(item_iid[0])
             self.selected_item = self.nametowidget(".").engine.get_selected(self.table, self.primary_key, pk)
             
-
     def on_item_activated(self, evt=None):
 
         if self.lstItems.focus():
