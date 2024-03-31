@@ -112,12 +112,12 @@ class Exporter:
                           tests_methods.code,\
                           tests.description,\
                           samples.sample,\
-                          specialities.description,\
+                          categories.description,\
                           COUNT(results.batch_id)\
                    FROM tests\
                    INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
                    INNER JOIN batches ON tests_methods.test_method_id = batches.test_method_id\
-                   INNER JOIN specialities ON tests_methods.speciality_id = specialities.speciality_id\
+                   INNER JOIN categories ON tests_methods.category_id = categories.category_id\
                    INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
                    INNER JOIN sections ON tests_methods.section_id = sections.section_id\
                    INNER JOIN labs ON sections.lab_id = labs.lab_id\
@@ -140,7 +140,7 @@ class Exporter:
             row = 0
 
             #indexing is zero based, row then column
-            cols =('Code','Test','Sample','Specialities','Count',)
+            cols =('Code','Test','Sample','Categories','Count',)
             for c,t in enumerate(cols):
                 ws.write(row,c, t,)
 
@@ -204,7 +204,8 @@ class Exporter:
         row = 0
         #indexing is zero based, row then column
         cols = ("Test", "Batch", "Target", "SD", "Result",
-                 "Recived", "Action", "Description", "Modify", "Instrument", "Workstation", "Serial", "Ward", "Section")
+                "Recived", "Action", "Description", "Modify",
+                "Instrument", "Workstation", "Serial", "Ward", "Section")
 
         for c,t in enumerate(cols):
             ws.write(row,c, t,self.xls_style_font(True, False, 'Arial'))
@@ -253,7 +254,7 @@ class Exporter:
         row = 0
         #indexing is zero based, row then column
         cols = ('Type','Test', 'Batch','Expiration','Instrument', 'Target', 'Result', 'avg',
-                 'bias', 'SD', 'sd', 'cv', 'Wstg', 'Date','Speciality','Workstation','Control','Supplier','Mandatory')
+                 'bias', 'SD', 'sd', 'cv', 'Wstg', 'Date','Category','Workstation','Control','Supplier','Mandatory')
 
         for c,t in enumerate(cols):
             ws.write(row, c, t, self.xls_style_font(True, False, 'Arial'))
@@ -263,10 +264,10 @@ class Exporter:
         sql_tests = "SELECT tests_methods.test_method_id,\
                             samples.sample,\
                             tests.description,\
-                            specialities.description\
+                            categories.description\
                        FROM tests\
                        INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
-                       INNER JOIN specialities ON tests_methods.speciality_id = specialities.speciality_id\
+                       INNER JOIN categories ON tests_methods.category_id = categories.category_id\
                        INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
                        INNER JOIN sections ON tests_methods.section_id = sections.section_id\
                        INNER JOIN labs ON sections.lab_id = labs.lab_id\
