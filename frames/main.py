@@ -34,7 +34,7 @@ import frames.workstations_tests_methods
 import frames.data
 import frames.units
 import frames.methods
-import frames.specialities
+import frames.categories
 import frames.equipments
 import frames.workstations
 import frames.controls
@@ -176,7 +176,7 @@ class Main(tk.Toplevel):
         items = (("Tests Methods", 9, self.on_tests_methods),
                  ("Tests Sections", 12, self.on_tests_sections),
                  ("Workstations Tests Methods", 0, self.on_workstations_tests_methods),
-                 ("Specialities", 1, self.on_specialities),
+                 ("Categories", 1, self.on_categories),
                  ("Samples", 0, self.on_samples),
                  ("Units", 0, self.on_units),
                  ("Methods", 0, self.on_methods),
@@ -224,7 +224,7 @@ class Main(tk.Toplevel):
         m_about.add_command(label="Python", underline=0, command=self.on_python_version)
         m_about.add_command(label="Tkinter", underline=0, command=self.on_tkinter_version)
 
-        for i in (m_main, m_file, s_databases):
+        for i in (m_main, m_file, s_databases, m_exports, m_plots, m_edit, m_documents, m_adm):
             i.config(bg=self.nametowidget(".").engine.get_rgb(240, 240, 237),)
             i.config(fg="black")
 
@@ -238,12 +238,12 @@ class Main(tk.Toplevel):
 
         frm_lists = ttk.Frame(frm_data, style="App.TFrame")
 
-        ttk.Label(frm_lists, text='Test Type').pack(side=tk.TOP, fill=tk.X, expand=0)
+        ttk.Label(frm_lists, text="Categories").pack(side=tk.TOP, fill=tk.X, expand=0)
 
-        self.cbSpecialities = ttk.Combobox(frm_lists, style="App.TCombobox")
-        self.cbSpecialities = ttk.Combobox(frm_lists, state='readonly')
-        self.cbSpecialities.bind("<<ComboboxSelected>>", self.on_selected_speciality)
-        self.cbSpecialities.pack(side=tk.TOP, fill=tk.X, pady=5, expand=0)
+        self.cbCategories = ttk.Combobox(frm_lists, style="App.TCombobox")
+        self.cbCategories = ttk.Combobox(frm_lists, state='readonly')
+        self.cbCategories.bind("<<ComboboxSelected>>", self.on_selected_category)
+        self.cbCategories.pack(side=tk.TOP, fill=tk.X, pady=5, expand=0)
 
         ttk.Label(frm_lists, text='Tests').pack(side=tk.TOP, fill=tk.X, expand=0)
         self.cbTests = ttk.Combobox(frm_lists, style="App.TCombobox")
@@ -418,7 +418,7 @@ class Main(tk.Toplevel):
         self.enable_notes.set(False)
         self.ddof.set(self.nametowidget(".").engine.get_ddof())
         self.observations.set(self.nametowidget(".").engine.get_observations())
-        self.set_specialities()
+        self.set_categories()
         self.set_zscore()
 
     def get_status_bar_site_description(self,):
@@ -451,10 +451,10 @@ class Main(tk.Toplevel):
 
     def on_reset(self):
 
-        self.cbSpecialities.set('')
+        self.cbCategories.set('')
         self.cbTests.set('')
 
-        self.set_specialities()
+        self.set_categories()
         self.set_tests()
         self.set_workstations()
 
@@ -533,42 +533,42 @@ class Main(tk.Toplevel):
         else:
             self.lblWestgard.configure(style="westgard_violation.TLabel",)
 
-    def set_specialities(self):
+    def set_categories(self):
 
-        self.selected_speciality = None
+        self.selected_category = None
         index = 0
-        self.dict_specialities = {}
+        self.dict_categories = {}
         voices = []
 
         args = (self.nametowidget(".").engine.get_section_id(),)
 
 
-        sql = "SELECT DISTINCT specialities.speciality_id,\
-                               specialities.description\
+        sql = "SELECT DISTINCT categories.category_id,\
+                               categories.description\
                FROM sites\
                INNER JOIN labs ON sites.site_id = labs.site_id\
                INNER JOIN sections ON labs.lab_id = sections.lab_id\
                INNER JOIN tests_methods ON sections.section_id = tests_methods.section_id\
-               INNER JOIN specialities ON tests_methods.speciality_id = specialities.speciality_id\
+               INNER JOIN categories ON tests_methods.category_id = categories.category_id\
                WHERE sections.section_id =?\
                AND tests_methods.status =1\
-               AND specialities.status =1\
-               ORDER BY specialities.description;"
+               AND categories.status =1\
+               ORDER BY categories.description;"
 
         rs = self.nametowidget(".").engine.read(True, sql, args)
 
         for i in rs:
-            self.dict_specialities[index] = i[0]
+            self.dict_categories[index] = i[0]
             index += 1
             voices.append(i[1])
 
-        self.cbSpecialities['values'] = voices
+        self.cbCategories['values'] = voices
 
         self.reset_batch_data()
 
     def set_tests(self):
 
-        if self.cbSpecialities.current() != -1:
+        if self.cbCategories.current() != -1:
 
             self.selected_test = None
             index = 0
@@ -583,13 +583,13 @@ class Main(tk.Toplevel):
                    INNER JOIN sections ON tests_methods.section_id = sections.section_id\
                    INNER JOIN labs ON sections.lab_id = labs.lab_id\
                    INNER JOIN sites ON labs.site_id = sites.site_id\
-                   WHERE tests_methods.speciality_id =?\
+                   WHERE tests_methods.category_id =?\
                    AND sections.section_id =?\
                    AND tests.status=1\
                    AND tests_methods.status=1\
                    ORDER BY tests.description;"
 
-            args = (self.selected_speciality[0], self.nametowidget(".").engine.get_section_id())
+            args = (self.selected_category[0], self.nametowidget(".").engine.get_section_id())
 
             rs = self.nametowidget(".").engine.read(True, sql, args)
 
@@ -756,16 +756,16 @@ class Main(tk.Toplevel):
                                                  sys.exc_info()[1],
                                                  sys.exc_info()[0], sys.modules[__name__])
 
-    def on_selected_speciality(self, evt):
+    def on_selected_category(self, evt):
 
-        if self.cbSpecialities.current() != -1:
+        if self.cbCategories.current() != -1:
 
             self.cbTests.set('')
             self.lstWorkstations.delete(0, tk.END)
 
-            index = self.cbSpecialities.current()
-            pk = self.dict_specialities[index]
-            self.selected_speciality = self.nametowidget(".").engine.get_selected("specialities", "speciality_id", pk)
+            index = self.cbCategories.current()
+            pk = self.dict_categories[index]
+            self.selected_category = self.nametowidget(".").engine.get_selected("categories", "category_id", pk)
 
             self.reset_batch_data()
             self.reset_cal_data()
@@ -775,7 +775,7 @@ class Main(tk.Toplevel):
 
     def on_selected_test(self, event):
 
-        if self.cbSpecialities.current() != -1:
+        if self.cbCategories.current() != -1:
 
             if self.cbTests.current() != -1:
 
@@ -1020,14 +1020,14 @@ class Main(tk.Toplevel):
         else:
             frames.tests_sections.UI(self).on_open()
 
-    def on_specialities(self,):
+    def on_categories(self,):
 
         if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
 
         else:
-            frames.specialities.UI(self).on_open()
+            frames.categories.UI(self).on_open()
 
     def on_samples(self,):
 

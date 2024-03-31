@@ -96,7 +96,7 @@ class UI(tk.Toplevel):
         self.selected_batch = selected_batch
         self.selected_result = selected_result
 
-        self.test.set(selected_test[2])
+        self.test.set(selected_test[1])
         self.batch.set(selected_batch[4])
         self.description.set(selected_batch[8])
         self.result.set(round(selected_result[4], 3))

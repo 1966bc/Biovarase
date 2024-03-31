@@ -23,7 +23,7 @@ class UI(tk.Toplevel):
         
         self.txLicense = ScrolledText(frm_main,
                                       wrap = tk.WORD,
-                                      bg='light yellow',
+                                      #bg='light yellow',
                                       relief=tk.GROOVE,
                                       font='TkFixedFont',)
         self.txLicense.pack(fill=tk.BOTH, expand=1)

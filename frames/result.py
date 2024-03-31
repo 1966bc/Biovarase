@@ -18,23 +18,18 @@ class UI(tk.Toplevel):
     def __init__(self, parent, index=None):
         super().__init__(name="result")
 
-        
-
         self.parent = parent
         self.index = index
         self.transient(parent)
         self.attributes('-topmost', True)
         self.resizable(0, 0)
         
-
         self.test = tk.StringVar()
         self.batch = tk.StringVar()
         self.description = tk.StringVar()
         self.workstation = tk.StringVar()
         self.result = tk.DoubleVar()
         self.status = tk.BooleanVar()
-
-        
 
         self.vcmd = self.nametowidget(".").engine.get_validate_float(self)
         self.columnconfigure(0, weight=1)
@@ -256,7 +251,7 @@ class UI(tk.Toplevel):
                                    self.nametowidget(".").engine.delete,
                                    parent=self) == True:
                 
-                sql = "DELETE FROM results WHERE result_id =?;"
+                sql = "UPDATE results SET is_delete = 1 WHERE result_id =?;"
                 args = (self.selected_result[0],)
                 self.nametowidget(".").engine.write(sql, args)
                 

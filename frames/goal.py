@@ -142,10 +142,10 @@ class UI(tk.Toplevel):
         self.selected_goal = self.nametowidget(".").engine.read(False, sql, args)
         
         if self.selected_goal is not None:
-            msg = "Update analytical goal for {0}".format(self.parent.selected_test[2])
+            msg = "Update analytical goal for {0}".format(self.parent.selected_test[1])
             self.set_values()
         else:
-            msg = "Insert analytical goal for {0}".format(self.parent.selected_test[2])
+            msg = "Insert analytical goal for {0}".format(self.parent.selected_test[1])
             self.status.set(1)
 
         self.title(msg)

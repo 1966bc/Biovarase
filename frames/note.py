@@ -52,7 +52,6 @@ class UI(tk.Toplevel):
         self.txDescription.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        #ttk.Label(frm_left, text="Modified:").grid(row=r, column=0, sticky=tk.W)
         self.modified = Calendarium(frm_left, "Modified")
         self.modified.get_calendarium(frm_left, r, 1)
 

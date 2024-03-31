@@ -50,9 +50,9 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
-        ttk.Label(frm_left, text="Specialities:").grid(row=r, sticky=tk.W)
-        self.cbSpecialities = ttk.Combobox(frm_left,)
-        self.cbSpecialities.grid(row=r, column=c, sticky=tk.EW, **paddings)
+        ttk.Label(frm_left, text="Categories:").grid(row=r, sticky=tk.W)
+        self.cbCategories = ttk.Combobox(frm_left,)
+        self.cbCategories.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r +=1
         ttk.Label(frm_left, text="Code:").grid(row=r, sticky=tk.W)
@@ -101,7 +101,7 @@ class UI(tk.Toplevel):
     def on_open(self, selected_test, selected_item=None):
 
         self.selected_test = selected_test
-        self.set_specialities()
+        self.set_categories()
         self.set_samples()
         self.set_units()
         self.set_methods()
@@ -116,16 +116,16 @@ class UI(tk.Toplevel):
             self.status.set(1)
 
         self.title(msg)
-        self.txCode.focus()
+        self.cbCategories.focus()
 
-    def set_specialities(self):
+    def set_categories(self):
 
         index = 0
-        self.dict_specialities = {}
+        self.dict_categories = {}
         voices = []
 
-        sql = "SELECT speciality_id, description\
-               FROM specialities\
+        sql = "SELECT category_id, description\
+               FROM categories\
                WHERE status =1\
                ORDER BY description"
 
@@ -135,11 +135,11 @@ class UI(tk.Toplevel):
         rs = (*rs, x)
 
         for i in rs:
-            self.dict_specialities[index] = i[0]
+            self.dict_categories[index] = i[0]
             index += 1
             voices.append(i[1])
 
-        self.cbSpecialities["values"] = voices
+        self.cbCategories["values"] = voices
          
     def set_samples(self):
 
@@ -216,9 +216,9 @@ class UI(tk.Toplevel):
         try:
             key = next(key
                        for key, value
-                       in self.dict_specialities.items()
+                       in self.dict_categories.items()
                        if value == self.selected_item[2])
-            self.cbSpecialities.current(key)
+            self.cbCategories.current(key)
         except:
             pass
         
@@ -266,7 +266,7 @@ class UI(tk.Toplevel):
             section_id = 0
             
         return [self.selected_test[0],
-                self.dict_specialities[self.cbSpecialities.current()],
+                self.dict_categories[self.cbCategories.current()],
                 self.code.get(),
                 self.dict_samples[self.cbSamples.current()],
                 self.dict_methods[self.cbMethods.current()],
