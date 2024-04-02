@@ -73,8 +73,7 @@ class QC:
 
         except (ZeroDivisionError, ValueError, RuntimeWarning):
             bias = 0
-            self.on_log(self,
-                        inspect.stack()[0][3],
+            self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
