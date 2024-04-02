@@ -1,5 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# project:  biovarase
+# authors:  1966bc
+# mailto:   [giuseppecostanzi@gmail.com]
+# modify:   ver MMXXIII
+# -----------------------------------------------------------------------------
 """ This is the qc module of Biovarase."""
 
 import numpy as np
@@ -72,23 +78,6 @@ class QC:
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
-        return bias
-
-    def get_abs_bias(self, avg, target):
-        """Bias is the systematic, signed deviation of the test results
-           from the accepted reference value."""
-
-        try:
-
-            bias = abs(round(float((target-avg)/float(target)),2))
-
-        except (ZeroDivisionError,ValueError,RuntimeWarning):
-            bias = 0
-            self.on_log(self,
-                       inspect.stack()[0][3],
-                       sys.exc_info()[1],
-                       sys.exc_info()[0],
-                       sys.modules[__name__])
         return bias
 
     def get_cvt(self,cvw,cva):
