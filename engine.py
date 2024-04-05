@@ -33,7 +33,6 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
         self.log_user = {}
         self.no_selected = "Attention!\nNo record selected!"
         self.mandatory = "Attention!\nField %s is mandatory!"
-        self.delete = "Delete data?"
         self.ask_to_delete = "Delete data?"
         self.ask_to_save = "Save data?"
         self.abort = "Operation aborted!"
