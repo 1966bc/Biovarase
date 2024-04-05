@@ -177,7 +177,7 @@ class UI(tk.Toplevel):
 
             if self.index is not None:
                 if messagebox.askyesno(self.nametowidget(".").title(),
-                                       self.nametowidget(".").engine.delete,
+                                       self.nametowidget(".").engine.ask_to_delete,
                                        parent=self) == True:
                     
                     sql = "DELETE FROM methods_comp_results WHERE result_id =?;"

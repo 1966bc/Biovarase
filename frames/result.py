@@ -248,7 +248,7 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             if messagebox.askyesno(self.nametowidget(".").title(),
-                                   self.nametowidget(".").engine.delete,
+                                   self.nametowidget(".").engine.ask_to_delete,
                                    parent=self) == True:
                 
                 sql = "UPDATE results SET is_delete = 1 WHERE result_id =?;"
