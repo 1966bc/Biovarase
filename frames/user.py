@@ -131,10 +131,12 @@ class UI(tk.Toplevel):
 
     def get_values(self,):
 
+        print(type(self.selected_item[4]))
+
         if self.index is not None:
             pswrd = self.selected_item[4]
         else:
-            pswrd = self.nametowidget(".").engine.get_password("pass")
+            pswrd = self.nametowidget(".").engine.get_new_password().decode('utf-8')
 
         return [self.last_name.get(),
                 self.first_name.get(),
@@ -148,9 +150,9 @@ class UI(tk.Toplevel):
     def on_reset(self, evt=None):
 
         if self.index is not None:
-            pswrd = self.nametowidget(".").engine.get_encript_password("pass")
+            pswrd = self.nametowidget(".").engine.get_new_password()
             sql = "UPDATE users SET pswrd =? WHERE user_id =?;"
-            args = (pswrd, self.selected_item[0])
+            args = (pswrd.decode('utf-8'), self.selected_item[0])
             self.nametowidget(".").engine.write(sql, args)
             msg = "Password reset."
             messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)

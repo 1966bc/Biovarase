@@ -4,9 +4,9 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXXIII
+# modify:   ver MMXXV
 # -----------------------------------------------------------------------------
-import hashlib
+
 import threading
 from time import sleep
 import tkinter as tk
@@ -132,24 +132,23 @@ class Login(ttk.Frame):
         """Hide login frame if login succesful."""
         self.parent.withdraw()
 
-    def get_values(self,):
-        """Retrive variables and encript password."""
+    def get_values(self):
         nick = self.nick.get()
-        password = self.password.get()
+        #encode to bytes using UTF-8
+        password = self.password.get().encode('utf-8')
         password.strip()
-        encripted = hashlib.md5(password.encode()).hexdigest()
-
-        return (nick, encripted)
+        return (nick, password)
 
     def on_login(self, event=None):
-        """Try to log ;)"""
+        """Try to log ;)
+           REMEMBER, pass passwords in plain text"""
 
         if self.nametowidget(".").engine.on_fields_control(self.frm_main,
                                                            self.nametowidget(".").title()) == False: return
 
-        args = self.get_values()
+        nick, password = self.get_values()
 
-        rs = self.nametowidget(".").engine.login(args)
+        rs = self.nametowidget(".").engine.on_login((nick, password))
         
         if rs:
             self.nametowidget(".").engine.set_log_user(rs)            
