@@ -1,6 +1,11 @@
 # Biovarase
 ## changelog
 
+**2025-04-27**
+
+Hello my dear fellows, two important changes have been made, the first is that the xlwt library for generating excel files has been replaced with the openpyxl library and the whole login part has been rewritten using the bcrypt library instead of hashlib. 
+
+All together and thanks mostly to programming assistant aka Gemini...which I must say greatly simplifies and speeds up the writing of code, which does not exempt one from knowing how to program...
 
 **2023-11-16**
 
