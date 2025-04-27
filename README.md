@@ -23,8 +23,9 @@ Biovarase requires
 - Python =>3.5
 - tkinter
 - matplotlib 
-- xlwt
+- openpyxl
 - numpy
+- bcrypt
 
 Releasing on 
 > "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
