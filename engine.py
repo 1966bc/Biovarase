@@ -14,6 +14,8 @@ import datetime
 import socket
 import hashlib
 
+import bcrypt  
+
 from tools import Tools
 from dbms import DBMS
 from qc import QC
@@ -286,18 +288,34 @@ class Engine(DBMS, QC, Westgards, Exporter, Launcher, Tools):
     def get_expiration_date(self, expiration_date):
         return (datetime.datetime.strptime(expiration_date, "%d-%m-%Y").date() - datetime.date.today()).days
 
-    def get_password(self, s):
+    def get_new_password(self):
+        new_password = b'pass'
+        # Generate a salt and hash the password
+        hashed_password = bcrypt.hashpw(new_password, bcrypt.gensalt())
+        return hashed_password
 
-        password = hashlib.md5()
-        password.update(s.strip().encode("utf-8"))
-        encripted = password.hexdigest()
-        return encripted
+    def on_login(self, args):
+        nick, password = args
+        password = password.strip()  # Rimuovi spazi (già byte string)
 
-    def get_encript_password(self, password):
+        sql = "SELECT pswrd FROM users WHERE nickname =?;"
+        cur = self.con.cursor()
+        cur.execute(sql, (nick,))
+        result = cur.fetchone()
 
-        password = password.strip()
+        if result:
+            hashed_password_from_db = result[0].encode('utf-8')  # Codifica l'hash dal DB a byte string
+            if bcrypt.checkpw(password, hashed_password_from_db):  # Confronta byte strings
+                sql = "SELECT * FROM users WHERE nickname =?;"
+                cur = self.con.cursor()
+                cur.execute(sql, (nick,))
+                return cur.fetchone()
+            else:
+                return None
+        else:
+            return None
 
-        return hashlib.md5(password.encode()).hexdigest()
+ 
 
     def get_dimensions(self):
 

@@ -157,16 +157,6 @@ class DBMS:
 
         return d
 
-    def login(self, args):
-
-        sql = "SELECT * FROM users WHERE nickname =? AND pswrd =?;"
-
-        cur = self.con.cursor()
-
-        cur.execute(sql, args)
-
-        return cur.fetchone()
-
     def get_mandatory(self):
 
         mandatory_tests = []
