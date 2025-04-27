@@ -12,7 +12,6 @@ import sys
 import inspect
 import datetime
 import socket
-import hashlib
 
 import bcrypt  
 
