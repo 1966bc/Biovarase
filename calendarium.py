@@ -87,7 +87,7 @@ class Calendarium(tk.Frame):
 
         return frame
 
-    def set_today(self) -> None:
+    def set_today(self):
         today = datetime.date.today()
         self.day.set(today.day)
         self.month.set(today.month)
