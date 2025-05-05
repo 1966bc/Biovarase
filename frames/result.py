@@ -3,16 +3,18 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   var MMXXV
 #-----------------------------------------------------------------------------
 import sys
 import inspect
+
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+
+import datetime
+
 from calendarium import Calendarium
-
-
 
 class UI(tk.Toplevel):
     def __init__(self, parent, index=None):
@@ -47,8 +49,6 @@ class UI(tk.Toplevel):
 
         self.frm_main = ttk.Frame(self, style="App.TFrame", padding=8)
         self.frm_main.grid(row=0, column=0)
-
-        
 
         frm_left = ttk.Frame(self.frm_main, style="App.TFrame")
         frm_left.grid(row=0, column=0, sticky=tk.NS, **paddings)
@@ -156,16 +156,39 @@ class UI(tk.Toplevel):
     def set_values(self,):
         
         try:
-            self.recived.year.set(int(self.selected_result[5].year))
-            self.recived.month.set(int(self.selected_result[5].month))
-            self.recived.day.set(int(self.selected_result[5].day))
+            if self.selected_result and len(self.selected_result) > 5 and self.selected_result[5]:
+                if isinstance(self.selected_result[5], datetime.date):
+                    self.recived.year.set(int(self.selected_result[5].year))
+                    self.recived.month.set(int(self.selected_result[5].month))
+                    self.recived.day.set(int(self.selected_result[5].day))
+                else:
+                    self.nametowidget(".").engine.on_log(
+                        inspect.stack()[0][3],
+                        TypeError(f"Expected datetime.date, got {type(self.selected_result[5])}"),
+                        type(TypeError(f"Expected datetime.date, got {type(self.selected_result[5])}")),
+                        sys.modules[__name__],
+                        level="warning",
+                        message=f"Errore: selected_result[5] non è un oggetto datetime.date: {self.selected_result[5]}",
+                    )
+            else:
+                self.nametowidget(".").engine.on_log(
+                    inspect.stack()[0][3],
+                    ValueError("selected_result non valido o data mancante"),
+                    type(ValueError("selected_result non valido o data mancante")),
+                    sys.modules[__name__],
+                    level="warning",
+                    message="Errore: selected_result è None, vuoto o non contiene la data.",
+                )
 
-            
-        except:
-            self.nametowidget(".").on_log(inspect.stack()[0][3],
-                                          sys.exc_info()[1],
-                                          sys.exc_info()[0],
-                                          sys.modules[__name__])
+        except Exception as e:
+            self.nametowidget(".").engine.on_log(
+                inspect.stack()[0][3],
+                e,
+                type(e),
+                sys.modules[__name__],
+                level="error",
+                message=f"Errore imprevisto durante l'impostazione della data di ricezione: {e}",
+            )
             
             
         self.result.set(round(self.selected_result[4],3))
@@ -223,15 +246,7 @@ class UI(tk.Toplevel):
 
     def update_results_lists(self):
 
-        try:
-            if self.parent.winfo_name() == "data":
-                self.nametowidget(".").nametowidget("data").set_results()
-                
-            self.nametowidget(".main").set_results()
-        except:
-            self.nametowidget(".").on_log(inspect.stack()[0][3],
-                                     sys.exc_info()[1],
-                                     sys.exc_info()[0], sys.modules[__name__])
+        self.nametowidget(".main").set_results()
 
     def set_index(self, last_id):
 

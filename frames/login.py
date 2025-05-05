@@ -182,14 +182,14 @@ class Login(ttk.Frame):
         self.nametowidget(".").engine.con.close()
         self.quit()
 
-
 class App(tk.Tk):
     """Main Application start here"""
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
+        self.engine = Engine(kwargs["database"])  
+
         self.resizable(0, 0)
-        self.engine = Engine()
         self.set_style()
         self.title("Biovarase")
         self.set_info()
@@ -235,8 +235,12 @@ class App(tk.Tk):
                 self.quit()
 
 def main():
-    app = App()
+
+    args = ()
+    kwargs={'database': 'biovarase.db'}
+    app = App(*args, **kwargs)
     app.mainloop()
+    
 
 if __name__ == "__main__":
     main()

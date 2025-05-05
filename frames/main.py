@@ -31,7 +31,7 @@ import frames.license
 import frames.tests
 import frames.tests_methods
 import frames.workstations_tests_methods
-import frames.data
+import frames.batches
 import frames.units
 import frames.methods
 import frames.categories
@@ -62,7 +62,9 @@ import frames.analytical
 import frames.change_password
 import frames.sites
 import frames.audit
-import frames.accuracy
+
+from levey_jenning_plot_helper import LeveyJenningsPlotHelper
+from frequency_histogram_helper import FrequencyHistogramHelper
 
 
 class Main(tk.Toplevel):
@@ -134,16 +136,15 @@ class Main(tk.Toplevel):
         m_main.add_cascade(label="Admin", underline=0, menu=m_adm)
         m_main.add_cascade(label="?", underline=0, menu=m_about)
 
-        items = (("Data", 0, self.on_data),
+        items = (("Batches", 0, self.on_batches),
                  ("Reset", 0, self.on_reset),
-                 ("Insert random results", 0, self.on_insert_demo_result),
+                 ("Insert random results", 0, self.on_insert_random_result),
                  ("Analytica", 0, self.on_analitical),
                  ("Z Score", 0, self.on_zscore),)
 
         for i in items:
             m_file.add_command(label=i[0], underline=i[1], command=i[2])
 
-        
         m_file.add_separator()
 
         m_file.add_cascade(label="Database", menu=s_databases, underline=0)
@@ -167,8 +168,7 @@ class Main(tk.Toplevel):
 
         items = (("Plots", 0, self.on_plots),
                  ("Youden", 0, self.on_youden),
-                 ("Tea", 0, self.on_tea),
-                 ("Accuracy", 0, self.on_accuracy),)
+                 ("Tea", 0, self.on_tea),)
 
         for i in items:
             m_plots.add_command(label=i[0], underline=i[1], command=i[2])
@@ -340,8 +340,8 @@ class Main(tk.Toplevel):
         fig = Figure()
         #fig.suptitle(self.engine.title, fontsize=16)
         fig.subplots_adjust(bottom=0.10, right=0.96, left=0.08, top=0.90, wspace=0.10)
-        self.lj = fig.add_subplot(gs[0], facecolor=("xkcd:light grey"))
-        self.frq = fig.add_subplot(gs[1], facecolor=("xkcd:light grey"))
+        self.levey_jenning_ax = fig.add_subplot(gs[0], facecolor=("xkcd:light grey"))
+        self.frequency_histogram_ax = fig.add_subplot(gs[1], facecolor=("xkcd:light grey"))
         self.canvas = FigureCanvasTkAgg(fig, frm_graphs)
         toolbar = nav_tool(self.canvas, frm_graphs)
         toolbar.update()
@@ -379,13 +379,11 @@ class Main(tk.Toplevel):
                   anchor=tk.W).pack(side=tk.RIGHT, fill=tk.X)
         ttk.Label(frm_status_bar, text="Site:").pack(side=tk.RIGHT, fill=tk.X)
 
-
         ttk.Label(frm_status_bar, font=f,
                   textvariable=self.observations,
                   relief=tk.FLAT,
                   anchor=tk.W).pack(side=tk.RIGHT, fill=tk.X)
         ttk.Label(frm_status_bar, text="Observations").pack(side=tk.RIGHT, fill=tk.X)
-
 
         ttk.Label(frm_status_bar, font=f,
                   textvariable=self.zscore,
@@ -406,11 +404,9 @@ class Main(tk.Toplevel):
                         variable=self.ddof,
                         command=self.on_ddof).pack(side=tk.RIGHT, fill=tk.X)
 
-
         self.status.pack(side=tk.LEFT, fill=tk.X, expand=1)
 
         frm_status_bar.pack(side=tk.BOTTOM, fill=tk.X)
-
 
     def on_open(self):
 
@@ -465,10 +461,10 @@ class Main(tk.Toplevel):
 
     def reset_graph(self):
 
-        self.lj.clear()
-        self.frq.clear()
-        self.lj.grid(True)
-        self.frq.grid(True)
+        self.levey_jenning_ax.clear()
+        self.frequency_histogram_ax.clear()
+        self.levey_jenning_ax.grid(True)
+        self.frequency_histogram_ax.grid(True)
         self.canvas.draw()
         self.lstResults.delete(0, tk.END)
 
@@ -751,10 +747,15 @@ class Main(tk.Toplevel):
                 self.reset_cal_data()
                 self.reset_graph()
 
-        except:
-            self.nametowidget(".").engine.on_log(inspect.stack()[0][3],
-                                                 sys.exc_info()[1],
-                                                 sys.exc_info()[0], sys.modules[__name__])
+        except Exception as e:
+            self.nametowidget(".").engine.on_log(
+                inspect.stack()[0][3],
+                e,
+                type(e),
+                sys.modules[__name__],
+                level="error",
+                message=f"Errore in set_results: {e}",
+            )
 
     def on_selected_category(self, evt):
 
@@ -871,7 +872,7 @@ class Main(tk.Toplevel):
 
         self.set_westgard(series)
 
-        self.set_lj(len(rs),
+        self.set_levey_jenning_ax(len(rs),
                         target,
                         sd,
                         series,
@@ -901,92 +902,85 @@ class Main(tk.Toplevel):
         return (x_labels, dates)
 
 
-    def set_lj(self, count_rs, target, sd, series, count_series,
+    def set_levey_jenning_ax(self, count_rs, target, sd, series, count_series,
                compute_average, compute_cv, x_labels, dates):
+        try:
+            self.levey_jenning_ax.clear()
+            self.levey_jenning_ax.grid(True)
 
-        self.lj.clear()
-        self.lj.grid(True)
-        um = self.nametowidget(".").engine.get_um(self.selected_test_method[5])
-        lines = ([], [], [], [], [], [], [])
+            LeveyJenningsPlotHelper.plot_data(self.levey_jenning_ax, series, x_labels)
+            LeveyJenningsPlotHelper.plot_sd_lines(self.levey_jenning_ax, target, sd)
 
-        for i in range(len(series) + 1):
+            um = self.nametowidget(".").engine.get_um(self.selected_test_method[5])
+            y_label = str(um[0]) if um else "No unit assigned yet"
+            LeveyJenningsPlotHelper.format_axes(self.levey_jenning_ax, x_labels, y_label)
 
-            lines[0].append(target + (sd * 3))
-            lines[1].append(target + (sd * 2))
-            lines[2].append(target + sd)
+            LeveyJenningsPlotHelper.create_title(
+                self.levey_jenning_ax,
+                self.selected_test[1],
+                self.selected_workstation[3],
+                self.selected_workstation[4],
+                self.nametowidget(".").engine.get_control_name(self.selected_batch[1]),
+                self.selected_batch[4]
+            )
 
-            lines[3].append(target)
-
-            lines[4].append(target - sd)
-            lines[5].append(target - (sd * 2))
-            lines[6].append(target - (sd * 3))
-
-        #it's show time
-        #self.lj.set_xticks(range(0, len(series) + 1))
-        self.lj.set_xticks(range(0, len(series)))
-        self.lj.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(21))
-        self.lj.yaxis.set_major_formatter(FormatStrFormatter("%.2f"))
-        self.lj.set_xticklabels(x_labels, rotation=70, size=6)
-        self.lj.plot(series, marker="8", label="data")
-
-        for x, y in enumerate(series):
-            self.lj.text(x, y, str(y),)
-
-        self.lj.plot(lines[0], color="red", label="+3 sd", linestyle="--")
-        self.lj.plot(lines[1], color="yellow", label="+2 sd", linestyle="--")
-        self.lj.plot(lines[2], color="green", label="+1 sd", linestyle="--")
-        self.lj.plot(lines[3], label="target", linewidth=2)
-        self.lj.plot(lines[4], color="green", label="-1 sd", linestyle="--")
-        self.lj.plot(lines[5], color="yellow", label="-2 sd", linestyle="--")
-        self.lj.plot(lines[6], color="red", label="-3 sd", linestyle="--")
-
-        if um is  not None:
-            self.lj.set_ylabel(str(um[0]))
-        else:
-            self.lj.set_ylabel("No unit assigned yet")
-
-        control_name = self.nametowidget(".").engine.get_control_name(self.selected_batch[1])
-
-        s = "{0} on {1} {2} \n {3} lot {4}"
-
-        title = s.format(self.selected_test[1],
-                         self.selected_workstation[3],
-                         self.selected_workstation[4],
-                         control_name, self.selected_batch[4])
-
-        self.lj.set_title(title, loc="center")
-
-        bottom_text = ("from %s to %s"%(dates[0], dates[-1]), count_series, count_rs)
-
-        self.lj.text(0.95, 0.01,
-                     '%s computed %s on %s results'%bottom_text,
-                     verticalalignment="bottom",
-                     horizontalalignment="right",
-                     transform=self.lj.transAxes,
-                     color="black",
-                     weight="bold")
-
-    def set_histogram(self, series, target, avg,):
+            bottom_text = f"from {dates[0]} to {dates[-1]} computed {count_series} on {count_rs} results"
+            LeveyJenningsPlotHelper.add_footer_text(self.levey_jenning_ax, bottom_text)
+            self.canvas.draw_idle()
+        
+        except Exception as e:
+            self.nametowidget(".").engine.on_log(
+                            inspect.stack()[0][3],
+                            e,
+                            type(e),
+                            sys.modules[__name__],
+                            level="error",
+                            message=f"Error plottin levey jennings: {e}",
+                        )
+            
+    def set_histogram(self, series, target, avg):
         """plot histogram of frequency distribuition"""
 
-        self.frq.clear()
-        self.frq.grid(True)
+        self.frequency_histogram_ax.clear()
+        self.frequency_histogram_ax.grid(True)
 
         try:
-            self.frq.hist(series, density=1, color="g")
-        except:
-            self.frq.hist(series, normed=True, color="g")
+            FrequencyHistogramHelper.plot_histogram(self.frequency_histogram_ax, series, density=True, color="g")
+        except Exception as e:
+            self.nametowidget(".").engine.on_log(
+                            inspect.stack()[0][3],
+                            e,
+                            type(e),
+                            sys.modules[__name__],
+                            level="error",
+                            message=f"Error plotting histogram of frequency distribuition: {e}",
+                        )
+            return  
 
-        self.frq.axvline(target, color="orange", linewidth=2)
-        self.frq.axvline(avg, color="b", linewidth=2)
-        self.frq.set_ylabel('Results Frequency')
-        self.frq.yaxis.set_label_position("right")
+        try:
+            FrequencyHistogramHelper.add_lines(self.frequency_histogram_ax, target=target, avg=avg,
+                                             target_color="orange", avg_color="blue", linewidth=2)
+            FrequencyHistogramHelper.format_axes(self.frequency_histogram_ax, y_label='Results Frequency')
 
-        um = self.nametowidget(".").engine.get_um(self.selected_test_method[5])
-        if um is  not None:
-            self.frq.set_xlabel(str(um[0]))
-        else:
-            self.frq.set_xlabel("No unit assigned yet")
+            um = self.nametowidget(".").engine.get_um(self.selected_test_method[5])
+            if um is not None:
+                self.frequency_histogram_ax.set_xlabel(str(um[0]))
+            else:
+                self.frequency_histogram_ax.set_xlabel("No unit assigned yet")
+
+            self.frequency_histogram_ax.yaxis.set_label_position("right")
+
+            self.canvas.draw_idle()
+
+        except Exception as e:
+            self.nametowidget(".").engine.on_log(
+                            inspect.stack()[0][3],
+                            e,
+                            type(e),
+                            sys.modules[__name__],
+                            level="error",
+                            message=f"Error plotting histogram of frequency distribuition: {e}",
+                        )
 
     def on_tests(self):
 
@@ -1119,20 +1113,13 @@ class Main(tk.Toplevel):
     def on_set_zscore(self,):
         frames.set_zscore.UI(self).on_open()
 
-    def on_data(self,):
+    def on_batches(self,):
         if self.nametowidget(".").engine.log_user[5] ==2:
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
-            frames.data.UI(self).on_open()
-
-    def on_accuracy(self,):
-        if self.nametowidget(".").engine.log_user[5] == 2:
-            msg = self.nametowidget(".").engine.user_not_enable
-            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
-        else:
-            frames.accuracy.UI(self).on_open()
-
+            frames.batches.UI(self).on_open()
+            
     def on_actions(self,):
 
         if self.nametowidget(".").engine.log_user[5] ==2:
@@ -1285,58 +1272,72 @@ class Main(tk.Toplevel):
             msg = "Attention please.\nNo batch selected."
             messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
 
-    def on_insert_demo_result(self, evt=None):
+    def on_insert_random_result(self, evt=None):
 
         if self.nametowidget(".").engine.log_user[5] != 0:
-
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
-
         else:
-
             if self.lstBatches.curselection():
+                msg = "Insert 31 random results for test {0} batch {1} {2}?".format(  # Corrected message
+                    self.selected_test[1],
+                    self.selected_batch[4],
+                    self.selected_batch[8]
+                )
+                if messagebox.askyesno(self.nametowidget(".").title(), msg, parent=self) == True:
+                    try:
+                        cur = self.nametowidget(".").engine.con.cursor()
+                        # Begin transaction
+                        cur.execute("BEGIN TRANSACTION")
 
-                msg = "Insert 30 random results for test {0} batch {1} {2}?".format(self.selected_test[1],
-                                                                                    self.selected_batch[4],
-                                                                                    self.selected_batch[8])
+                        sql_delete = "DELETE FROM results WHERE batch_id =? AND workstation_id =?;"
+                        args_delete = (self.selected_batch[0], self.selected_workstation[0])
+                        cur.execute(sql_delete, args_delete)
 
-                if messagebox.askyesno(self.nametowidget(".").title(),
-                                       msg,
-                                       parent=self) == True:
+                        min_val = round((self.selected_batch[6] - self.selected_batch[7]), 2)
+                        max_val = round((self.selected_batch[6] + self.selected_batch[7]), 2)
 
-                    sql = "DELETE FROM results WHERE batch_id =? AND workstation_id =?;"
+                        sql_insert = "INSERT INTO results(batch_id, workstation_id, result, recived, log_time, log_id) VALUES(?,?,?,?,?,?)"
+                        log_time = self.nametowidget(".").engine.get_log_time()
 
-                    args = (self.selected_batch[0], self.selected_workstation[0])
-
-                    self.nametowidget(".").engine.write(sql, args)
-
-                    min_val = round((self.selected_batch[6]- self.selected_batch[7]),2)
-
-                    max_val = round((self.selected_batch[6]+ self.selected_batch[7]),2)
-
-                    sql = "INSERT INTO results(batch_id, workstation_id, result, recived, log_time, log_id) VALUES(?,?,?,?,?,?)"
-
-                    log_time = self.nametowidget(".").engine.get_log_time()
-
-                    for i in range(0,31):
-
-                        result = random.uniform(min_val,max_val)
-
-                        log_time += datetime.timedelta(days=1)
-
-                        args = (self.selected_batch[0],
+                        # Prepare data for executemany()
+                        data_to_insert = []
+                        current_log_time = log_time  # Initialize outside the loop
+                        for _ in range(0, 31):
+                            result = random.uniform(min_val, max_val)
+                            data_to_insert.append((
+                                self.selected_batch[0],
                                 self.selected_workstation[0],
-                                round(result,2),
-                                log_time,
-                                log_time,
-                                self.nametowidget(".").engine.log_user[0])
+                                round(result, 2),
+                                current_log_time,
+                                current_log_time,
+                                self.nametowidget(".").engine.log_user[0]
+                            ))
+                            current_log_time += datetime.timedelta(days=1)
 
-                        self.nametowidget(".").engine.write(sql, args)
+                        cur.executemany(sql_insert, data_to_insert)  # Use executemany()
 
-                    self.set_results()
+                        self.nametowidget(".").engine.con.commit()  # Commit the transaction
+                        self.set_results()
 
+                    except Exception as e:
+                        self.nametowidget(".").engine.con.rollback()  # Rollback on any error
+                        self.nametowidget(".").engine.on_log(
+                            inspect.stack()[0][3],
+                            e,
+                            type(e),
+                            sys.modules[__name__],
+                            level="error",
+                            message=f"Error inserting random results: {e}",
+                        )
+                    finally:
+                        cur.close()  
+
+                else:
+                    msg = "Attention please.\nBefore add 31 random results you must select a batch."  
+                    messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
             else:
-                msg = "Attention please.\nBefore add 30 random results you must select a batch."
+                msg = "Attention please.\nBefore add 31 random results you must select a batch."  
                 messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
 
     def on_batch_double_button(self, evt=None):
@@ -1363,24 +1364,55 @@ class Main(tk.Toplevel):
             if self.lstResults.curselection():
                 index = self.lstResults.curselection()[0]
                 if self.enable_notes.get() == False:
-                    frames.result.UI(self, index).on_open(self.selected_test_method,
-                                                         self.selected_batch,
-                                                         self.selected_workstation,
-                                                         self.selected_result)
+                    try:
+                        frames.result.UI(self, index).on_open(self.selected_test_method,
+                                                           self.selected_batch,
+                                                           self.selected_workstation,
+                                                           self.selected_result)
+                    except AttributeError as e:
+                        self.nametowidget(".").engine.on_log(
+                            inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="error",
+                            message=f"Error: Problem with frames.result.UI or on_open: {e}"
+                        )
+                    except Exception as e:
+                        self.nametowidget(".").engine.on_log(
+                            inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="error",
+                            message=f"Unexpected error in frames.result.UI or on_open: {e}"
+                        )
 
                 else:
-                    obj = frames.notes.UI(self)
-                    obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
-
+                    try:
+                        obj = frames.notes.UI(self)
+                        obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
+                    except AttributeError as e:
+                        self.nametowidget(".").engine.on_log(
+                            inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="error",
+                            message=f"Error: Problem with frames.notes.UI or on_open: {e}"
+                        )
+                    except Exception as e:
+                        self.nametowidget(".").engine.on_log(
+                            inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="error",
+                            message=f"Unexpected error in frames.notes.UI or on_open: {e}"
+                        )
             else:
                 msg = "Attention please.\nSelect a result."
                 messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
 
-        except:
-            self.nametowidget(".").engine.on_log(inspect.stack()[0][3],
-                                                 sys.exc_info()[1],
-                                                 sys.exc_info()[0],
-                                                 sys.modules[__name__])
+        except IndexError as e:
+            self.nametowidget(".").engine.on_log(
+                inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="warning",
+                message=f"Error: No result selected in the list: {e}"
+            )
+        except AttributeError as e:
+            self.nametowidget(".").engine.on_log(
+                inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="error",
+                message=f"Error: Problem accessing attributes (e.g., enable_notes): {e}"
+            )
+        except Exception as e:
+            self.nametowidget(".").engine.on_log(
+                inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="error",
+                message=f"Unexpected error in on_update_result: {e}"
+            )
 
     def on_bvv(self,):
 
@@ -1390,7 +1422,7 @@ class Main(tk.Toplevel):
 
         path = self.nametowidget(".").engine.get_file(os.path.join("documents", file))
 
-        ret = self.nametowidget(".").engine.open_file(path)
+        ret = self.nametowidget(".").engine.launch(path)
 
         self.nametowidget(".").engine.not_busy(self)
 
@@ -1405,7 +1437,7 @@ class Main(tk.Toplevel):
 
         path = self.nametowidget(".").engine.get_file(os.path.join("documents", file))
 
-        ret = self.nametowidget(".").engine.open_file(path)
+        ret = self.nametowidget(".").engine.launch(path)
 
         self.nametowidget(".").engine.not_busy(self)
 
@@ -1420,7 +1452,7 @@ class Main(tk.Toplevel):
 
         path = self.nametowidget(".").engine.get_file(os.path.join("documents", file))
 
-        ret = self.nametowidget(".").engine.open_file(path)
+        ret = self.nametowidget(".").engine.launch(path)
 
         self.nametowidget(".").engine.not_busy(self)
 
