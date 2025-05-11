@@ -7,14 +7,6 @@ Hello my dear fellows, two important changes have been made, the first is that t
 
 All together and thanks mostly to programming assistant aka Gemini...which I must say greatly simplifies and speeds up the writing of code, which does not exempt one from knowing how to program...
 
-**2023-11-16**
-
-Accuracy management added.
-
-We can now compare two analytical methods that are different or the same but run on different workstations and determine their performance
-
-![alt tag](https://user-images.githubusercontent.com/5463566/283745036-32d1276f-e909-4a6a-bc10-03f7501fe399.png)
-
 **2023-11-04**
 
 Added the Biovarase user manual, you can find it in pdf format in the main directory, although it is only a draft.
