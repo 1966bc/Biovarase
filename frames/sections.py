@@ -23,7 +23,7 @@ class UI(tk.Toplevel):
         self.primary_key = "section_id"
         self.obj = None
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
         self.nametowidget(".").engine.set_instance(self, 1)
 
     def init_ui(self):
@@ -73,12 +73,12 @@ class UI(tk.Toplevel):
         for i in self.lstSections.get_children():
             self.lstSections.delete(i)
 
-        sql = "SELECT DISTINCT(sites.supplier_id),suppliers.supplier\
+        sql = "SELECT DISTINCT(sites.supplier_id),suppliers.description\
                FROM sites\
                INNER JOIN suppliers ON suppliers.supplier_id = sites.supplier_id\
                WHERE sites.status =1\
                GROUP BY sites.supplier_id\
-               ORDER BY suppliers.supplier;"
+               ORDER BY suppliers.description;"
 
         rs = self.nametowidget(".").engine.read(True, sql, ())
 
@@ -100,7 +100,7 @@ class UI(tk.Toplevel):
 
     def load_hospitals(self, i):
 
-        sql = "SELECT sites.site_id,suppliers.supplier\
+        sql = "SELECT sites.site_id,suppliers.description\
                FROM sites\
                INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
                WHERE sites.supplier_id =?\

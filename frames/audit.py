@@ -17,15 +17,8 @@ class UI(tk.Toplevel):
         self.minsize(400, 600)
         self.obj = None
         self.init_ui()
-        self.center_me()
+        self.nametowidget(".").engine.center_window_on_screen(self)
         self.nametowidget(".").engine.set_instance(self, 1)
-
-    def center_me(self,):
-        """center window on the screen"""
-
-        x = self.parent.winfo_rootx()
-        y = self.parent.winfo_rooty()
-        self.geometry("+%d+%d" % (x, y))     
 
     def init_ui(self):
 
@@ -41,7 +34,7 @@ class UI(tk.Toplevel):
         
         frm_tests = ttk.Frame(frm_main,)
         w = tk.LabelFrame(frm_tests, text='Tests')
-        cols = (["#0", 'test_method_id', 'w', False, 0, 0],
+        cols = (["#0", 'dict_test_id', 'w', False, 0, 0],
                 ["#1", 'Test', 'w', True, 0, 100],
                 ["#2", 'S', 'center', True, 0, 50],
                 ["#3", 'Method', 'center', True, 0, 50],
@@ -115,27 +108,27 @@ class UI(tk.Toplevel):
 
         if self.nametowidget(".").engine.log_user[5] ==0:
 
-            sql = "SELECT DISTINCT(sites.supplier_id),suppliers.supplier\
+            sql = "SELECT DISTINCT(sites.supplier_id),suppliers.description\
                    FROM sites\
                    INNER JOIN suppliers ON suppliers.supplier_id = sites.supplier_id\
                    WHERE sites.status =1\
                    GROUP BY sites.supplier_id\
-                   ORDER BY suppliers.supplier;"
+                   ORDER BY suppliers.description;"
             args = ()
         else:            
 
-            sql = "SELECT sites.site_id,suppliers.supplier\
+            sql = "SELECT sites.site_id,suppliers.description\
                    FROM sites\
                    INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
                    WHERE sites.supplier_id =?\
                    AND sites.status =1\
-                   ORDER BY suppliers.supplier ASC;"
+                   ORDER BY suppliers.description ASC;"
 
             section_id = self.nametowidget(".").engine.get_section_id()
-            
-            rs_idd = self.nametowidget(".").engine.get_idd_by_section_id(section_id)
 
-            args = (rs_idd[1],)
+            related_ids = self.nametowidget(".").engine.get_related_ids_by_section(section_id)
+            
+            args = (related_ids[1],)
 
         rs = self.nametowidget(".").engine.read(True, sql, args)
 
@@ -200,7 +193,7 @@ class UI(tk.Toplevel):
 
     def load_hospitals(self, i):
 
-        sql = "SELECT sites.site_id,suppliers.supplier\
+        sql = "SELECT sites.site_id,suppliers.description\
                FROM sites\
                INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
                WHERE sites.supplier_id =?\
@@ -249,7 +242,7 @@ class UI(tk.Toplevel):
 
         self.on_reset()
 
-        sql = "SELECT tests_methods.test_method_id,\
+        sql = "SELECT dict_tests.dict_test_id,\
                       tests.description,\
                       IFNULL(samples.sample,'NA') AS samples,\
                       IFNULL(methods.method,'NA') AS methods,\
@@ -257,15 +250,15 @@ class UI(tk.Toplevel):
                       workstations.description,\
                       workstations.status\
                 FROM tests\
-                INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
-                INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
-                INNER JOIN methods ON tests_methods.method_id = methods.method_id\
-                INNER JOIN units ON tests_methods.unit_id = units.unit_id\
-                INNER JOIN workstations_tests_methods ON tests_methods.test_method_id = workstations_tests_methods.test_method_id\
-                INNER JOIN workstations ON workstations_tests_methods.workstation_id = workstations.workstation_id\
-                WHERE workstations_tests_methods.workstation_id =?\
+                INNER JOIN dict_tests ON tests.test_id = dict_tests.test_id\
+                INNER JOIN samples ON dict_tests.sample_id = samples.sample_id\
+                INNER JOIN methods ON dict_tests.method_id = methods.method_id\
+                INNER JOIN units ON dict_tests.unit_id = units.unit_id\
+                INNER JOIN dict_workstations ON dict_tests.dict_test_id = dict_workstations.dict_test_id\
+                INNER JOIN workstations ON dict_workstations.workstation_id = workstations.workstation_id\
+                WHERE dict_workstations.workstation_id =?\
                 AND tests.status =1\
-                AND tests_methods.status =1\
+                AND dict_tests.status =1\
                 ORDER BY tests.description;"
 
         rs = self.nametowidget(".").engine.read(True, sql, args)
@@ -306,7 +299,7 @@ class UI(tk.Toplevel):
                FROM audit_batches\
                INNER JOIN controls ON audit_batches.control_id = controls.control_id\
 	       INNER JOIN users ON audit_batches.log_id = users.user_id\
-               WHERE audit_batches.test_method_id =?\
+               WHERE audit_batches.dict_test_id =?\
                AND audit_batches.workstation_id =?\
                ORDER BY audit_batches.log_time;"
 
@@ -338,7 +331,7 @@ class UI(tk.Toplevel):
         sql = "SELECT audit_results.result_id,\
                       audit_results.run_number,\
                       ROUND(audit_results.result,3) AS result,\
-                      strftime('%d-%m-%Y', audit_results.recived) AS recived,\
+                      strftime('%d-%m-%Y', audit_results.received) AS received,\
 		      audit_results.log_time,\
 		      users.last_name ||' '|| users.first_name AS log_id,\
 		      audit_results.log_ip,\
@@ -374,7 +367,7 @@ class UI(tk.Toplevel):
         if self.lstTestsMethods.focus():
             item_iid = self.lstTestsMethods.selection()
             pk = int(item_iid[0])
-            self.selected_test_method = self.nametowidget(".").engine.get_selected("tests_methods", "test_method_id", pk)
+            self.selected_test_method = self.nametowidget(".").engine.get_selected("dict_tests", "dict_test_id", pk)
             self.set_batches()
 
     def on_batch_selected(self, evt=None):

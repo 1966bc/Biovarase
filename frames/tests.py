@@ -24,7 +24,7 @@ class UI(tk.Toplevel):
         self.primary_key = "test_id"
         self.obj = None
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
 
     def init_ui(self):
 

@@ -10,7 +10,7 @@ from tkinter import messagebox
 import frames.control as ui
 
 SQL = "SELECT controls.control_id,\
-              suppliers.supplier,\
+              suppliers.description,\
               controls.description,\
               controls.reference,\
               controls.status\
@@ -30,7 +30,7 @@ class UI(tk.Toplevel):
         self.items = tk.StringVar()
         self.obj = None
         self.init_ui()
-        self.nametowidget(".").engine.set_me_center(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
 
          
     def init_ui(self):

@@ -39,7 +39,7 @@ class UI(tk.Toplevel):
         self.lower = tk.DoubleVar()
         self.upper = tk.DoubleVar()
         self.to_compute = tk.IntVar()
-        self.ranck = tk.IntVar()
+        self.rank = tk.IntVar()
         self.status = tk.BooleanVar()
         self.set_remeber_batch_data = tk.BooleanVar()
         self.vcmd = self.nametowidget(".").engine.get_validate_float(self)
@@ -51,7 +51,7 @@ class UI(tk.Toplevel):
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
         self.nametowidget(".").engine.set_instance(self, 1)
        
     def init_ui(self):
@@ -136,7 +136,7 @@ class UI(tk.Toplevel):
                                justify=tk.CENTER,
                                validate="key",
                                validatecommand=self.vcmd_int,
-                               textvariable=self.ranck)
+                               textvariable=self.rank)
         ent_ranck.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
@@ -322,7 +322,7 @@ class UI(tk.Toplevel):
         self.description.set(self.selected_batch[8])
         self.lower.set(round(self.selected_batch[9], 2))
         self.upper.set(round(self.selected_batch[10], 2))
-        self.ranck.set(self.selected_batch[11])
+        self.rank.set(self.selected_batch[11])
         self.status.set(self.selected_batch[12])
 
 
@@ -338,7 +338,7 @@ class UI(tk.Toplevel):
                 self.description.get(),
                 round(self.lower.get(), 2),
                 round(self.upper.get(), 2),
-                self.ranck.get(),
+                self.rank.get(),
                 self.status.get(),
                 self.nametowidget(".").engine.get_log_time(),
                 self.nametowidget(".").engine.get_log_id(),

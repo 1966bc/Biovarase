@@ -17,7 +17,7 @@ class UI(tk.Toplevel):
         self.resizable(0, 0)
         self.observations = tk.IntVar()
         self.vcmd = self.nametowidget(".").engine.get_validate_integer(self)
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
         self.init_ui()
 
 

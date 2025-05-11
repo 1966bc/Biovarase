@@ -3,7 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   ver MMXXV
 #-----------------------------------------------------------------------------
 
 import tkinter as tk
@@ -25,7 +25,7 @@ class UI(tk.Toplevel):
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
         
     def init_ui(self):
 
@@ -77,33 +77,10 @@ class UI(tk.Toplevel):
 
     def get_values(self,):
 
-        password = self.new_password.get()
+        hashed_password = self.nametowidget(".").engine.generate_password(self.new_password.get())
 
-        password = password.strip()
-
-        encripted_password = hashlib.md5(password.encode()).hexdigest()
-
-        return (encripted_password,
+        return (hashed_password.decode('utf-8'),
                 self.nametowidget(".").engine.log_user[0])
-
-    def match_old_password(self):
-
-        password = self.old_password.get()
-
-        password = password.strip()
-
-        password = hashlib.md5(password.encode()).hexdigest()
-
-        sql = "SELECT * FROM users WHERE user_id =? AND pswrd =?;"
-
-        args = (self.nametowidget(".").engine.log_user[0], password)
-
-        rs = self.nametowidget(".").engine.read(False, sql, args)
-
-        if rs is not None:
-            return True
-        else:
-            return False
 
     def on_save(self, evt=None):
 
@@ -113,8 +90,8 @@ class UI(tk.Toplevel):
                                self.nametowidget(".").engine.ask_to_save,
                                parent=self) == True:
 
-
-            if self.match_old_password() == False:
+            print(self.old_password.get())
+            if self.nametowidget(".").engine.check_password(self.old_password.get().encode('utf-8')) == False:
                 msg = "Old password is wrong!"
                 messagebox.showinfo(self.nametowidget(".").title(), msg, parent=self)
             else:

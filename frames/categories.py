@@ -23,7 +23,7 @@ class UI(tk.Toplevel):
         self.obj = None
         self.items = tk.StringVar()
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
 
 
     def init_ui(self):

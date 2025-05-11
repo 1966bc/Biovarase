@@ -16,7 +16,7 @@ class UI(tk.Toplevel):
         self.parent = parent
         self.lst_size = tk.IntVar()
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
 
     def init_ui(self):
 
@@ -45,16 +45,16 @@ class UI(tk.Toplevel):
         for i in self.lstItems.get_children():
             self.lstItems.delete(i)
 
-        sql = "SELECT tests_methods.test_method_id,\
-                      tests_methods.code,\
+        sql = "SELECT dict_tests.dict_test_id,\
+                      dict_tests.code,\
                       tests.description,\
                       methods.method\
                FROM tests\
-               INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
-               INNER JOIN methods ON tests_methods.method_id = methods.method_id\
+               INNER JOIN dict_tests ON tests.test_id = dict_tests.test_id\
+               INNER JOIN methods ON dict_tests.method_id = methods.method_id\
                WHERE tests.status=1\
-               AND tests_methods.status=1\
-               AND tests_methods.section_id !=? OR tests_methods.section_id =0\
+               AND dict_tests.status=1\
+               AND dict_tests.section_id !=? OR dict_tests.section_id =0\
                ORDER BY tests.description;"
 
         args = (self.selected_section[0],)
@@ -70,11 +70,11 @@ class UI(tk.Toplevel):
         if self.lstItems.focus():
             item_iid = self.lstItems.selection()
             pk = int(item_iid[0])
-            selected_item = self.nametowidget(".").engine.get_selected("tests_methods", "test_method_id", pk)
+            selected_item = self.nametowidget(".").engine.get_selected("dict_tests", "dict_test_id", pk)
 
             args = (self.selected_section[0], selected_item[0],)
 
-            sql = "UPDATE tests_methods SET section_id =? WHERE test_method_id =?;"
+            sql = "UPDATE dict_tests SET section_id =? WHERE dict_test_id =?;"
             self.nametowidget(".").engine.write(sql, args)
 
             self.set_values()

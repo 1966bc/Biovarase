@@ -39,7 +39,7 @@ class UI(tk.Toplevel):
         self.columnconfigure(2, weight=1)
         
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
         self.nametowidget(".").engine.set_instance(self, 1)
        
 
@@ -95,8 +95,8 @@ class UI(tk.Toplevel):
         r += 1
         ttk.Label(frm_left, text="Recived:").grid(row=r, sticky=tk.N+tk.W)
 
-        self.recived = Calendarium(self, "")
-        self.recived.get_calendarium(frm_left, r, c)
+        self.received = Calendarium(self, "")
+        self.received.get_calendarium(frm_left, r, c)
 
         r += 1
         ttk.Label(frm_left, text="Status:").grid(row=r, sticky=tk.W)
@@ -148,7 +148,7 @@ class UI(tk.Toplevel):
                                           
             self.status.set(1)
             self.result.set('')
-            self.recived.set_today()
+            self.received.set_today()
             self.txtResult.focus()
             
         self.title(msg)
@@ -158,17 +158,15 @@ class UI(tk.Toplevel):
         try:
             if self.selected_result and len(self.selected_result) > 5 and self.selected_result[5]:
                 if isinstance(self.selected_result[5], datetime.date):
-                    self.recived.year.set(int(self.selected_result[5].year))
-                    self.recived.month.set(int(self.selected_result[5].month))
-                    self.recived.day.set(int(self.selected_result[5].day))
+                    self.received.year.set(int(self.selected_result[5].year))
+                    self.received.month.set(int(self.selected_result[5].month))
+                    self.received.day.set(int(self.selected_result[5].day))
                 else:
                     self.nametowidget(".").engine.on_log(
                         inspect.stack()[0][3],
                         TypeError(f"Expected datetime.date, got {type(self.selected_result[5])}"),
                         type(TypeError(f"Expected datetime.date, got {type(self.selected_result[5])}")),
-                        sys.modules[__name__],
-                        level="warning",
-                        message=f"Errore: selected_result[5] non è un oggetto datetime.date: {self.selected_result[5]}",
+                        sys.modules[__name__]
                     )
             else:
                 self.nametowidget(".").engine.on_log(
@@ -176,8 +174,6 @@ class UI(tk.Toplevel):
                     ValueError("selected_result non valido o data mancante"),
                     type(ValueError("selected_result non valido o data mancante")),
                     sys.modules[__name__],
-                    level="warning",
-                    message="Errore: selected_result è None, vuoto o non contiene la data.",
                 )
 
         except Exception as e:
@@ -186,8 +182,6 @@ class UI(tk.Toplevel):
                 e,
                 type(e),
                 sys.modules[__name__],
-                level="error",
-                message=f"Errore imprevisto durante l'impostazione della data di ricezione: {e}",
             )
             
             
@@ -210,7 +204,7 @@ class UI(tk.Toplevel):
                 run_number,
                 self.selected_workstation[0],
                 round(self.result.get(),3),
-                self.recived.get_timestamp(),
+                self.received.get_timestamp(),
                 self.status.get(),
                 is_delete,
                 self.nametowidget(".").engine.get_log_time(),
@@ -222,7 +216,7 @@ class UI(tk.Toplevel):
     def on_save(self, evt=None):
 
         if self.nametowidget(".").engine.on_fields_control(self.frm_main, self.nametowidget(".").title()) == False: return
-        if self.recived.get_date(self) == False: return
+        if self.received.get_date(self) == False: return
         if messagebox.askyesno(self.nametowidget(".").title(),
                                self.nametowidget(".").engine.ask_to_save,
                                parent=self) == True:

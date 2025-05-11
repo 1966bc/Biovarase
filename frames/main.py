@@ -3,14 +3,15 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXXIII
+# modify:   ver MMXXV
 # -----------------------------------------------------------------------------
 import os
 import sys
 import inspect
-import datetime
 import operator
 import random
+import datetime
+
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
@@ -27,10 +28,12 @@ import matplotlib.ticker
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib import gridspec
 
+matplotlib.use('TkAgg')
+
 import frames.license
 import frames.tests
-import frames.tests_methods
-import frames.workstations_tests_methods
+import frames.dict_tests
+import frames.dict_workstations
 import frames.batches
 import frames.units
 import frames.methods
@@ -136,8 +139,7 @@ class Main(tk.Toplevel):
         m_main.add_cascade(label="Admin", underline=0, menu=m_adm)
         m_main.add_cascade(label="?", underline=0, menu=m_about)
 
-        items = (("Batches", 0, self.on_batches),
-                 ("Reset", 0, self.on_reset),
+        items = (("Reset", 0, self.on_reset),
                  ("Insert random results", 0, self.on_insert_random_result),
                  ("Analytica", 0, self.on_analitical),
                  ("Z Score", 0, self.on_zscore),)
@@ -173,9 +175,10 @@ class Main(tk.Toplevel):
         for i in items:
             m_plots.add_command(label=i[0], underline=i[1], command=i[2])
 
-        items = (("Tests Methods", 9, self.on_tests_methods),
-                 ("Tests Sections", 12, self.on_tests_sections),
-                 ("Workstations Tests Methods", 0, self.on_workstations_tests_methods),
+        items = (("Batches", 0, self.on_batches),
+                 ("Dict Tests", 9, self.on_tests_methods),
+                 ("Dict Tests Sections", 12, self.on_tests_sections),
+                 ("Dict Workstations", 0, self.on_workstations_tests_methods),
                  ("Categories", 1, self.on_categories),
                  ("Samples", 0, self.on_samples),
                  ("Units", 0, self.on_units),
@@ -410,6 +413,8 @@ class Main(tk.Toplevel):
 
     def on_open(self):
 
+        company = self.nametowidget(".").engine.get_company_data()
+        self.title("Biovarase {0}".format(company[2]))
         self.status_bar_site_description.set(self.get_status_bar_site_description())
         self.enable_notes.set(False)
         self.ddof.set(self.nametowidget(".").engine.get_ddof())
@@ -419,23 +424,9 @@ class Main(tk.Toplevel):
 
     def get_status_bar_site_description(self,):
 
-        sql = "SELECT sites.site_id,\
-                      companies.supplier AS company,\
-                      suppliers.supplier AS site,\
-                      labs.lab,\
-                      sections.section\
-               FROM sites\
-               INNER JOIN suppliers AS companies ON companies.supplier_id = sites.supplier_id\
-               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
-               INNER JOIN labs ON sites.site_id = labs.site_id\
-               INNER JOIN sections ON labs.lab_id = sections.lab_id\
-               WHERE sections.section_id =?;"
+        rs = self.nametowidget(".").engine.get_company_data()
 
-        args = (self.nametowidget(".").engine.get_section_id(),)
-
-        rs = self.nametowidget(".").engine.read(False, sql, args)
-
-        s = "{0}-{1}-{2}".format(rs[2], rs[3], rs[4])
+        s = "{0}-{1}".format(rs[3], rs[4])
 
         return s[0:80]
 
@@ -544,10 +535,10 @@ class Main(tk.Toplevel):
                FROM sites\
                INNER JOIN labs ON sites.site_id = labs.site_id\
                INNER JOIN sections ON labs.lab_id = sections.lab_id\
-               INNER JOIN tests_methods ON sections.section_id = tests_methods.section_id\
-               INNER JOIN categories ON tests_methods.category_id = categories.category_id\
+               INNER JOIN dict_tests ON sections.section_id = dict_tests.section_id\
+               INNER JOIN categories ON dict_tests.category_id = categories.category_id\
                WHERE sections.section_id =?\
-               AND tests_methods.status =1\
+               AND dict_tests.status =1\
                AND categories.status =1\
                ORDER BY categories.description;"
 
@@ -571,18 +562,18 @@ class Main(tk.Toplevel):
             self.dict_tests = {}
             voices = []
 
-            sql = "SELECT tests_methods.test_method_id,\
+            sql = "SELECT dict_tests.dict_test_id,\
                           tests.description||' '||samples.sample\
                    FROM tests\
-                   INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
-                   INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
-                   INNER JOIN sections ON tests_methods.section_id = sections.section_id\
+                   INNER JOIN dict_tests ON tests.test_id = dict_tests.test_id\
+                   INNER JOIN samples ON dict_tests.sample_id = samples.sample_id\
+                   INNER JOIN sections ON dict_tests.section_id = sections.section_id\
                    INNER JOIN labs ON sections.lab_id = labs.lab_id\
                    INNER JOIN sites ON labs.site_id = sites.site_id\
-                   WHERE tests_methods.category_id =?\
+                   WHERE dict_tests.category_id =?\
                    AND sections.section_id =?\
                    AND tests.status=1\
-                   AND tests_methods.status=1\
+                   AND dict_tests.status=1\
                    ORDER BY tests.description;"
 
             args = (self.selected_category[0], self.nametowidget(".").engine.get_section_id())
@@ -610,13 +601,13 @@ class Main(tk.Toplevel):
             sql = "SELECT workstations.workstation_id,\
                           workstations.description,\
                           workstations.serial\
-                   FROM tests_methods\
-                   INNER JOIN workstations_tests_methods ON tests_methods.test_method_id = workstations_tests_methods.test_method_id\
-                   INNER JOIN workstations ON workstations_tests_methods.workstation_id = workstations.workstation_id\
-                   WHERE workstations_tests_methods.test_method_id =?\
+                   FROM dict_tests\
+                   INNER JOIN dict_workstations ON dict_tests.dict_test_id = dict_workstations.dict_test_id\
+                   INNER JOIN workstations ON dict_workstations.workstation_id = workstations.workstation_id\
+                   WHERE dict_workstations.dict_test_id =?\
                    AND workstations.section_id =?\
                    AND workstations.status=1\
-                   ORDER BY workstations.ranck ASC;"
+                   ORDER BY workstations.rank ASC;"
 
             args = (self.selected_test_method[0], self.nametowidget(".").engine.get_section_id())
 
@@ -651,13 +642,12 @@ class Main(tk.Toplevel):
                           batches.lot_number,\
                           batches.expiration\
                    FROM batches\
-                   WHERE batches.test_method_id =?\
+                   WHERE batches.dict_test_id =?\
                    AND batches.workstation_id =?\
                    AND batches.status =1\
-                   ORDER BY batches.ranck ASC;"
+                   ORDER BY batches.rank ASC;"
 
             args = (self.selected_test_method[0], self.selected_workstation[0])
-
 
             rs = self.nametowidget(".").engine.read(True, sql, args)
 
@@ -669,7 +659,6 @@ class Main(tk.Toplevel):
 
                     s = "{0:6} {1:6} {2}".format(i[1], i[5], i[2])
                     
-
                     self.lstBatches.insert(tk.END, (s[0:25]))
 
                     if x <= 0:
@@ -703,14 +692,14 @@ class Main(tk.Toplevel):
 
                 sql = "SELECT result_id,\
                               ROUND(result,3),\
-                              strftime('%d-%m-%Y', recived),\
+                              strftime('%d-%m-%Y', received),\
                               status,\
-                              recived\
+                              received\
                        FROM results\
                        WHERE batch_id =?\
                        AND workstation_id =?\
                        AND is_delete =0\
-                       ORDER BY recived DESC\
+                       ORDER BY received DESC\
                        LIMIT ?;"
 
                 args = (self.selected_batch[0],
@@ -753,8 +742,6 @@ class Main(tk.Toplevel):
                 e,
                 type(e),
                 sys.modules[__name__],
-                level="error",
-                message=f"Errore in set_results: {e}",
             )
 
     def on_selected_category(self, evt):
@@ -783,7 +770,7 @@ class Main(tk.Toplevel):
                 index = self.cbTests.current()
                 pk = self.dict_tests[index]
 
-                self.selected_test_method = self.nametowidget(".").engine.get_selected("tests_methods", "test_method_id", pk)
+                self.selected_test_method = self.nametowidget(".").engine.get_selected("dict_tests", "dict_test_id", pk)
                 self.selected_test = self.nametowidget(".").engine.get_selected("tests", "test_id", self.selected_test_method[1])
 
                 self.reset_batch_data()
@@ -829,8 +816,6 @@ class Main(tk.Toplevel):
             self.selected_result = self.nametowidget(".").engine.get_selected("results", "result_id", pk)
 
     def set_results_row_color(self, index, result, is_enabled, target, sd):
-
-        #print(result, is_enabled, target, sd)
 
         if is_enabled == 0:
             self.lstResults.itemconfig(index, {"bg":"light gray"})
@@ -933,9 +918,7 @@ class Main(tk.Toplevel):
                             inspect.stack()[0][3],
                             e,
                             type(e),
-                            sys.modules[__name__],
-                            level="error",
-                            message=f"Error plottin levey jennings: {e}",
+                            sys.modules[__name__]
                         )
             
     def set_histogram(self, series, target, avg):
@@ -951,9 +934,7 @@ class Main(tk.Toplevel):
                             inspect.stack()[0][3],
                             e,
                             type(e),
-                            sys.modules[__name__],
-                            level="error",
-                            message=f"Error plotting histogram of frequency distribuition: {e}",
+                            sys.modules[__name__]
                         )
             return  
 
@@ -977,9 +958,7 @@ class Main(tk.Toplevel):
                             inspect.stack()[0][3],
                             e,
                             type(e),
-                            sys.modules[__name__],
-                            level="error",
-                            message=f"Error plotting histogram of frequency distribuition: {e}",
+                            sys.modules[__name__]
                         )
 
     def on_tests(self):
@@ -996,7 +975,7 @@ class Main(tk.Toplevel):
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
-            frames.tests_methods.UI(self).on_open()
+            frames.dict_tests.UI(self).on_open()
 
     def on_workstations_tests_methods(self):
 
@@ -1004,7 +983,7 @@ class Main(tk.Toplevel):
             msg = self.nametowidget(".").engine.user_not_enable
             messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
         else:
-            frames.workstations_tests_methods.UI(self).on_open()
+            frames.dict_workstations.UI(self).on_open()
 
     def on_tests_sections(self):
 
@@ -1147,7 +1126,7 @@ class Main(tk.Toplevel):
 
                 index = self.cbTests.current()
                 pk = self.dict_tests[index]
-                selected_test_method = self.nametowidget(".").engine.get_selected("tests_methods", "test_method_id", pk)
+                selected_test_method = self.nametowidget(".").engine.get_selected("dict_tests", "dict_test_id", pk)
                 frames.plots.UI(self,).on_open(selected_test_method,
                                                self.selected_workstation,
                                                int(self.observations.get()))
@@ -1166,9 +1145,9 @@ class Main(tk.Toplevel):
 
                 index = self.cbTests.current()
                 pk = self.dict_tests[index]
-                selected_test_method = self.nametowidget(".").engine.get_selected("tests_methods", "test_method_id", pk)
+                selected_test_method = self.nametowidget(".").engine.get_selected("dict_tests", "dict_test_id", pk)
 
-                sql = "SELECT to_export FROM goals WHERE test_method_id =?;"
+                sql = "SELECT to_export FROM goals WHERE dict_test_id =?;"
                 args = (selected_test_method[0],)
                 rs = self.nametowidget(".").engine.read(False, sql, args)
                 if rs is not None:
@@ -1194,7 +1173,7 @@ class Main(tk.Toplevel):
 
                 index = self.cbTests.current()
                 pk = self.dict_tests[index]
-                selected_test_method = self.nametowidget(".").engine.get_selected("tests_methods", "test_method_id", pk)
+                selected_test_method = self.nametowidget(".").engine.get_selected("dict_tests", "dict_test_id", pk)
 
                 items = self.lstBatches.curselection()
 
@@ -1297,7 +1276,7 @@ class Main(tk.Toplevel):
                         min_val = round((self.selected_batch[6] - self.selected_batch[7]), 2)
                         max_val = round((self.selected_batch[6] + self.selected_batch[7]), 2)
 
-                        sql_insert = "INSERT INTO results(batch_id, workstation_id, result, recived, log_time, log_id) VALUES(?,?,?,?,?,?)"
+                        sql_insert = "INSERT INTO results(batch_id, workstation_id, result, received, log_time, log_id) VALUES(?,?,?,?,?,?)"
                         log_time = self.nametowidget(".").engine.get_log_time()
 
                         # Prepare data for executemany()
@@ -1326,9 +1305,7 @@ class Main(tk.Toplevel):
                             inspect.stack()[0][3],
                             e,
                             type(e),
-                            sys.modules[__name__],
-                            level="error",
-                            message=f"Error inserting random results: {e}",
+                            sys.modules[__name__]
                         )
                     finally:
                         cur.close()  
@@ -1371,13 +1348,11 @@ class Main(tk.Toplevel):
                                                            self.selected_result)
                     except AttributeError as e:
                         self.nametowidget(".").engine.on_log(
-                            inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="error",
-                            message=f"Error: Problem with frames.result.UI or on_open: {e}"
+                            inspect.stack()[0][3], e, type(e), sys.modules[__name__]
                         )
                     except Exception as e:
                         self.nametowidget(".").engine.on_log(
-                            inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="error",
-                            message=f"Unexpected error in frames.result.UI or on_open: {e}"
+                            inspect.stack()[0][3], e, type(e), sys.modules[__name__]
                         )
 
                 else:
@@ -1386,13 +1361,11 @@ class Main(tk.Toplevel):
                         obj.on_open(self.selected_test, self.selected_batch, self.selected_result)
                     except AttributeError as e:
                         self.nametowidget(".").engine.on_log(
-                            inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="error",
-                            message=f"Error: Problem with frames.notes.UI or on_open: {e}"
+                            inspect.stack()[0][3], e, type(e), sys.modules[__name__]
                         )
                     except Exception as e:
                         self.nametowidget(".").engine.on_log(
-                            inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="error",
-                            message=f"Unexpected error in frames.notes.UI or on_open: {e}"
+                            inspect.stack()[0][3], e, type(e), sys.modules[__name__]
                         )
             else:
                 msg = "Attention please.\nSelect a result."
@@ -1400,18 +1373,15 @@ class Main(tk.Toplevel):
 
         except IndexError as e:
             self.nametowidget(".").engine.on_log(
-                inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="warning",
-                message=f"Error: No result selected in the list: {e}"
+                inspect.stack()[0][3], e, type(e), sys.modules[__name__]
             )
         except AttributeError as e:
             self.nametowidget(".").engine.on_log(
-                inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="error",
-                message=f"Error: Problem accessing attributes (e.g., enable_notes): {e}"
+                inspect.stack()[0][3], e, type(e), sys.modules[__name__]
             )
         except Exception as e:
             self.nametowidget(".").engine.on_log(
-                inspect.stack()[0][3], e, type(e), sys.modules[__name__], level="error",
-                message=f"Unexpected error in on_update_result: {e}"
+                inspect.stack()[0][3], e, type(e), sys.modules[__name__]
             )
 
     def on_bvv(self,):

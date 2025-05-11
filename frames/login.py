@@ -78,10 +78,10 @@ class Login(ttk.Frame):
         self.password = tk.StringVar()
         self.attempts = 0
         self.nametowidget(".").engine.thread = None
-        self.center_me()
+        self.center_window_on_screen()
         self.init_ui()
 
-    def center_me(self):
+    def center_window_on_screen(self):
         """Center window on the screen."""
         x = (self.parent.winfo_screenwidth() - self.parent.winfo_reqwidth()) / 2
         y = (self.parent.winfo_screenheight() - self.parent.winfo_reqheight()) / 2

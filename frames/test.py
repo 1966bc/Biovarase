@@ -26,7 +26,7 @@ class UI(tk.Toplevel):
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
 
     def init_ui(self):
 
@@ -127,21 +127,21 @@ class UI(tk.Toplevel):
 
     def update_tests_methods(self, last_id):
 
-        if self.nametowidget(".").engine.get_instance("tests_methods") == True:
+        if self.nametowidget(".").engine.get_instance("dict_tests") == True:
 
-            self.nametowidget(".tests_methods").set_tests()
+            self.nametowidget(".dict_tests").set_tests()
 
             if self.index is not None:
                 which = self.selected_item[0]
             else:
                 which = last_id
 
-            point_to = list(self.nametowidget(".tests_methods").dict_tests.keys())[list(self.nametowidget(".tests_methods").dict_tests.values()).index(which)]
+            point_to = list(self.nametowidget(".dict_tests").dict_tests.keys())[list(self.nametowidget(".dict_tests").dict_tests.values()).index(which)]
 
-            self.nametowidget(".tests_methods").lstTests.focus()        
-            self.nametowidget(".tests_methods").lstTests.see(point_to) 
-            self.nametowidget(".tests_methods").lstTests.selection_set(point_to)
-            self.nametowidget(".tests_methods").lstTests.event_generate("<<ListboxSelect>>")
+            self.nametowidget(".dict_tests").lstTests.focus()        
+            self.nametowidget(".dict_tests").lstTests.see(point_to) 
+            self.nametowidget(".dict_tests").lstTests.selection_set(point_to)
+            self.nametowidget(".dict_tests").lstTests.event_generate("<<ListboxSelect>>")
             
     def on_cancel(self, evt=None):
         self.destroy()

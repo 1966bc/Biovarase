@@ -30,7 +30,7 @@ class UI(tk.Toplevel):
         self.columnconfigure(2, weight=1)
         self.init_ui()
         self.nametowidget(".").engine.set_instance(self, 1)
-        self.nametowidget(".").engine.set_me_center(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
         
     def init_ui(self):
 
@@ -114,10 +114,10 @@ class UI(tk.Toplevel):
         self.dict_sites = {}
         voices = []
 
-        sql = "SELECT sites.site_id, suppliers.supplier\
+        sql = "SELECT sites.site_id, suppliers.description\
                FROM sites\
                INNER JOIN suppliers ON sites.comp_id = suppliers.supplier_id\
-               ORDER BY suppliers.supplier;"
+               ORDER BY suppliers.description;"
     
         rs = self.nametowidget(".").engine.read(True, sql, ())
 

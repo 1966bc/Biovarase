@@ -22,7 +22,7 @@ class UI(tk.Toplevel):
         self.primary_key = "lab_id"
         self.obj = None
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
         self.nametowidget(".").engine.set_instance(self, 1)
 
     def init_ui(self):

@@ -17,7 +17,7 @@ class UI(tk.Toplevel):
         self.attributes('-topmost', True)
         self.transient(parent) 
         self.resizable(0,0)
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
         self.init_ui()
 
     def init_ui(self):

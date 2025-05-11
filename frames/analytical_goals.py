@@ -18,7 +18,7 @@ class UI(tk.Toplevel):
         self.elements = tk.IntVar()
         self.vcmd = self.nametowidget(".").engine.get_validate_integer(self)
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
 
     def init_ui(self):
 
@@ -78,12 +78,12 @@ class UI(tk.Toplevel):
                       goals.teap001,\
                       results.workstation_id\
                FROM tests\
-               INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
-               INNER JOIN goals ON tests_methods.test_method_id = goals.test_method_id\
-               INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
-               INNER JOIN batches ON tests_methods.test_method_id = batches.test_method_id\
+               INNER JOIN dict_tests ON tests.test_id = dict_tests.test_id\
+               INNER JOIN goals ON dict_tests.dict_test_id = goals.dict_test_id\
+               INNER JOIN samples ON dict_tests.sample_id = samples.sample_id\
+               INNER JOIN batches ON dict_tests.dict_test_id = batches.dict_test_id\
                INNER JOIN results ON batches.batch_id = results.batch_id\
-               INNER JOIN sections ON tests_methods.section_id = sections.section_id\
+               INNER JOIN sections ON dict_tests.section_id = sections.section_id\
                INNER JOIN labs ON sections.lab_id = labs.lab_id\
                INNER JOIN sites ON labs.site_id = sites.site_id\
                INNER JOIN workstations ON results.workstation_id = workstations.workstation_id\

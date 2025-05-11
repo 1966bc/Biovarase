@@ -12,7 +12,7 @@ from tkinter import messagebox
 
 import frames.supplier as ui
 
-SQL = "SELECT * FROM suppliers ORDER BY supplier;"
+SQL = "SELECT * FROM suppliers ORDER BY description;"
 
 class UI(tk.Toplevel):
     def __init__(self, parent):
@@ -25,7 +25,7 @@ class UI(tk.Toplevel):
         self.primary_key = "supplier_id"
         self.obj = None
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
 
     def init_ui(self):
 

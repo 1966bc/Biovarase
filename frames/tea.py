@@ -25,7 +25,7 @@ class UI(tk.Toplevel):
         
         self.parent = parent
         #self.minsize(1200, 600)
-        self.nametowidget(".").engine.set_me_center(self)
+        self.nametowidget(".").engine.center_window_relative_to_parent(self)
         self.init_ui()
 
     def init_ui(self):
@@ -71,7 +71,7 @@ class UI(tk.Toplevel):
 
         sql = "SELECT *\
                FROM batches\
-               WHERE test_method_id = ?\
+               WHERE dict_test_id = ?\
                AND workstation_id = ?\
                AND status =1\
                ORDER BY expiration DESC;"
@@ -94,14 +94,14 @@ class UI(tk.Toplevel):
         sql = """
             SELECT result_id,
                    ROUND(result,2),
-                   strftime('%d-%m-%Y', recived),
+                   strftime('%d-%m-%Y', received),
                    status,
-                   recived
+                   received
             FROM results
             WHERE batch_id = ?
               AND workstation_id = ?
               AND is_delete = 0
-            ORDER BY recived DESC
+            ORDER BY received DESC
             LIMIT ?;
         """
 

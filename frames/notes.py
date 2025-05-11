@@ -27,10 +27,10 @@ class UI(tk.Toplevel):
         self.batch = tk.StringVar()
         self.description = tk.StringVar()
         self.result = tk.StringVar()
-        self.recived = tk.StringVar()
+        self.received = tk.StringVar()
 
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
 
     def init_ui(self):
 
@@ -53,7 +53,7 @@ class UI(tk.Toplevel):
         
         ttk.Label(w, text="Recived:").pack(side=tk.TOP)
         tk.Label(w, font="Verdana 12 bold",
-                 textvariable=self.recived).pack(side=tk.TOP)
+                 textvariable=self.received).pack(side=tk.TOP)
 
         w.pack(side=tk.LEFT, fill=tk.Y, expand=0)
 
@@ -103,7 +103,7 @@ class UI(tk.Toplevel):
 
         dt = selected_result[5].strftime('%d-%m-%Y')
 
-        self.recived.set(dt)
+        self.received.set(dt)
 
         sql = "SELECT notes.note_id,\
                       actions.action,\

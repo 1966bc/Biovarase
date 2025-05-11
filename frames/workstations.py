@@ -22,14 +22,7 @@ class UI(tk.Toplevel):
         self.primary_key = "workstation_id"
         self.obj = None
         self.init_ui()
-        self.center_me()
-
-    def center_me(self,):
-        """center window on the screen"""
-
-        x = self.parent.winfo_rootx()
-        y = self.parent.winfo_rooty()
-        self.geometry("+%d+%d" % (x, y))           
+        self.nametowidget(".").engine.center_window_on_screen(self)
 
     def init_ui(self):
 
@@ -79,18 +72,18 @@ class UI(tk.Toplevel):
 
     def set_values(self):
 
-        sql = "SELECT sites.site_id,suppliers.supplier\
+        sql = "SELECT sites.site_id,suppliers.description\
                FROM sites\
                INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
                WHERE sites.supplier_id =?\
                AND sites.status =1\
-               ORDER BY suppliers.supplier ASC;"
+               ORDER BY suppliers.description ASC;"
 
         section_id = self.nametowidget(".").engine.get_section_id()
         
-        rs_idd = self.nametowidget(".").engine.get_idd_by_section_id(section_id)
+        related_ids = self.nametowidget(".").engine.get_related_ids_by_section(section_id)
 
-        args = (rs_idd[1],)
+        args = (related_ids[1],)
 
         rs = self.nametowidget(".").engine.read(True, sql, args)
 

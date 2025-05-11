@@ -34,7 +34,7 @@ class UI(tk.Toplevel):
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
 
     def init_ui(self):
 
@@ -137,7 +137,7 @@ class UI(tk.Toplevel):
 
         self.selected_test_method = selected_test_method
 
-        sql = "SELECT * FROM goals WHERE test_method_id =?"
+        sql = "SELECT * FROM goals WHERE dict_test_id =?"
         args = (selected_test_method[0],)
         self.selected_goal = self.nametowidget(".").engine.read(False, sql, args)
         

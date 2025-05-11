@@ -27,7 +27,7 @@ class UI(tk.Toplevel):
 
         self.parent = parent
         self.batches = []
-        self.nametowidget(".").engine.set_me_center(self)
+        self.nametowidget(".").engine.center_window_relative_to_parent(self)
         self.init_ui()
 
     def init_ui(self):

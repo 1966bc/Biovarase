@@ -23,7 +23,7 @@ class UI(tk.Toplevel):
         self.table = "tests"
         self.primary_key = "test_id"
         self.init_ui()
-        self.nametowidget(".").engine.set_me_center(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
         
     def init_ui(self):
         
@@ -69,7 +69,7 @@ class UI(tk.Toplevel):
     
     def set_values(self):
 
-        sql = "SELECT sites.site_id,suppliers.supplier AS site\
+        sql = "SELECT sites.site_id,suppliers.description AS site\
                FROM sites\
                INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
                WHERE sites.status=1;"
@@ -157,17 +157,17 @@ class UI(tk.Toplevel):
         for i in self.lstItems.get_children():
             self.lstItems.delete(i)
 
-        sql = "SELECT tests_methods.test_method_id,\
-                      tests_methods.code,\
+        sql = "SELECT dict_tests.dict_test_id,\
+                      dict_tests.code,\
                       tests.description,\
                       methods.method,\
-                      tests_methods.status\
+                      dict_tests.status\
                FROM tests\
-               INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
-               INNER JOIN methods ON tests_methods.method_id = methods.method_id\
-               WHERE tests_methods.section_id =?\
+               INNER JOIN dict_tests ON tests.test_id = dict_tests.test_id\
+               INNER JOIN methods ON dict_tests.method_id = methods.method_id\
+               WHERE dict_tests.section_id =?\
                AND tests.status=1\
-               AND tests_methods.status=1\
+               AND dict_tests.status=1\
                ORDER BY tests.description;"
     
         rs = self.nametowidget(".").engine.read(True, sql, args)
@@ -197,7 +197,7 @@ class UI(tk.Toplevel):
 
             pk = int(item_iid[0])
             
-            self.selected_dict_test = self.nametowidget(".").engine.get_selected("tests_methods", "test_method_id", pk)
+            self.selected_dict_test = self.nametowidget(".").engine.get_selected("dict_tests", "dict_test_id", pk)
             self.selected_test = self.nametowidget(".").engine.get_selected("tests", "test_id", self.selected_dict_test[1])
             
     def on_activated_dict_test(self, evt=None):
@@ -208,9 +208,9 @@ class UI(tk.Toplevel):
 
             pk = int(item_iid[0])
 
-            selected_item = self.nametowidget(".").engine.get_selected("tests_methods", "test_method_id", pk)
+            selected_item = self.nametowidget(".").engine.get_selected("dict_tests", "dict_test_id", pk)
 
-            sql = "UPDATE tests_methods SET section_id = 0 WHERE test_method_id =?;"
+            sql = "UPDATE dict_tests SET section_id = 0 WHERE dict_test_id =?;"
             args = (selected_item[0],)
             self.nametowidget(".").engine.write(sql, args)
             args = (self.selected_section[0],)

@@ -3,7 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   autumn MMXXIII
+# modify:   ver MMXXV
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -31,7 +31,7 @@ class UI(tk.Toplevel):
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
 
 
     def init_ui(self):
@@ -130,8 +130,6 @@ class UI(tk.Toplevel):
         self.status.set(self.selected_item[8])
 
     def get_values(self,):
-
-        print(type(self.selected_item[4]))
 
         if self.index is not None:
             pswrd = self.selected_item[4]

@@ -22,7 +22,7 @@ class UI(tk.Toplevel):
         self.device_id = tk.StringVar()
         self.description = tk.StringVar()
         self.serial = tk.StringVar()
-        self.ranck = tk.IntVar()
+        self.rank = tk.IntVar()
         self.status = tk.BooleanVar()
 
         self.vcmd_int = self.nametowidget(".").engine.get_validate_integer(self)
@@ -31,7 +31,7 @@ class UI(tk.Toplevel):
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.nametowidget(".").engine.center_window_on_screen(self)
 
     def init_ui(self):
 
@@ -76,7 +76,7 @@ class UI(tk.Toplevel):
                                justify=tk.CENTER,
                                validate="key",
                                validatecommand=self.vcmd_int,
-                               textvariable=self.ranck)
+                               textvariable=self.rank)
         ent_ranck.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         
@@ -144,14 +144,14 @@ class UI(tk.Toplevel):
     
     def set_sections(self):
 
-        rs_idd = self.nametowidget(".").engine.get_idd_by_section_id(self.selected_section[0])
+        related_ids = self.nametowidget(".").engine.get_related_ids_by_section(self.selected_section[0])
 
         index = 0
         self.dict_sections = {}
         values = []
 
         sql = "SELECT section_id, section FROM sections WHERE lab_id =? AND status =1 ORDER BY section;"
-        args = (rs_idd[3],)
+        args = (related_ids[3],)
         rs = self.nametowidget(".").engine.read(True, sql, args)
        
         for i in rs:
@@ -169,7 +169,7 @@ class UI(tk.Toplevel):
                 self.description.get(),
                 self.serial.get(),
                 self.dict_sections[self.cbSections.current()],
-                self.ranck.get(),
+                self.rank.get(),
                 self.status.get()]
 
     def set_values(self,):
@@ -190,7 +190,7 @@ class UI(tk.Toplevel):
         except:
             pass
 
-        self.ranck.set(self.selected_workstation[6])
+        self.rank.set(self.selected_workstation[6])
 
         self.status.set(self.selected_workstation[7])
 
