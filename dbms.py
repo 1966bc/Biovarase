@@ -33,8 +33,6 @@ class DBMS:
                 db_err,
                 type(db_err),
                 sys.modules[__name__],
-                level="error",
-                message=f"Database connection error: {db_err}",
             )
             self.con = None  # Important: Set con to None if connection fails
         except Exception as e:
@@ -43,8 +41,6 @@ class DBMS:
                 e,
                 type(e),
                 sys.modules[__name__],
-                level="error",
-                message=f"An unexpected error occurred during connection: {e}",
             )
             self.con = None
 
@@ -61,8 +57,6 @@ class DBMS:
                 db_err,
                 type(db_err),
                 sys.modules[__name__],
-                level="error",
-                message=f"Database write error: {db_err} \nSQL: {sql}\nArgs: {args}",
             )
             return None
         except Exception as e:
@@ -72,8 +66,6 @@ class DBMS:
                 e,
                 type(e),
                 sys.modules[__name__],
-                level="error",
-                message=f"Unexpected error during write: {e} \nSQL: {sql}\nArgs: {args}",
             )
             return None
         finally:
@@ -85,8 +77,6 @@ class DBMS:
                     cur_err,
                     type(cur_err),
                     sys.modules[__name__],
-                    level="error",
-                    message=f"Error closing cursor after write: {cur_err}",
                 )
 
     def read(self, fetch, sql, args=()):
@@ -112,8 +102,6 @@ class DBMS:
                 db_err,
                 type(db_err),
                 sys.modules[__name__],
-                level="error",
-                message=f"Database read error: {db_err} \nSQL: {sql}\nArgs: {args}",
             )
             return None
         except Exception as e:
@@ -122,8 +110,6 @@ class DBMS:
                 e,
                 type(e),
                 sys.modules[__name__],
-                level="error",
-                message=f"Unexpected error during read: {e} \nSQL: {sql}\nArgs: {args}",
             )
             return None
         finally:
@@ -135,8 +121,6 @@ class DBMS:
                     cur_err,
                     type(cur_err),
                     sys.modules[__name__],
-                    level="error",
-                    message=f"Error closing cursor after read: {cur_err}",
                 )
 
     def get_last_row_id(self, cur):
@@ -148,8 +132,6 @@ class DBMS:
                 db_err,
                 type(db_err),
                 sys.modules[__name__],
-                level="error",
-                message=f"Error getting last row ID: {db_err}",
             )
             return None
         except Exception as e:
@@ -158,8 +140,6 @@ class DBMS:
                 e,
                 type(e),
                 sys.modules[__name__],
-                level="error",
-                message=f"Unexpected error getting last row ID: {e}",
             )
             return None
 
@@ -188,8 +168,6 @@ class DBMS:
                 db_err,
                 type(db_err),
                 sys.modules[__name__],
-                level="error",
-                message=f"Database error getting fields for table {table}: {db_err}",
             )
             return tuple()  # Return empty tuple on error
         except Exception as e:
@@ -198,8 +176,6 @@ class DBMS:
                 e,
                 type(e),
                 sys.modules[__name__],
-                level="error",
-                message=f"Unexpected error getting fields for table {table}: {e}",
             )
             return tuple()
 
@@ -222,8 +198,6 @@ class DBMS:
                 e,
                 type(e),
                 sys.modules[__name__],
-                level="error",
-                message=f"Error generating UPDATE SQL for table {table}: {e}",
             )
             return None
 
@@ -242,8 +216,6 @@ class DBMS:
                 e,
                 type(e),
                 sys.modules[__name__],
-                level="error",
-                message=f"Error generating INSERT SQL for table {table}: {e}",
             )
             return None
 
@@ -262,8 +234,6 @@ class DBMS:
                             db_err,
                             type(db_err),
                             sys.modules[__name__],
-                            level="error",
-                            message=f"Database error during dump: {db_err}",
                         )
                         return False  # Indicate failure
                     except Exception as e:
@@ -272,19 +242,15 @@ class DBMS:
                             e,
                             type(e),
                             sys.modules[__name__],
-                            level="error",
-                            message=f"Unexpected error during database dump: {e}",
                         )
                         return False  # Indicate failure
                     return True  # Indicate success
                 else:
                     self.on_log(
                         inspect.stack()[0][3],
-                        None,
-                        None,
+                        "Warning",
+                        "Database connection is not established. Cannot dump.",
                         sys.modules[__name__],
-                        level="warning",
-                        message="Database connection is not established. Cannot dump.",
                     )
                     return False  # Indicate failure
         except IOError as io_err:
@@ -293,8 +259,6 @@ class DBMS:
                 io_err,
                 type(io_err),
                 sys.modules[__name__],
-                level="error",
-                message=f"IOError during database dump to file '{filename}': {io_err}",
             )
             return False  # Indicate failure
         except Exception as e:
@@ -303,8 +267,6 @@ class DBMS:
                 e,
                 type(e),
                 sys.modules[__name__],
-                level="error",
-                message=f"Unexpected error during file operation for database dump: {e}",
             )
             return False  # Indicate failure
 

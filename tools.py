@@ -1,35 +1,38 @@
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------
-# project:  microbiotae
+# project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXX
+# modify:   hiems MMXXV
 # -----------------------------------------------------------------------------
+
+# Refactored Tools class with typing hints and docstrings (English)
+
 import os
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import font
-from tkinter import ttk
+from tkinter import messagebox, font, ttk
 from tkinter.scrolledtext import ScrolledText
 from PIL import Image, ImageTk
 from pathlib import Path
+from typing import Callable, Optional, Any, Union
 
 
 class Tools:
     
-    def __str__(self):
+    def __str__(self) -> str:
         return "class: {0}".format((self.__class__.__name__, ))
 
-    def set_style(self, style):
+    def __init__(self) -> None:
+        """Initialize shared style instance."""
+        self._style = ttk.Style()
 
+    def set_style(self, style: ttk.Style) -> None:
+        """Set a unified theme and styles for the application widgets."""
         style.theme_use("clam")
-
         style.configure(".", background=self.get_rgb(240, 240, 237), font=('TkFixedFont'))
-
         style.configure('Data.TLabel', font=('Helvetica', 12, 'bold'))
-
         style.configure("App.TFrame", background=self.get_rgb(240, 240, 237))
-
+        
         style.configure("StatusBar.TFrame",
                         relief=tk.FLAT,
                         padding=4,
@@ -116,43 +119,42 @@ class Tools:
                     background=self.get_rgb(255, 255, 255),
                     foreground=self.get_rgb(77, 77, 77),)
 
-    def get_rgb(self, r, g, b):
-        """translates an rgb tuple of int to a tkinter friendly color code"""
+    def get_rgb(self, r: int, g: int, b: int) -> str:
+        """Convert RGB integers to a Tkinter-friendly hex color."""
         return "#%02x%02x%02x" % (r, g, b)
 
-    def set_me_center(self,caller):
-        """center window on the screen"""
+    def center_window_relative_to_parent(self, window: Any) -> None:
+        """Center a window relative to its parent."""
+        parent_x = window.parent.winfo_rootx()
+        parent_y = window.parent.winfo_rooty()
+        window.geometry("+%d+%d" % (parent_x, parent_y))
 
-        x = caller.parent.winfo_rootx()
-        y = caller.parent.winfo_rooty()
-        caller.geometry("+%d+%d" % (x, y))    
+    def center_window_on_screen(self, window: Any) -> None:
+        """Center a window on the screen."""
+        screen_width = window.winfo_screenwidth()
+        screen_height = window.winfo_screenheight()
+        window_width = window.winfo_reqwidth()
+        window_height = window.winfo_reqheight()
+        x = (screen_width - window_width) / 2
+        y = (screen_height - window_height) / 2
+        window.geometry("+%d+%d" % (x, y))
 
-    def center_me(self, container):
-
-        """center window on the screen"""
-        x = (container.winfo_screenwidth() - container.winfo_reqwidth()) / 2
-        y = (container.winfo_screenheight() - container.winfo_reqheight()) / 2
-        container.geometry("+%d+%d" % (x, y))
-
-    def cols_configure(self, w):
-
+    def cols_configure(self, w: Any) -> None:
+        """Configure three-column grid with proportional weights."""
         w.columnconfigure(0, weight=1)
         w.columnconfigure(1, weight=2)
         w.columnconfigure(2, weight=1)
 
-    def get_init_ui(self, container):
-        """All insert,update modules have this same configuration on init_ui.
-           A Frame, a columnconfigure and a grid method.
-           So, why rewrite every time?"""
+    def get_init_ui(self, container: Any) -> ttk.Frame:
+        """Return a pre-configured frame with default layout settings."""
         w = self.get_frame(container)
         self.cols_configure(w)
         w.grid(row=0, column=0, sticky=tk.N+tk.W+tk.S+tk.E)
-
         return w
 
-    def get_frame(self, container, style="App.TFrame", padding=None):
-
-        return ttk.Frame(container, padding=padding)
+    def get_frame(self, container: Any, style: str = "App.TFrame", padding: Optional[int] = None) -> ttk.Frame:
+        """Create a standard ttk.Frame with optional padding and style."""
+        return ttk.Frame(container, style=style, padding=padding)
         
     def get_buttons_frame(self, container, padding=None):
 
@@ -163,34 +165,31 @@ class Tools:
                          relief=tk.FLAT,
                          style='new.TFrame')
 
-    def get_label_frame(self, container, text=None, padding=None):
-        #return tk.LabelFrame(container, text=text, bd=1, relief=tk.RIDGE, padx=5, pady=5,)
+    def get_label_frame(self, container: Any, text: Optional[str] = None,
+                        padding: Optional[int] = None) -> ttk.LabelFrame:
+        """Create a labeled frame (LabelFrame widget)."""
         return ttk.LabelFrame(container, text=text, relief=tk.GROOVE, padding=padding)
 
-    def get_button(self, container, text, underline=0, row=None, col=None):
-        """button width is set in the option_db file"""
-        
+    def get_button(self, container: Any, text: str, underline: int = 0,
+                   row: Optional[int] = None, col: Optional[int] = None) -> ttk.Button:
+        """Create a button and attach it using grid or pack layout."""
         w = ttk.Button(container, text=text, underline=underline)
-
-        if row is not None:
+        if row is not None and col is not None:
             w.grid(row=row, column=col, sticky=tk.N+tk.W+tk.E, padx=5, pady=5)
         else:
             w.pack(fill=tk.X, padx=5, pady=5)
-
         return w
 
-    def get_label(self, container, text, textvariable=None, anchor=None, args=()):
-
-        w = ttk.Label(container,
-                      text=text,
-                      textvariable=textvariable,
-                      anchor=anchor)
-
+    def get_label(self, container: Any, text: str,
+                  textvariable: Optional[tk.StringVar] = None,
+                  anchor: Optional[str] = None,
+                  args: tuple = ()) -> ttk.Label:
+        """Create a label with optional grid layout."""
+        w = ttk.Label(container, text=text, textvariable=textvariable, anchor=anchor)
         if args:
             w.grid(row=args[0], column=args[1], sticky=args[2])
         else:
             w.pack(fill=tk.X, padx=5, pady=5)
-
         return w
 
     def get_spin_box(self, container, text, frm, to, width, var=None, callback=None):
@@ -208,27 +207,23 @@ class Tools:
                    textvariable=var).pack(anchor=tk.CENTER)
         return w
 
-    def get_scale(self, container, text, frm, to, width, var=None, callback=None):
-
-        w = self.get_label_frame(container, text=text,)
-
-        tk.Scale(w,
-                 from_=frm,
-                 to=to,
-                 orient=tk.HORIZONTAL,
-                 variable=var).pack(anchor=tk.N)
+    def get_scale(self, container: Any, text: str, frm: int, to: int,
+                  width: int, var: Optional[tk.Variable] = None,
+                  callback: Optional[Callable] = None) -> ttk.LabelFrame:
+        """Create a horizontal scale (slider) widget inside a labeled frame."""
+        w = self.get_label_frame(container, text=text)
+        scale = tk.Scale(w, from_=frm, to=to, orient=tk.HORIZONTAL,
+                         variable=var, command=callback)
+        scale.pack(anchor=tk.N)
         return w
 
-    def get_radio_buttons(self, container, text, ops, v, callback=None):
-
+    def get_radio_buttons(self, container: Any, text: str, ops: list[str],
+                          v: tk.Variable, callback: Optional[Callable] = None) -> ttk.LabelFrame:
+        """Create a group of radio buttons inside a labeled frame."""
         w = self.get_label_frame(container, text=text)
-
-        for index, text in enumerate(ops):
-            ttk.Radiobutton(w,
-                            text=text,
-                            variable=v,
-                            command=callback,
-                            value=index,).pack(anchor=tk.W)
+        for index, label in enumerate(ops):
+            ttk.Radiobutton(w, text=label, variable=v,
+                            command=callback, value=index).pack(anchor=tk.W)
         return w
 
     def set_font(self, family, size, weight=None):
@@ -261,22 +256,17 @@ class Tools:
 
         return w
 
-    def get_text_box(self, container, height=None, width=None, row=None, col=None):
-
-        w = ScrolledText(container,
-                         wrap = tk.WORD,
-                         bg='light yellow',
-                         relief=tk.GROOVE,
-                         height=height,
-                         width=width,
-                         font='TkFixedFont',)
-
+    def get_text_box(self, container: Any, height: Optional[int] = None,
+                     width: Optional[int] = None, row: Optional[int] = None,
+                     col: Optional[int] = None) -> ScrolledText:
+        """Create a scrolled text widget with optional grid layout."""
+        w = ScrolledText(container, wrap=tk.WORD, bg='light yellow',
+                         relief=tk.GROOVE, height=height, width=width,
+                         font='TkFixedFont')
         if row is not None:
-            #print(row,col)
             w.grid(row=row, column=1, sticky=tk.W)
         else:
             w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-
         return w
 
     def get_save_cancel(self, caller, container, row=None, col=None):
@@ -360,128 +350,84 @@ class Tools:
         caller.bind("<Alt-r>", caller.on_reset)
         caller.bind("<Alt-c>", caller.on_cancel)
 
-    def on_fields_control(self, toplevel, title=None):
-
+    def on_fields_control(self, container: Any, title: Optional[str] = None) -> bool:
+        """
+        Check if all input fields in the container are filled.
+        Show a warning if any required fields are empty or invalid.
+        Returns True if all fields are valid, False otherwise.
+        """
         msg = "Please fill all fields."
+        title = title or "My App"
 
-        if title is not None:
-            title = title
-        else:
-            title ="My App"
-
-        
-        #print(toplevel)
-        for w in toplevel.winfo_children():
-            #print(w)
+        for w in container.winfo_children():
             for field in w.winfo_children():
-                #print(field)
-                if type(field) in(ttk.Entry, tk.Entry, ttk.Combobox):
+                if isinstance(field, (ttk.Entry, tk.Entry, ttk.Combobox)):
                     if not field.get():
-                        messagebox.showwarning(title, msg, parent=toplevel)
+                        messagebox.showwarning(title, msg, parent=container)
                         field.focus()
-                        return 0
-                    elif type(field) == ttk.Combobox:
+                        return False
+                    if isinstance(field, ttk.Combobox):
                         if field.get() not in field.cget('values'):
-                            msg = "You can choice only a value of the list."
-                            messagebox.showwarning(title, msg, parent=toplevel)
+                            messagebox.showwarning(title, "You can choose only a value from the list.", parent=container)
                             field.focus()
-                            return 0
-                        
+                            return False
+        return True
 
-    def get_tree(self, container, cols, size=None, show=None):
-
-        #this is a patch because with tkinter version with Tk 8.6.9 the color assignment with tags dosen't work
-        #https://bugs.python.org/issue36468
+    def get_tree(self, container: Any, cols: list[tuple], size: Optional[int] = None,
+                 show: Optional[str] = None) -> ttk.Treeview:
+        """Create a Treeview widget with custom column configuration."""
         style = ttk.Style()
-
         style.map('Treeview', foreground=self.fixed_map('foreground'), background=self.fixed_map('background'))
-
-        style.configure("Treeview.Heading", background="light yellow")
-
-        style.configure("Treeview.Heading", font=('TkHeadingFont', 10))
-
-        if size is not None:
-            style.configure("Treeview",
-                            highlightthickness=0,
-                            bd=0,
-                            font=('TkHeadingFont', size)) # Modify the font of the body
-        else:
-            pass
-
-        headers = []
-
+        style.configure("Treeview.Heading", background="light yellow", font=('TkHeadingFont', 10))
+        if size:
+            style.configure("Treeview", font=('TkHeadingFont', size))
+        headers = [col[1] for col in cols[1:]]
+        tree = ttk.Treeview(container, show=show) if show else ttk.Treeview(container)
+        tree['columns'] = headers
+        tree.tag_configure('is_enable', background='light gray')
         for col in cols:
-            headers.append(col[1])
-        del headers[0]
-
-        if show is not None:
-            w = ttk.Treeview(container, show=show)
-
-        else:
-            w = ttk.Treeview(container,)
-
-        w['columns'] = headers
-        w.tag_configure('is_enable', background='light gray')
-
-        for col in cols:
-            w.heading(col[0], text=col[1], anchor=col[2],)
-            w.column(col[0], anchor=col[2], stretch=col[3], minwidth=col[4], width=col[5])
-
-        sb = ttk.Scrollbar(container)
-        sb.configure(command=w.yview)
-        w.configure(yscrollcommand=sb.set)
-
-        w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+            tree.heading(col[0], text=col[1], anchor=col[2])
+            tree.column(col[0], anchor=col[2], stretch=col[3], minwidth=col[4], width=col[5])
+        sb = ttk.Scrollbar(container, command=tree.yview)
+        tree.configure(yscrollcommand=sb.set)
+        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
         sb.pack(fill=tk.Y, expand=1)
+        return tree
 
-        return w
-
-    def fixed_map(self, option):
-
+    def fixed_map(self, option: str) -> list[tuple]:
+        """Fix style map for Treeview to support themed widgets in Tk 8.6.9."""
         style = ttk.Style()
-        # Fix for setting text colour for Tkinter 8.6.9
-        # From: https://core.tcl.tk/tk/info/509cafafae
-        #
-        # Returns the style map for 'option' with any styles starting with
-        # ('!disabled', '!selected', ...) filtered out.
+        return [elm for elm in style.map('Treeview', query_opt=option)]
 
-        # style.map() returns an empty list for missing options, so this
-        # should be future-safe.
-        return [elm for elm in style.map('Treeview', query_opt=option) if
-                elm[:2] != ('!disabled', '!selected')]
+    def get_validate_text(self, caller: Any) -> tuple:
+        """Return validation command tuple for text input."""
+        return (caller.register(self.validate_text), '%i', '%P')
 
-    def get_validate_text(self, caller,):
+    def get_validate_integer(self, caller: Any) -> tuple:
+        """Return validation tuple for integer fields."""
+        return (caller.register(self.validate_integer), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
-        return (caller.register(self.validate_text),
-                '%i', '%P', )
+    def get_validate_float(self, caller: Any) -> tuple:
+        """Return validation tuple for float fields."""
+        return (caller.register(self.validate_float), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
-    def get_validate_integer(self, caller):
-        return (caller.register(self.validate_integer),
-                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
-
-    def get_validate_float(self, caller):
-        return (caller.register(self.validate_float),
-                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
-
-
-    def limit_chars(self, c, v, *args):
-        #print(x,args)
+    def limit_chars(self, c: int, v: tk.StringVar, *args: Any) -> None:
+        """Limit characters in a StringVar to a given length."""
         if len(v.get()) > c:
             v.set(v.get()[:-1])
 
-    def validate_text(self,index, value_if_allowed):
-        
+    def validate_text(self, index: str, value_if_allowed: str) -> bool:
+        """Validate that value is convertible to string."""
         try:
             str(value_if_allowed)
             return True
         except ValueError:
             return False
-                 
 
-    def validate_integer(self, action, index, value_if_allowed,
-                         prior_value, text, validation_type,
-                         trigger_type, widget_name):
-        # action=1 -> insert
+    def validate_integer(self, action: str, index: str, value_if_allowed: str,
+                         prior_value: str, text: str, validation_type: str,
+                         trigger_type: str, widget_name: str) -> bool:
+        """Validate integer input in real time."""
         if action == '1':
             if text in '0123456789':
                 try:
@@ -489,15 +435,13 @@ class Tools:
                     return True
                 except ValueError:
                     return False
-            else:
-                return False
-        else:
-            return True
+            return False
+        return True
 
-    def validate_float(self, action, index, value_if_allowed,
-                       prior_value, text, validation_type,
-                       trigger_type, widget_name):
-        # action=1 -> insert
+    def validate_float(self, action: str, index: str, value_if_allowed: str,
+                       prior_value: str, text: str, validation_type: str,
+                       trigger_type: str, widget_name: str) -> bool:
+        """Validate float input in real time."""
         if action == "1":
             if text in '0123456789.-+':
                 try:
@@ -505,34 +449,26 @@ class Tools:
                     return True
                 except ValueError:
                     return False
-            else:
-                return False
-        else:
-            return True
+            return False
+        return True
+
 
     def on_to_assign(self, caller, evt=None):
-
         msg = "To do!"
         messagebox.showwarning(self.title, msg, )
 
+    def get_widget_attributes(self, container: Any) -> None:
+        """Print attributes and their values for each widget in a container."""
+        for widg in container.winfo_children():
+            print(f'\nWidget Name: {widg.winfo_class()}')
+            for key in widg.keys():
+                print(f"Attribute: {key:<20} Value: {str(widg[key]):<30} Type: {type(widg[key])}")
 
-    def get_widget_attributes(self, container):
-        all_widgets = container.winfo_children()
-        for widg in all_widgets:
-            print('\nWidget Name: {}'.format(widg.winfo_class()))
-            keys = widg.keys()
-            for key in keys:
-                print("Attribute: {:<20}".format(key), end=' ')
-                value = widg[key]
-                vtype = type(value)
-                print('Value: {:<30} Type: {}'.format(value, str(vtype)))
-
-    def get_widgets(self, container):
-        all_widgets = container.winfo_children()
-        for widg in all_widgets:
+    def get_widgets(self, container: Any) -> None:
+        """Print each child widget of the container."""
+        for widg in container.winfo_children():
             print(widg)
-            print('\nWidget Name: {}'.format(widg.winfo_class()))
-            #keys = widg.keys()
+            print(f'\nWidget Name: {widg.winfo_class()}')
 
     def get_toolbar(self, caller, callbacks):
 

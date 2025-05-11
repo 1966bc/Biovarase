@@ -32,15 +32,13 @@ class QC:
             self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
-                        sys.modules[__name__],
-                        level='warning')
+                        sys.modules[__name__])
             return 1  # Default value for sample standard deviation
         except ValueError:
             self.on_log(inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
-                        sys.modules[__name__],
-                        level='warning')
+                        sys.modules[__name__])
             return 1 # Default value if file is not valid
 
     def get_sd(self, values, ddof=None):
@@ -58,7 +56,7 @@ class QC:
             return sd
 
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
 
     def get_cv(self, values, ddof=None):
@@ -71,10 +69,10 @@ class QC:
             cv = round((sd / mean) * 100, 2)
             return cv
         except ZeroDivisionError as zde:
-            self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__], level='warning')
+            self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__])
             return None
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
         
     def get_mean(self, values):
@@ -87,7 +85,7 @@ class QC:
             mean = round(np.mean(a, dtype=np.float64), 2)
             return mean
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
 
     def get_range(self, values):
@@ -99,7 +97,7 @@ class QC:
             r = round(np.ptp(a), 2)
             return r
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
         
     def get_bias(self, avg, target):
@@ -109,13 +107,13 @@ class QC:
             bias = abs(round(float((avg - target) / float(target)) * 100, 2))
             return bias
         except ZeroDivisionError as zde:
-            self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__], level='warning')
+            self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__])
             return 0  # Or handle as appropriate
         except ValueError as ve:
-            self.on_log(inspect.stack()[0][3], ve, type(ve), sys.modules[__name__], level='warning')
+            self.on_log(inspect.stack()[0][3], ve, type(ve), sys.modules[__name__])
             return 0
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return 0
 
     def get_cvt(self,cvw,cva):
@@ -125,7 +123,7 @@ class QC:
             cvt = round(math.sqrt(cva**2 + cvw**2), 2)
             return cvt
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
 
     def get_allowable_bias(self,cvw,cvb):
@@ -134,7 +132,7 @@ class QC:
             allowable_bias = abs(round(math.sqrt((math.pow(cvw, 2) + math.pow(cvb, 2))) * 0.25, 2))        
             return allowable_bias
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
         
     def get_te(self, target, avg, cv):
@@ -144,7 +142,7 @@ class QC:
             te = round(bias + (self.get_zscore() * cv), 2)
             return te
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
 
     def get_tea(self, cvw, cvb):
@@ -154,7 +152,7 @@ class QC:
                         self.get_allowable_bias(cvw, cvb), 2)
             return tea
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None     
         
     def get_sigma(self, cvw, cvb, target, series):
@@ -167,10 +165,10 @@ class QC:
             sigma = (tea - bias) / cv
             return round(sigma, 2)
         except ZeroDivisionError as zde:
-            self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__], level='warning')
+            self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__])
             return None
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
 
     def get_tea_tes_comparision(self, avg, target, cvw, cvb, sd, cva):
@@ -196,10 +194,10 @@ class QC:
                 r = ">"
             return TEobs, c
         except ZeroDivisionError as zde:
-            self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__], level='warning')
+            self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__])
             return None
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
 
     def get_imp(self,cvw):
@@ -211,7 +209,7 @@ class QC:
             imp = round(cvw * 0.5, 2)
             return imp
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
 
     def percentage(self, percent, whole):
@@ -220,10 +218,10 @@ class QC:
             result = (percent * whole) / 100.0
             return result
         except TypeError as te:
-            self.on_log(inspect.stack()[0][3], te, type(te), sys.modules[__name__], level='warning')
+            self.on_log(inspect.stack()[0][3], te, type(te), sys.modules[__name__])
             return None
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
 
 def main():

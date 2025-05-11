@@ -30,7 +30,7 @@ class Exporter:
             worksheet.title = title
             return wb, worksheet
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None, None
 
     def save_and_launch(self, workbook, suffix='.xlsx'):
@@ -42,7 +42,7 @@ class Exporter:
             self.launch(path)
             return path
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
 
     def get_controls(self):
@@ -51,23 +51,23 @@ class Exporter:
             today = datetime.datetime.now()
             sql = "SELECT samples.sample,\
                            tests.description,\
-                           tests_methods.code,\
+                           dict_tests.code,\
                            batches.lot_number,\
                            strftime('%d-%m-%Y', expiration),\
                            controls.description,\
                            controls.reference,\
-                           suppliers.supplier,\
+                           suppliers.description,\
                            batches.expiration,\
                            batches.description,\
                            batches.target\
                       FROM tests\
-                      INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
-                      INNER JOIN samples ON tests_methods.sample_id  = samples.sample_id\
-                      INNER JOIN batches ON tests_methods.test_method_id = batches.test_method_id\
+                      INNER JOIN dict_tests ON tests.test_id = dict_tests.test_id\
+                      INNER JOIN samples ON dict_tests.sample_id  = samples.sample_id\
+                      INNER JOIN batches ON dict_tests.dict_test_id = batches.dict_test_id\
                       INNER JOIN controls ON batches.control_id = controls.control_id\
                       INNER JOIN suppliers ON controls.supplier_id = suppliers.supplier_id\
                       WHERE tests.status =1\
-                        AND tests_methods.status =1\
+                        AND dict_tests.status =1\
                         AND batches.status =1\
                       ORDER BY tests.description ASC;"
 
@@ -131,45 +131,45 @@ class Exporter:
                         worksheet.cell(row=row_num, column=8, value=i[5])
                         #controls.reference
                         worksheet.cell(row=row_num, column=9, value=i[6])
-                        #suppliers.supplier
+                        #suppliers.description
                         worksheet.cell(row=row_num, column=10, value=i[7])
 
                         row_num += 1
                     except (ValueError, TypeError) as ve:
-                        self.on_log(inspect.stack()[0][3], ve, type(ve), sys.modules[__name__], level='warning')
+                        self.on_log(inspect.stack()[0][3], ve, type(ve), sys.modules[__name__])
                         continue  # Log and continue to the next iteration
                     except Exception as e:
-                        self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+                        self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
                         break  # Log and exit the loop
 
             self.save_and_launch(workbook)
 
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
 
     def get_counts(self, selected_date):
 
         try:
-            sql = "SELECT tests_methods.test_method_id,\
-                          tests_methods.code,\
+            sql = "SELECT dict_tests.dict_test_id,\
+                          dict_tests.code,\
                           tests.description,\
                           samples.sample,\
                           categories.description,\
                           COUNT(results.batch_id)\
                    FROM tests\
-                   INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
-                   INNER JOIN batches ON tests_methods.test_method_id = batches.test_method_id\
-                   INNER JOIN categories ON tests_methods.category_id = categories.category_id\
-                   INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
-                   INNER JOIN sections ON tests_methods.section_id = sections.section_id\
+                   INNER JOIN dict_tests ON tests.test_id = dict_tests.test_id\
+                   INNER JOIN batches ON dict_tests.dict_test_id = batches.dict_test_id\
+                   INNER JOIN categories ON dict_tests.category_id = categories.category_id\
+                   INNER JOIN samples ON dict_tests.sample_id = samples.sample_id\
+                   INNER JOIN sections ON dict_tests.section_id = sections.section_id\
                    INNER JOIN labs ON sections.lab_id = labs.lab_id\
                    INNER JOIN results ON batches.batch_id = results.batch_id\
                    WHERE tests.status=1\
-                   AND tests_methods.status=1\
+                   AND dict_tests.status=1\
                    AND sections.section_id =?\
-                   AND DATE(results.recived) >=?\
+                   AND DATE(results.received) >=?\
                    AND results.is_delete=0\
-                   GROUP BY tests_methods.test_method_id\
+                   GROUP BY dict_tests.dict_test_id\
                    ORDER BY tests.description;"
 
             args = (self.get_section_id(), selected_date[0])
@@ -201,7 +201,7 @@ class Exporter:
             self.save_and_launch(workbook)
 
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
 
     def get_notes(self, args):
 
@@ -215,7 +215,7 @@ class Exporter:
                            batches.target,\
                            batches.sd,\
                            results.result,\
-                           results.recived,\
+                           results.received,\
                            actions.action,\
                            notes.description,\
                            notes.modified,\
@@ -225,8 +225,8 @@ class Exporter:
                            labs.lab,\
                            sections.section\
                       FROM tests\
-                      INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
-                      INNER JOIN batches ON tests_methods.test_method_id = batches.test_method_id\
+                      INNER JOIN dict_tests ON tests.test_id = dict_tests.test_id\
+                      INNER JOIN batches ON dict_tests.dict_test_id = batches.dict_test_id\
                       INNER JOIN results ON batches.batch_id = results.batch_id\
                       INNER JOIN workstations ON results.workstation_id = workstations.workstation_id\
                       INNER JOIN equipments ON workstations.equipment_id = equipments.equipment_id\
@@ -234,7 +234,7 @@ class Exporter:
                       INNER JOIN labs ON sections.lab_id = labs.lab_id\
                       INNER JOIN notes ON results.result_id = notes.result_id\
                       INNER JOIN actions ON notes.action_id = actions.action_id\
-                      WHERE DATE(results.recived) >=?\
+                      WHERE DATE(results.received) >=?\
                         AND sections.section_id =?\
                         AND tests.status = 1\
                         AND batches.status = 1\
@@ -289,16 +289,16 @@ class Exporter:
                         worksheet.cell(row=row_num, column=14, value=i[13])
                         row_num += 1
                     except (TypeError, ValueError) as ve:
-                        self.on_log(inspect.stack()[0][3], ve, type(ve), sys.modules[__name__], level='warning')
+                        self.on_log(inspect.stack()[0][3], ve, type(ve), sys.modules[__name__])
                         continue
                     except Exception as e:
-                        self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+                        self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
                         break
 
             self.save_and_launch(workbook)
 
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
 
 
 
@@ -338,28 +338,28 @@ class Exporter:
 
             row_num += 1
 
-            sql_tests = "SELECT tests_methods.test_method_id,\
+            sql_tests = "SELECT dict_tests.dict_test_id,\
                                      samples.sample,\
                                      tests.description,\
                                      categories.description\
                                 FROM tests\
-                                INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id\
-                                INNER JOIN categories ON tests_methods.category_id = categories.category_id\
-                                INNER JOIN samples ON tests_methods.sample_id = samples.sample_id\
-                                INNER JOIN sections ON tests_methods.section_id = sections.section_id\
+                                INNER JOIN dict_tests ON tests.test_id = dict_tests.test_id\
+                                INNER JOIN categories ON dict_tests.category_id = categories.category_id\
+                                INNER JOIN samples ON dict_tests.sample_id = samples.sample_id\
+                                INNER JOIN sections ON dict_tests.section_id = sections.section_id\
                                 INNER JOIN labs ON sections.lab_id = labs.lab_id\
                                 INNER JOIN sites ON labs.site_id = sites.site_id\
                                 WHERE labs.lab_id =?\
                                   AND tests.status=1\
-                                  AND tests_methods.status=1\
+                                  AND dict_tests.status=1\
                                 ORDER BY tests.description;"
 
             try:
-                rs_idd = self.get_idd_by_section_id(self.get_section_id())
-                args = (rs_idd[3],)
+                related_ids = self.get_related_ids_by_section(self.get_section_id())
+                args = (related_ids[3],)
                 rs_tests_methods = self.read(True, sql_tests, args)
             except Exception as e:
-                self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+                self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
                 return
 
             for test_method in rs_tests_methods:
@@ -373,13 +373,13 @@ class Exporter:
                                   INNER JOIN sections ON workstations.section_id = sections.section_id\
                                   INNER JOIN labs ON labs.lab_id = sections.lab_id\
                                   WHERE batches.status =1\
-                                    AND batches.test_method_id =?\
+                                    AND batches.dict_test_id =?\
                                     AND labs.lab_id =?;"
 
                 try:
-                    rs_batches = self.read(True, sql_batches, (test_method[0], rs_idd[3]))
+                    rs_batches = self.read(True, sql_batches, (test_method[0], related_ids[3]))
                 except Exception as e:
-                    self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+                    self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
                     continue
 
                 for batch in rs_batches:
@@ -389,27 +389,27 @@ class Exporter:
 
                     sql_results = "SELECT results.result_id,\
                                            ROUND(results.result,2),\
-                                           recived,\
+                                           received,\
                                            workstations.description,\
                                            workstations.workstation_id,\
-                                           results.recived\
+                                           results.received\
                                       FROM results\
                                       INNER JOIN workstations ON results.workstation_id = workstations.workstation_id\
                                       WHERE results.batch_id =?\
-                                        AND DATE(results.recived) =?\
+                                        AND DATE(results.received) =?\
                                         AND workstations.workstation_id =?\
                                         AND results.status = 1\
                                         AND results.is_delete=0\
-                                      ORDER BY results.recived DESC;"
+                                      ORDER BY results.received DESC;"
 
                     try:
                         args_results = (batch[0], selected_date[0], batch[3],)
                         rs_results = self.read(True, sql_results, args_results)
                     except Exception as e:
-                        self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+                        self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
                         continue
 
-                    sql_controls = "SELECT controls.description, suppliers.supplier\
+                    sql_controls = "SELECT controls.description, suppliers.description\
                                       FROM controls\
                                       INNER JOIN suppliers ON controls.supplier_id = suppliers.supplier_id\
                                       WHERE control_id =?"
@@ -417,7 +417,7 @@ class Exporter:
                     try:
                         rs_controls = self.read(False, sql_controls, (batch[1],))
                     except Exception as e:
-                        self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+                        self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
                         rs_controls = None
 
                     if rs_results is not None:
@@ -425,7 +425,7 @@ class Exporter:
                             try:
                                 series = self.get_series(batch[0], result[4], int(self.get_observations()), result[0])
                             except Exception as e:
-                                self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+                                self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
                                 continue
 
                             if len(series) > 9:
@@ -433,8 +433,7 @@ class Exporter:
                                     rule = self.get_westgard_violation_rule(batch[6], batch[7], series, batch,
                                                                             test_method)
                                 except Exception as e:
-                                    self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__],
-                                                level='warning')
+                                    self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
                                     rule = "Error"
                             else:
                                 rule = "NED"
@@ -465,12 +464,11 @@ class Exporter:
 
                                     try:
                                         formatted_expiration = datetime.datetime.strptime(batch[5], "%Y-%m-%d").date()
-                                        received_date = datetime.datetime.strptime(result[2], "%Y-%m-%d %H:%M:%S").date()
+                                        received_date = result[2].date()
                                         diff_date = formatted_expiration - received_date
                                         x = diff_date.days
                                     except (ValueError, TypeError) as ve:
-                                        self.on_log(inspect.stack()[0][3], ve, type(ve), sys.modules[__name__],
-                                                    level='warning')
+                                        self.on_log(inspect.stack()[0][3], ve, type(ve), sys.modules[__name__])
                                         expiration_display = expiration_date
                                         expiration_fill = None
                                     else:
@@ -529,10 +527,10 @@ class Exporter:
                                     row_num += 1
 
                             except Exception as e:
-                                self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+                                self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
 
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error')
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
 
         for col_letter, width in column_widths.items():
             worksheet.column_dimensions[col_letter].width = width + 2  # add padding
@@ -559,9 +557,9 @@ class Exporter:
             max_width_e_q = 6
             
             # header
-            cols = ('T', 'analyte', 'batch', 'expiration', 'target', 'avg',
+            cols = ('T', 'Analyte', 'Batch', 'Expiration Date', 'Target', 'AVG',
                     'CVa', 'CVw', 'CVb', 'Imp%', 'Bias%', 'TEa%', 'CVt', 'k imp',
-                    'k bias', 'TE%', 'Drc%', 'records', 'wst')
+                    'k bias', 'TE%', 'Drc%', 'Records', 'Workstation')
             font_bold = Font(bold=True, name='Arial')
             worksheet.append(list(cols))
 
@@ -570,7 +568,7 @@ class Exporter:
                 try:
                     cell.font = font_bold
                 except Exception as e:
-                    self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='warning')
+                    self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
 
             for col_num, text in enumerate(cols):
                 column_widths[col_num] = max(column_widths[col_num], len(str(text)) + 2)
@@ -606,7 +604,7 @@ class Exporter:
                             tea_tes_comparison_res = self.get_tea_tes_comparision(avg, target, cvw, cvb, sd, cva)
                             formula_drc = self.get_formula_drc(row_num)
                         except Exception as e:
-                            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='warning')
+                            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
                             continue  # Skip to the next row in 'rs' if a calculation fails
 
                         workstation_description = None
@@ -615,7 +613,7 @@ class Exporter:
                                 rs_workstation = self.read(False, "SELECT description FROM workstations WHERE workstation_id =?", (i[12],))
                                 workstation_description = rs_workstation[0] if rs_workstation else None
                             except Exception as e:
-                                self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='warning')
+                                self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
                                 workstation_description = None
 
                         row_data = [
@@ -683,29 +681,29 @@ class Exporter:
                                     fill_color = self._convert_color(tea_tes_comparison_res[1])
                                     cell.fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type='solid')
                                 except Exception as e:
-                                    self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='warning', message=f"Error converting color: {tea_tes_comparison_res[1]}")
+                                    self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
 
                             row_num += 1
                         except Exception as e:
-                            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='warning', message="Error appending row to worksheet")
+                            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
 
                 except Exception as e:
-                    self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error', message=f"Error processing data row: {i}")
+                    self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
 
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error', message="General error in get_analitical_goals method")
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
 
         # set cols width
         try:
             for i, width in enumerate(column_widths):
                 worksheet.column_dimensions[get_column_letter(i + 1)].width = width
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='warning', message="Error setting column widths")
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
 
         try:
             self.save_and_launch(workbook)
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error', message="Error saving and launching workbook")
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
 
     def get_formula_drc(self, row):
         """compute critical difference"""
@@ -730,7 +728,7 @@ class Exporter:
                 try:
                     k = round((cva / cvw), 2)
                 except ZeroDivisionError as zde:
-                    self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__], level='warning', message="Division by zero error in get_formula_k_imp")
+                    self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__])
                     return None, None
                 
                 if k is not None:  # Proceed only if k was successfully calculated
@@ -749,7 +747,7 @@ class Exporter:
             else:
                 return "0", None
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error', message="General error in get_formula_k_imp")
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None, None
 
     def get_formula_k_bias(self, avg, target, cvw, cva, row):
@@ -758,14 +756,14 @@ class Exporter:
             try:
                 cvt = self.get_cvt(cva, cvw)
             except Exception as e:
-                self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='warning', message="Error calculating cvt")
+                self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
                 return None, None
             
             if cvt is not None and cvt != 0:
                 try:
                     k = round(self.get_bias(avg, target) / cvt, 2)
                 except ZeroDivisionError as zde:
-                    self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__], level='warning', message="Division by zero error in get_formula_k_bias")
+                    self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__])
                     return None, None
                 
                 if k is not None:
@@ -784,7 +782,7 @@ class Exporter:
             else:
                 return "0", None
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error', message="General error in get_formula_k_bias")
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None, None
 
     def get_cvt(self, cva, cvw):
@@ -792,7 +790,7 @@ class Exporter:
             cvt = round(math.sqrt(cva**2 + cvw**2), 2)
             return cvt
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error', message="Error calculating cvt")
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
 
     def get_bias(self, avg, target):
@@ -800,17 +798,17 @@ class Exporter:
             bias = abs(round(float((avg - target) / float(target)) * 100, 2))
             return bias
         except ZeroDivisionError as zde:
-            self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__], level='warning', message="Division by zero error in get_bias")
+            self.on_log(inspect.stack()[0][3], zde, type(zde), sys.modules[__name__])
             return None
         except ValueError as ve:
-            self.on_log(inspect.stack()[0][3], ve, type(ve), sys.modules[__name__], level='warning', message="Value error in get_bias")
+            self.on_log(inspect.stack()[0][3], ve, type(ve), sys.modules[__name__])
             return None
         except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error', message="General error in get_bias")
+            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__])
             return None
 
     def _convert_color(self, color_name):
-        color_map = {'red': 'FFFF0000', 'yellow': 'FFFFFF00', 'blue': 'FF0000FF', 'green': 'FF00FF00'}  # Unificato
+        color_map = {'red': 'FFFF0000', 'yellow': 'FFFFFF00', 'blue': 'FF0000FF', 'green': 'FF00FF00'}
         return color_map.get(color_name.lower(), 'FFFFFFFF')
 
 def main():

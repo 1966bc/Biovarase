@@ -29,14 +29,55 @@ class Controller:
                 e,
                 type(e),
                 sys.modules[__name__],
-                level="error",
-                message=f"Error generating new password: {e}",
             )
-            return None  # Or raise an exception, depending on your error handling policy
+            return None
 
+    def get_company_data(self,):
+
+        sql = "SELECT sites.site_id,\
+                      companies.description AS company,\
+                      suppliers.description AS site,\
+                      labs.lab,\
+                      sections.section\
+               FROM sites\
+               INNER JOIN suppliers AS companies ON companies.supplier_id = sites.supplier_id\
+               INNER JOIN suppliers ON suppliers.supplier_id = sites.comp_id\
+               INNER JOIN labs ON sites.site_id = labs.site_id\
+               INNER JOIN sections ON labs.lab_id = sections.lab_id\
+               WHERE sections.section_id =?;"
+
+        args = (self.get_section_id(),)
+
+        rs = self.read(False, sql, args)
+
+        return rs
+
+    def check_password(self, password):
+
+        password = password.strip()
+
+        sql = "SELECT pswrd FROM users WHERE user_id =?;"
+        args = (self.log_user[0],)
+        cur = self.con.cursor()
+        cur.execute(sql, args)
+        result = cur.fetchone()
+        if result:
+            #print(f"Hashed from DB: {result[0]}, Attempted Password (bytes): {password}")
+            hashed_password_from_db = result[0].encode('utf-8')
+            if bcrypt.checkpw(password, hashed_password_from_db):        
+                return True
+            else:
+                return False
+        else:
+            return False
+        
+    def generate_password(self, password):
+        # Generate a salt and hash the password
+        return bcrypt.hashpw(password.encode('utf-8') , bcrypt.gensalt())
+    
     def on_login(self, args):
         nick, password = args
-        password = password.strip()  # Rimuovi spazi (già byte string)
+        password = password.strip()
 
         sql = "SELECT pswrd FROM users WHERE nickname =?;"
         cur = self.con.cursor()
@@ -44,8 +85,10 @@ class Controller:
         result = cur.fetchone()
 
         if result:
-            hashed_password_from_db = result[0].encode('utf-8')  # Codifica l'hash dal DB a byte string
-            if bcrypt.checkpw(password, hashed_password_from_db):  # Confronta byte strings
+            
+            hashed_password_from_db = result[0].encode('utf-8')
+            
+            if bcrypt.checkpw(password, hashed_password_from_db):
                 sql = "SELECT * FROM users WHERE nickname =?;"
                 cur = self.con.cursor()
                 cur.execute(sql, (nick,))
@@ -63,24 +106,20 @@ class Controller:
             for k, v in enumerate(self.read(False, sql, args)):
                 d[k] = v
             return d
-        except sqlite3.Error as db_err:
-            self.on_log(inspect.stack()[0][3], db_err, type(db_err), sys.modules[__name__], level='error', message=f"Database error while selecting from {table}: {db_err}")
-            return {}
-        except Exception as e:
-            self.on_log(inspect.stack()[0][3], e, type(e), sys.modules[__name__], level='error', message=f"An unexpected error occurred in get_selected: {e}")
+        except:
             return {}
 
     def get_mandatory(self):
         mandatory_tests = []
         sql = "SELECT tests.description " \
               "FROM tests " \
-              "INNER JOIN tests_methods ON tests.test_id = tests_methods.test_id " \
-              "INNER JOIN sections ON tests_methods.section_id = sections.section_id " \
+              "INNER JOIN dict_tests ON tests.test_id = dict_tests.test_id " \
+              "INNER JOIN sections ON dict_tests.section_id = sections.section_id " \
               "INNER JOIN labs ON sections.lab_id = labs.lab_id " \
               "INNER JOIN sites ON labs.site_id = sites.site_id " \
               "WHERE sections.section_id =? " \
-              "AND tests_methods.is_mandatory = 1 " \
-              "AND tests_methods.status = 1;"
+              "AND dict_tests.is_mandatory = 1 " \
+              "AND dict_tests.status = 1;"
 
         args = (self.get_section_id(),)
         rs = self.read(True, sql, args)  # Let read() handle errors
@@ -103,7 +142,7 @@ class Controller:
                    AND result_id <=?\
                    AND workstation_id =?\
                    AND is_delete =0\
-                   ORDER BY recived DESC\
+                   ORDER BY received DESC\
                    LIMIT ?;"
 
             args = (batch_id, result_id, workstation_id, limit)
@@ -117,7 +156,7 @@ class Controller:
                    WHERE batch_id =?\
                    AND workstation_id =?\
                    AND is_delete =0\
-                   ORDER BY recived DESC\
+                   ORDER BY received DESC\
                    LIMIT ?;"
 
             args = (batch_id, workstation_id, limit)
@@ -132,7 +171,7 @@ class Controller:
 
         return series
 
-    def get_idd_by_section_id(self, section_id):
+    def get_related_ids_by_section(self, section_id):
 
         sql = "SELECT sites.site_id,\
                       sites.supplier_id,\

@@ -62,11 +62,9 @@ class Westgards:
                 inspect.stack()[0][3],
                 e,
                 type(e),
-                sys.modules[__name__],
-                level="error",
-                message=f"Error in get_westgard_violation_rule: {e}",
+                sys.modules[__name__]
             )
-            return None  # Or raise an exception, depending on your needs
+            return None 
 
     def get_standard_deviations(self, target, sd):
         try:
@@ -82,9 +80,7 @@ class Westgards:
                 inspect.stack()[0][3],
                 e,
                 type(e),
-                sys.modules[__name__],
-                level="error",
-                message=f"Error in get_standard_deviations: {e}",
+                sys.modules[__name__]
             )
 
     def get_rule_12S(self):
@@ -105,11 +101,9 @@ class Westgards:
                 inspect.stack()[0][3],
                 e,
                 type(e),
-                sys.modules[__name__],
-                level="error",
-                message=f"Error in get_rule_12S: {e}",
+                sys.modules[__name__]
             )
-            return False  # Or a suitable default value
+            return False  
 
     def get_rule_13S(self):
         """1:3s
@@ -121,9 +115,7 @@ class Westgards:
                 inspect.stack()[0][3],
                 e,
                 type(e),
-                sys.modules[__name__],
-                level="error",
-                message=f"Error in get_rule_13S: {e}",
+                sys.modules[__name__]
             )
             return False
 
@@ -141,9 +133,7 @@ class Westgards:
                 inspect.stack()[0][3],
                 e,
                 type(e),
-                sys.modules[__name__],
-                level="error",
-                message=f"Error in get_rule_22S: {e}",
+                sys.modules[__name__]
             )
             return False
 
@@ -165,9 +155,7 @@ class Westgards:
                 inspect.stack()[0][3],
                 e,
                 type(e),
-                sys.modules[__name__],
-                level="error",
-                message=f"Error in get_rule_R4S: {e}",
+                sys.modules[__name__]
             )
             return False
 
@@ -186,9 +174,7 @@ class Westgards:
                 inspect.stack()[0][3],
                 e,
                 type(e),
-                sys.modules[__name__],
-                level="error",
-                message=f"Error in get_rule_41S: {e}",
+                sys.modules[__name__]
             )
             return False
 
@@ -206,9 +192,7 @@ class Westgards:
                 inspect.stack()[0][3],
                 e,
                 type(e),
-                sys.modules[__name__],
-                level="error",
-                message=f"Error in get_rule_10X: {e}",
+                sys.modules[__name__]
             )
             return False
 

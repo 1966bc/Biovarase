@@ -16,32 +16,30 @@ Features:
 
 Author: Giuseppe Costanzi (1966bc)
 License: GNU GPL v3
-Version: 1.0
+Version: 1.2
 """
 
 import sys
 import datetime
 import tkinter as tk
 from tkinter import messagebox
-from typing import Optional, Union
 
 
 class Calendarium(tk.Frame):
-    def __init__(self, caller: tk.Widget, name: str) -> None:
+    def __init__(self, caller, name):
         super().__init__()
+        
         self.vcmd = (self.register(self.validate), '%d', '%P', '%S')
-
         self.caller = caller
         self.name = name
-
         self.day = tk.IntVar()
         self.month = tk.IntVar()
         self.year = tk.IntVar()
 
-    def __str__(self) -> str:
-        return f"class: {self.__class__.__name__}"
+    def __str__(self):
+        return "class: {0}".format(self.__class__.__name__)
 
-    def get_calendarium(self, container: tk.Widget, row: Optional[int] = None, col: Optional[int] = None) -> tk.LabelFrame:
+    def get_calendarium(self, container, row=None, col=None):
         frame = tk.LabelFrame(
             container,
             text=self.name,
@@ -49,23 +47,24 @@ class Calendarium(tk.Frame):
             padx=2,
             pady=2,
             relief=tk.GROOVE,
+            background="#f0f0ed",
         )
 
-        day_frame = tk.LabelFrame(frame, text="Day")
+        day_frame = tk.LabelFrame(frame, background="#f0f0ed", text="Day")
         day_spinbox = tk.Spinbox(
             day_frame, width=2, from_=1, to=31,
             validate='key', validatecommand=self.vcmd,
             textvariable=self.day, bg='white', fg='blue', relief=tk.GROOVE
         )
 
-        month_frame = tk.LabelFrame(frame, text="Month")
+        month_frame = tk.LabelFrame(frame, background="#f0f0ed", text="Month")
         month_spinbox = tk.Spinbox(
             month_frame, width=2, from_=1, to=12,
             validate='key', validatecommand=self.vcmd,
             textvariable=self.month, bg='white', fg='blue', relief=tk.GROOVE
         )
 
-        year_frame = tk.LabelFrame(frame, text="Year")
+        year_frame = tk.LabelFrame(frame, background="#f0f0ed", text="Year")
         year_spinbox = tk.Spinbox(
             year_frame, width=4, from_=1900, to=3000,
             validate='key', validatecommand=self.vcmd,
@@ -93,21 +92,21 @@ class Calendarium(tk.Frame):
         self.month.set(today.month)
         self.year.set(today.year)
 
-    def get_date(self, caller: tk.Widget) -> Union[datetime.date, bool]:
+    def get_date(self, caller):
         try:
             return datetime.date(self.year.get(), self.month.get(), self.day.get())
         except ValueError as e:
             messagebox.showerror(caller.title(), f"Date format error:\n{e}", parent=caller)
             return False
 
-    def get_timestamp(self) -> datetime.datetime:
+    def get_timestamp(self): 
         now = datetime.datetime.now()
         return datetime.datetime(
             self.year.get(), self.month.get(), self.day.get(),
             now.hour, now.minute, now.second
         )
 
-    def validate(self, action: str, value: str, text: str) -> bool:
+    def validate(self, action, value, text):
         if action == '1':
             if text.isdigit():
                 try:

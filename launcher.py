@@ -46,8 +46,6 @@ class Launcher:
                 fnf_error,
                 type(fnf_error),
                 sys.modules[__name__],
-                level="warning",
-                message=f"File not found: {path}",
             )
             self.launch_result = False  # Indicate failure
         except subprocess.CalledProcessError as subproc_error:
@@ -55,19 +53,15 @@ class Launcher:
                 inspect.stack()[0][3],
                 subproc_error,
                 type(subproc_error),
-                sys.modules[__name__],
-                level="error",
-                message=f"Error opening file with subprocess: {subproc_error}",
-            )
+                sys.modules[__name__]
+                )
             self.launch_result = False
         except OSError as os_error:
             self.on_log(
                 inspect.stack()[0][3],
                 os_error,
                 type(os_error),
-                sys.modules[__name__],
-                level="error",
-                message=f"OS error while opening file: {os_error}",
+                sys.modules[__name__]
             )
             self.launch_result = False
         except Exception as e:
