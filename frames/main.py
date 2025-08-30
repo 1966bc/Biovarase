@@ -16,6 +16,8 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 
+import matplotlib
+matplotlib.use('TkAgg')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -27,8 +29,6 @@ except:
 import matplotlib.ticker
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib import gridspec
-
-matplotlib.use('TkAgg')
 
 import frames.license
 import frames.tests
@@ -243,8 +243,7 @@ class Main(tk.Toplevel):
 
         ttk.Label(frm_lists, text="Categories").pack(side=tk.TOP, fill=tk.X, expand=0)
 
-        self.cbCategories = ttk.Combobox(frm_lists, style="App.TCombobox")
-        self.cbCategories = ttk.Combobox(frm_lists, state='readonly')
+        self.cbCategories = ttk.Combobox(frm_lists, style="App.TCombobox", state="readonly")
         self.cbCategories.bind("<<ComboboxSelected>>", self.on_selected_category)
         self.cbCategories.pack(side=tk.TOP, fill=tk.X, pady=5, expand=0)
 
@@ -348,7 +347,9 @@ class Main(tk.Toplevel):
         self.canvas = FigureCanvasTkAgg(fig, frm_graphs)
         toolbar = nav_tool(self.canvas, frm_graphs)
         toolbar.update()
-        self.canvas._tkcanvas.pack(fill=tk.BOTH, expand=1)
+        #don't use a private member
+        #self.canvas._tkcanvas.pack(fill=tk.BOTH, expand=1)
+        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=1)
 
         frm_data.pack(fill=tk.BOTH, expand=1)
         frm_lists.pack(side=tk.LEFT, fill=tk.Y, expand=0)
@@ -623,7 +624,10 @@ class Main(tk.Toplevel):
 
                 self.reset_batch_data()
                 self.set_batches()
+                # after populate listbox...
                 self.lstWorkstations.select_set(0)
+                self.lstWorkstations.event_generate("<<ListboxSelect>>")  # TRIGGER
+
 
     def set_batches(self):
 
@@ -909,7 +913,12 @@ class Main(tk.Toplevel):
                 self.selected_batch[4]
             )
 
-            bottom_text = f"from {dates[0]} to {dates[-1]} computed {count_series} on {count_rs} results"
+            bottom_text = (
+                f"from {dates[0]} to {dates[-1]} computed {count_series} on {count_rs} results"
+                if dates else
+                f"no enabled results; computed {count_series} on {count_rs} results"
+            )
+
             LeveyJenningsPlotHelper.add_footer_text(self.levey_jenning_ax, bottom_text)
             self.canvas.draw_idle()
         
