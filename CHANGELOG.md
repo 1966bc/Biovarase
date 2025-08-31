@@ -1,6 +1,11 @@
 # Biovarase
 ## changelog
 
+**2025-08-31**
+
+Dear followers, you can find the latest news under the hood. I have rewritten the entire DBMS class, merged the two methods that previously built the SQL constructs for insert and update separately into a new method called “build_sql,” replaced the old ‘get_fields’ method with “_get_columns,” in the old one we removed the pk, which is always the first field, in the new one we pull everything up and then we see, in the sense that in “build_sql” depending on the option chosen in update we add the pk at the end to make WHERE pk =? and in insert we remove it. We also have a new method called “_ensure_connection” to prevent connection losses, which may not make sense in sqlie3 locally, but it does if you change the database engine.
+All this is also thanks to ChatGPT, which is a great help when writing code, if you know what to write, of course...
+
 **2025-04-27**
 
 Hello my dear fellows, two important changes have been made, the first is that the xlwt library for generating excel files has been replaced with the openpyxl library and the whole login part has been rewritten using the bcrypt library instead of hashlib. 
