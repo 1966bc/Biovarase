@@ -14,8 +14,8 @@ import datetime
 class DBMS:
     def __init__(self, db_name, autocommit=True):
         
-        self.db_name: str = db_name
-        self.autocommit: bool = autocommit
+        self.db_name = db_name
+        self.autocommit = autocommit
         self.con = None
         self._set_connection()
 
@@ -268,4 +268,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
