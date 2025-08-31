@@ -188,11 +188,7 @@ class DBMS:
         """
         try:
             all_cols = list(self._get_columns(table))  # includes PK as first column
-            if len(all_cols) < 2:
-                return None
-
-            op = op.strip().lower()
-
+        
             if op == "insert":
                 fields = all_cols[1:]  # skip PK
                 cols_list = ",".join(fields)
