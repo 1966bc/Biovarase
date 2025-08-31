@@ -285,14 +285,14 @@ class UI(tk.Toplevel):
             args = self.get_values()
 
             if self.index is not None:
-
-                sql = self.nametowidget(".").engine.get_update_sql("tests_methods", "test_method_id")
+                
+                sql = self.nametowidget(".").engine.build_sql("tests_methods", op="update")
 
                 args.append(self.selected_item[0])
 
             else:
 
-                sql = self.nametowidget(".").engine.get_insert_sql("tests_methods", len(args))
+                sql = self.nametowidget(".").engine.build_sql("tests_methods", op="insert")
 
             last_id = self.nametowidget(".").engine.write(sql, args)
  

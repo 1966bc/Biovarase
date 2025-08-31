@@ -145,13 +145,12 @@ class UI(tk.Toplevel):
 
             if self.index is not None:
 
-                sql = self.nametowidget(".").engine.get_update_sql(self.parent.table,
-                                                                   self.parent.primary_key)
+                sql = self.nametowidget(".").engine.build_sql(self.parent.table, op="update")
                 args.append(self.parent.selected_note[0])
 
             else:
 
-                sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
+                sql = self.nametowidget(".").engine.build_sql(self.parent.table, op="insert")
 
             self.nametowidget(".").engine.write(sql, args)
             self.parent.on_open(self.selected_test,

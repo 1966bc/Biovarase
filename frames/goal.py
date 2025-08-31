@@ -186,13 +186,13 @@ class UI(tk.Toplevel):
 
             if self.selected_goal is not None:
 
-                sql = self.nametowidget(".").engine.get_update_sql("goals", "goal_id")
+                sql = self.nametowidget(".").engine.build_sql("goals", op="update")
 
                 args.append(self.selected_goal[0])
 
             else:
 
-                sql = self.nametowidget(".").engine.get_insert_sql("goals", len(args))
+                sql = self.nametowidget(".").engine.build_sql("goals", op="insert")
             
             self.nametowidget(".").engine.write(sql, args)
  

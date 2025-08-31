@@ -395,13 +395,13 @@ class UI(tk.Toplevel):
 
             if self.index is not None:
 
-                sql = self.nametowidget(".").engine.get_update_sql("batches", "batch_id")
+                sql = self.nametowidget(".").engine.build_sql("batches", op="update")
 
                 args.append(self.selected_batch[0])
 
             else:
 
-                sql = self.nametowidget(".").engine.get_insert_sql("batches", len(args))
+                sql = self.nametowidget(".").engine.build_sql("batches", op="insert")
 
             last_id = self.nametowidget(".").engine.write(sql, args)
             

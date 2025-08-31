@@ -286,13 +286,13 @@ class UI(tk.Toplevel):
 
             if self.index is not None:
 
-                sql = self.nametowidget(".").engine.get_update_sql("dict_tests", "dict_test_id")
+                sql = self.nametowidget(".").engine.build_sql("dict_tests", op="update")
 
                 args.append(self.selected_item[0])
 
             else:
 
-                sql = self.nametowidget(".").engine.get_insert_sql("dict_tests", len(args))
+                sql = self.nametowidget(".").engine.build_sql("dict_tests", op="insert")
 
             last_id = self.nametowidget(".").engine.write(sql, args)
  
