@@ -12,268 +12,262 @@ import sqlite3 as lite
 import datetime
 
 class DBMS:
-    def __init__(self, db_name):
-        self.set_connection(db_name)
+    def __init__(self, db_name, autocommit=True):
+        
+        self.db_name: str = db_name
+        self.autocommit: bool = autocommit
+        self.con = None
+        self._set_connection()
 
     def __str__(self):
         return "class: {0}\nMRO: {1}".format(
-            self.__class__.__name__, [x.__name__ for x in DBMS.__mro__]
+            self.__class__.__name__, [x.__name__ for x in type(self).__mro__]
         )
 
-    def set_connection(self, db_name):
+    def _set_connection(self):
         try:
+            isolation = None if self.autocommit else "IMMEDIATE"
             self.con = lite.connect(
-                db_name,
+                self.db_name,
                 detect_types=lite.PARSE_DECLTYPES | lite.PARSE_COLNAMES,
-                isolation_level="IMMEDIATE",
+                isolation_level=isolation,
             )
-        except lite.Error as db_err:
-            self.on_log(
-                inspect.stack()[0][3],
-                db_err,
-                type(db_err),
-                sys.modules[__name__],
-            )
-            self.con = None  # Important: Set con to None if connection fails
+            return self.con
         except Exception as e:
-            self.on_log(
-                inspect.stack()[0][3],
-                e,
-                type(e),
-                sys.modules[__name__],
-            )
-            self.con = None
+            f = inspect.currentframe()
+            function = f.f_code.co_name
+            caller = f.f_back.f_code.co_name if f and f.f_back else "<top>"
+            self.on_log(function, e, type(e), sys.modules[__name__], caller)
+            return None
+
+
+    def _ensure_connection(self):
+        """Ensure there is a usable connection. If missing or broken, reopen it.
+        For SQLite we attempt a lightweight SELECT 1 to validate the handle.
+        """
+        if self.con is None:
+            self._set_connection()
+            return
+        try:
+            cur = self.con.cursor()
+            try:
+                cur.execute("SELECT 1")
+            finally:
+                cur.close()
+        except Exception:
+            # Reopen on failure
+            self._set_connection()
 
     def write(self, sql, args=()):
+        """
+            Execute a DML statement (INSERT/UPDATE/DELETE).
+            Returns:
+              - lastrowid when available and non-zero,
+              - otherwise the affected rowcount,
+              - None on error.
+            Commits only if autocommit is disabled.
+        """
+        cursor = None
         try:
-            cur = self.con.cursor()
-            cur.execute(sql, args)
-            self.con.commit()
-            return cur.lastrowid
-        except lite.Error as db_err:
-            self.con.rollback()
-            self.on_log(
-                inspect.stack()[0][3],
-                db_err,
-                type(db_err),
-                sys.modules[__name__],
-            )
-            return None
+            self._ensure_connection()
+            if self.con is None:
+                raise RuntimeError("No active DB connection")
+            
+            params = tuple(args)
+            cursor = self.con.cursor()
+            cursor.execute(sql, params)
+
+            if not self.autocommit:
+                self.con.commit()
+
+            last_id = getattr(cursor, "lastrowid", None)
+            return last_id if last_id not in (None, 0) else cursor.rowcount
+        
         except Exception as e:
-            self.con.rollback()
-            self.on_log(
-                inspect.stack()[0][3],
-                e,
-                type(e),
-                sys.modules[__name__],
-            )
-            return None
-        finally:
+            # Rollback only if autocommit is disabled
             try:
-                cur.close()
-            except lite.Error as cur_err:
-                self.on_log(
-                    inspect.stack()[0][3],
-                    cur_err,
-                    type(cur_err),
-                    sys.modules[__name__],
-                )
+                if cursor and not getattr(self, "autocommit", True):
+                    self.con.rollback()
+            except Exception:
+                pass
+
+            f = inspect.currentframe()
+            function = f.f_code.co_name
+            caller = f.f_back.f_code.co_name if f and f.f_back else "<top>"
+            self.on_log(function, e, type(e), sys.modules[__name__], caller)
+            return None
+
+        finally:
+
+            if cursor:
+                try:
+                    cursor.close()
+                except Exception as e:
+                    f = inspect.currentframe()
+                    function = f.f_code.co_name + ".close"
+                    caller = f.f_back.f_code.co_name if f and f.f_back else "<top>"
+                    self.on_log(function, e, type(e), sys.modules[__name__], caller)
 
     def read(self, fetch, sql, args=()):
-        """Remember that fetchall() return a list.  An empty list
-        is returned when no rows are available.  Testing if the list
-        is empty with 'if rs' or 'if not rs' Otherwise fetchone()
-        return a single sequence, or None when no more data is
-        available.  Testing as 'if rs is not None'.
+        """
+            Execute a SELECT.
+            If fetch is True:  return a list (possibly empty).
+            If fetch is False: return a single row or None when no rows.
+            Remember that fetchall() return a list.  An empty list
+            is returned when no rows are available.  Testing if the list
+            is empty with 'if rs' or 'if not rs' Otherwise fetchone()
+            return a single sequence, or None when no more data is
+            available.  Testing as 'if rs is not None'.
+        """
+        cursor = None
+        try:
+            self._ensure_connection()
+            if self.con is None:
+                raise RuntimeError("No active DB connection")
+            params = tuple(args)
+            cursor = self.con.cursor()
+            cursor.execute(sql, params)
+            return cursor.fetchall() if fetch else cursor.fetchone()
+        except Exception as e:
+            f = inspect.currentframe()
+            function = f.f_code.co_name
+            caller = f.f_back.f_code.co_name if f and f.f_back else "<top>"
+            self.on_log(function, e, type(e), sys.modules[__name__], caller)
+            # keep the original behavior: None on error
+            return None
+
+        finally:
+            if cursor:
+                try:
+                    cursor.close()
+                except Exception as e:
+                    f = inspect.currentframe()
+                    function = f.f_code.co_name + ".close"
+                    caller = f.f_back.f_code.co_name if f and f.f_back else "<top>"
+                    self.on_log(function, e, type(e), sys.modules[__name__], caller)
+
+    def _get_columns(self, table):
+        """
+            Internal helper.
+            Return all column names in declaration order (PK included as the first).
+            Uses LIMIT 0 to fetch only cursor metadata.
+        """
+        cursor = None
+        try:
+            self._ensure_connection()
+            if self.con is None:
+                raise RuntimeError("No active DB connection")
+
+            sql = f"SELECT * FROM {table} LIMIT 0"
+            cursor = self.con.cursor()
+            cursor.execute(sql)
+            desc = cursor.description or ()
+            return tuple(d[0] for d in desc)
+        except Exception as e:
+            f = inspect.currentframe()
+            function = f.f_code.co_name
+            caller = f.f_back.f_code.co_name if f and f.f_back else "<top>"
+            self.on_log(function, e, type(e), sys.modules[__name__], caller)
+            return tuple()
+        finally:
+            if cursor:
+                try:
+                    cursor.close()
+                except Exception as e:
+                    f = inspect.currentframe()
+                    function = f.f_code.co_name + ".close"
+                    caller = f.f_back.f_code.co_name if f and f.f_back else "<top>"
+                    self.on_log(function, e, type(e), sys.modules[__name__], caller)
+
+
+    def build_sql(self, table, op):
+        """
+        Generate SQL for INSERT or UPDATE using project conventions:
+        - PK is the first column 
+        - placeholders use '?'
         """
         try:
-            cur = self.con.cursor()
-            cur.execute(sql, args)
+            all_cols = list(self._get_columns(table))  # includes PK as first column
+            if len(all_cols) < 2:
+                return None
 
-            if fetch:
-                rs = cur.fetchall()
+            op = op.strip().lower()
+
+            if op == "insert":
+                fields = all_cols[1:]  # skip PK
+                cols_list = ",".join(fields)
+                placeholders = ",".join(["?"] * len(fields))
+                return f"INSERT INTO {table}({cols_list}) VALUES({placeholders})"
+
+            elif op == "update":
+                primary_key = all_cols[0]
+                set_cols = [c for c in all_cols if c != primary_key]
+                set_clause = ", ".join(f"{c} = ?" for c in set_cols)
+                return f"UPDATE {table} SET {set_clause} WHERE {primary_key} = ?"
+
             else:
-                rs = cur.fetchone()
-            cur.close()
-            return rs
-        except lite.Error as db_err:
-            self.on_log(
-                inspect.stack()[0][3],
-                db_err,
-                type(db_err),
-                sys.modules[__name__],
-            )
-            return None
+                raise ValueError("op must be 'insert' or 'update'")
+
         except Exception as e:
-            self.on_log(
-                inspect.stack()[0][3],
-                e,
-                type(e),
-                sys.modules[__name__],
-            )
-            return None
-        finally:
-            try:
-                cur.close()
-            except lite.Error as cur_err:
-                self.on_log(
-                    inspect.stack()[0][3],
-                    cur_err,
-                    type(cur_err),
-                    sys.modules[__name__],
-                )
-
-    def get_last_row_id(self, cur):
-        try:
-            return cur.lastrowid
-        except lite.Error as db_err:
-            self.on_log(
-                inspect.stack()[0][3],
-                db_err,
-                type(db_err),
-                sys.modules[__name__],
-            )
-            return None
-        except Exception as e:
-            self.on_log(
-                inspect.stack()[0][3],
-                e,
-                type(e),
-                sys.modules[__name__],
-            )
-            return None
-
-    def get_fields(self, table):
-        """Return fields name of the args table ordered by field number."""
-
-        try:
-            columns = []
-            fields = []
-            sql = "SELECT * FROM {0}".format(table)
-            cur = self.con.cursor()
-            cur.execute(sql)
-
-            for field in cur.description:
-                columns.append(field[0])
-            cur.close()
-
-            for k, v in enumerate(columns):
-                if k > 0:
-                    fields.append(v)
-
-            return tuple(fields)
-        except lite.Error as db_err:
-            self.on_log(
-                inspect.stack()[0][3],
-                db_err,
-                type(db_err),
-                sys.modules[__name__],
-            )
-            return tuple()  # Return empty tuple on error
-        except Exception as e:
-            self.on_log(
-                inspect.stack()[0][3],
-                e,
-                type(e),
-                sys.modules[__name__],
-            )
-            return tuple()
-
-    def get_update_sql(self, table, pk):
-        """Recive a table name and his pk to format an update sql statement."""
-        try:
-            fields = self.get_fields(table)
-            if not fields:
-                return None  # Or raise an exception if appropriate
-            y = []
-            for i in map((lambda x: x + " =?"), fields):
-                y.append(i)
-
-            s = ",".join(y)
-
-            return "UPDATE {0} SET {1} WHERE {2}{3}".format(table, s, pk, "=?")
-        except Exception as e:
-            self.on_log(
-                inspect.stack()[0][3],
-                e,
-                type(e),
-                sys.modules[__name__],
-            )
-            return None
-
-    def get_insert_sql(self, table, n):
-        """Recive a table name and len of args, len(args),  to format an insert sql statement"""
-        try:
-            fields = self.get_fields(table)
-            if not fields:
-                return None  # Or raise an exception
-            return "INSERT INTO {0}({1})VALUES({2})".format(
-                table, ",".join(fields), ",".join(["?"] * n)
-            )
-        except Exception as e:
-            self.on_log(
-                inspect.stack()[0][3],
-                e,
-                type(e),
-                sys.modules[__name__],
-            )
+            f = inspect.currentframe()
+            function = f.f_code.co_name
+            caller = f.f_back.f_code.co_name if f and f.f_back else "<top>"
+            self.on_log(function, e, type(e), sys.modules[__name__], caller)
             return None
 
     def dump_db(self):
+        """
+            Dump the whole SQLite DB using iterdump() into a timestamped .sql file.
+        """
         dt = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         filename = dt + ".sql"
         try:
-            with open(filename, 'w') as f:
-                if self.con:
+            if self.con is None:
+                # Log a warning (no active exception here)
+                frame = inspect.currentframe()
+                try:
+                    function = frame.f_code.co_name
+                    caller = frame.f_back.f_code.co_name if frame and frame.f_back else "<top>"
+                finally:
+                    del frame
+                self.on_log(function,
+                            "Database connection is not established. Cannot dump.",
+                            Warning,
+                            sys.modules[__name__],
+                            caller)
+                return False
+
+            with open(filename, "w", encoding="utf-8", errors="backslashreplace") as fh:
+                try:
+                    for line in self.con.iterdump():
+                        fh.write(f"{line}\n")
+                except Exception as e:
+                    frame = inspect.currentframe()
                     try:
-                        for line in self.con.iterdump():
-                            f.write('%s\n' % line)
-                    except lite.Error as db_err:
-                        self.on_log(
-                            inspect.stack()[0][3],
-                            db_err,
-                            type(db_err),
-                            sys.modules[__name__],
-                        )
-                        return False  # Indicate failure
-                    except Exception as e:
-                        self.on_log(
-                            inspect.stack()[0][3],
-                            e,
-                            type(e),
-                            sys.modules[__name__],
-                        )
-                        return False  # Indicate failure
-                    return True  # Indicate success
-                else:
-                    self.on_log(
-                        inspect.stack()[0][3],
-                        "Warning",
-                        "Database connection is not established. Cannot dump.",
-                        sys.modules[__name__],
-                    )
-                    return False  # Indicate failure
-        except IOError as io_err:
-            self.on_log(
-                inspect.stack()[0][3],
-                io_err,
-                type(io_err),
-                sys.modules[__name__],
-            )
-            return False  # Indicate failure
+                        function = frame.f_code.co_name
+                        caller = frame.f_back.f_code.co_name if frame and frame.f_back else "<top>"
+                    finally:
+                        del frame
+                    self.on_log(function, e, type(e), sys.modules[__name__], caller)
+                    return False
+
+            return True
+
         except Exception as e:
-            self.on_log(
-                inspect.stack()[0][3],
-                e,
-                type(e),
-                sys.modules[__name__],
-            )
-            return False  # Indicate failure
+            frame = inspect.currentframe()
+            try:
+                function = frame.f_code.co_name
+                caller = frame.f_back.f_code.co_name if frame and frame.f_back else "<top>"
+            finally:
+                del frame
+            self.on_log(function, e, type(e), sys.modules[__name__], caller)
+            return False
 
     
 def main():
 
     foo = DBMS("biovarase.db")
+    print(foo)
     print(foo.con)
 
 if __name__ == "__main__":

@@ -92,19 +92,45 @@ class Engine(DBMS, Controller, QC, Westgards, Exporter, Launcher, Tools):
             #print k,v
             self.log_user[k] = v
 
-    def on_log(self, function, exc_value, exc_type, module):
+    def on_log(self, function, exc_value, exc_type, module, caller=None):
+        """
+        Write on log.txt:
+        - timestamp
+        - Class.method (and caller if exist)
+        - Type: message
+        - module name
+        - traceback current exception
+        """
+        try:
+            
+            now = datetime.datetime.now().astimezone()
+            
+            ts = now.isoformat(sep=" ", timespec="seconds")
+            
+            module_name = getattr(module, "__name__", str(module))
+            
+            tb_text = traceback.format_exc()
 
-        now = datetime.datetime.now()
-        log_text = "{0}\n{1}\n{2}\n{3}\n{4}\n\n".format(now,
-                                                        function,
-                                                        exc_value,
-                                                        exc_type,
-                                                        module)
+            header = f"{ts}\n{type(self).__name__}.{function}"
+            
+            if caller:
+                header += f"  (caller: {caller})"
 
-        path = self.get_file("log.txt")
-        log_file = open(path, "a")
-        log_file.write(log_text)
-        log_file.close()
+            log_text = (
+                f"{header}\n"
+                f"{exc_type.__name__}: {exc_value}\n"
+                f"{module_name}\n"
+                f"{tb_text}\n"
+            )
+
+            path = self.get_file("log.txt")
+            #fh = file handle
+            with open(path, "a", encoding="utf-8", errors="backslashreplace") as fh:
+                fh.write(log_text)
+
+        except Exception:
+            # il logging non deve mai generare eccezioni
+            pass
 
 
     def set_ddof(self, value):
