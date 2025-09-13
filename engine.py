@@ -22,6 +22,8 @@ from westgards import Westgards
 from exporter import Exporter
 from launcher import Launcher
 
+APP_TITLE = "Biovarase"
+
 class Engine(DBMS, Controller, QC, Westgards, Exporter, Launcher, Tools):
     def __init__(self, db_name):
 
@@ -44,7 +46,8 @@ class Engine(DBMS, Controller, QC, Westgards, Exporter, Launcher, Tools):
         self.abort = "Operation aborted!"
         self.user_not_enable = "User not enabled for this function."
         self.batch_remembers = None
-        self.title = "Biovarase"
+        self.title = APP_TITLE
+        self.app_title = APP_TITLE
 
     def __str__(self):
         return "class: {0}\nMRO: {1}".format(self.__class__.__name__, [x.__name__ for x in Engine.__mro__])
