@@ -3,7 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   ver MMXXV
+# modify:   ver MMXXV (singleton + private helpers, keep set_batches alias)
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -11,38 +11,53 @@ from tkinter import messagebox
 import frames.load_tests_methods as load_tests_methods
 import frames.batch as batch
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
 STATUS_ACTIVE = 1
 
 
 class UI(tk.Toplevel):
-    def __init__(self, parent,):
+    """Single-instance window to manage Batches per workstation/test."""
+    _instance = None  # class-level singleton cache
+
+    def __new__(cls, parent):
+        if cls._instance is not None:
+            try:
+                if cls._instance.winfo_exists():
+                    return cls._instance
+            except Exception:
+                pass
+        obj = super().__new__(cls)
+        cls._instance = obj
+        return obj
+
+    def __init__(self, parent):
+        # Guard: skip re-init when reusing the same instance
+        if getattr(self, "_is_init", False):
+            self.parent = parent
+            return
+
         super().__init__(name="batches")
 
-        # Alias to the app engine (reduces repetition and eases testing/mocking)
+        # Engine alias
         self.engine = self.nametowidget(".").engine
 
         self.parent = parent
-        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
+        self.protocol("WM_DELETE_WINDOW", self._on_close)
         self.minsize(400, 600)
 
-        # Explicit state: helps IDEs and prevents "attribute appears out of nowhere"
+        # Explicit state
         self.obj = None
         self.selected_workstation = None
         self.selected_test_method = None
         self.selected_batch = None
         self.tests_method_assigned = []
 
-        self.init_ui()
+        self._init_ui()
         self.engine.center_window_relative_to_parent(self)
         self.engine.set_instance(self, 1)
 
-    def init_ui(self):
-        # --- Horizontal PanedWindow: 3 resizable panes (Sites | Tests | Batches)
-        # Note: ttk.Panedwindow here does not support "minsize" on this Tk build,
-        # so we use tk.PanedWindow instead.
+        self._is_init = True
+
+    def _init_ui(self):
         pw = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashwidth=6)
         pw.pack(fill=tk.BOTH, expand=1, padx=5, pady=5)
 
@@ -50,25 +65,21 @@ class UI(tk.Toplevel):
         pane_mid   = ttk.Frame(pw, style="App.TFrame")
         pane_right = ttk.Frame(pw, style="App.TFrame")
 
-        # Add panes with a minimum size (resizable via sash)
-        pw.add(pane_left,  minsize=160)   # left pane is resizable but not too narrow
+        pw.add(pane_left,  minsize=160)
         pw.add(pane_mid,   minsize=300)
         pw.add(pane_right, minsize=300)
 
-        # ---------- SITES (left) ----------
+        # ----- SITES (left)
         cols_sites = [
-            ["#0", "Sites", "w", True,  180, 220],  # stretch=True to adapt when pane resizes
+            ["#0", "Sites", "w", True,  180, 220],
             ["#1", "",      "w", True,    0,   0],
         ]
-        # get_tree already packs the Treeview and the Scrollbar into the container
         self.Sites = self.engine.get_tree(pane_left, cols_sites, show="tree headings")
-        # Hide all data columns (#1, #2, ...) and keep only the tree column #0 visible
         self.Sites["displaycolumns"] = ()
+        self.Sites.bind("<<TreeviewSelect>>", self._on_branch_selected)
+        self.Sites.bind("<Double-1>", self._on_branch_activated)
 
-        self.Sites.bind("<<TreeviewSelect>>", self.on_branch_selected)
-        self.Sites.bind("<Double-1>", self.on_branch_activated)
-
-        # ---------- TESTS (center) ----------
+        # ----- TESTS (center)
         frm_tests = ttk.Frame(pane_mid)
         w = tk.LabelFrame(frm_tests, text='Tests')
         cols_tests = (["#0", 'dict_test_id', 'w', False, 0, 0],
@@ -77,12 +88,12 @@ class UI(tk.Toplevel):
                       ["#3", 'Method', 'center', True, 50, 50],
                       ["#4", 'Unit', 'center', True, 50, 50],)
         self.lstTestsMethods = self.engine.get_tree(w, cols_tests)
-        self.lstTestsMethods.bind("<<TreeviewSelect>>", self.on_test_method_selected)
-        self.lstTestsMethods.bind("<Double-1>", self.on_test_method_activated)
+        self.lstTestsMethods.bind("<<TreeviewSelect>>", self._on_test_method_selected)
+        self.lstTestsMethods.bind("<Double-1>", self._on_test_method_activated)
         w.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         frm_tests.pack(fill=tk.BOTH, expand=1)
 
-        # ---------- BATCHES (right) ----------
+        # ----- BATCHES (right)
         frm_batches = ttk.Frame(pane_right)
         self.lblBatches = tk.LabelFrame(frm_batches, text='Batches')
         cols_batches = (["#0", 'batch_id', 'w', False, 0, 0],
@@ -93,23 +104,37 @@ class UI(tk.Toplevel):
                         ["#5", 'Target', 'center', True, 80, 80],)
         self.lstBatches = self.engine.get_tree(self.lblBatches, cols_batches)
         self.lstBatches.tag_configure('status', background=self.engine.get_rgb(211, 211, 211))
-        self.lstBatches.bind("<<TreeviewSelect>>", self.on_batch_selected)
-        self.lstBatches.bind("<Double-1>", self.on_batch_activated)
+        self.lstBatches.bind("<<TreeviewSelect>>", self._on_batch_selected)
+        self.lstBatches.bind("<Double-1>", self._on_batch_activated)
         self.lblBatches.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         frm_batches.pack(fill=tk.BOTH, expand=1)
 
-    def on_open(self,):
+    def on_open(self):
         msg = "{0} Management".format(self.winfo_name().title())
         self.title(msg)
-        self.set_values()
+        self._set_values()
 
-    def on_reset(self):
+    def on_add_batch(self, evt=None):
+        if self.lstTestsMethods.focus():
+            item_iid = self.lstTestsMethods.selection()
+            pk = int(item_iid[0])
+            selected_test_method = self.engine.get_selected("dict_tests", "dict_test_id", pk)
+            self.obj = batch.UI(self)
+            self.obj.on_open(selected_test_method, self.selected_workstation)
+        else:
+            messagebox.showwarning(self.nametowidget(".").title(),
+                                   "Please select a test.", parent=self)
+
+    def on_cancel(self, evt=None):
+        return self._on_close(evt)
+
+    def _on_reset(self):
         self.lstTestsMethods.delete(*self.lstTestsMethods.get_children())
         self.lstBatches.delete(*self.lstBatches.get_children())
         s = "{0} {1}".format("Batches", len(self.lstBatches.get_children()))
         self.lblBatches["text"] = s
 
-    def set_values(self):
+    def _set_values(self):
         if self.engine.log_user[5] == 0:
             sql = """
                 SELECT sites.supplier_id, suppliers.description
@@ -131,76 +156,34 @@ class UI(tk.Toplevel):
                   AND sites.status = 1
                 ORDER BY suppliers.description ASC;
             """
-            section_id = self.engine.get_section_id()
-            args = (section_id,)
+            args = (self.engine.get_section_id(),)
 
         rs = self.engine.read(True, sql, args)
 
         if self.engine.log_user[5] == 0:
-            for i in rs:
-                # root level → parent=""
-                sites = self.Sites.insert("", "end", text=i[1], values=(i[0], "sites"))
-
-                rs_hospitals = self.load_hospitals(i[0])
-                for hospital in (rs_hospitals or []):
-                    hospitals = self.Sites.insert(
-                        sites, "end",
-                        text=hospital[1],
-                        values=(hospital[0], "hospitals")
-                    )
-
-                    rs_labs = self.load_labs(hospital[0])
-                    for lab in (rs_labs or []):
-                        labs = self.Sites.insert(
-                            hospitals, "end",
-                            text=lab[1],
-                            values=(lab[0], "labs")
-                        )
-
-                        rs_sections = self.load_sections(lab[0])
-                        for section in (rs_sections or []):
-                            sections = self.Sites.insert(
-                                labs, "end",
-                                text=section[1],
-                                values=(section[0], "sections")
-                            )
-
-                            rs_workstations = self.load_workstations(section[0])
-                            for workstation in (rs_workstations or []):
-                                self.Sites.insert(
-                                    sections, "end",
-                                    text=workstation[1],
-                                    values=(workstation[0], "workstations")
-                                )
+            for sup_id, sup_desc in rs:
+                sites = self.Sites.insert("", "end", text=sup_desc, values=(sup_id, "sites"))
+                for hospital in (self._load_hospitals(sup_id) or []):
+                    hospitals = self.Sites.insert(sites, "end", text=hospital[1], values=(hospital[0], "hospitals"))
+                    for lab in (self._load_labs(hospital[0]) or []):
+                        labs = self.Sites.insert(hospitals, "end", text=lab[1], values=(lab[0], "labs"))
+                        for section in (self._load_sections(lab[0]) or []):
+                            sections = self.Sites.insert(labs, "end", text=section[1], values=(section[0], "sections"))
+                            for workstation in (self._load_workstations(section[0]) or []):
+                                self.Sites.insert(sections, "end", text=workstation[1],
+                                                  values=(workstation[0], "workstations"))
         else:
-            for i in rs:
-                sites = self.Sites.insert("", "end", text=i[1], values=(i[0], "sites"))
+            for site_id, sup_desc in rs:
+                sites = self.Sites.insert("", "end", text=sup_desc, values=(site_id, "sites"))
+                for lab in (self._load_labs(site_id) or []):
+                    labs = self.Sites.insert(sites, "end", text=lab[1], values=(lab[0], "labs"))
+                    for section in (self._load_sections(lab[0]) or []):
+                        sections = self.Sites.insert(labs, "end", text=section[1], values=(section[0], "sections"))
+                        for workstation in (self._load_workstations(section[0]) or []):
+                            self.Sites.insert(sections, "end", text=workstation[1],
+                                              values=(workstation[0], "workstations"))
 
-                rs_labs = self.load_labs(i[0])
-                for lab in (rs_labs or []):
-                    labs = self.Sites.insert(
-                        sites, "end",
-                        text=lab[1],
-                        values=(lab[0], "labs")
-                    )
-
-                    rs_sections = self.load_sections(lab[0])
-                    for section in (rs_sections or []):
-                        sections = self.Sites.insert(
-                            labs, "end",
-                            text=section[1],
-                            values=(section[0], "sections")
-                        )
-
-                        rs_workstations = self.load_workstations(section[0])
-                        for workstation in (rs_workstations or []):
-                            self.Sites.insert(
-                                sections, "end",
-                                text=workstation[1],
-                                values=(workstation[0], "workstations")
-                            )
-
-    def load_hospitals(self, i):
+    def _load_hospitals(self, supplier_id):
         sql = """
             SELECT sites.site_id, suppliers.description
             FROM sites
@@ -208,9 +191,9 @@ class UI(tk.Toplevel):
             WHERE sites.supplier_id = ?
               AND sites.status = 1;
         """
-        return self.engine.read(True, sql, (i,))
+        return self.engine.read(True, sql, (supplier_id,))
 
-    def load_labs(self, site_id):
+    def _load_labs(self, site_id):
         sql = """
             SELECT lab_id, lab
             FROM labs
@@ -220,7 +203,7 @@ class UI(tk.Toplevel):
         """
         return self.engine.read(True, sql, (site_id,))
 
-    def load_sections(self, lab_id):
+    def _load_sections(self, lab_id):
         sql = """
             SELECT section_id, section
             FROM sections
@@ -230,7 +213,7 @@ class UI(tk.Toplevel):
         """
         return self.engine.read(True, sql, (lab_id,))
 
-    def load_workstations(self, section_id):
+    def _load_workstations(self, section_id):
         sql = """
             SELECT workstation_id, description
             FROM workstations
@@ -240,33 +223,9 @@ class UI(tk.Toplevel):
         """
         return self.engine.read(True, sql, (section_id,))
 
-    def on_branch_selected(self, evt=None):
-        s = self.Sites.focus()
-        if not s:
-            return
-        d = self.Sites.item(s)
-        if d.get("values") and len(d["values"]) >= 2:
-            if d["values"][1] == "workstations":
-                pk = d["values"][0]
-                self.selected_workstation = self.engine.get_selected("workstations", "workstation_id", pk)
-                args = (self.selected_workstation[0],)
-                self.set_tests_methods(args)
-
-    def on_branch_activated(self, evt=None):
-        s = self.Sites.focus()
-        if not s:
-            return
-        d = self.Sites.item(s)
-        if d.get("values") and len(d["values"]) >= 2:
-            if d["values"][1] == "workstations":
-                pk = d["values"][0]
-                self.selected_workstation = self.engine.get_selected("workstations", "workstation_id", pk)
-                self.obj = load_tests_methods.UI(self)
-                self.obj.on_open(self.selected_workstation, self.tests_method_assigned)
-
-    def set_tests_methods(self, args):
+    def _set_tests_methods(self, args):
         self.tests_method_assigned = []
-        self.on_reset()
+        self._on_reset()
 
         sql = """
             SELECT dict_tests.dict_test_id,
@@ -284,13 +243,12 @@ class UI(tk.Toplevel):
             INNER JOIN dict_workstations ON dict_tests.dict_test_id = dict_workstations.dict_test_id
             INNER JOIN workstations ON dict_workstations.workstation_id = workstations.workstation_id
             WHERE dict_workstations.workstation_id = ?
-            AND tests.status = 1
-            AND dict_tests.status = 1
+              AND tests.status = 1
+              AND dict_tests.status = 1
             ORDER BY tests.description;
         """
 
         rs = self.engine.read(True, sql, args)
-
         if rs:
             for i in rs:
                 self.tests_method_assigned.append(i[0])
@@ -301,8 +259,7 @@ class UI(tk.Toplevel):
                     tags=tag_config
                 )
 
-    def set_batches(self):
-        # Simple and fast cleanup
+    def _set_batches(self):
         self.lstBatches.delete(*self.lstBatches.get_children())
 
         sql = """
@@ -337,24 +294,50 @@ class UI(tk.Toplevel):
         s = "{0} {1}".format("Batches", len(self.lstBatches.get_children()))
         self.lblBatches["text"] = s
 
-    def on_test_method_selected(self, evt=None):
+    # Public alias kept for compatibility (e.g., batch dialog calls this)
+    def set_batches(self):
+        return self._set_batches()
+
+    # ------------------------------------------------------------- EVENTS ----
+    def _on_branch_selected(self, evt=None):
+        s = self.Sites.focus()
+        if not s:
+            return
+        d = self.Sites.item(s)
+        if d.get("values") and len(d["values"]) >= 2 and d["values"][1] == "workstations":
+            pk = d["values"][0]
+            self.selected_workstation = self.engine.get_selected("workstations", "workstation_id", pk)
+            self._set_tests_methods((self.selected_workstation[0],))
+
+    def _on_branch_activated(self, evt=None):
+        s = self.Sites.focus()
+        if not s:
+            return
+        d = self.Sites.item(s)
+        if d.get("values") and len(d["values"]) >= 2 and d["values"][1] == "workstations":
+            pk = d["values"][0]
+            self.selected_workstation = self.engine.get_selected("workstations", "workstation_id", pk)
+            self.obj = load_tests_methods.UI(self)
+            self.obj.on_open(self.selected_workstation, self.tests_method_assigned)
+
+    def _on_test_method_selected(self, evt=None):
         item_iid = self.lstTestsMethods.selection()
         if item_iid:
             pk = int(item_iid[0])
             self.selected_test_method = self.engine.get_selected("dict_tests", "dict_test_id", pk)
-            self.set_batches()
+            self._set_batches()
 
-    def on_test_method_activated(self, evt=None):
+    def _on_test_method_activated(self, evt=None):
         if self.lstTestsMethods.focus():
             self.on_add_batch()
 
-    def on_batch_selected(self, evt=None):
+    def _on_batch_selected(self, evt=None):
         item_iid = self.lstBatches.selection()
         if item_iid:
             pk = int(item_iid[0])
             self.selected_batch = self.engine.get_selected("batches", "batch_id", pk)
 
-    def on_batch_activated(self, evt):
+    def _on_batch_activated(self, evt=None):
         sel_batch = self.lstBatches.selection()
         sel_test  = self.lstTestsMethods.selection()
         if not sel_batch or not sel_test:
@@ -364,19 +347,12 @@ class UI(tk.Toplevel):
         selected_test_method = self.engine.get_selected("dict_tests", "dict_test_id", pk)
         self.obj.on_open(selected_test_method, self.selected_workstation, self.selected_batch)
 
-    def on_add_batch(self, evt=None):
-        if self.lstTestsMethods.focus():
-            item_iid = self.lstTestsMethods.selection()
-            pk = int(item_iid[0])
-            selected_test_method = self.engine.get_selected("dict_tests", "dict_test_id", pk)
-            self.obj = batch.UI(self)
-            self.obj.on_open(selected_test_method, self.selected_workstation,)
-        else:
-            msg = "Please select a test."
-            messagebox.showwarning(self.nametowidget(".").title(), msg, parent=self)
-
-    def on_cancel(self, evt=None):
-        if self.obj is not None:
-            self.obj.destroy()
+    def _on_close(self, evt=None):
+        try:
+            if self.obj is not None and self.obj.winfo_exists():
+                self.obj.destroy()
+        except Exception:
+            pass
         self.engine.set_instance(self, 0)
-        self.destroy()
+        type(self)._instance = None
+        super().destroy()

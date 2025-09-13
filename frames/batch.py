@@ -3,7 +3,7 @@
 # project:  biovarase
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   ver MMXXV (refactor with engine alias, readonly combobox, EN comments)
+# modify:   ver MMXXV (singleton, private helpers, on_save -> _on_save)
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -12,14 +12,41 @@ from calendarium import Calendarium
 
 
 class UI(tk.Toplevel):
+    """
+    Single-instance editor dialog for one 'Batch' row.
+
+    Singleton design:
+    - __new__ reuses the existing instance if alive; otherwise creates a new object.
+    - __init__ is guarded by _is_init to avoid rebuilding UI on reuse.
+    - _on_close() clears the singleton so the dialog can be created again.
+    """
+    _instance = None  # class-level singleton cache
+
+    def __new__(cls, parent, index=None):
+        if cls._instance is not None:
+            try:
+                if cls._instance.winfo_exists():
+                    return cls._instance
+            except Exception:
+                pass
+        obj = super().__new__(cls)
+        cls._instance = obj
+        return obj
+
     def __init__(self, parent, index=None):
+        # Reuse path: keep parent/index up to date and skip rebuild
+        if getattr(self, "_is_init", False):
+            self.parent = parent
+            self.index = index
+            return
+
         super().__init__(name="batch")
 
         # Parent + optional selected row id (when editing)
         self.parent = parent
         self.index = index
 
-        # Alias to the app engine (reduces repetition and eases testing/mocking)
+        # Alias to the app engine
         self.engine = self.nametowidget(".").engine
 
         # Window behavior
@@ -33,15 +60,13 @@ class UI(tk.Toplevel):
         # Enforce max lengths as you type (delegated to engine)
         self.lot_number.trace(
             "w",
-            lambda x, y, z, c=self.engine.get_lot_length(), v=self.lot_number: self.engine.limit_chars(
-                c, v, x, y, z
-            ),
+            lambda x, y, z, c=self.engine.get_lot_length(), v=self.lot_number:
+                self.engine.limit_chars(c, v, x, y, z),
         )
         self.description.trace(
             "w",
-            lambda x, y, z, c=self.engine.get_batch_length(), v=self.description: self.engine.limit_chars(
-                c, v, x, y, z
-            ),
+            lambda x, y, z, c=self.engine.get_batch_length(), v=self.description:
+                self.engine.limit_chars(c, v, x, y, z),
         )
 
         self.target = tk.DoubleVar()
@@ -58,22 +83,28 @@ class UI(tk.Toplevel):
         self.vcmd_int = self.engine.get_validate_integer(self)
 
         # Auto-compute SD when lower/upper change (only if 'Computed' selected)
-        self.lower.trace("w", lambda *args: self.on_compute_sd())
-        self.upper.trace("w", lambda *args: self.on_compute_sd())
+        self.lower.trace("w", lambda *args: self._on_compute_sd())
+        self.upper.trace("w", lambda *args: self._on_compute_sd())
 
         # Basic grid
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
 
-        self.init_ui()
+        # Intercept WM close to clear singleton
+        self.protocol("WM_DELETE_WINDOW", self._on_close)
+
+        self._init_ui()
         self.engine.center_window_on_screen(self)
         self.engine.set_instance(self, 1)
+
+        # Mark as initialized so subsequent __init__ calls (on reuse) are no-ops
+        self._is_init = True
 
     # -------------------------------------------------------------------------
     # UI construction
     # -------------------------------------------------------------------------
-    def init_ui(self):
+    def _init_ui(self):
         paddings = {"padx": 5, "pady": 5}
 
         self.frm_main = ttk.Frame(self, style="App.TFrame", padding=8)
@@ -185,16 +216,18 @@ class UI(tk.Toplevel):
         r = 0
         c = 0
         btn = ttk.Button(
-            frm_buttons, style="App.TButton", text="Save", underline=0, command=self.on_save
+            frm_buttons, style="App.TButton", text="Save", underline=0, command=self._on_save
         )
-        self.bind("<Alt-s>", self.on_save)
+        self.bind("<Alt-s>", self._on_save)
+        self.bind("<Return>", self._on_save)
         btn.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
         btn = ttk.Button(
-            frm_buttons, style="App.TButton", text="Cancel", underline=0, command=self.on_cancel
+            frm_buttons, style="App.TButton", text="Cancel", underline=0, command=self._on_close
         )
-        self.bind("<Alt-c>", self.on_cancel)
+        self.bind("<Alt-c>", self._on_close)
+        self.bind("<Escape>", self._on_close)
         btn.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
@@ -217,7 +250,7 @@ class UI(tk.Toplevel):
                 style="App.TRadiobutton",
                 text=text,
                 variable=self.to_compute,
-                command=self.on_set_compute,
+                command=self._on_set_compute,
                 value=idx,
             ).grid(row=r + idx, column=c, sticky=tk.EW, **paddings)
 
@@ -225,6 +258,12 @@ class UI(tk.Toplevel):
     # Lifecycle / data population
     # -------------------------------------------------------------------------
     def on_open(self, selected_test_method, selected_workstation, selected_batch=None):
+        # Ensure the dialog follows the current parent when reusing the singleton
+        try:
+            self.transient(self.parent)
+        except Exception:
+            pass
+
         # Needed to filter selectable workstations
         self.workstation_section_id = selected_workstation[5]
 
@@ -232,9 +271,9 @@ class UI(tk.Toplevel):
         self.set_remeber_batch_data.set(self.engine.get_remeber_batch_data())
 
         # Fill combos and select workstation
-        self.set_controls()
-        self.set_workstations()
-        self.set_workstation(selected_workstation)
+        self._set_controls()
+        self._set_workstations()
+        self._set_workstation(selected_workstation)
 
         # Load current test & dict_test
         sql = "SELECT * FROM tests WHERE test_id = ?;"
@@ -248,7 +287,7 @@ class UI(tk.Toplevel):
             msg = "Update {0} {1} for {2}".format(
                 self.winfo_name().capitalize(), self.selected_batch[4], self.selected_test[1]
             )
-            self.set_values()
+            self._set_values()
             self.cbControls.focus()
         else:
             # Creating a new batch
@@ -258,7 +297,8 @@ class UI(tk.Toplevel):
                 # Reapply last remembered values (defensive access to indexes)
                 try:
                     key = next(
-                        key for key, value in self.dict_controls.items() if value == self.engine.batch_remembers[0]
+                        key for key, value in self.dict_controls.items()
+                        if value == self.engine.batch_remembers[0]
                     )
                     self.cbControls.current(key)
                 except Exception:
@@ -278,11 +318,11 @@ class UI(tk.Toplevel):
             self.cbControls.focus()
             self.status.set(1)
             self.to_compute.set(1)  # default to 'Computed' SD
-            self.on_set_compute()
+            self._on_set_compute()
 
         self.title(msg)
 
-    def set_controls(self):
+    def _set_controls(self):
         """Load active controls into the Control combobox."""
         index = 0
         self.dict_controls = {}
@@ -298,7 +338,7 @@ class UI(tk.Toplevel):
 
         self.cbControls["values"] = values
 
-    def set_workstations(self):
+    def _set_workstations(self):
         """Load active workstations for the current section into the Workstations combobox."""
         index = 0
         self.dict_workstations = {}
@@ -323,26 +363,35 @@ class UI(tk.Toplevel):
 
         self.cbWorkstations["values"] = voices
 
-    def set_workstation(self, selected_workstation):
+    def _set_workstation(self, selected_workstation):
         """Select the workstation in the combobox based on the passed record."""
         try:
-            key = next(key for key, value in self.dict_workstations.items() if value == selected_workstation[0])
+            key = next(
+                key for key, value in self.dict_workstations.items()
+                if value == selected_workstation[0]
+            )
             self.cbWorkstations.current(key)
         except Exception:
             pass
 
-    def set_values(self):
+    def _set_values(self):
         """Populate widgets with the currently selected batch values (edit mode)."""
         # Control
         try:
-            key = next(key for key, value in self.dict_controls.items() if value == self.selected_batch[1])
+            key = next(
+                key for key, value in self.dict_controls.items()
+                if value == self.selected_batch[1]
+            )
             self.cbControls.current(key)
         except Exception:
             pass
 
         # Workstation
         try:
-            key = next(key for key, value in self.dict_workstations.items() if value == self.selected_batch[3])
+            key = next(
+                key for key, value in self.dict_workstations.items()
+                if value == self.selected_batch[3]
+            )
             self.cbWorkstations.current(key)
         except Exception:
             pass
@@ -370,11 +419,11 @@ class UI(tk.Toplevel):
     # -------------------------------------------------------------------------
     # Helpers / validation
     # -------------------------------------------------------------------------
-    def get_values(self):
+    def _get_values(self):
         """Collect values for INSERT/UPDATE. Keep order consistent with table schema."""
         return [
-            self.dict_controls.get(self.cbControls.current()),    # control_id
-            self.selected_test_method[0],                         # dict_test_id
+            self.dict_controls.get(self.cbControls.current()),          # control_id
+            self.selected_test_method[0],                               # dict_test_id
             self.dict_workstations.get(self.cbWorkstations.current()),  # workstation_id
             self.lot_number.get(),
             self.expiration_date.get_date(self),
@@ -390,7 +439,7 @@ class UI(tk.Toplevel):
             self.engine.get_log_ip(),
         ]
 
-    def on_set_compute(self):
+    def _on_set_compute(self):
         """Enable/disable Lower/Upper fields based on SD mode."""
         if self.to_compute.get() == 0:
             self.txtLower.config(state=tk.DISABLED)
@@ -398,9 +447,9 @@ class UI(tk.Toplevel):
         else:
             self.txtLower.config(state=tk.NORMAL)
             self.txtUpper.config(state=tk.NORMAL)
-        self.on_compute_sd()  # refresh SD
+        self._on_compute_sd()  # refresh SD
 
-    def on_compute_sd(self):
+    def _on_compute_sd(self):
         """Recompute SD when in 'Computed' mode: SD = (Upper - Lower) / 3 (rounded to 2)."""
         if self.to_compute.get() != 1:
             return
@@ -413,27 +462,28 @@ class UI(tk.Toplevel):
             # Ignore partial/invalid inputs while typing
             pass
 
-    def on_check_lower_upper(self):
+    def _check_lower_upper(self):
         """Basic semantic check: Lower must not exceed Upper when computing SD."""
         if self.to_compute.get() == 1 and self.lower.get() > self.upper.get():
             msg = "The lower result is greater than the upper result.\nImpossible to compute SD."
-            messagebox.showwarning(self.engine.title, msg, parent=self)
+            messagebox.showwarning(self.engine.app_title, msg, parent=self)
             return False
         return True
 
     # -------------------------------------------------------------------------
     # Persistence
     # -------------------------------------------------------------------------
-    def on_save(self, evt=None):
-        # Let the engine validate required fields in the form
-        if self.engine.on_fields_control(self.frm_main, self.engine.title) is False:
+    def _on_save(self, evt=None):
+        # Validate required fields in the form
+        if self.engine.on_fields_control(self.frm_main, self.engine.app_title) is False:
             return
-        if self.on_check_lower_upper() is False:
+        if self._check_lower_upper() is False:
             return
         if self.expiration_date.get_date(self) is False:
             return
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) is True:
-            args = self.get_values()
+
+        if messagebox.askyesno(self.engine.app_title, self.engine.ask_to_save, parent=self) is True:
+            args = self._get_values()
 
             if self.index is not None:
                 # UPDATE
@@ -450,52 +500,70 @@ class UI(tk.Toplevel):
             self.nametowidget(".main").set_batches()
 
             # Persist "remember" preference (+ optionally the last data)
-            self.update_remeber_batch_data()
+            self._update_remeber_batch_data()
 
             # Restore selection on the saved item
-            self.set_index(last_id)
+            self._set_index(last_id)
 
             # Close dialog
-            self.on_cancel()
+            self._on_close()
 
-    def update_remeber_batch_data(self):
+    def _update_remeber_batch_data(self):
         """Store the 'remember' flag and optionally the last entered values in the engine."""
         remember = 1 if self.set_remeber_batch_data.get() else 0
         self.engine.set_remeber_batch_data(remember)
         if remember == 1:
-            self.engine.batch_remembers = self.get_values()
+            self.engine.batch_remembers = self._get_values()
         else:
             self.engine.batch_remembers = None
 
-    def set_index(self, last_id):
-        """Select the saved/updated row in both the child and main Treeviews."""
-        idx = self.index if self.index is not None else last_id
+    def _set_index(self, last_id):
+        """
+        Select the saved/updated row in both the child and main Listboxes.
+        Works by finding the index whose pk matches the saved batch_id.
+        """
+        # Determine target DB id
+        target_id = self.selected_batch[0] if self.index is not None else last_id
 
-        # Child list (right pane in Batches window)
-        self.parent.lstBatches.focus()
-        self.parent.lstBatches.see(idx)
-        self.parent.lstBatches.selection_set(idx)
-        self.parent.lstBatches.event_generate("<<TreeviewSelect>>")
+        # Child list (Batches window)
+        try:
+            if getattr(self.parent, "dict_batchs", None):
+                # find listbox index by batch_id
+                idxs = [i for i, bid in self.parent.dict_batchs.items() if bid == target_id]
+                if idxs:
+                    i = idxs[0]
+                    self.parent.lstBatches.focus()
+                    self.parent.lstBatches.see(i)
+                    self.parent.lstBatches.selection_set(i)
+                    self.parent.lstBatches.event_generate("<<ListboxSelect>>")
+        except Exception:
+            pass
 
-        # Main window (always available by design)
-        main_window = self.nametowidget(".main")
+        # Main window listbox
+        try:
+            main_window = self.nametowidget(".main")
+            if getattr(main_window, "dict_batchs", None):
+                idxs = [i for i, bid in main_window.dict_batchs.items() if bid == target_id]
+                if idxs:
+                    i = idxs[0]
+                    main_window.lstBatches.selection_set(i)
+                    main_window.lstBatches.see(i)
+                    main_window.lstBatches.event_generate("<<ListboxSelect>>")
+        except Exception:
+            pass
 
-        # If the mapping exists, synchronize the selection in the main window
-        if getattr(main_window, "dict_batchs", None):
-            target_id = self.selected_batch[0] if self.index is not None else last_id
-            # trova il primo iid il cui valore corrisponde al batch salvato
-            for iid, batch_id in main_window.dict_batchs.items():
-                if batch_id == target_id:
-                    main_window.lstBatches.selection_set(iid)
-                    main_window.lstBatches.see(iid)
-                    main_window.lstBatches.event_generate("<<TreeviewSelect>>")
-                    break
-
+    # -------------------------------------------------------------------------
+    # Closing
+    # -------------------------------------------------------------------------
     def on_cancel(self, evt=None):
-        """Close the window and persist 'remember' flag."""
-        self.engine.set_instance(self, 0)
+        """Public alias kept for external callers; forwards to _on_close()."""
+        return self._on_close(evt)
 
-        remember = 1 if self.set_remeber_batch_data.get() else 0
-        self.engine.set_remeber_batch_data(remember)
-
-        self.destroy()
+    def _on_close(self, evt=None):
+        """Single source of truth for closing: clear singleton and destroy."""
+        try:
+            self.engine.set_instance(self, 0)
+        except Exception:
+            pass
+        type(self)._instance = None
+        super().destroy()
